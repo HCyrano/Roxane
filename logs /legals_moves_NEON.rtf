@@ -1,0 +1,161 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2818
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red28\green0\blue207;
+\red93\green108\blue121;}
+{\*\expandedcolortbl;;\csgenericrgb\c0\c0\c0\c85000;\csgenericrgb\c100000\c100000\c100000;\csgenericrgb\c11000\c0\c81000;
+\csgenericrgb\c36526\c42188\c47515;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab593
+\pard\tx593\pardeftab593\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 	.section	__TEXT,__literal16,\cf4 16\cf2 byte_literals\
+	.p2align	\cf4 4\cf2 , \cf4 0x0\cf2                           ; -- Begin function _ZN10RXBitBoard15get_legal_movesEyy\
+lCPI2_\cf4 0\cf2 :\
+	.quad	\cf4 -1\cf2                               ; \cf4 0xffffffffffffffff\cf2 \
+	.quad	\cf4 1\cf2                                ; \cf4 0x1\cf2 \
+lCPI2_\cf4 1\cf2 :\
+	.quad	\cf4 -7\cf2                               ; \cf4 0xfffffffffffffff9\cf2 \
+	.quad	\cf4 7\cf2                                ; \cf4 0x7\cf2 \
+lCPI2_\cf4 2\cf2 :\
+	.quad	\cf4 -9\cf2                               ; \cf4 0xfffffffffffffff7\cf2 \
+	.quad	\cf4 9\cf2                                ; \cf4 0x9\cf2 \
+lCPI2_\cf4 3\cf2 :\
+	.quad	\cf4 -8\cf2                               ; \cf4 0xfffffffffffffff8\cf2 \
+	.quad	\cf4 8\cf2                                ; \cf4 0x8\cf2 \
+lCPI2_\cf4 4\cf2 :\
+	.quad	\cf4 -2\cf2                               ; \cf4 0xfffffffffffffffe\cf2 \
+	.quad	\cf4 2\cf2                                ; \cf4 0x2\cf2 \
+lCPI2_\cf4 5\cf2 :\
+	.quad	\cf4 -16\cf2                              ; \cf4 0xfffffffffffffff0\cf2 \
+	.quad	\cf4 16\cf2                               ; \cf4 0x10\cf2 \
+lCPI2_\cf4 6\cf2 :\
+	.quad	\cf4 -14\cf2                              ; \cf4 0xfffffffffffffff2\cf2 \
+	.quad	\cf4 14\cf2                               ; \cf4 0xe\cf2 \
+lCPI2_\cf4 7\cf2 :\
+	.quad	\cf4 -18\cf2                              ; \cf4 0xffffffffffffffee\cf2 \
+	.quad	\cf4 18\cf2                               ; \cf4 0x12\cf2 \
+	.section	__TEXT,__text,regular,pure_instructions\
+	.globl	__ZN10RXBitBoard15get_legal_movesEyy\
+	.p2align	\cf4 2\cf2 \
+__ZN10RXBitBoard15get_legal_movesEyy:   ; @_ZN10RXBitBoard15get_legal_movesEyy\
+	.cfi_startproc\
+; %bb\cf4 .0\cf2 :\
+	dup\cf4 .2\cf2 d	v1, x0\
+	dup\cf4 .2\cf2 d	v2, x1\
+	and	x8, x1, \cf5 #0x7e7e7e7e7e7e7e7e\cf2 \
+	dup\cf4 .2\cf2 d	v3, x8\
+Lloh20:\
+	adrp	x8, lCPI2_\cf4 0\cf2 @PAGE\
+Lloh21:\
+	ldr	q0, [x8, lCPI2_\cf4 0\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v4, v1, v0\
+	and\cf4 .16\cf2 b	v5, v4, v3\
+Lloh22:\
+	adrp	x8, lCPI2_\cf4 1\cf2 @PAGE\
+Lloh23:\
+	ldr	q6, [x8, lCPI2_\cf4 1\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v7, v1, v6\
+	and\cf4 .16\cf2 b	v16, v7, v3\
+Lloh24:\
+	adrp	x8, lCPI2_\cf4 2\cf2 @PAGE\
+Lloh25:\
+	ldr	q17, [x8, lCPI2_\cf4 2\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v18, v1, v17\
+	and\cf4 .16\cf2 b	v19, v18, v3\
+Lloh26:\
+	adrp	x8, lCPI2_\cf4 3\cf2 @PAGE\
+Lloh27:\
+	ldr	q20, [x8, lCPI2_\cf4 3\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v1, v1, v20\
+	and\cf4 .16\cf2 b	v21, v1, v2\
+	ushl\cf4 .2\cf2 d	v5, v5, v0\
+	orr\cf4 .16\cf2 b	v4, v5, v4\
+	and\cf4 .16\cf2 b	v4, v4, v3\
+	ushl\cf4 .2\cf2 d	v5, v16, v6\
+	orr\cf4 .16\cf2 b	v5, v5, v7\
+	and\cf4 .16\cf2 b	v5, v5, v3\
+	ushl\cf4 .2\cf2 d	v7, v19, v17\
+	orr\cf4 .16\cf2 b	v7, v7, v18\
+	and\cf4 .16\cf2 b	v7, v7, v3\
+	ushl\cf4 .2\cf2 d	v16, v21, v20\
+	orr\cf4 .16\cf2 b	v1, v16, v1\
+	and\cf4 .16\cf2 b	v1, v1, v2\
+	ushl\cf4 .2\cf2 d	v16, v3, v0\
+	and\cf4 .16\cf2 b	v16, v16, v3\
+	ushl\cf4 .2\cf2 d	v18, v3, v6\
+	and\cf4 .16\cf2 b	v18, v18, v3\
+	ushl\cf4 .2\cf2 d	v19, v3, v17\
+	and\cf4 .16\cf2 b	v3, v19, v3\
+	ushl\cf4 .2\cf2 d	v19, v2, v20\
+	and\cf4 .16\cf2 b	v2, v19, v2\
+Lloh28:\
+	adrp	x8, lCPI2_\cf4 4\cf2 @PAGE\
+Lloh29:\
+	ldr	q19, [x8, lCPI2_\cf4 4\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v21, v4, v19\
+	and\cf4 .16\cf2 b	v21, v21, v16\
+	orr\cf4 .16\cf2 b	v4, v21, v4\
+Lloh30:\
+	adrp	x8, lCPI2_\cf4 5\cf2 @PAGE\
+Lloh31:\
+	ldr	q21, [x8, lCPI2_\cf4 5\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v22, v1, v21\
+	and\cf4 .16\cf2 b	v22, v22, v2\
+	orr\cf4 .16\cf2 b	v1, v22, v1\
+Lloh32:\
+	adrp	x8, lCPI2_\cf4 6\cf2 @PAGE\
+Lloh33:\
+	ldr	q22, [x8, lCPI2_\cf4 6\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v23, v5, v22\
+	and\cf4 .16\cf2 b	v23, v23, v18\
+	orr\cf4 .16\cf2 b	v5, v23, v5\
+Lloh34:\
+	adrp	x8, lCPI2_\cf4 7\cf2 @PAGE\
+Lloh35:\
+	ldr	q23, [x8, lCPI2_\cf4 7\cf2 @PAGEOFF]\
+	ushl\cf4 .2\cf2 d	v24, v7, v23\
+	and\cf4 .16\cf2 b	v24, v24, v3\
+	orr\cf4 .16\cf2 b	v7, v24, v7\
+	ushl\cf4 .2\cf2 d	v19, v4, v19\
+	and\cf4 .16\cf2 b	v16, v19, v16\
+	orr\cf4 .16\cf2 b	v4, v16, v4\
+	ushl\cf4 .2\cf2 d	v16, v1, v21\
+	and\cf4 .16\cf2 b	v2, v16, v2\
+	orr\cf4 .16\cf2 b	v1, v2, v1\
+	ushl\cf4 .2\cf2 d	v2, v5, v22\
+	and\cf4 .16\cf2 b	v2, v2, v18\
+	orr\cf4 .16\cf2 b	v2, v2, v5\
+	ushl\cf4 .2\cf2 d	v5, v7, v23\
+	and\cf4 .16\cf2 b	v3, v5, v3\
+	orr\cf4 .16\cf2 b	v3, v3, v7\
+	ushl\cf4 .2\cf2 d	v3, v3, v17\
+	ushl\cf4 .2\cf2 d	v2, v2, v6\
+	ushl\cf4 .2\cf2 d	v0, v4, v0\
+	ushl\cf4 .2\cf2 d	v1, v1, v20\
+	orr\cf4 .16\cf2 b	v2, v2, v3\
+	orr\cf4 .16\cf2 b	v0, v0, v1\
+	orr\cf4 .16\cf2 b	v0, v2, v0\
+	dup\cf4 .2\cf2 d	v1, v0[\cf4 1\cf2 ]\
+	orr\cf4 .16\cf2 b	v0, v0, v1\
+	fmov	x8, d0\
+	orr	x9, x1, x0\
+	bic	x0, x8, x9\
+	ret\
+	.loh AdrpLdr	Lloh34, Lloh35\
+	.loh AdrpAdrp	Lloh32, Lloh34\
+	.loh AdrpLdr	Lloh32, Lloh33\
+	.loh AdrpAdrp	Lloh30, Lloh32\
+	.loh AdrpLdr	Lloh30, Lloh31\
+	.loh AdrpAdrp	Lloh28, Lloh30\
+	.loh AdrpLdr	Lloh28, Lloh29\
+	.loh AdrpAdrp	Lloh26, Lloh28\
+	.loh AdrpLdr	Lloh26, Lloh27\
+	.loh AdrpAdrp	Lloh24, Lloh26\
+	.loh AdrpLdr	Lloh24, Lloh25\
+	.loh AdrpAdrp	Lloh22, Lloh24\
+	.loh AdrpLdr	Lloh22, Lloh23\
+	.loh AdrpAdrp	Lloh20, Lloh22\
+	.loh AdrpLdr	Lloh20, Lloh21\
+	.cfi_endproc\
+                                        ; -- End function\
+}

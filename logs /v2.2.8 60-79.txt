@@ -1,0 +1,1553 @@
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . O O O O . 1
+2 . . . O O O . . 2
+3 . . # O # O # # 3
+4 . . # O O # # # 4	Noirs: 23	Blancs: 17
+5 . . # O O # # # 5	NOIRS au trait
+6 . . # O O O # # 6
+7 . . O # # # . # 7
+8 . . # # # # . . 8
+  A B C D E F G H 
+
+Evaluation : -1
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |   +8  | C2 b7 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             183 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |   +4  | C2 b4 C1 b1 -- -- -- -- -- -- -- -- | 00:00:00.00 |             542 |      N/A |
+                  time level : 1
+                  time next level : 0
+  6@72  |   +5  | B8 b6 B4 b5 B3 c2 -- -- -- -- -- -- | 00:00:00.00 |           3 391 |      N/A |
+                  time level : 0
+                  time next level : 0
+  8@72  |   +6  | B8 b6 B5 b3 B4 a6 A4 a3 -- -- -- -- | 00:00:00.00 |           8 187 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |   +8  | B8 b6 B5 b3 B4 a3 A4 a5 C1 b1 -- -- | 00:00:00.00 |          12 111 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 12@72  |   +9  | B8 b6 B5 b3 B4 a3 A5 a7 A4 a6 C2 b2 | 00:00:00.00 |          27 105 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 14@72  |   +8  | B8 b5 B6 a6 C2 c1 B4 a3 B3 b2 A5 a4 | 00:00:00.00 |         125 751 |      N/A |
+                  time level : 4
+                  depth 14 to @60
+                  time next level : 36
+ 24@84  |  +18  | B8 b4 G2 h2 H1 g7 C2 c1 A4 b5 A5 b3 | 00:00:00.07 |      11 464 424 |  168 594 |
+                  time level : 68
+                  confidence 84 to 91
+                  time next level : 340
+ 24@91  |  +18  | B8 b4 G2 h2 H1 g7 C2 c1 A4 b5 A5 b3 | 00:00:00.08 |         160 229 |      N/A |
+                  time level : 3
+                  confidence 91 to 95
+                  time next level : 15
+ 24@95  |  +18  | B8 b4 G2 h2 H1 g7 C2 c1 A4 b5 A5 b3 | 00:00:00.08 |         388 890 |   64 815 |
+                  time level : 6
+                  confidence 95 to 98
+                  time next level : 42
+ 24@98  |  +18  | B8 b4 G2 h2 H1 g7 C2 c1 A4 b5 A5 b3 | 00:00:00.11 |       5 785 251 |  192 841 |
+                  time level : 30
+                  confidence 98 to 100
+                  time next level : 330
+ 24     |  +20  | C2 b4 A4 b5 B8 b6 B3 c1 B2 a1 A5 a6 | 00:00:00.26 |      37 953 123 |  261 745 |
+                  time level : 145
+                  confidence 100 to 100
+                  time next level : 1595
+I play C2
+evaluation 20
+time 00:00:00.26
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . # # # # . . . 1
+2 # . # # O # . . 2
+3 # # # # O # # . 3
+4 # O O # O O O O 4	Noirs: 20	Blancs: 19
+5 # O O O O O O . 5	BLANCS au trait
+6 # # O O O O . . 6
+7 # . . . O . . . 7
+8 . . . . . . . . 8
+  A B C D E F G H 
+
+Evaluation : -10
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |   -5  | G1 h6 H5 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             272 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |  -10  | G1 h6 H5 h3 H2 -- -- -- -- -- -- -- | 00:00:00.00 |           1 158 |      N/A |
+                  time level : 0
+                  time next level : 0
+  7@72  |   -7  | G1 h6 H5 h3 G2 e8 F7 -- -- -- -- -- | 00:00:00.00 |           2 243 |      N/A |
+                  time level : 1
+                  time next level : 0
+  9@72  |   -4  | F1 g1 H3 d7 G2 h1 H2 f8 E8 -- -- -- | 00:00:00.00 |           5 092 |      N/A |
+                  time level : 0
+                  time next level : 0
+ 11@72  |   -4  | F1 g1 H3 h6 H5 h2 B7 e8 D8 a8 C7 -- | 00:00:00.00 |          12 710 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 13@72  |   -4  | F1 g1 H3 h6 H5 h2 B7 e8 D8 d7 F8 a8 | 00:00:00.00 |          14 211 |      N/A |
+                  time level : 0
+                  time next level : 0
+ 15@72  |   -4  | F1 g1 H3 h6 H5 h2 B7 e8 F7 d7 D8 a8 | 00:00:00.00 |          44 973 |      N/A |
+                  time level : 2
+                  depth 15 to @60
+                  time next level : 18
+ 25@72  |  -12  | F1 g1 H3 h6 H5 h2 B7 f7 D7 g6 G7 a8 | 00:00:00.04 |       5 530 291 |  138 257 |
+                  time level : 40
+                  confidence 72 to 84
+                  time next level : 120
+ 25@84  |  -12  | F1 g1 H3 h6 H5 h2 B7 f7 D7 g6 G7 a8 | 00:00:00.09 |      12 902 260 |  268 797 |
+                  time level : 48
+                  confidence 84 to 91
+                  time next level : 240
+ 25@91  |  -12  | F1 g1 H3 h6 H5 h2 B7 f7 D7 g6 G7 a8 | 00:00:00.10 |         916 535 |   91 653 |
+                  time level : 10
+                  confidence 91 to 95
+                  time next level : 50
+ 25@95  |  -12  | F1 g1 H3 h6 H5 h2 B7 f7 D7 g6 G7 a8 | 00:00:00.12 |       2 887 518 |  115 500 |
+                  time level : 25
+                  confidence 95 to 98
+                  time next level : 175
+ 25@98  |  -12  | F1 g1 H3 h6 H5 h2 B7 f7 D7 g6 G7 a8 | 00:00:00.15 |       4 289 795 |  147 923 |
+                  time level : 29
+                  confidence 98 to 100
+                  time next level : 319
+ 25     |  -14  | G1 h6 H5 h3 B7 a8 D7 c7 B8 c8 D8 e8 | 00:00:00.45 |      78 335 375 |  261 991 |
+                  time level : 299
+                  confidence 100 to 100
+                  time next level : 3289
+I play G1
+evaluation -14
+time 00:00:00.45
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . O O O O . . 1
+2 . . O O # # . . 2
+3 . . O # # # # # 3
+4 # # O # # O O O 4	Noirs: 22	Blancs: 15
+5 . # # # # O O . 5	BLANCS au trait
+6 O # # # # # # O 6
+7 . . . . # . . . 7
+8 . . . . . . . . 8
+  A B C D E F G H 
+
+Evaluation : 23
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |  +23  | D7 h5 H2 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             404 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |  +23  | H7 h5 H2 g2 D7 -- -- -- -- -- -- -- | 00:00:00.00 |           4 286 |      N/A |
+                  time level : 1
+                  time next level : 0
+  7@72  |  +22  | H7 b3 F7 f8 D7 c7 A3 -- -- -- -- -- | 00:00:00.00 |           6 778 |      N/A |
+                  time level : 0
+                  time next level : 0
+  9@72  |  +20  | H7 h5 H2 g2 D7 b3 F8 f7 C7 -- -- -- | 00:00:00.00 |          17 140 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 11@72  |  +22  | H7 b3 F7 f8 D7 e8 C8 c7 A3 a2 G7 -- | 00:00:00.00 |          56 741 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 13@72  |  +23  | H7 h5 H2 g2 G7 f7 F8 b2 A1 a2 B1 h8 | 00:00:00.00 |          87 701 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 15@72  |  +20  | D7 e8 C8 b3 F8 g8 F7 h5 H2 c7 A5 a3 | 00:00:00.01 |         699 967 |   69 996 |
+                  time level : 10
+                  depth 15 to 17
+                  time next level : 60
+ 17@72+ |  +20  | D7 e8 C8 b3 F8 g8 F7 h5 H2 b2 A1 g7 | 00:00:00.02 |         556 991 |   55 699 |
+                  time level : 10
+                  depth 17 to @60
+                  time next level : 90
+ 27@60  |  +24  | D7 e8 A3 a2 C8 b3 F8 g8 F7 h5 H2 b2 | 00:00:00.20 |      39 838 753 |  221 326 |
+                  time level : 180
+                  confidence 60 to 72
+                  time next level : 540
+ 27@72  |  +24  | D7 e8 A3 a2 C8 b3 F8 g8 F7 h5 H2 b2 | 00:00:00.25 |       6 503 459 |  144 521 |
+                  time level : 45
+                  confidence 72 to 84
+                  time next level : 135
+ 27@84  |  +26  | E8 h5 H2 f7 D7 f8 C7 d8 B8 g2 G1 b7 | 00:00:00.42 |      39 142 961 |  221 146 |
+                  time level : 177
+                  confidence 84 to 91
+                  time next level : 885
+ 27@91  |  +26  | E8 h5 H2 f7 D7 f8 C7 d8 B8 g2 G1 b7 | 00:00:00.47 |       7 851 584 |  160 236 |
+                  time level : 49
+                  confidence 91 to 95
+                  time next level : 245
+ 27@95  |  +28  | E8 h5 H2 f7 A3 c7 A5 f8 G8 d7 G1 b2 | 00:00:00.76 |      77 328 023 |  273 243 |
+                  time level : 283
+                  confidence 95 to 98
+                  time next level : 1981
+ 27@98  |  +28  | E8 h5 H2 f7 A3 c7 A5 f8 G8 d7 G1 b2 | 00:00:00.92 |      34 734 785 |  211 797 |
+                  time level : 164
+                  confidence 98 to 100
+                  time next level : 1804
+ 27     |  +28  | E8 h5 H2 f7 A3 c7 A5 f8 G8 d7 G1 b2 | 00:00:02.75 |     499 057 087 |  272 857 |
+                  time level : 1829
+                  confidence 100 to 100
+                  time next level : 20119
+I play E8
+evaluation 28
+time 00:00:02.75
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . # . . . . . 1
+2 . . # . # . . . 2
+3 . O # # # # . . 3
+4 . O # # # # O . 4	Noirs: 21	Blancs: 16
+5 O O # O # O O O 5	BLANCS au trait
+6 O O O O O # O . 6
+7 . . # O # # . . 7
+8 . . . # # # # . 8
+  A B C D E F G H 
+
+Evaluation : -7
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |   -4  | B8 h6 D2 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             471 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |   -2  | B8 h6 H7 g7 E1 -- -- -- -- -- -- -- | 00:00:00.00 |           3 793 |      N/A |
+                  time level : 0
+                  time next level : 0
+  7@72  |   -1  | B8 h6 H7 h4 H3 g3 H2 -- -- -- -- -- | 00:00:00.00 |           5 176 |      N/A |
+                  time level : 0
+                  time next level : 0
+  9@72  |   -4  | B8 h6 D2 h4 E1 f1 D1 f2 H3 -- -- -- | 00:00:00.00 |          13 824 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 11@72  |   -1  | B8 h6 D2 h4 E1 f1 D1 f2 G3 a3 H3 -- | 00:00:00.00 |          34 188 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 13@72  |   +1  | B8 h6 D2 d1 F2 g3 F1 e1 B1 h4 G1 b7 | 00:00:00.00 |          94 938 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 15@72  |   +0  | B8 h6 D2 h4 F1 e1 D1 g1 G7 b7 C8 a8 | 00:00:00.00 |         176 938 |      N/A |
+                  time level : 4
+                  depth 15 to 17
+                  time next level : 20
+ 17@72+ |   +2  | B8 h6 D2 h4 D1 e1 G7 a3 A4 h8 A2 c8 | 00:00:00.01 |         732 226 |   73 222 |
+                  time level : 10
+                  depth 17 to @60
+                  time next level : 90
+ 27@60  |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:00.29 |      70 045 293 |  253 787 |
+                  time level : 276
+                  confidence 60 to 72
+                  time next level : 828
+ 27@72  |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:00.33 |       7 529 732 |  203 506 |
+                  time level : 37
+                  confidence 72 to 84
+                  time next level : 111
+ 27@84  |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:00.36 |       6 347 571 |  186 693 |
+                  time level : 34
+                  confidence 84 to 91
+                  time next level : 170
+ 27@91  |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:00.43 |      12 903 597 |  187 008 |
+                  time level : 69
+                  confidence 91 to 95
+                  time next level : 345
+ 27@95  |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:00.55 |      26 171 255 |  211 058 |
+                  time level : 124
+                  confidence 95 to 98
+                  time next level : 868
+ 27@98  |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:00.82 |      60 114 919 |  227 708 |
+                  time level : 264
+                  confidence 98 to 100
+                  time next level : 2904
+ 27     |   -2  | F2 f1 C8 b8 D2 d1 G7 b7 G3 a7 A8 h8 | 00:00:02.66 |     665 829 101 |  362 257 |
+                  time level : 1838
+                  confidence 100 to 100
+                  time next level : 20218
+I play F2
+evaluation -2
+time 00:00:02.66
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . O . . # . . 1
+2 . . O . . # . O 2
+3 . O O # # # O O 3
+4 . . # # # # # O 4	Noirs: 22	Blancs: 15
+5 . . # # O O O O 5	BLANCS au trait
+6 . # # # # # # . 6
+7 . . # # # . . . 7
+8 . # . O O O . . 8
+  A B C D E F G H 
+
+Evaluation : 15
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |  +15  | E1 h6 H7 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             460 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |  +15  | E1 h6 H7 d1 G1 -- -- -- -- -- -- -- | 00:00:00.00 |           3 299 |      N/A |
+                  time level : 0
+                  time next level : 0
+  7@72  |  +16  | E1 d1 G1 a3 A4 a5 E2 -- -- -- -- -- | 00:00:00.00 |          11 496 |      N/A |
+                  time level : 1
+                  time next level : 0
+  9@72  |  +14  | E1 d1 G1 a3 B4 a5 H6 b5 B2 -- -- -- | 00:00:00.00 |          42 454 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 11@72  |  +15  | E1 d1 G1 a3 F7 h7 B4 a5 B5 b7 C8 -- | 00:00:00.00 |         166 680 |      N/A |
+                  time level : 4
+                  time next level : 0
+ 13@72  |  +15  | E1 d1 G1 b2 D2 b1 A1 e2 B5 h6 H7 a3 | 00:00:00.01 |         247 754 |      N/A |
+                  time level : 5
+                  time next level : 0
+ 15@72  |  +15  | E1 d1 G1 a2 F7 h7 B4 b5 G2 h6 H8 h1 | 00:00:00.02 |       1 085 004 |   98 636 |
+                  time level : 11
+                  depth 15 to 17
+                  time next level : 70
+ 17@72+ |  +16  | B4 b2 H6 a4 E2 b1 D1 e1 D2 a3 A6 a5 | 00:00:00.17 |      14 858 459 |   99 056 |
+                  time level : 150
+                  depth 17 to @60
+                  time next level : 1350
+ 27@60  |  +18  | E1 g2 D2 d1 E2 b4 A3 a5 H1 g1 H6 f7 | 00:00:01.02 |     265 084 684 |  311 864 |
+                  time level : 850
+                  confidence 60 to 72
+                  time next level : 2550
+ 27@72  |  +18  | E1 g2 D2 d1 E2 b4 A3 a5 H1 g1 H6 f7 | 00:00:01.13 |      26 190 077 |  221 949 |
+                  time level : 118
+                  confidence 72 to 84
+                  time next level : 354
+ 27@84  |  +18  | E1 g2 D2 d1 E2 b4 A3 a5 H1 g1 H6 f7 | 00:00:01.27 |      30 730 843 |  231 058 |
+                  time level : 133
+                  confidence 84 to 91
+                  time next level : 665
+ 27@91  |  +18  | E1 g2 D2 d1 E2 b4 A3 a5 H1 g1 H6 f7 | 00:00:01.88 |     186 037 586 |  303 982 |
+                  time level : 612
+                  confidence 91 to 95
+                  time next level : 3060
+ 27@95  |  +18  | E1 g2 D2 d1 E2 b4 A3 a5 H1 g1 H6 f7 | 00:00:02.78 |     274 280 137 |  305 434 |
+                  time level : 898
+                  confidence 95 to 98
+                  time next level : 6286
+ 27@98  |  +20  | B4 h6 H7 b5 A6 f7 A5 g7 C8 g8 H8 b7 | 00:00:04.04 |     386 386 449 |  307 143 |
+                  time level : 1258
+                  confidence 98 to 100
+                  time next level : 13838
+ 27     |  +20  | B4 h6 H7 b5 A6 f7 A5 g7 C8 g8 H8 b7 | 00:00:06.65 |     803 611 445 |  308 133 |
+                  time level : 2608
+                  confidence 100 to 100
+                  time next level : 28688
+I play B4
+evaluation 20
+time 00:00:06.65
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . . O O . . 1
+2 . . O O O O # . 2
+3 . . O # # # # . 3
+4 O . O # # # # . 4	Noirs: 18	Blancs: 18
+5 . O O # # O # . 5	NOIRS au trait
+6 # # O # # # # . 6
+7 . . O O O O . . 7
+8 . . . . . O . . 8
+  A B C D E F G H 
+
+Evaluation : 10
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |   +8  | A5 b4 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             405 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +10  | C8 a5 A3 d8 -- -- -- -- -- -- -- -- | 00:00:00.00 |           1 564 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +10  | C8 d8 B7 g7 A5 b4 -- -- -- -- -- -- | 00:00:00.00 |           8 834 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |  +13  | C8 h1 E8 a5 A3 h2 H3 h4 -- -- -- -- | 00:00:00.00 |          19 988 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +12  | C8 d8 B7 g7 D1 h4 H5 h1 H8 h3 -- -- | 00:00:00.00 |          75 701 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 12@72  |  +11  | C8 d8 B7 h5 E8 a8 B8 h1 H3 a7 A5 b4 | 00:00:00.00 |         150 721 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 14@72  |  +12  | C8 d8 B7 h5 B8 a8 A7 a5 H3 h1 E8 h2 | 00:00:00.01 |         235 858 |      N/A |
+                  time level : 6
+                  depth 14 to 16
+                  time next level : 35
+ 16@72  |  +11  | C8 d8 B7 h5 H3 a8 B8 h1 E8 a7 A5 b4 | 00:00:00.02 |         500 307 |   62 538 |
+                  time level : 8
+                  depth 16 to 18
+                  time next level : 41
+ 18@72+ |  +10  | C8 d8 B7 h5 H3 a8 B8 h1 E8 g7 H6 h2 | 00:00:00.05 |       2 133 199 |   73 558 |
+                  time level : 29
+                  depth 18 to @60
+                  time next level : 261
+ 28@60  |  +10  | C8 d8 B7 h5 H3 a8 B8 h1 E8 g7 H6 h2 | 00:00:00.50 |     116 658 654 |  259 818 |
+                  time level : 449
+                  confidence 60 to 72
+                  time next level : 1347
+ 28@72  |   +8  | C8 d8 B7 h5 H3 h1 H4 a8 B8 h6 E8 h2 | 00:00:01.34 |     267 206 948 |  316 221 |
+                  time level : 845
+                  confidence 72 to 84
+                  time next level : 2535
+ 28@84  |   +8  | C8 d8 B7 h5 H3 h1 H4 a8 B8 h6 E8 h2 | 00:00:01.68 |      93 094 515 |  273 807 |
+                  time level : 340
+                  confidence 84 to 91
+                  time next level : 1700
+ 28@91  |   +8  | C8 d8 B7 h5 H3 h1 H4 a8 B8 h6 E8 h2 | 00:00:02.12 |     105 971 636 |  241 944 |
+                  time level : 438
+                  confidence 91 to 95
+                  time next level : 2190
+ 28@95  |  +10  | G1 g7 C8 h1 H2 h3 A5 d8 H8 a7 H4 b8 | 00:00:03.14 |     307 573 744 |  301 247 |
+                  time level : 1021
+                  confidence 95 to 98
+                  time next level : 7147
+ 28@98  |  +10  | G1 g7 C8 h1 H2 h3 A5 d8 H8 a7 H4 b8 | 00:00:03.85 |     181 150 731 |  254 783 |
+                  time level : 711
+                  confidence 98 to 100
+                  time next level : 7821
+ 28     |  +10  | G1 g7 C8 h1 H2 h3 A5 d8 H8 a7 H4 b8 | 00:00:15.00 |   3 945 698 371 |  353 874 |
+                  time level : 11150
+                  confidence 100 to 100
+                  time next level : 122650
+I play G1
+evaluation 10
+time 00:00:15.00
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . O O O . . . . 1
+2 # . O # # . . . 2
+3 # # O # # O O . 3
+4 # O # # O O . . 4	Noirs: 14	Blancs: 22
+5 # # O O O O . . 5	NOIRS au trait
+6 # # O O O O . . 6
+7 . . O O O . . . 7
+8 . . O . . . . . 8
+  A B C D E F G H 
+
+Evaluation : 22
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +22  | F8 d8 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             195 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +22  | F8 f7 G8 e1 -- -- -- -- -- -- -- -- | 00:00:00.00 |             592 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +20  | F8 e8 F7 g6 H3 e1 -- -- -- -- -- -- | 00:00:00.00 |           5 837 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |  +21  | F8 e8 G4 h3 H5 e1 G5 h6 -- -- -- -- | 00:00:00.00 |          13 793 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +21  | H3 e1 G4 f2 G1 h5 G2 b2 F1 h1 -- -- | 00:00:00.00 |          80 368 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 12@72  |  +21  | H3 e1 G4 f2 F8 e8 F7 g6 G5 h5 H4 h6 | 00:00:00.00 |         113 743 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 14@72  |  +21  | H3 e1 G4 f2 F8 e8 F7 h5 H4 g5 H6 g6 | 00:00:00.01 |         152 673 |      N/A |
+                  time level : 4
+                  depth 14 to 16
+                  time next level : 22
+ 16@72  |  +21  | G4 h4 F8 d8 H3 h2 G5 e1 F2 g6 H7 h6 | 00:00:00.02 |       1 342 912 |   89 527 |
+                  time level : 15
+                  depth 16 to 18
+                  time next level : 87
+ 18@72+ |  +22  | G4 e1 F2 h3 H5 f1 G2 b7 F7 h1 G6 h6 | 00:00:00.05 |       1 936 903 |   71 737 |
+                  time level : 27
+                  depth 18 to @60
+                  time next level : 243
+ 28@60  |  +28  | G4 e1 F2 f1 H3 b7 F8 e8 G5 g6 A7 g8 | 00:00:00.57 |     142 093 014 |  274 310 |
+                  time level : 518
+                  confidence 60 to 72
+                  time next level : 1554
+ 28@72  |  +28  | G4 e1 F2 f1 H3 b7 F8 e8 G5 g6 A7 g8 | 00:00:00.68 |      33 136 672 |  293 244 |
+                  time level : 113
+                  confidence 72 to 84
+                  time next level : 339
+ 28@84  |  +28  | G4 h3 H5 e1 F1 g1 F2 b7 G5 h6 H7 g2 | 00:00:01.08 |     137 391 712 |  341 770 |
+                  time level : 402
+                  confidence 84 to 91
+                  time next level : 2010
+ 28@91  |  +28  | G4 h3 H5 e1 F1 g1 F2 b7 G5 h6 H7 g2 | 00:00:01.26 |      45 019 111 |  255 790 |
+                  time level : 176
+                  confidence 91 to 95
+                  time next level : 880
+ 28@95  |  +28  | G4 h3 H5 e1 F1 g1 F2 b7 G5 h6 H7 g2 | 00:00:01.59 |      88 793 671 |  265 055 |
+                  time level : 335
+                  confidence 95 to 98
+                  time next level : 2345
+ 28@98  |  +28  | G4 h3 H5 e1 F1 g1 F2 b7 G5 h6 H7 g2 | 00:00:02.11 |     133 680 225 |  260 078 |
+                  time level : 514
+                  confidence 98 to 100
+                  time next level : 5654
+ 28     |  +30  | H3 e1 G4 g5 F1 g1 F2 h4 G2 h1 H2 b2 | 00:00:10.62 |   2 754 438 069 |  323 480 |
+                  time level : 8515
+                  confidence 100 to 100
+                  time next level : 93665
+I play H3
+evaluation 30
+time 00:00:10.62
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . # # # # # . . 1
+2 . . # O # # . . 2
+3 O O O # O # O . 3
+4 . O O O # O O O 4	Noirs: 15	Blancs: 21
+5 . O O O # # O . 5	NOIRS au trait
+6 . . O O O # . O 6
+7 . . . O # . . . 7
+8 . . . . . . . . 8
+  A B C D E F G H 
+
+Evaluation : 19
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +18  | A6 a4 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             321 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +16  | A6 f8 F7 a5 -- -- -- -- -- -- -- -- | 00:00:00.00 |           1 003 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +17  | A6 a5 F7 g2 B6 g6 -- -- -- -- -- -- | 00:00:00.00 |           8 762 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |  +16  | A6 f8 F7 g6 B6 a5 H3 c7 -- -- -- -- | 00:00:00.00 |          27 311 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +16  | A6 f8 F7 g6 B6 e8 C7 b8 A5 a4 -- -- | 00:00:00.00 |          86 236 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 12@72  |  +18  | C8 f8 E8 g2 B6 g6 G1 c7 D8 b8 A6 a4 | 00:00:00.01 |         342 182 |   57 030 |
+                  time level : 6
+                  time next level : 0
+ 14@72  |  +16  | C8 b2 A1 a2 A6 a4 H3 f7 C7 d8 A5 b8 | 00:00:00.01 |         471 462 |   58 932 |
+                  time level : 8
+                  depth 14 to 16
+                  time next level : 51
+ 16@72  |  +18  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 B7 g2 | 00:00:00.02 |         570 471 |   63 385 |
+                  time level : 9
+                  depth 16 to 18
+                  time next level : 47
+ 18@72+ |  +20  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 E8 a4 | 00:00:00.07 |       3 754 342 |   89 389 |
+                  time level : 42
+                  depth 18 to @60
+                  time next level : 378
+ 28@60  |  +20  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 E8 a4 | 00:00:00.39 |      88 367 896 |  271 067 |
+                  time level : 326
+                  confidence 60 to 72
+                  time next level : 978
+ 28@72  |  +20  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 E8 a4 | 00:00:00.83 |     135 251 399 |  305 307 |
+                  time level : 443
+                  confidence 72 to 84
+                  time next level : 1329
+ 28@84  |  +20  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 E8 a4 | 00:00:01.14 |      92 831 836 |  305 367 |
+                  time level : 304
+                  confidence 84 to 91
+                  time next level : 1520
+ 28@91  |  +20  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 E8 a4 | 00:00:01.50 |      99 890 370 |  274 424 |
+                  time level : 364
+                  confidence 91 to 95
+                  time next level : 1820
+ 28@95  |  +20  | C8 b2 A1 a2 H3 f7 C7 b6 A6 f8 E8 a4 | 00:00:02.39 |     265 720 962 |  299 910 |
+                  time level : 886
+                  confidence 95 to 98
+                  time next level : 6202
+ 28@98  |  +22  | H3 f8 A6 f7 A5 g2 B6 h2 E8 a4 A2 c8 | 00:00:05.55 |   1 026 202 140 |  324 747 |
+                  time level : 3160
+                  confidence 98 to 100
+                  time next level : 34760
+ 28     |  +22  | H3 f8 A6 f7 A5 g2 B6 h2 E8 a4 A2 c8 | 00:00:14.44 |   2 785 775 019 |  313 395 |
+                  time level : 8889
+                  confidence 100 to 100
+                  time next level : 97779
+I play H3
+evaluation 22
+time 00:00:14.44
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . O O O . . 1
+2 . . O O O O . . 2
+3 . . O # # O O # 3
+4 . O O # # O # . 4	Noirs: 13	Blancs: 21
+5 . O O # # # # . 5	NOIRS au trait
+6 . # O O # # . . 6
+7 . . O O O . . . 7
+8 . . . . . O . . 8
+  A B C D E F G H 
+
+Evaluation : 24
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +22  | A6 f7 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             443 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +20  | A4 b3 A5 h5 -- -- -- -- -- -- -- -- | 00:00:00.00 |           1 521 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +20  | A6 f7 G6 a4 A5 b3 -- -- -- -- -- -- | 00:00:00.00 |          10 697 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |  +22  | A5 h5 A4 f7 B3 h4 H6 g6 -- -- -- -- | 00:00:00.00 |          23 207 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +21  | A5 h5 A4 h6 B3 f7 G6 h7 H2 h4 -- -- | 00:00:00.00 |          53 321 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 12@72  |  +20  | A5 h5 A4 f7 B3 h4 H6 g6 H7 b2 C1 a3 | 00:00:00.01 |         238 720 |      N/A |
+                  time level : 6
+                  time next level : 0
+ 14@72  |  +21  | A5 h5 A4 f7 B3 h4 H6 g6 B1 a3 H2 c1 | 00:00:00.01 |         344 621 |   43 077 |
+                  time level : 8
+                  depth 14 to 16
+                  time next level : 49
+ 16@72  |  +22  | A5 h5 A4 f7 B3 h4 H6 g6 G7 h7 D8 c8 | 00:00:00.03 |         628 515 |   57 137 |
+                  time level : 11
+                  depth 16 to 18
+                  time next level : 58
+ 18@72+ |  +24  | A5 h5 A4 f7 B3 h4 H6 g6 B1 b2 H7 a6 | 00:00:00.05 |       2 130 661 |   76 095 |
+                  time level : 28
+                  depth 18 to 20
+                  time next level : 141
+ 20@72+ |  +22  | A5 h5 A4 a3 A2 h6 B3 a7 E8 c8 G2 g6 | 00:00:00.08 |       1 735 899 |   75 473 |
+                  time level : 23
+                  depth 20 to @60
+                  time next level : 207
+ 30@60  |  +26  | A5 h5 A4 f7 B3 h4 H6 g6 B1 b2 H7 a6 | 00:00:00.44 |      79 692 402 |  216 555 |
+                  time level : 368
+                  confidence 60 to 72
+                  time next level : 1104
+ 30@72  |  +26  | A5 h5 A4 f7 B3 h4 H6 g6 B1 b2 H7 a6 | 00:00:00.65 |      44 919 920 |  219 121 |
+                  time level : 205
+                  confidence 72 to 84
+                  time next level : 615
+ 30@84  |  +26  | A5 h5 A4 f7 B3 h4 H6 g6 B1 b2 H7 a6 | 00:00:00.72 |       9 508 320 |  135 833 |
+                  time level : 70
+                  confidence 84 to 91
+                  time next level : 350
+ 30@91  |  +26  | A5 h5 A4 f7 B3 h4 H6 g6 B1 b2 H7 a6 | 00:00:00.97 |      51 072 128 |  201 071 |
+                  time level : 254
+                  confidence 91 to 95
+                  time next level : 1270
+ 30@95  |  +26  | A5 h5 A4 f7 B3 h4 H6 g6 B1 b2 H7 a6 | 00:00:01.66 |     159 719 320 |  232 826 |
+                  time level : 686
+                  confidence 95 to 98
+                  time next level : 4802
+ 30@98  |  +28  | E8 d8 A5 h5 A4 h6 B3 g6 F7 b2 H4 h2 | 00:00:03.92 |     610 126 217 |  270 446 |
+                  time level : 2256
+                  confidence 98 to 100
+                  time next level : 24816
+ 30     |  +28  | E8 d8 A5 h5 A4 h6 B3 g6 F7 b2 H4 h2 | 00:01:00.71 |  17 134 024 859 |  301 681 |
+                  time level : 56795
+                  confidence 100 to 100
+                  time next level : 624745
+I play E8
+evaluation 28
+time 00:01:00.71
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . O O O O . . 1
+2 . . . O O O . . 2
+3 . O O O O O . . 3
+4 # # O # # O O . 4	Noirs: 14	Blancs: 20
+5 . O # O # O O . 5	NOIRS au trait
+6 O # # # # # # . 6
+7 . . # . # . . . 7
+8 . . . . . . . . 8
+  A B C D E F G H 
+
+Evaluation : -5
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |   -5  | H5 a5 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             342 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |   -3  | H5 f7 H4 a5 -- -- -- -- -- -- -- -- | 00:00:00.00 |             719 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |   -3  | H5 a7 H3 h4 A5 a3 -- -- -- -- -- -- | 00:00:00.00 |           5 678 |      N/A |
+                  time level : 0
+                  time next level : 0
+  8@72  |   -2  | H5 a7 H3 h4 G3 c8 A5 a3 -- -- -- -- | 00:00:00.00 |          11 111 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |   -1  | H5 a7 H3 h4 A2 a3 A5 a1 A8 f7 -- -- | 00:00:00.00 |          37 514 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 12@72  |   -2  | H5 c8 D8 e8 H3 a3 G3 d7 A5 f7 G8 f8 | 00:00:00.00 |         232 640 |      N/A |
+                  time level : 4
+                  time next level : 0
+ 14@72  |   -2  | H5 c8 A5 d7 A7 f8 G3 f7 G2 h1 A3 b2 | 00:00:00.01 |         312 570 |   44 652 |
+                  time level : 7
+                  depth 14 to 16
+                  time next level : 42
+ 16@72  |   -3  | H5 f7 E8 d7 D8 h4 H3 g3 H2 h6 H7 a7 | 00:00:00.02 |         699 477 |   63 588 |
+                  time level : 11
+                  depth 16 to 18
+                  time next level : 59
+ 18@72+ |   -4  | H5 f7 E8 d7 D8 h4 G2 h6 H3 h1 A5 a3 | 00:00:00.07 |       3 842 167 |   80 045 |
+                  time level : 48
+                  depth 18 to 20
+                  time next level : 258
+ 20@72+ |   -2  | H5 f7 E8 d7 A5 a3 B7 a8 A7 b8 C2 h4 | 00:00:00.16 |       9 288 217 |  103 202 |
+                  time level : 90
+                  depth 20 to @60
+                  time next level : 810
+ 30@60  |   -2  | H5 f7 E8 d7 A5 a3 B7 a8 A7 b8 C2 h4 | 00:00:00.67 |     166 607 335 |  322 882 |
+                  time level : 516
+                  confidence 60 to 72
+                  time next level : 1548
+ 30@72  |   -2  | H5 f7 E8 d7 A5 a3 B7 a8 A7 b8 C2 h4 | 00:00:00.82 |      32 584 957 |  229 471 |
+                  time level : 142
+                  confidence 72 to 84
+                  time next level : 426
+ 30@84  |   -2  | H5 f7 E8 d7 A5 a3 B7 a8 A7 b8 C2 h4 | 00:00:00.94 |      28 909 221 |  235 034 |
+                  time level : 123
+                  confidence 84 to 91
+                  time next level : 615
+ 30@91  |   -2  | H5 f7 E8 d7 A5 a3 B7 a8 A7 b8 C2 h4 | 00:00:01.40 |     132 970 520 |  291 602 |
+                  time level : 456
+                  confidence 91 to 95
+                  time next level : 2280
+ 30@95  |   -2  | H5 f7 E8 d7 A5 a3 B7 a8 A7 b8 C2 h4 | 00:00:01.95 |     146 570 872 |  266 008 |
+                  time level : 551
+                  confidence 95 to 98
+                  time next level : 3857
+ 30@98  |   +0  | H3 h5 A2 a3 A5 a1 G2 g3 H4 d7 E8 f7 | 00:00:05.17 |     998 452 970 |  309 597 |
+                  time level : 3225
+                  confidence 98 to 100
+                  time next level : 35475
+ 30     |   +0  | H3 h5 A2 a3 A5 a1 G2 g3 H4 d7 E8 f7 | 00:00:13.41 |   3 079 566 921 |  373 960 |
+                  time level : 8235
+                  confidence 100 to 100
+                  time next level : 90585
+I play H3
+evaluation 0
+time 00:00:13.41
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . # . . . . 1
+2 # . # # # . . . 2
+3 # # # # . . . . 3
+4 # # # O O O . . 4	Noirs: 24	Blancs: 10
+5 # # # # O O . . 5	NOIRS au trait
+6 # # O O # # # . 6
+7 # . O O # # . . 7
+8 . . O . . . . . 8
+  A B C D E F G H 
+
+Evaluation : -8
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |   -9  | G5 g4 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             183 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  -11  | E8 d8 B8 c1 -- -- -- -- -- -- -- -- | 00:00:00.00 |             412 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |   -9  | E8 d8 E3 f8 G3 f3 -- -- -- -- -- -- | 00:00:00.00 |           1 352 |      N/A |
+                  time level : 0
+                  time next level : 0
+  8@72  |  -11  | E8 d8 E3 f8 G3 f3 G5 h6 -- -- -- -- | 00:00:00.00 |           7 811 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  -10  | E8 d8 E3 f8 G3 h6 G5 b2 H7 h8 -- -- | 00:00:00.00 |          12 377 |      N/A |
+                  time level : 0
+                  time next level : 0
+ 12@72  |  -11  | E8 d8 E3 f8 G3 h6 G4 b2 B8 a8 A1 f3 | 00:00:00.00 |          76 975 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 14@72  |  -13  | E8 d8 E3 f8 G3 h6 G5 f3 G4 h3 G7 f2 | 00:00:00.00 |         101 854 |      N/A |
+                  time level : 2
+                  depth 14 to 16
+                  time next level : 10
+ 16@72  |  -16  | D8 c1 E3 e1 F3 f1 B8 g3 H3 g5 F2 g4 | 00:00:00.01 |         387 933 |   55 419 |
+                  time level : 7
+                  depth 16 to 18
+                  time next level : 34
+ 18@72+ |  -16  | E3 f3 E8 g8 G5 g3 G4 f2 G1 h3 H4 h5 | 00:00:00.09 |       4 069 460 |   49 627 |
+                  time level : 82
+                  depth 18 to 20
+                  time next level : 444
+ 20@72+ |  -16  | E3 f3 E8 g8 G5 g3 G4 f2 G1 h3 H5 h4 | 00:00:00.10 |         663 897 |   55 324 |
+                  time level : 12
+                  depth 20 to @60
+                  time next level : 108
+ 30@60  |  -22  | E3 f3 E8 g8 G3 g4 H5 h4 F8 d8 H3 g5 | 00:00:00.56 |     108 844 789 |  239 746 |
+                  time level : 454
+                  confidence 60 to 72
+                  time next level : 1362
+ 30@72  |  -22  | D8 c1 B8 e1 E3 f1 F3 g3 B2 g4 H4 h5 | 00:00:00.77 |      43 577 271 |  201 746 |
+                  time level : 216
+                  confidence 72 to 84
+                  time next level : 648
+ 30@84  |  -22  | E8 d8 E3 f8 G3 h6 G5 f3 G4 b2 B8 a8 | 00:00:01.04 |      65 204 802 |  240 608 |
+                  time level : 271
+                  confidence 84 to 91
+                  time next level : 1355
+ 30@91  |  -22  | E8 d8 E3 f8 G3 h6 G5 f3 G4 b2 B8 a8 | 00:00:01.15 |      20 390 362 |  188 799 |
+                  time level : 108
+                  confidence 91 to 95
+                  time next level : 540
+ 30@95  |  -24  | D8 c1 B8 e1 E3 f8 G3 h6 G4 f1 B7 f3 | 00:00:02.11 |     254 908 038 |  266 083 |
+                  time level : 958
+                  confidence 95 to 98
+                  time next level : 6706
+ 30@98  |  -24  | E3 f3 E8 g8 G3 g4 H4 h6 G5 h5 H7 e1 | 00:00:03.13 |     275 801 762 |  271 191 |
+                  time level : 1017
+                  confidence 98 to 100
+                  time next level : 11187
+ 30     |  -24  | E3 f3 E8 g8 G3 g4 H4 h6 G5 h5 H7 e1 | 00:00:05.67 |     786 173 061 |  308 545 |
+                  time level : 2548
+                  confidence 100 to 100
+                  time next level : 28028
+I play E3
+evaluation -24
+time 00:00:05.67
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . . . . . . 1
+2 . . . . . . . . 2
+3 . . # # # # # . 3
+4 . # # # # # O . 4	Noirs: 25	Blancs: 8
+5 . O # # # O O # 5	BLANCS au trait
+6 . . O # O # # # 6
+7 . . O O # # . # 7
+8 . . . # # # # . 8
+  A B C D E F G H 
+
+Evaluation : 9
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |   +4  | F2 h4 D2 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             370 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |   +7  | F2 h4 B6 d2 A3 -- -- -- -- -- -- -- | 00:00:00.00 |           2 698 |      N/A |
+                  time level : 0
+                  time next level : 0
+  7@72  |  +11  | F2 h4 D2 c8 B6 c2 A3 -- -- -- -- -- | 00:00:00.00 |           6 786 |      N/A |
+                  time level : 0
+                  time next level : 0
+  9@72  |  +12  | F2 h4 D2 c8 B6 c2 A3 d1 E2 -- -- -- | 00:00:00.00 |          19 594 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 11@72  |  +12  | F2 h4 D2 c8 H2 c2 B7 d1 B6 e2 G2 -- | 00:00:00.00 |          67 328 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 13@72  |  +12  | F2 h4 D2 b6 B3 c8 A4 e1 F1 g1 A7 a6 | 00:00:00.00 |         228 009 |      N/A |
+                  time level : 4
+                  time next level : 0
+ 15@72  |  +14  | F2 h4 D2 b6 B3 c8 A4 e1 F1 g1 A6 e2 | 00:00:00.01 |         337 464 |   56 244 |
+                  time level : 6
+                  depth 15 to 17
+                  time next level : 32
+ 17@72+ |  +18  | F2 h4 D2 b6 B3 c2 A4 c8 D1 e1 E2 a5 | 00:00:00.08 |       7 189 719 |   99 857 |
+                  time level : 72
+                  depth 17 to 19
+                  time next level : 461
+ 19@72+ |  +14  | F2 h4 D2 c8 B6 d1 C2 e1 E2 a5 A6 a7 | 00:00:00.17 |       6 819 305 |   76 621 |
+                  time level : 89
+                  depth 19 to 21
+                  time next level : 466
+ 21@72+ |  +16  | F2 h4 D2 c8 B6 d1 C2 c1 B7 e1 F1 g1 | 00:00:00.20 |       2 148 242 |   89 510 |
+                  time level : 24
+                  depth 21 to @60
+                  time next level : 216
+ 31@60  |  +18  | F2 h4 D2 c8 B6 d1 C2 c1 B7 e1 A4 e2 | 00:00:00.50 |      59 838 724 |  198 141 |
+                  time level : 302
+                  confidence 60 to 72
+                  time next level : 906
+ 31@72  |  +18  | F2 h4 D2 c8 B6 d1 C2 c1 B7 e1 A4 e2 | 00:00:00.69 |      43 121 876 |  226 957 |
+                  time level : 190
+                  confidence 72 to 84
+                  time next level : 570
+ 31@84  |  +18  | F2 h4 D2 c8 B6 d1 C2 c1 B7 e1 A4 e2 | 00:00:00.89 |      40 467 983 |  199 349 |
+                  time level : 203
+                  confidence 84 to 91
+                  time next level : 1015
+ 31@91  |  +18  | F2 h4 D2 c8 B6 d1 C2 c1 B7 e1 A4 e2 | 00:00:01.47 |     136 079 365 |  235 839 |
+                  time level : 577
+                  confidence 91 to 95
+                  time next level : 2885
+ 31@95  |  +20  | D2 a5 E2 b6 H3 c2 B3 c8 C1 a2 B7 f2 | 00:00:05.24 |     994 851 575 |  263 606 |
+                  time level : 3774
+                  confidence 95 to 98
+                  time next level : 26418
+ 31@98  |  +20  | D2 a5 E2 b6 H3 c2 B3 c8 C1 a2 B7 f2 | 00:00:08.43 |     748 328 488 |  235 027 |
+                  time level : 3184
+                  confidence 98 to 100
+                  time next level : 35024
+ 31     |  +20  | D2 a5 E2 b6 H3 c2 B3 c8 C1 a2 B7 f2 | 00:00:22.10 |   4 609 561 620 |  337 104 |
+                  time level : 13674
+                  confidence 100 to 100
+                  time next level : 150414
+I play D2
+evaluation 20
+time 00:00:22.10
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . O . . . . 1
+2 . . O O # # . . 2
+3 . # # O # # # . 3
+4 # # # # O O # # 4	Noirs: 23	Blancs: 10
+5 . # # # # O O . 5	BLANCS au trait
+6 . . # # # O O . 6
+7 . . . # # . . . 7
+8 . . . . # . . . 8
+  A B C D E F G H 
+
+Evaluation : 25
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |  +22  | E1 f1 H5 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             536 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |  +19  | A3 f7 H3 e1 C1 -- -- -- -- -- -- -- | 00:00:00.00 |           5 752 |      N/A |
+                  time level : 0
+                  time next level : 0
+  7@72  |  +23  | A3 f7 H3 e1 C1 g2 H5 -- -- -- -- -- | 00:00:00.00 |           9 448 |      N/A |
+                  time level : 1
+                  time next level : 0
+  9@72  |  +24  | A3 f7 H3 b1 C1 e1 H5 a2 C8 -- -- -- | 00:00:00.00 |          20 858 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 11@72  |  +22  | A3 f7 E1 f1 H3 a2 G1 b1 H5 c1 A1 -- | 00:00:00.00 |         101 141 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 13@72  |  +21  | A3 f7 H3 b1 C1 e1 G1 b2 H5 a2 C7 c8 | 00:00:00.00 |         226 121 |      N/A |
+                  time level : 4
+                  time next level : 0
+ 15@72  |  +23  | A3 f7 E1 f1 H3 h2 H5 h6 A5 g2 C7 c1 | 00:00:00.01 |         362 672 |   45 334 |
+                  time level : 8
+                  depth 15 to 17
+                  time next level : 44
+ 17@72  |  +22  | A3 f7 E1 f1 H3 c1 H5 g2 C7 c8 F8 b2 | 00:00:00.02 |         680 553 |   61 868 |
+                  time level : 11
+                  depth 17 to 19
+                  time next level : 53
+ 19@72+ |  +22  | A3 f7 E1 f1 H3 c1 H5 b2 A5 g2 C7 a6 | 00:00:00.06 |       2 342 658 |   65 073 |
+                  time level : 36
+                  depth 19 to 21
+                  time next level : 168
+ 21@72+ |  +24  | A3 f7 E1 f1 H3 c1 H5 b2 C7 a2 B6 a7 | 00:00:00.09 |       1 681 096 |   56 036 |
+                  time level : 30
+                  depth 21 to @60
+                  time next level : 270
+ 31@60  |  +24  | A3 f7 E1 f1 H3 c1 H5 b2 C7 a2 B6 c8 | 00:00:00.68 |     135 060 460 |  227 374 |
+                  time level : 594
+                  confidence 60 to 72
+                  time next level : 1782
+ 31@72  |  +24  | A3 f7 E1 f1 H3 c1 H5 b2 C7 a2 B6 c8 | 00:00:00.81 |      22 224 339 |  173 627 |
+                  time level : 128
+                  confidence 72 to 84
+                  time next level : 384
+ 31@84  |  +22  | A3 f7 E1 f1 H3 c1 H5 g2 C7 c8 F8 b2 | 00:00:01.71 |     223 206 025 |  248 559 |
+                  time level : 898
+                  confidence 84 to 91
+                  time next level : 4490
+ 31@91  |  +22  | A3 f7 E1 f1 H3 c1 H5 g2 C7 c8 F8 b2 | 00:00:02.37 |     150 701 929 |  227 303 |
+                  time level : 663
+                  confidence 91 to 95
+                  time next level : 3315
+ 31@95  |  +24  | E1 f1 H5 h3 G1 f7 H2 h7 B6 a6 A3 c1 | 00:00:04.49 |     565 002 760 |  267 393 |
+                  time level : 2113
+                  confidence 95 to 98
+                  time next level : 14791
+ 31@98  |  +24  | E1 f1 H5 h3 G1 f7 H2 h7 B6 a6 A3 c1 | 00:00:06.70 |     535 085 666 |  241 791 |
+                  time level : 2213
+                  confidence 98 to 100
+                  time next level : 24343
+ 31     |  +24  | E1 f1 H5 h3 G1 f7 H2 h6 H7 g7 B6 c7 | 00:02:32.40 |  44 571 147 605 |  305 914 |
+                  time level : 145698
+                  confidence 100 to 100
+                  time next level : 1602678
+I play E1
+evaluation 24
+time 00:02:32.40
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . # . . # . . 1
+2 . . # # # . . . 2
+3 O O # # # # . . 3
+4 . O O # # # . . 4	Noirs: 20	Blancs: 13
+5 . O # O # # O . 5	BLANCS au trait
+6 O O O # # # # . 6
+7 O . . O # O . . 7
+8 . . . . . . . . 8
+  A B C D E F G H 
+
+Evaluation : -5
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |   -4  | G4 h6 E8 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             649 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |   -3  | G4 h6 G3 f2 C7 -- -- -- -- -- -- -- | 00:00:00.00 |           3 918 |      N/A |
+                  time level : 1
+                  time next level : 0
+  7@72  |   -4  | G4 h6 G3 f2 C7 h3 F8 -- -- -- -- -- | 00:00:00.00 |           8 993 |      N/A |
+                  time level : 0
+                  time next level : 0
+  9@72  |   -3  | G4 h6 F2 c7 D8 c8 F8 g1 H4 -- -- -- | 00:00:00.00 |          43 475 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 11@72  |   -3  | D8 h6 G4 g3 F2 c8 H3 c7 E8 g1 B2 -- | 00:00:00.00 |         118 575 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 13@72  |   -2  | D8 h6 G4 c7 F2 g3 C8 g1 H4 h5 H7 b7 | 00:00:00.00 |         119 092 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 15@72  |   -1  | D8 h6 G4 c7 F2 g3 C8 g1 H4 h5 H7 b7 | 00:00:00.01 |         207 152 |      N/A |
+                  time level : 5
+                  depth 15 to 17
+                  time next level : 25
+ 17@72+ |   -2  | D8 h6 G4 c7 C8 e8 G2 h5 G3 b2 H4 g7 | 00:00:00.09 |       6 761 816 |   87 815 |
+                  time level : 77
+                  depth 17 to 19
+                  time next level : 489
+ 19@72+ |   +0  | D8 g4 H6 e8 F8 c7 H3 h4 H5 c8 F2 g3 | 00:00:00.19 |       8 469 347 |   79 899 |
+                  time level : 106
+                  depth 19 to 21
+                  time next level : 568
+ 21@72+ |   +0  | D8 g4 H6 e8 F8 c7 H5 c8 B8 h7 H8 g8 | 00:00:00.22 |       1 655 315 |   61 307 |
+                  time level : 27
+                  depth 21 to @60
+                  time next level : 243
+ 31@60  |   +0  | D8 g4 H6 e8 F8 c7 H5 c8 B8 h7 H8 g8 | 00:00:00.54 |      69 834 895 |  220 996 |
+                  time level : 316
+                  confidence 60 to 72
+                  time next level : 948
+ 31@72  |   +0  | D8 g4 H6 e8 F8 c7 H5 c8 B8 h7 H8 g8 | 00:00:00.61 |      10 202 509 |  130 801 |
+                  time level : 78
+                  confidence 72 to 84
+                  time next level : 234
+ 31@84  |   -4  | G4 h6 E8 h5 G7 h8 F2 d8 C7 a5 A4 c8 | 00:00:02.24 |     483 348 682 |  297 628 |
+                  time level : 1624
+                  confidence 84 to 91
+                  time next level : 8120
+ 31@91  |   -4  | G4 h6 E8 h5 G7 h8 F2 d8 C7 a5 A4 c8 | 00:00:03.04 |     239 550 785 |  300 188 |
+                  time level : 798
+                  confidence 91 to 95
+                  time next level : 3990
+ 31@95  |   -4  | G4 h6 E8 h5 G7 h8 F2 d8 C7 a5 A4 c8 | 00:00:04.01 |     238 559 888 |  246 191 |
+                  time level : 969
+                  confidence 95 to 98
+                  time next level : 6783
+ 31@98  |   -4  | G4 h6 E8 h5 G7 h8 F2 d8 C7 a5 A4 c8 | 00:00:06.15 |     552 840 984 |  257 854 |
+                  time level : 2144
+                  confidence 98 to 100
+                  time next level : 23584
+ 31     |   -4  | G4 h6 E8 h5 G7 h8 F2 d8 C7 a5 A4 c8 | 00:00:23.99 |   6 826 221 135 |  382 528 |
+                  time level : 17845
+                  confidence 100 to 100
+                  time next level : 196295
+I play G4
+evaluation -4
+time 00:00:23.99
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . . # . . . 1
+2 . . O # # O . # 2
+3 . . O # O O # # 3
+4 . O O # # O # # 4	Noirs: 17	Blancs: 16
+5 . . O # # O . # 5	BLANCS au trait
+6 . . # # O O . . 6
+7 . . # O O O . . 7
+8 . . . . . O . . 8
+  A B C D E F G H 
+
+Evaluation : -26
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  3     |  -21  | D1 b3 F1 -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             427 |      N/A |
+                  time level : 0
+                  time next level : 0
+  5     |  -19  | D1 b5 F1 d8 A6 -- -- -- -- -- -- -- | 00:00:00.00 |           2 290 |      N/A |
+                  time level : 0
+                  time next level : 0
+  7@72  |  -21  | B5 b1 F1 g1 C8 b3 A3 -- -- -- -- -- | 00:00:00.00 |          14 528 |      N/A |
+                  time level : 1
+                  time next level : 0
+  9@72  |  -20  | B5 b1 C8 b3 A3 b6 F1 d1 A6 -- -- -- | 00:00:00.00 |          37 057 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 11@72  |  -18  | B5 b1 C8 b3 F1 g1 A3 a6 B6 b7 A8 -- | 00:00:00.00 |         148 239 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 13@72  |  -19  | B5 b1 C8 b3 A3 b6 A5 d8 E8 b7 A8 b2 | 00:00:00.00 |         267 782 |      N/A |
+                  time level : 4
+                  time next level : 0
+ 15@72  |  -22  | B5 b1 C8 b3 F1 g1 A3 b6 A5 d8 D1 c1 | 00:00:00.01 |         440 543 |   55 067 |
+                  time level : 8
+                  depth 15 to 17
+                  time next level : 45
+ 17@72  |  -19  | B5 b1 C8 b3 F1 g1 A3 b6 A5 d8 D1 c1 | 00:00:00.02 |         673 179 |   96 168 |
+                  time level : 7
+                  depth 17 to 19
+                  time next level : 33
+ 19@72+ |  -20  | B5 b1 C8 b3 F1 g1 A3 b6 A5 d8 D1 c1 | 00:00:00.03 |         896 649 |   81 513 |
+                  time level : 11
+                  depth 19 to 21
+                  time next level : 46
+ 21@72+ |  -22  | B5 b1 C8 b6 A5 b3 A3 d8 E8 a4 F1 g1 | 00:00:00.05 |       1 473 373 |   70 160 |
+                  time level : 21
+                  depth 21 to @60
+                  time next level : 189
+ 31@60  |  -26  | B5 b1 C8 b6 A5 b3 A3 d8 E8 b7 A8 a7 | 00:00:00.48 |      71 409 212 |  168 417 |
+                  time level : 424
+                  confidence 60 to 72
+                  time next level : 1272
+ 31@72  |  -26  | B5 b1 C8 b6 A5 b3 A3 d8 E8 b7 A8 a7 | 00:00:00.54 |       6 872 804 |  112 668 |
+                  time level : 61
+                  confidence 72 to 84
+                  time next level : 183
+ 31@84  |  -26  | B5 b1 C8 b6 A5 b3 A3 d8 E8 b7 A8 a7 | 00:00:00.71 |      40 486 134 |  227 450 |
+                  time level : 178
+                  confidence 84 to 91
+                  time next level : 890
+ 31@91  |  -28  | B5 b1 C8 b6 A5 b3 A3 d8 E8 a4 F1 d1 | 00:00:01.20 |     117 053 403 |  241 347 |
+                  time level : 485
+                  confidence 91 to 95
+                  time next level : 2425
+ 31@95  |  -28  | B5 b1 C8 b6 A5 b3 A3 d8 E8 a4 F1 d1 | 00:00:01.64 |      87 000 431 |  198 631 |
+                  time level : 438
+                  confidence 95 to 98
+                  time next level : 3066
+ 31@98  |  -30  | F1 d1 C1 d8 B6 e8 C8 a3 B5 b3 G2 g6 | 00:00:04.18 |     718 928 094 |  282 597 |
+                  time level : 2544
+                  confidence 98 to 100
+                  time next level : 27984
+ 31     |  -30  | F1 d1 C1 d8 B6 e8 C8 a3 B5 b3 G2 g6 | 00:01:24.97 |  24 125 232 227 |  298 623 |
+                  time level : 80788
+                  confidence 100 to 100
+                  time next level : 888668
+I play F1
+evaluation -30
+time 00:01:24.97
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . . O . . . 1
+2 . . . . O O . . 2
+3 . . # # O # . O 3
+4 . # # # O # O O 4	Noirs: 10	Blancs: 22
+5 . . O O O O O . 5	NOIRS au trait
+6 . . O O O # O # 6
+7 . . O O O O # . 7
+8 . . . . . O . . 8
+  A B C D E F G H 
+
+Evaluation : 14
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +12  | H5 d2 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             471 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +11  | H5 d2 B6 c2 -- -- -- -- -- -- -- -- | 00:00:00.00 |           1 038 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +12  | H5 d2 B5 b6 C2 g3 -- -- -- -- -- -- | 00:00:00.00 |           6 976 |      N/A |
+                  time level : 0
+                  time next level : 0
+  8@72  |  +11  | H5 d2 B5 b6 C2 b1 H2 h8 -- -- -- -- | 00:00:00.00 |          17 764 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +10  | D2 h8 D1 g3 F1 g2 E8 g1 H1 h2 -- -- | 00:00:00.00 |          40 681 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 12@72  |  +11  | D2 h8 D1 g3 F1 g2 E8 g1 H1 h2 D8 a3 | 00:00:00.00 |         164 449 |      N/A |
+                  time level : 5
+                  time next level : 0
+ 14@72  |   +9  | D2 d1 E8 h8 C2 d8 F1 g1 B6 a6 B7 g3 | 00:00:00.02 |         911 438 |   70 110 |
+                  time level : 13
+                  depth 14 to 16
+                  time next level : 92
+ 16@72  |   +8  | D2 d1 E8 c2 C1 b1 H7 h5 G3 d8 B5 b6 | 00:00:00.03 |       1 081 406 |   67 587 |
+                  time level : 16
+                  depth 16 to 18
+                  time next level : 90
+ 18@72+ |   +6  | D2 d1 E8 c2 C1 b1 H7 h5 G3 d8 G1 h8 | 00:00:00.10 |       5 411 506 |   76 218 |
+                  time level : 71
+                  depth 18 to 20
+                  time next level : 397
+ 20@72+ |   +8  | H5 b5 D2 g3 A6 c1 H2 c2 C8 a3 G8 d8 | 00:00:00.22 |      12 348 904 |  107 381 |
+                  time level : 115
+                  depth 20 to 22
+                  time next level : 588
+ 22@72+ |  +10  | H5 b5 D2 g3 A6 c1 H2 b3 C8 d8 B6 h8 | 00:00:00.32 |      12 400 265 |  121 571 |
+                  time level : 102
+                  depth 22 to @60
+                  time next level : 918
+ 32@60  |  +12  | H5 b5 F1 a4 D1 h8 H2 b3 A5 a6 C2 b2 | 00:00:02.72 |     749 324 465 |  312 348 |
+                  time level : 2399
+                  confidence 60 to 72
+                  time next level : 7197
+ 32@72  |  +12  | H5 b5 F1 a4 D1 h8 H2 b3 A5 a6 C2 b2 | 00:00:03.36 |     165 510 788 |  259 828 |
+                  time level : 637
+                  confidence 72 to 84
+                  time next level : 1911
+ 32@84  |  +12  | H5 b5 F1 a4 D1 h8 H2 b3 A5 a6 C2 b2 | 00:00:04.10 |     189 458 286 |  256 371 |
+                  time level : 739
+                  confidence 84 to 91
+                  time next level : 3695
+ 32@91  |  +12  | H5 b5 F1 h8 H2 a4 D1 b3 A5 a6 C2 b2 | 00:00:05.60 |     444 153 359 |  296 299 |
+                  time level : 1499
+                  confidence 91 to 95
+                  time next level : 7495
+ 32@95  |  +12  | H5 d2 B5 b6 C2 b1 C1 d1 G1 g2 H7 g3 | 00:00:09.06 |   1 057 490 354 |  305 280 |
+                  time level : 3464
+                  confidence 95 to 98
+                  time next level : 24248
+ 32@98  |  +14  | D2 d1 H5 h8 H2 b5 D8 a4 B6 c8 B7 e8 | 00:00:34.61 |   8 546 611 547 |  334 570 |
+                  time level : 25545
+                  confidence 98 to 100
+                  time next level : 280995
+ 32     |  +14  | D2 d1 H5 h8 H2 b5 D8 a4 B6 c8 B7 e8 | 00:02:07.93 |  31 700 336 154 |  339 694 |
+                  time level : 93320
+                  confidence 100 to 100
+                  time next level : 1026520
+I play D2
+evaluation 14
+time 00:02:07.93
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . O . . . . 1
+2 . . O O . O . . 2
+3 . . . O O O # . 3
+4 O O O O O O # . 4	Noirs: 8	Blancs: 24
+5 . # # # # O # # 5	NOIRS au trait
+6 . . O O O O O O 6
+7 . . O O O . . . 7
+8 . . . . O . . . 8
+  A B C D E F G H 
+
+Evaluation : 34
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +28  | A3 a5 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             395 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +27  | A3 a2 B3 c3 -- -- -- -- -- -- -- -- | 00:00:00.00 |           1 098 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +27  | E1 a5 E2 h4 C1 h3 -- -- -- -- -- -- | 00:00:00.00 |          10 838 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |  +26  | E1 g1 F7 f1 B6 h3 H7 h4 -- -- -- -- | 00:00:00.00 |          40 105 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 10@72  |  +27  | F7 a5 E2 e1 H7 h3 B6 f8 C3 h4 -- -- | 00:00:00.00 |         164 147 |      N/A |
+                  time level : 5
+                  time next level : 0
+ 12@72  |  +28  | F7 a5 E2 e1 C3 f8 B6 h4 H3 h2 G7 b3 | 00:00:00.01 |         381 681 |   54 525 |
+                  time level : 7
+                  time next level : 0
+ 14@72  |  +28  | F7 a5 E2 f8 C3 e1 H7 h3 A6 h4 H2 b2 | 00:00:00.02 |         765 721 |   63 810 |
+                  time level : 12
+                  depth 14 to 16
+                  time next level : 83
+ 16@72  |  +28  | F7 a5 E1 h4 H3 h2 E2 f8 C1 h7 B2 g2 | 00:00:00.04 |       1 213 531 |   71 384 |
+                  time level : 17
+                  depth 16 to 18
+                  time next level : 97
+ 18@72  |  +27  | F7 a5 E2 e1 C3 f8 B6 a6 B7 h3 A3 g2 | 00:00:00.09 |       6 001 633 |  122 482 |
+                  time level : 49
+                  depth 18 to 20
+                  time next level : 277
+ 20@72+ |  +28  | F7 h3 H7 h4 H2 f8 B6 g7 E1 f1 H8 g8 | 00:00:00.17 |      10 578 621 |  123 007 |
+                  time level : 86
+                  depth 20 to 22
+                  time next level : 433
+ 22@72+ |  +30  | F7 h3 H7 h4 H2 f8 B6 g7 E1 f1 A3 a5 | 00:00:00.22 |       4 684 610 |  101 839 |
+                  time level : 46
+                  depth 22 to @60
+                  time next level : 414
+ 32@60  |  +30  | F7 a5 E2 e1 C3 h3 B3 h4 G7 b2 G1 h8 | 00:00:01.80 |     485 094 944 |  306 246 |
+                  time level : 1584
+                  confidence 60 to 72
+                  time next level : 4752
+ 32@72  |  +30  | F7 a5 E2 e1 C3 h3 B3 h4 G7 b2 G1 h8 | 00:00:02.58 |     198 773 903 |  257 146 |
+                  time level : 773
+                  confidence 72 to 84
+                  time next level : 2319
+ 32@84  |  +30  | F7 a5 E2 e1 C3 h3 B3 h4 G7 b2 G1 h8 | 00:00:03.66 |     296 004 877 |  273 067 |
+                  time level : 1084
+                  confidence 84 to 91
+                  time next level : 5420
+ 32@91  |  +30  | F7 a5 E2 e1 C3 h3 B3 h4 G7 b2 G1 h8 | 00:00:05.84 |     613 682 866 |  281 247 |
+                  time level : 2182
+                  confidence 91 to 95
+                  time next level : 10910
+ 32@95  |  +32  | A3 a2 B3 c3 F7 h2 B6 a7 F8 d8 C8 b7 | 00:00:09.13 |     938 181 781 |  285 595 |
+                  time level : 3285
+                  confidence 95 to 98
+                  time next level : 22995
+ 32@98  |  +32  | A3 a2 B3 c3 F7 h2 B6 a7 F8 d8 C8 b7 | 00:00:12.35 |     822 702 645 |  255 577 |
+                  time level : 3219
+                  confidence 98 to 100
+                  time next level : 35409
+ 32     |  +32  | A3 a2 B3 c3 F7 h2 B6 a7 F8 d8 C8 b7 | 00:09:38.94 | 164 449 562 324 |  290 245 |
+                  time level : 566588
+                  confidence 100 to 100
+                  time next level : 6232468
+I play A3
+evaluation 32
+time 00:09:38.94
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . O . O # . . 1
+2 # . O O O . . . 2
+3 # # O O O . . . 3
+4 # # O # O O O O 4	Noirs: 9	Blancs: 21
+5 . O O O O O . . 5	NOIRS au trait
+6 O . # . O . . . 6
+7 . . O # . . . . 7
+8 . . . . . . . . 8
+  A B C D E F G H 
+
+Evaluation : 25
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +22  | D6 b6 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             241 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +22  | D6 b7 B6 a5 -- -- -- -- -- -- -- -- | 00:00:00.00 |             776 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +22  | D6 c8 B6 b7 E8 a5 -- -- -- -- -- -- | 00:00:00.00 |           6 541 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |  +20  | D6 c8 B6 b7 F3 f2 E8 a7 -- -- -- -- | 00:00:00.00 |          14 334 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +20  | D6 c8 B6 a7 D1 g1 B2 b7 E8 d8 -- -- | 00:00:00.00 |          57 736 |      N/A |
+                  time level : 3
+                  time next level : 0
+ 12@72  |  +22  | B6 c8 D6 a7 F6 e7 D1 g1 G6 f7 B2 h5 | 00:00:00.01 |         242 296 |      N/A |
+                  time level : 5
+                  time next level : 0
+ 14@72  |  +21  | B6 d6 E7 d8 F6 f8 F7 g5 D1 a5 A7 g1 | 00:00:00.01 |         311 607 |   51 934 |
+                  time level : 6
+                  depth 14 to 16
+                  time next level : 36
+ 16@72  |  +21  | B6 d6 E7 d8 F6 f8 F7 g5 D1 a5 A7 g1 | 00:00:00.02 |         913 942 |   83 085 |
+                  time level : 11
+                  depth 16 to 18
+                  time next level : 61
+ 18@72  |  +20  | B6 d6 E7 d8 F6 f8 F7 g5 C8 b7 E8 a5 | 00:00:00.04 |       1 430 985 |   84 175 |
+                  time level : 17
+                  depth 18 to 20
+                  time next level : 82
+ 20@72  |  +22  | B6 c8 F6 a7 G5 b7 D6 h5 D1 g1 B2 a1 | 00:00:00.06 |       1 958 167 |   85 137 |
+                  time level : 23
+                  depth 20 to 22
+                  time next level : 97
+ 22@72+ |  +24  | B6 c8 F6 g6 D6 a7 F7 b7 E8 d8 E7 g8 | 00:00:00.13 |       8 540 345 |  118 615 |
+                  time level : 72
+                  depth 22 to 24
+                  time next level : 307
+ 24@72+ |  +24  | B6 c8 F6 g6 D6 a7 F7 f8 E8 d8 E7 b7 | 00:00:00.22 |       9 867 550 |  120 335 |
+                  time level : 82
+                  depth 24 to @60
+                  time next level : 738
+ 34@60  |  +26  | B6 c8 F6 g6 D6 a7 F7 f8 E8 b7 H5 h6 | 00:00:02.37 |     745 115 480 |  345 921 |
+                  time level : 2154
+                  confidence 60 to 72
+                  time next level : 6462
+ 34@72  |  +26  | B6 c8 F6 a7 D6 b7 G5 h5 B2 f7 E8 d8 | 00:00:04.62 |     852 637 906 |  379 456 |
+                  time level : 2247
+                  confidence 72 to 84
+                  time next level : 6741
+ 34@84  |  +26  | B6 c8 F6 a7 D6 b7 G5 h5 B2 f7 E8 d8 | 00:00:05.63 |     326 438 703 |  321 614 |
+                  time level : 1015
+                  confidence 84 to 91
+                  time next level : 5075
+ 34@91  |  +34  | B7 a5 A7 a8 B2 c8 B6 a1 D6 e7 F2 f3 | 00:00:16.61 |   4 106 193 569 |  374 140 |
+                  time level : 10975
+                  confidence 91 to 95
+                  time next level : 54875
+ 34@95  |  +34  | B7 a5 A7 a8 B2 c8 B6 a1 D6 e7 F2 f3 | 00:00:17.00 |     110 225 202 |  277 645 |
+                  time level : 397
+                  confidence 95 to 98
+                  time next level : 2779
+ 34@98  |  +34  | B7 a5 A7 a8 B2 c8 B6 a1 D6 e7 F2 f3 | 00:00:17.85 |     232 489 314 |  275 135 |
+                  time level : 845
+                  confidence 98 to 100
+                  time next level : 9295
+ 34     |  +34  | B7 a5 A7 a8 B2 c8 B6 a1 D6 e7 F2 f3 | 00:04:11.62 |  68 619 543 613 |  293 530 |
+                  time level : 233773
+                  confidence 100 to 100
+                  time next level : 2571503
+I play B7
+evaluation 34
+time 00:04:11.62
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . . O . . . 1
+2 . . O O O O . . 2
+3 . O O O # . # . 3
+4 O O # O # # # # 4	Noirs: 11	Blancs: 19
+5 . # O O # . . . 5	NOIRS au trait
+6 # O O O . # . . 6
+7 . . O O . . . . 7
+8 . . . O . . . . 8
+  A B C D E F G H 
+
+Evaluation : 10
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |   +5  | C8 f3 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             297 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |   +2  | C8 f3 A5 g5 -- -- -- -- -- -- -- -- | 00:00:00.00 |             831 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |   -1  | C8 a5 A3 f3 F5 e6 -- -- -- -- -- -- | 00:00:00.00 |           7 570 |      N/A |
+                  time level : 1
+                  time next level : 0
+  8@72  |   +2  | A7 a5 A3 f5 C8 f3 C1 f7 -- -- -- -- | 00:00:00.00 |          11 945 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |   +0  | A7 a5 A3 f5 E8 f3 C8 f7 C1 b7 -- -- | 00:00:00.00 |          32 035 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 12@72  |   +3  | A7 f5 A2 f3 C8 h3 E8 h5 E7 f7 C1 d1 | 00:00:00.00 |         159 665 |      N/A |
+                  time level : 4
+                  time next level : 0
+ 14@72  |   +3  | C8 f3 E7 a5 E6 f5 A3 b8 G6 b7 G5 g2 | 00:00:00.01 |         562 672 |   70 334 |
+                  time level : 8
+                  depth 14 to 16
+                  time next level : 53
+ 16@72  |   +3  | C8 f3 E7 a5 E6 f8 A3 f5 G5 h3 H2 h6 | 00:00:00.02 |         349 616 |   43 702 |
+                  time level : 8
+                  depth 16 to 18
+                  time next level : 39
+ 18@72  |   +6  | F1 g1 D1 c1 A5 a7 A2 f5 E6 f3 E7 h5 | 00:00:00.04 |       1 084 430 |   63 790 |
+                  time level : 17
+                  depth 18 to 20
+                  time next level : 79
+ 20@72+ |   +6  | F1 g1 D1 c1 A5 a7 A2 f5 E6 f3 E7 h5 | 00:00:00.05 |         626 597 |   44 756 |
+                  time level : 14
+                  depth 20 to 22
+                  time next level : 53
+ 22@72+ |   +6  | F1 g1 D1 c1 A5 a7 A2 f5 E6 f3 E7 h5 | 00:00:00.07 |       1 024 278 |   60 251 |
+                  time level : 17
+                  depth 22 to 24
+                  time next level : 59
+ 24@72+ |   +6  | F1 g1 D1 c1 A5 a7 A2 f5 E6 f3 E7 h5 | 00:00:00.10 |       2 407 891 |   77 673 |
+                  time level : 31
+                  depth 24 to @60
+                  time next level : 279
+ 34@60  |   +6  | F1 g1 D1 c1 A5 a7 E7 f5 E6 f7 E8 f8 | 00:00:00.56 |      89 198 772 |  192 653 |
+                  time level : 463
+                  confidence 60 to 72
+                  time next level : 1389
+ 34@72  |   +6  | F1 g1 D1 c1 A5 a7 E7 f5 E6 f7 E8 f8 | 00:00:00.76 |      38 315 221 |  191 576 |
+                  time level : 200
+                  confidence 72 to 84
+                  time next level : 600
+ 34@84  |   +6  | F1 g1 D1 c1 A5 a7 E7 f5 E6 f7 E8 f8 | 00:00:01.18 |      91 026 112 |  218 288 |
+                  time level : 417
+                  confidence 84 to 91
+                  time next level : 2085
+ 34@91  |   +6  | F1 g1 D1 c1 A5 a7 E7 f5 E6 f7 E8 f8 | 00:00:02.89 |     486 826 048 |  284 693 |
+                  time level : 1710
+                  confidence 91 to 95
+                  time next level : 8550
+ 34@95  |   +8  | F1 g1 A2 f3 C1 f5 A7 f7 C8 b8 G6 g5 | 00:00:04.88 |     555 760 721 |  278 437 |
+                  time level : 1996
+                  confidence 95 to 98
+                  time next level : 13972
+ 34@98  |   +8  | F1 g1 A2 f3 C1 f5 A7 f7 C8 b8 G6 g5 | 00:00:08.49 |     983 441 921 |  273 026 |
+                  time level : 3602
+                  confidence 98 to 100
+                  time next level : 39622
+ 34     |   +8  | F1 g1 A2 f3 C1 f5 A7 f7 C8 b8 G6 g5 | 00:02:39.16 |  50 366 215 731 |  334 272 |
+                  time level : 150674
+                  confidence 100 to 100
+                  time next level : 1657414
+I play F1
+evaluation 8
+time 00:02:39.16
+---------------------------------------------------------------------------------------------------
+
+  A B C D E F G H 
+1 . . . . . . . . 1
+2 . . . . . . # . 2
+3 . . . . O . # # 3
+4 . . . O O O # . 4	Noirs: 7	Blancs: 21
+5 O O O O # O # # 5	NOIRS au trait
+6 . . O O O O O O 6
+7 . . O . O O . O 7
+8 . . . . O O . . 8
+  A B C D E F G H 
+
+Evaluation : 29
+
+  depth | score | principal variation                 | time        |       nodes (N) |     kN/s |
+  2     |  +37  | H8 h4 -- -- -- -- -- -- -- -- -- -- | 00:00:00.00 |             129 |      N/A |
+                  time level : 0
+                  time next level : 0
+  4     |  +46  | H8 h4 G7 f2 -- -- -- -- -- -- -- -- | 00:00:00.00 |             390 |      N/A |
+                  time level : 0
+                  time next level : 0
+  6@72  |  +48  | D7 d8 H8 h2 G7 g8 -- -- -- -- -- -- | 00:00:00.00 |           3 836 |      N/A |
+                  time level : 0
+                  time next level : 0
+  8@72  |  +56  | D7 h2 H1 g1 F2 e1 F3 d8 -- -- -- -- | 00:00:00.00 |           7 300 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 10@72  |  +58  | D7 h4 H8 g1 F2 d8 H2 pa G7 g8 -- -- | 00:00:00.00 |          17 009 |      N/A |
+                  time level : 1
+                  time next level : 0
+ 12@72  |  +62  | D7 h4 H8 g1 F2 d8 H2 pa C8 b8 G7 g8 | 00:00:00.00 |          37 315 |      N/A |
+                  time level : 2
+                  time next level : 0
+ 14@72  |  +63  | D7 h4 H8 g1 F2 d8 H2 pa C8 b8 G7 g8 | 00:00:00.00 |          55 061 |      N/A |
+                  time level : 2
+                  depth 14 to 16
+                  time next level : 9
+ 16@72  |>=+64  | D7 h4 H8 c8 G7 h2 F2 g1 H1 g8 E1 e2 | 00:00:00.01 |         253 888 |      N/A |
+                  time level : 5
+                  depth 16 to 18
+                  time next level : 23
+ 18@72  |>=+64  | D7 d8 H8 g1 G7 g8 C8 pa H4 pa B8 b7 | 00:00:00.01 |         306 962 |   51 160 |
+                  time level : 6
+                  depth 18 to 20
+                  time next level : 24
+ 36@84  |>=+64  | D7 d8 H8 g1 G7 g8 H4 pa F2 h2 F3 f1 | 00:00:03.63 |     867 268 071 |  239 775 |
+                  time level : 3617
+                  confidence 60 to 72
+                  time next level : 10851
+ 36     |>=+64  | D7 d8 H8 g1 G7 g8 H4 pa F2 h2 F3 f1 | 00:00:03.90 |      61 183 659 |  230 881 |
+                  time level : 265
+                  confidence 91 to 95
+                  time next level : 1325
+I play D7
+evaluation 64
+time 00:00:03.90
+---------------------------------------------------------------------------------------------
+Total time  :     00:25:37.70
+Total nodes : 466 559 129 727
+Speed       :         303 413 kN/s
+
