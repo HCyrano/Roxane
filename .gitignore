@@ -102,3 +102,7 @@ logs/
 # ignorer le dossier commandes
 commandes/
 
+# ignorer le dossier bug
+bug/
+
+
