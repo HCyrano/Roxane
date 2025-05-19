@@ -1056,7 +1056,7 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
         //stability Cutoff
         int diff_discs = 2*__builtin_popcountll(discs[player]) - 60;
         
-        if (beta >= 6*VALUE_DISC || (beta >= 0 && (diff_discs*VALUE_DISC <= beta - 8*VALUE_DISC))) {
+        if (beta >= 6*VALUE_DISC || (beta >= 0 && (diff_discs*VALUE_DISC <= beta - 6*VALUE_DISC))) {
             
             int stability_bound = 64*VALUE_DISC - 2 * get_stability(player^1);
             if ( stability_bound <= alpha )
@@ -1066,7 +1066,7 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
                 beta = stability_bound;
             
             
-        } else if (beta <= -8*VALUE_DISC || (beta <= 0 && (diff_discs*VALUE_DISC >= beta + 10*VALUE_DISC))) {
+        } else  if (beta <= -8*VALUE_DISC || (beta <= 0 && (diff_discs*VALUE_DISC >= beta + 8*VALUE_DISC))) {
             
             int stability_bound = 2 * get_stability(player) - 64*VALUE_DISC;
             if ( stability_bound >= beta )

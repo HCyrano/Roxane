@@ -39,7 +39,7 @@ class RXSearch {
 	friend class RXRoxane;
 	friend class RXEngine;
 	
-	enum t_client {kPrivate, kGGSMode, kZOOMode, kCassioMode};
+	enum t_client {kPrivate, kGGSMode};
 	
 	//parameters Engine
 	t_client clientMode;
@@ -51,7 +51,7 @@ class RXSearch {
 	RXHashTable* expected_PV;
 	
 
-	int depth_incr;
+	//int depth_incr;
 
 	bool search_on_opponent_time;
 	

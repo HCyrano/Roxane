@@ -89,12 +89,12 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
         
         //update probable time for next depth
         
-        time_nextLevel = pTime_next_level(sBoard.board, eTime - time_startLevel, depth, depth+2);;
+        time_nextLevel = pTime_next_level(sBoard.board, eTime - time_startLevel, depth, depth+2);
         
         if(depth>6)
             if(probable_timeout(time_nextLevel)) {
                 abort.store(true);
-                *log << "                  ID driver : likely timeout" << std::endl;
+                *log << "                  MG driver : likely timeout" << std::endl;
                 
                 break;
             }

@@ -42,9 +42,9 @@ short* RXEvaluation::EDGE_2XC[61];
 void RXEvaluation::load() {
 
 	//create tables
-    std::ifstream from("/Users/caussebruno/Documents/developpement/Roxane/build/Coefficientsi386.data", std::ios::binary);
+    //std::ifstream from("/Users/caussebruno/Documents/developpement/Roxane/build/Coefficientsi386.data", std::ios::binary);
     //i5 2,7ghz
-    //std::ifstream from("../build/Coefficientsi386.data", std::ios::binary);
+    std::ifstream from("../build/Coefficientsi386.data", std::ios::binary);
 	if(from) {
 		//chargement des donnees & decalage des tables
 		for(unsigned int iStage = START; iStage<END; iStage++) {

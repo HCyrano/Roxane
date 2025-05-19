@@ -183,12 +183,12 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 			
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code ||  deepest_value.date <  _date ||
-													(deepest_value.date == _date && deepest_value.depth <  depth) ||
-													(deepest_value.date == _date && deepest_value.depth == depth && deepest_value.selectivity < selectivity)) { // priority 
+													(deepest_value.date == _date && ( deepest_value.depth <  depth ||
+													(deepest_value.depth == depth && deepest_value.selectivity < selectivity)))) { // priority
 			
 			if(deepest_hashcode != hash_code &&	(newest_hashcode == hash_code ||  newest_value.date <  deepest_value.date ||
-																			  	 (newest_value.date == deepest_value.date && newest_value.depth <  deepest_value.depth) ||
-																			  	 (newest_value.date == deepest_value.date && newest_value.depth == deepest_value.depth && newest_value.selectivity <= deepest_value.selectivity))) {
+																			  	 (newest_value.date == deepest_value.date && (newest_value.depth <  deepest_value.depth ||
+																			  	 (newest_value.depth == deepest_value.depth && newest_value.selectivity <= deepest_value.selectivity))))) {
 					
 				//copy
 				newest.lock   = deepest_lock;
@@ -330,12 +330,15 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code ||  deepest_value.date <  _date ||
-													(deepest_value.date == _date && deepest_value.depth <  depth) ||
-													(deepest_value.date == _date && deepest_value.depth == depth && deepest_value.selectivity < selectivity)) { // priority 
-			
+													(deepest_value.date == _date && (deepest_value.depth <  depth ||
+													(deepest_value.depth == depth && deepest_value.selectivity < selectivity)))) { // priority
+        
+    
+            
+            
 			if(deepest_hashcode != hash_code &&	(newest_hashcode == hash_code ||  newest_value.date <  deepest_value.date ||
-																			  	 (newest_value.date == deepest_value.date && newest_value.depth <  deepest_value.depth) ||
-																			  	 (newest_value.date == deepest_value.date && newest_value.depth == deepest_value.depth && newest_value.selectivity <= deepest_value.selectivity))) {
+																			  	 (newest_value.date == deepest_value.date && (newest_value.depth <  deepest_value.depth ||
+																			  	 (newest_value.depth == deepest_value.depth && newest_value.selectivity <= deepest_value.selectivity))))) {
 				
 				//copy
 				newest.lock   = deepest_lock;

@@ -642,11 +642,11 @@ int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int al
                 if (lower >= upper)
                     return lower;
             }
-            
+ 
+            bestmove = entry.move;
+
         }
         
-        bestmove = entry.move;
-
     }
     
     
@@ -1803,7 +1803,7 @@ void RXEngine::run() {
                         std::cout << "final_score = " << final_score << "player : " << final_player << std::endl;
                         std::cout << "      score = " << score << "player : " << search_sBoard.board.player << std::endl;
 
-                        exit(1);
+                        //exit(1); //for tournamant
                     }
                     
 
@@ -1874,7 +1874,7 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
             //*log << "                  depth " << depth << " to " << next_depth << std::endl;
 
             
-            double width = std::max(pow(board.n_nodes, 1.0/depth), 1.85);
+            double width = std::min(pow(board.n_nodes, 1.0/depth), 1.85); //std::max
             double newNodes = pow(width, next_depth);
             
             probable_Time_next_level = static_cast<int>(newNodes/(board.n_nodes/time_level));

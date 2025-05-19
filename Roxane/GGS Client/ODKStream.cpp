@@ -115,19 +115,17 @@ void CODKStream::HandleOsEnd(const CMsgOsEnd *pmsg) {
 
 void CODKStream::HandleOsTimeout(const CMsgOsTimeout* pmsg){
     
-    std::cout << "pmsg::idg " << pmsg->idg << std::endl;
-    std::cout << "pmsg::sLogin " << pmsg->sLogin << std::endl;
+    std::cout  << "timeout: " << pmsg->idg << " " << pmsg->sLogin  << std::endl;
     
-    COsGame* pgame=PGame(pmsg->idg);
-    if (pgame!=NULL) {
-        pComputer->stop_engine(pmsg->idg, pgame);
-    }
-    BaseOsGameOver(pmsg->idg);
-    
+    //COsGame* pgame=PGame(pmsg->idg);
     //Adjournes [.match]
     if(pmsg->sLogin == GetLogin()) {
         (*this) << "t /os break " << pmsg->idg << "\n";
-    }
+        //BaseOsGameOver(pmsg->idg);
+    } /*else if (pgame!=NULL) {
+        pComputer->stop_engine(pmsg->idg, pgame);
+    }*/
+    
 
 }
 
