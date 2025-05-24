@@ -37,8 +37,8 @@ enum {
 	H2, G2, F2, E2, D2, C2, B2, A2,
 	H1, G1, F1, E1, D1, C1, B1, A1,
 	
-	PASS = 127,
-	NOMOVE = 255
+	PASS,
+	NOMOVE
 };
 
 /*! flipping directions */

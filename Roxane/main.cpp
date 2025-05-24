@@ -73,9 +73,11 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-	std::cout << "Version Roxane 2.7.9" << std::endl;
+    std::string version = "2.7.9";
+    
+	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
-	std::cout << "Size hashTable: " << nBitsTable << std::endl;
+	std::cout << "Size hashTable: 2^" << nBitsTable << std::endl;
     std::cout << file_name << std::endl;
         
 	RXRoxane roxane(nBitsTable, nThreads);
@@ -117,7 +119,9 @@ int main (int argc, char * const argv[]) {
 			gs.Disconnect();
 			return err;
 		}
-        		
+        
+//1ULL
+        
 		gs.Process();			// receive, parse, and pass on messages
 	}
 	

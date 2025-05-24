@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -37,9 +37,8 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		371D4D5E2D1EBFBA0072E829 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstSubfolder = None;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
@@ -101,10 +100,8 @@
 /* Begin PBXFrameworksBuildPhase section */
 		371D4D5D2D1EBFBA0072E829 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -217,11 +214,7 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = Roxane;
-			packageProductDependencies = (
-			);
 			productName = Roxane;
 			productReference = 371D4D602D1EBFBA0072E829 /* Roxane */;
 			productType = "com.apple.product-type.tool";
@@ -249,7 +242,7 @@
 			);
 			mainGroup = 371D4D572D1EBFBA0072E829;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 371D4D612D1EBFBA0072E829 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -262,7 +255,6 @@
 /* Begin PBXSourcesBuildPhase section */
 		371D4D5C2D1EBFBA0072E829 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				372327102D1FF69D002CFAF4 /* GGSMessage.cpp in Sources */,
 				372327112D1FF69D002CFAF4 /* GGSObjects.cpp in Sources */,
@@ -290,12 +282,11 @@
 				372327272D1FF69D002CFAF4 /* RXSearch.cpp in Sources */,
 				372327282D1FF69D002CFAF4 /* main.cpp in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		371D4D652D1EBFBA0072E829 /* Debug */ = {
+		371D4D652D1EBFBA0072E829 /* Debug configuration for PBXProject "Roxane" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -368,7 +359,7 @@
 			};
 			name = Debug;
 		};
-		371D4D662D1EBFBA0072E829 /* Release */ = {
+		371D4D662D1EBFBA0072E829 /* Release configuration for PBXProject "Roxane" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -438,7 +429,7 @@
 			};
 			name = Release;
 		};
-		371D4D682D1EBFBA0072E829 /* Debug */ = {
+		371D4D682D1EBFBA0072E829 /* Debug configuration for PBXNativeTarget "Roxane" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
@@ -449,7 +440,7 @@
 			};
 			name = Debug;
 		};
-		371D4D692D1EBFBA0072E829 /* Release */ = {
+		371D4D692D1EBFBA0072E829 /* Release configuration for PBXNativeTarget "Roxane" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_USE_OPTIMIZATION_PROFILE = YES;
@@ -467,19 +458,17 @@
 		371D4D5B2D1EBFBA0072E829 /* Build configuration list for PBXProject "Roxane" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				371D4D652D1EBFBA0072E829 /* Debug */,
-				371D4D662D1EBFBA0072E829 /* Release */,
+				371D4D652D1EBFBA0072E829 /* Debug configuration for PBXProject "Roxane" */,
+				371D4D662D1EBFBA0072E829 /* Release configuration for PBXProject "Roxane" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		371D4D672D1EBFBA0072E829 /* Build configuration list for PBXNativeTarget "Roxane" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				371D4D682D1EBFBA0072E829 /* Debug */,
-				371D4D692D1EBFBA0072E829 /* Release */,
+				371D4D682D1EBFBA0072E829 /* Debug configuration for PBXNativeTarget "Roxane" */,
+				371D4D692D1EBFBA0072E829 /* Release configuration for PBXNativeTarget "Roxane" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

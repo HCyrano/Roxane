@@ -122,7 +122,25 @@ const unsigned long long RXBitBoard::NEIGHBOR[] = {
 //    0X0040000000000000ULL, 0X0000000000004000ULL, 0X0002000000000000ULL, 0X0000000000000200ULL, //X
 //};
 
-
+const unsigned long long RXBitBoard::X_TO_BIT[] = {
+    0x0000000000000001ULL, 0x0000000000000002ULL, 0x0000000000000004ULL, 0x0000000000000008ULL,
+    0x0000000000000010ULL, 0x0000000000000020ULL, 0x0000000000000040ULL, 0x0000000000000080ULL,
+    0x0000000000000100ULL, 0x0000000000000200ULL, 0x0000000000000400ULL, 0x0000000000000800ULL,
+    0x0000000000001000ULL, 0x0000000000002000ULL, 0x0000000000004000ULL, 0x0000000000008000ULL,
+    0x0000000000010000ULL, 0x0000000000020000ULL, 0x0000000000040000ULL, 0x0000000000080000ULL,
+    0x0000000000100000ULL, 0x0000000000200000ULL, 0x0000000000400000ULL, 0x0000000000800000ULL,
+    0x0000000001000000ULL, 0x0000000002000000ULL, 0x0000000004000000ULL, 0x0000000008000000ULL,
+    0x0000000010000000ULL, 0x0000000020000000ULL, 0x0000000040000000ULL, 0x0000000080000000ULL,
+    0x0000000100000000ULL, 0x0000000200000000ULL, 0x0000000400000000ULL, 0x0000000800000000ULL,
+    0x0000001000000000ULL, 0x0000002000000000ULL, 0x0000004000000000ULL, 0x0000008000000000ULL,
+    0x0000010000000000ULL, 0x0000020000000000ULL, 0x0000040000000000ULL, 0x0000080000000000ULL,
+    0x0000100000000000ULL, 0x0000200000000000ULL, 0x0000400000000000ULL, 0x0000800000000000ULL,
+    0x0001000000000000ULL, 0x0002000000000000ULL, 0x0004000000000000ULL, 0x0008000000000000ULL,
+    0x0010000000000000ULL, 0x0020000000000000ULL, 0x0040000000000000ULL, 0x0080000000000000ULL,
+    0x0100000000000000ULL, 0x0200000000000000ULL, 0x0400000000000000ULL, 0x0800000000000000ULL,
+    0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL, 0x8000000000000000ULL,
+    0, 0 // <- hack for passing move & nomove
+};
 
 /* order JWC */
 
@@ -388,45 +406,6 @@ unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs,
 }
 
 
-unsigned long long RXBitBoard::hashcode() const {
-            
-    const uint16x4_t p_lines = vcreate_u16(discs[player]);
-    const uint16x4_t o_lines = vcreate_u16(discs[player^1]);
-    
-    unsigned long long
-    hashcode  = hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)];
-    
-    hashcode ^= hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
-    
-    return hashcode;
-    
-}
-
-unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
-        
-    const uint16x4_t p_lines = vcreate_u16(discs[player^1] ^ move->flipped);
-    const uint16x4_t o_lines = vcreate_u16(discs[player] | (move->flipped | move->square));
-
-    unsigned long long
-    hashcode  = hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)];
-    
-    hashcode ^= hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
-
-    return hashcode;
-    
-}
 
 
 #else
@@ -568,74 +547,6 @@ unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs,
 
 
 
-unsigned long long RXBitBoard::hashcode() const {
-    
-    
-    const unsigned long long p = discs[player];
-    const unsigned long long o = discs[player^1];
-    
-    unsigned int lines1_2 = static_cast<unsigned int> ((p & 0xFFFF000000000000ULL) >> 48);
-    unsigned int lines3_4 = static_cast<unsigned int> ((p & 0x0000FFFF00000000ULL) >> 32);
-    unsigned int lines5_6 = static_cast<unsigned int> ((p & 0x00000000FFFF0000ULL) >> 16);
-    unsigned int lines7_8 = static_cast<unsigned int> ((p & 0x000000000000FFFFULL));
-    
-    
-    unsigned long long
-    hashcode  = hashcodeTable_lines1_2[PLAYER][lines1_2];
-    hashcode ^= hashcodeTable_lines3_4[PLAYER][lines3_4];
-    hashcode ^= hashcodeTable_lines5_6[PLAYER][lines5_6];
-    hashcode ^= hashcodeTable_lines7_8[PLAYER][lines7_8];
-    
-    
-    lines1_2 = static_cast<unsigned int> ((o & 0xFFFF000000000000ULL) >> 48);
-    lines3_4 = static_cast<unsigned int> ((o & 0x0000FFFF00000000ULL) >> 32);
-    lines5_6 = static_cast<unsigned int> ((o & 0x00000000FFFF0000ULL) >> 16);
-    lines7_8 = static_cast<unsigned int> ((o & 0x000000000000FFFFULL));
-    
-    hashcode ^= hashcodeTable_lines1_2[OPPONENT][lines1_2];
-    hashcode ^= hashcodeTable_lines3_4[OPPONENT][lines3_4];
-    hashcode ^= hashcodeTable_lines5_6[OPPONENT][lines5_6];
-    hashcode ^= hashcodeTable_lines7_8[OPPONENT][lines7_8];
-    
-    
-    return hashcode;
-    
-}
-
-
-
-unsigned long long RXBitBoard::hashcode_after_move(RXMove* move)  const {
-        
-    const unsigned long long o = discs[player] | (move->flipped | move->square);
-    const unsigned long long p = discs[player^1] ^ move->flipped;
-    
-    unsigned int lines1_2 = static_cast<unsigned int> ((p & 0xFFFF000000000000ULL) >> 48);
-    unsigned int lines3_4 = static_cast<unsigned int> ((p & 0x0000FFFF00000000ULL) >> 32);
-    unsigned int lines5_6 = static_cast<unsigned int> ((p & 0x00000000FFFF0000ULL) >> 16);
-    unsigned int lines7_8 = static_cast<unsigned int> ((p & 0x000000000000FFFFULL));
-    
-    
-    unsigned long long
-    hashcode  = hashcodeTable_lines1_2[PLAYER][lines1_2];
-    hashcode ^= hashcodeTable_lines3_4[PLAYER][lines3_4];
-    hashcode ^= hashcodeTable_lines5_6[PLAYER][lines5_6];
-    hashcode ^= hashcodeTable_lines7_8[PLAYER][lines7_8];
-    
-    
-    lines1_2 = static_cast<unsigned int> ((o & 0xFFFF000000000000ULL) >> 48);
-    lines3_4 = static_cast<unsigned int> ((o & 0x0000FFFF00000000ULL) >> 32);
-    lines5_6 = static_cast<unsigned int> ((o & 0x00000000FFFF0000ULL) >> 16);
-    lines7_8 = static_cast<unsigned int> ((o & 0x000000000000FFFFULL));
-    
-    hashcode ^= hashcodeTable_lines1_2[OPPONENT][lines1_2];
-    hashcode ^= hashcodeTable_lines3_4[OPPONENT][lines3_4];
-    hashcode ^= hashcodeTable_lines5_6[OPPONENT][lines5_6];
-    hashcode ^= hashcodeTable_lines7_8[OPPONENT][lines7_8];
-    
-    
-    return hashcode;
-    
-}
 
 #endif
 
