@@ -44,7 +44,7 @@ class RXBitBoard {
     
 	public :
     
-    static const unsigned long long X_TO_BIT[66];
+    //static const unsigned long long X_TO_BIT[66];
 
 #ifdef __ARM_NEON
     static const unsigned char OUTFLANK_3[];

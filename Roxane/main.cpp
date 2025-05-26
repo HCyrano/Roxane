@@ -73,7 +73,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "2.7.9";
+    std::string version = "2.8.0";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -120,7 +120,7 @@ int main (int argc, char * const argv[]) {
 			return err;
 		}
         
-//1ULL
+
         
 		gs.Process();			// receive, parse, and pass on messages
 	}
