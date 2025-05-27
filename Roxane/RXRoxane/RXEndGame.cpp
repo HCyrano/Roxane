@@ -1033,7 +1033,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                     //score for try : mobility * VALUE_DISC - corner_stability * 8
                     iter->score += (2*RXBitBoard::get_mobility(o_discs, p_discs) - RXBitBoard::get_corner_stability(p_discs))*VALUE_DISC;
                                    /* + (RXBitBoard::count_potential_moves(o_discs, p_discs)*VALUE_DISC/64)*/
-                    /*- ((board.parity & RXBitBoard::QUADRANT_ID[iter->position])>>RXBitBoard::QUADRANT_SHITF[iter->position])*VALUE_DISC/64*/
+                    /*- ((board.parity & RXBitBoard::QUADRANT_ID[iter->position])>>RXBitBoard::QUADRANT_SHITF[iter->position])*VALUE_DISC/64;*/
 
 
                     
