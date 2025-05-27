@@ -41,10 +41,10 @@ enum {
 	NOMOVE
 };
 
-/*! flipping directions */
-enum {
-	NW = 0, N, NE,  E, SE, S , SW,  W
-};
+///*! flipping directions */
+//enum {
+//	NW = 0, N, NE,  E, SE, S , SW,  W
+//};
 
 
 

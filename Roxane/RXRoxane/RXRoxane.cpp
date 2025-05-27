@@ -47,8 +47,8 @@ RXRoxane::RXRoxane(int size_hashtable, int max_thread): GGSClient(NULL) {
 	main_PV = new RXHashTable(std::min(size_hashtable, 19));
 	expected_PV = new RXHashTable(std::min(size_hashtable, 19));
 	
-    RXBitBoard::init_hashcodeTable();
-	RXEvaluation::load();
+    RXBitBoard::static_init();
+ 	RXEvaluation::load();
 	RXEngine::probcut_coefficients();
 	
 }

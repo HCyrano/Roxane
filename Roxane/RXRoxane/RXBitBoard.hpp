@@ -41,7 +41,12 @@ class RXBitBoard {
     static unsigned long long hashcodeTable_lines5_6[2][65536];
     static unsigned long long hashcodeTable_lines7_8[2][65536];
 
-    
+//    static uint8_t EDGE_STABILITY[256*256];
+//    static int find_edge_stable(const int old_P, const int old_O, int stable);
+
+    static void init_hashcodeTable();
+//    static void edge_stability_init();
+
 	public :
     
     //static const unsigned long long X_TO_BIT[66];
@@ -69,8 +74,9 @@ class RXBitBoard {
     
 #endif
     
-    static void init_hashcodeTable();
-	
+    static void static_init();
+
+    
 	//neighborhood for each square
 	static const unsigned long long NEIGHBOR[];
     
@@ -177,6 +183,8 @@ bool generate_flips_##pos(RXMove& move) const \
     
     static inline int get_mobility(const unsigned long long discs_player, const unsigned long long discs_opponent);
     static inline int get_corner_stability(const unsigned long long& discs_player);
+//    static unsigned long long get_stable_edge(const unsigned long long  P, const unsigned long long O);
+//    inline int get_edge_stability(const int player) const;
     inline int get_stability(const int player) const;
     static inline int get_stability_opponent(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
@@ -329,6 +337,8 @@ inline int RXBitBoard::get_mobility(const unsigned long long p_discs, const unsi
 }
 
 
+
+
 /*
     @brief Get a bitboard representing all legal moves
 
@@ -369,6 +379,9 @@ inline int RXBitBoard::get_stability(const int player) const {
     return RXBitBoard::get_stability_opponent(discs[player^1], discs[player]);
 }
 
+//inline int RXBitBoard::get_edge_stability(const int player) const {
+//    return __builtin_popcountll(RXBitBoard::get_stable_edge(discs[player], discs[player^1]));
+//}
 
 
 

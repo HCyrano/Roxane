@@ -1350,13 +1350,17 @@ void RXEngine::resume() {
 /*
  void RXEngine::verif_sBoard(RXSearch& s) {
  
- std::cout << s.sBoard << std::endl;
- 
- s.sBoard.verif_score();
+ RXBBPatterns& sBoard = s.sBoard;
+ RXBitBoard& board = sBoard.board;
+
+ std::cout << sBoard << std::endl;
+
+ RXBitBoard::print_64bits(RXBitBoard::get_stable_edge(board.discs[board.player], board.discs[board.player^1]));
  
  std::cout << std::endl;
  }
  */
+ 
 
 
 /* synchronized method */
