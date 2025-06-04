@@ -1347,19 +1347,21 @@ void RXEngine::resume() {
 
 }
 
-/*
- void RXEngine::verif_sBoard(RXSearch& s) {
- 
- RXBBPatterns& sBoard = s.sBoard;
- RXBitBoard& board = sBoard.board;
 
- std::cout << sBoard << std::endl;
-
- RXBitBoard::print_64bits(RXBitBoard::get_stable_edge(board.discs[board.player], board.discs[board.player^1]));
+// void RXEngine::verif_sBoard(RXSearch& s) {
+// 
+// RXBBPatterns& sBoard = s.sBoard;
+// RXBitBoard& board = sBoard.board;
+//
+// std::cout << sBoard << std::endl;
+//
+// RXBitBoard::print_64bits(RXBitBoard::get_stable_edge_opponent(board.discs[board.player], board.discs[board.player^1]));
+//     
+//     board.get_stability(board.player);
+// 
+// std::cout << std::endl;
+// }
  
- std::cout << std::endl;
- }
- */
  
 
 

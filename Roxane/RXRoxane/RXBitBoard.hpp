@@ -41,7 +41,7 @@ class RXBitBoard {
     static unsigned long long hashcodeTable_lines5_6[2][65536];
     static unsigned long long hashcodeTable_lines7_8[2][65536];
 
-//    static uint8_t EDGE_STABILITY[256*256];
+//    static unsigned char EDGE_STABILITY[256*256]; //unsigned char
 //    static int find_edge_stable(const int old_P, const int old_O, int stable);
 
     static void init_hashcodeTable();
@@ -183,7 +183,7 @@ bool generate_flips_##pos(RXMove& move) const \
     
     static inline int get_mobility(const unsigned long long discs_player, const unsigned long long discs_opponent);
     static inline int get_corner_stability(const unsigned long long& discs_player);
-//    static unsigned long long get_stable_edge(const unsigned long long  P, const unsigned long long O);
+//    static unsigned long long get_stable_edge_opponent(const unsigned long long  P, const unsigned long long O);
 //    inline int get_edge_stability(const int player) const;
     inline int get_stability(const int player) const;
     static inline int get_stability_opponent(const unsigned long long discs_player, const unsigned long long discs_opponent);
@@ -380,7 +380,7 @@ inline int RXBitBoard::get_stability(const int player) const {
 }
 
 //inline int RXBitBoard::get_edge_stability(const int player) const {
-//    return __builtin_popcountll(RXBitBoard::get_stable_edge(discs[player], discs[player^1]));
+//    return __builtin_popcountll(RXBitBoard::get_stable_edge_opponent(discs[player^1], discs[player]));
 //}
 
 
@@ -412,14 +412,23 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
 
     //static const for all directions full lines
     
-    static const int64x2_t shift[] = {
-        {-4,-32}, {64, 32}, {-2,-16}, {64, 16}, {-1, -8}, {64,  8},
+    static const int64x2_t hv_shift[] = {
+        {-1, -8},
+        {-2, -16},
+        {-4, -32}
+    };
+    
+    static const uint64x2_t hv_mask[] = {
+        {0x0101010101010101ULL, 0xFFULL},
+        {0x8181818181818181ULL, 0xFF000000000000FFULL}
+    };
+
+    static const int64x2_t dg_shift[] = {
         {-28,-36}, { 28, 36}, {-14,-18}, { 14, 18},
         {-1,-8}, { 1, 8}, {-7,-9}, { 7, 9}
     };
     
-    static const uint64x2_t mask[] = {
-        { 0x8181818181818181ULL, 0xFF000000000000FFULL},
+    static const uint64x2_t dg_mask[] = {
         { 0x00000000F0F0F0F0ULL, 0x000000000F0F0F0FULL},
         { 0x0F0F0F0F00000000ULL, 0xF0F0F0F000000000ULL},
         { 0xF0F0F0F00F0F0F0FULL, 0x0F0F0F0FF0F0F0F0ULL},
@@ -438,34 +447,40 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
     //horizontals and verticals full lines
     uint64x2_t hv = vdupq_n_u64(filled);
     
-    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[0]), vshlq_u64(hv, shift[1])));
-    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[2]), vshlq_u64(hv, shift[3])));
-    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[4]), vshlq_u64(hv, shift[5])));
+//    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[0]), vshlq_u64(hv, shift[1])));
+//    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[2]), vshlq_u64(hv, shift[3])));
+//    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[4]), vshlq_u64(hv, shift[5])));
+//
+//    hv = vcombine_u64(((vget_low_u64(hv) & 0x0101010101010101ULL) * 0xFFULL), vget_high_u64(hv));
+//    hv = vorrq_u64(hv, mask[0]);
 
-    hv = vcombine_u64(((vget_low_u64(hv) & 0x0101010101010101ULL) * 0xFFULL), vget_high_u64(hv));
-    hv = vorrq_u64(hv, mask[0]);
-
+        
+    hv = vandq_u64(hv, vshlq_u64(hv, hv_shift[0]));
+    hv = vandq_u64(hv, vshlq_u64(hv, hv_shift[1]));
+    hv = vandq_u64(hv, vshlq_u64(hv, hv_shift[2]));
+    hv = vandq_u64(hv, hv_mask[0]);
+    hv = vcombine_u64((vget_low_u64(hv) * 0xFFULL), (vget_high_u64(hv) * 0x0101010101010101ULL)); // manque vmulq_u64
+    hv = vorrq_u64(hv, hv_mask[1]);
     
     //2 * diagonals full lines
     uint64x2_t dg = vdupq_n_u64(filled);
     
     uint64x2_t
-    temp = vandq_u64(vshlq_u64(dg, shift[6]), mask[1]);
-    temp = vorrq_u64(temp , vandq_u64(vshlq_u64(dg, shift[7]), mask[2]));
-    dg = vandq_u64(dg, vorrq_u64(temp, mask[3]));
+    temp = vandq_u64(vshlq_u64(dg, dg_shift[0]), dg_mask[0]);
+    temp = vorrq_u64(temp , vandq_u64(vshlq_u64(dg, dg_shift[1]), dg_mask[1]));
+    dg = vandq_u64(dg, vorrq_u64(temp, dg_mask[2]));
 
-    temp = vandq_u64(vshlq_u64(dg, shift[8]), mask[4]);
-    temp = vorrq_u64(temp , vandq_u64(vshlq_u64(dg, shift[9]), mask[5]));
-    dg = vandq_u64(dg, vorrq_u64(temp, mask[6]));
+    temp = vandq_u64(vshlq_u64(dg, dg_shift[2]), dg_mask[3]);
+    temp = vorrq_u64(temp , vandq_u64(vshlq_u64(dg, dg_shift[3]), dg_mask[4]));
+    dg = vandq_u64(dg, vorrq_u64(temp, dg_mask[5]));
 
-    dg = vandq_u64(dg, vandq_u64(vshlq_u64(dg, shift[12]), vshlq_u64(dg, shift[13])));
-    dg = vorrq_u64(dg, mask[7]);
+    dg = vandq_u64(dg, vandq_u64(vshlq_u64(dg, dg_shift[6]), vshlq_u64(dg, dg_shift[7])));
+    dg = vorrq_u64(dg, dg_mask[6]);
     
     
     // mix full lines and discs color
     temp = vandq_u64(hv, dg);
     temp = vandq_u64(vandq_u64(temp, vcombine_u64(vget_high_u64(temp), vget_low_u64(temp))), dd_color);
-    
     
     unsigned long long stable = vgetq_lane_u64(temp, 0);
 
@@ -483,19 +498,19 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
         
         old_stable = stable;
         
-        dir_hv = vorrq_u64(vorrq_u64(vshlq_u64(temp, shift[10]), vshlq_u64(temp, shift[11])), hv);
-        dir_dg = vorrq_u64(vorrq_u64(vshlq_u64(temp, shift[12]), vshlq_u64(temp, shift[13])), dg);
+        dir_hv = vorrq_u64(vorrq_u64(vshlq_u64(temp, dg_shift[4]), vshlq_u64(temp, dg_shift[5])), hv);
+        dir_dg = vorrq_u64(vorrq_u64(vshlq_u64(temp, dg_shift[6]), vshlq_u64(temp, dg_shift[7])), dg);
 
         temp = vandq_u64(dir_hv, dir_dg);
         temp = vandq_u64(vandq_u64(temp, vcombine_u64(vget_high_u64(temp), vget_low_u64(temp))), dd_color);
 
         stable = vgetq_lane_u64(temp, 0);
-
+        
     } while(stable != old_stable);
 
 //    if(stable == 0)
 //        return 0;
-        
+            
     return VALUE_DISC * __builtin_popcountll(stable);
  
 }
@@ -521,7 +536,7 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
     left_right &= left_right >> 1;
     left_right &= 0x0101010101010101ULL;
     
-    //trick multiplication par 255 (remplit le lignes)
+    //trick multiplication par 255 (remplit les lignes)
     left_right = (left_right << 8) - left_right; //*=255
     left_right |= 0x8181818181818181ULL;
      
@@ -1181,7 +1196,7 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
         int diff_discs = 2*__builtin_popcountll(discs[player]) - 60;
         
         if (beta >= 6*VALUE_DISC || (beta >= 0 && (diff_discs*VALUE_DISC <= beta - 6*VALUE_DISC))) {
-            
+
             int stability_bound = 64*VALUE_DISC - 2 * get_stability(player^1);
             if ( stability_bound <= alpha )
                 return stability_bound; //alpha

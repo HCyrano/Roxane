@@ -479,7 +479,7 @@ void RXRoxane::get_move(const std::string& file_name) {
                 
                 engine[search.idEngine]->get_move(search);
                 
-                //engine[search.idEngine]->verif_sBoard(search);
+//                engine[search.idEngine]->verif_sBoard(search);
                 
 				T += search.bestMove.tElapsed;
 				nodes += search.bestMove.nodes;

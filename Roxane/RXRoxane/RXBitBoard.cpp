@@ -196,7 +196,7 @@ unsigned long long RXBitBoard::hashcodeTable_lines3_4[2][65536];
 unsigned long long RXBitBoard::hashcodeTable_lines5_6[2][65536];
 unsigned long long RXBitBoard::hashcodeTable_lines7_8[2][65536];
 
-//uint8_t RXBitBoard::EDGE_STABILITY[256*256];
+//unsigned char RXBitBoard::EDGE_STABILITY[256*256]; //unsigned char
 //
 //#define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
 //#define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
@@ -368,7 +368,7 @@ void RXBitBoard::static_init() {
  * @return a bitboard with (some of) player's stable discs.
  *
  */
-//unsigned long long RXBitBoard::get_stable_edge(const unsigned long long P, const unsigned long long O) {
+//unsigned long long RXBitBoard::get_stable_edge_opponent(const unsigned long long P, const unsigned long long O) {
 //
 //    // compute the exact stable edges (from precomputed tables)
 //    return EDGE_STABILITY[(P & 0xff) * 256 + (O & 0xff)]

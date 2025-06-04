@@ -79,6 +79,7 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv
     
     if(USE_STABILITY && !pv) {
         if ( beta >= stability_threshold[board.n_empties]) {
+            
             int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
             if ( stability_bound <= alpha )
                 return stability_bound;
@@ -219,6 +220,7 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
         if(USE_STABILITY) {
             
             if ( upper >= stability_threshold[board.n_empties] ) {
+
                 int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
                 if ( stability_bound <= lower )
                     return stability_bound;
@@ -381,6 +383,7 @@ int RXEngine::EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const 
         if(USE_STABILITY) {
             
             if ( upper >= stability_threshold[board.n_empties] ) {
+                
                 int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
                 if ( stability_bound <= lower )
                     return stability_bound;
@@ -590,6 +593,7 @@ int RXEngine::EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool p
             
             
             if ( upper >= stability_threshold[board.n_empties] ) {
+                
                 int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
                 if ( stability_bound <= lower )
                     return stability_bound;
@@ -874,6 +878,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
          score_max<=stability_bound < beta  ==> adjustment search window
          */
         if (  upper >= stability_threshold[board.n_empties] ) {
+            
             int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
             if ( stability_bound <= lower )
                 return stability_bound;
@@ -1336,6 +1341,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
          score_max<=stability_bound < beta  ==> adjustment search window
          */
         if (upper >= stability_threshold[board.n_empties] ) {
+            
             int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
             if ( stability_bound <= lower )
                 return stability_bound;
@@ -1970,6 +1976,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
  
     if(USE_STABILITY && bestmove == NOMOVE) {
         if ( alpha+VALUE_DISC >= stability_threshold[board.n_empties] ) {
+            
             int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
             if ( stability_bound <= alpha )
                 return stability_bound;
