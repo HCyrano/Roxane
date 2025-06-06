@@ -480,9 +480,10 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
     
     // mix full lines and discs color
     temp = vandq_u64(hv, dg);
-    temp = vandq_u64(vandq_u64(temp, vcombine_u64(vget_high_u64(temp), vget_low_u64(temp))), dd_color);
-    
+    temp = vandq_u64(vandq_u64(temp, vextq_u64(temp, temp, 1)), dd_color);
+
     unsigned long long stable = vgetq_lane_u64(temp, 0);
+    
 
 
     if(stable == 0)
@@ -502,7 +503,7 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
         dir_dg = vorrq_u64(vorrq_u64(vshlq_u64(temp, dg_shift[6]), vshlq_u64(temp, dg_shift[7])), dg);
 
         temp = vandq_u64(dir_hv, dir_dg);
-        temp = vandq_u64(vandq_u64(temp, vcombine_u64(vget_high_u64(temp), vget_low_u64(temp))), dd_color);
+        temp = vandq_u64(vandq_u64(temp, vextq_u64(temp, temp, 1)), dd_color);
 
         stable = vgetq_lane_u64(temp, 0);
         
