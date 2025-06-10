@@ -41,11 +41,11 @@ class RXBitBoard {
     static unsigned long long hashcodeTable_lines5_6[2][65536];
     static unsigned long long hashcodeTable_lines7_8[2][65536];
 
-//    static unsigned char EDGE_STABILITY[256*256]; //unsigned char
-//    static int find_edge_stable(const int old_P, const int old_O, int stable);
+    static unsigned char EDGE_STABILITY[256*256]; //unsigned char
+    static int find_edge_stable(const int old_P, const int old_O, int stable);
 
     static void init_hashcodeTable();
-//    static void edge_stability_init();
+    static void edge_stability_init();
 
 	public :
     
@@ -183,10 +183,10 @@ bool generate_flips_##pos(RXMove& move) const \
     
     static inline int get_mobility(const unsigned long long discs_player, const unsigned long long discs_opponent);
     static inline int get_corner_stability(const unsigned long long& discs_player);
-//    static unsigned long long get_stable_edge_opponent(const unsigned long long  P, const unsigned long long O);
-//    inline int get_edge_stability(const int player) const;
+    static unsigned long long get_stable_edge_opponent(const unsigned long long  P, const unsigned long long O);
+    inline int get_edge_stability(const int player) const;
     inline int get_stability(const int player) const;
-    static inline int get_stability_opponent(const unsigned long long discs_player, const unsigned long long discs_opponent);
+    static inline int get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
     
     void do_move(const RXMove& move);
@@ -255,6 +255,10 @@ static inline unsigned long long OutflankToFlipmask(unsigned long long outflank)
     #define rotl8(x,y)    __builtin_ia32_rolqi((x),(y))
 #endif
 
+#define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
+#define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
+#define    packA1A8(X)    ((((X) & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56)
+#define    packH1H8(X)    ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
 
 
 
@@ -376,12 +380,12 @@ inline uint64_t RXBitBoard::calc_legal(const uint64_t P, const uint64_t O){
 ///   - color: couleur du joueur
 ///   - n_stables_cut: valeur de coupure (type alpha, beta)
 inline int RXBitBoard::get_stability(const int player) const {
-    return RXBitBoard::get_stability_opponent(discs[player^1], discs[player]);
+    return RXBitBoard::get_stability(discs[player^1], discs[player]);
 }
 
-//inline int RXBitBoard::get_edge_stability(const int player) const {
-//    return __builtin_popcountll(RXBitBoard::get_stable_edge_opponent(discs[player^1], discs[player]));
-//}
+inline int RXBitBoard::get_edge_stability(const int player) const {
+    return __builtin_popcountll(RXBitBoard::get_stable_edge_opponent(discs[player^1], discs[player]));
+}
 
 
 
@@ -405,109 +409,80 @@ inline int RXBitBoard::get_stability(const int player) const {
 //
 //}
 
+/**
+ * @brief Get stable edge.
+ *
+ * This function uses precomputed exact stable edge table to accelerate
+ * the computation.
+ *
+ * @param P bitboard with player's discs.
+ * @param O bitboard with opponent's discs.
+ * @return a bitboard with (some of) player's stable discs.
+ *
+ */
+inline unsigned long long RXBitBoard::get_stable_edge_opponent(const unsigned long long P, const unsigned long long O) {
+
+    // compute the exact stable edges (from precomputed tables)
+    return EDGE_STABILITY[(P & 0xff) * 256 + (O & 0xff)]
+        |  ((uint64_t)EDGE_STABILITY[(P >> 56) * 256 + (O >> 56)]) << 56
+        |  unpackA2A7(EDGE_STABILITY[packA1A8(P) * 256 + packA1A8(O)])
+        |  unpackH2H7(EDGE_STABILITY[packH1H8(P) * 256 + packH1H8(O)]);
+
+
+}
 
     
     
-inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_player, const unsigned long long discs_opponent) {
-
-    //static const for all directions full lines
-    
-    static const int64x2_t hv_shift[] = {
-        {-1, -8},
-        {-2, -16},
-        {-4, -32}
-    };
-    
-    static const uint64x2_t hv_mask[] = {
-        {0x0101010101010101ULL, 0xFFULL},
-        {0x8181818181818181ULL, 0xFF000000000000FFULL}
-    };
-
-    static const int64x2_t dg_shift[] = {
-        {-28,-36}, { 28, 36}, {-14,-18}, { 14, 18},
-        {-1,-8}, { 1, 8}, {-7,-9}, { 7, 9}
-    };
-    
-    static const uint64x2_t dg_mask[] = {
-        { 0x00000000F0F0F0F0ULL, 0x000000000F0F0F0FULL},
-        { 0x0F0F0F0F00000000ULL, 0xF0F0F0F000000000ULL},
-        { 0xF0F0F0F00F0F0F0FULL, 0x0F0F0F0FF0F0F0F0ULL},
-        { 0x0000FCFCFCFCFCFCULL, 0x00003F3F3F3F3F3FULL},
-        { 0x3F3F3F3F3F3F0000ULL, 0xFCFCFCFCFCFC0000ULL},
-        { 0xC0C0000000000303ULL, 0x030300000000C0C0ULL},
-        { 0xFF818181818181FFULL, 0xFF818181818181FFULL}
-    };
-    
-    //--------------------------------------------------------------------------------------------
-    
+inline int RXBitBoard::get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent) {
+        
     const unsigned long long filled = discs_player | discs_opponent;
-    const uint64x2_t dd_color = vdupq_n_u64(discs_opponent);
+    const unsigned long long central_mask = discs_opponent & 0x007e7e7e7e7e7e00ULL;
 
 
-    //horizontals and verticals full lines
-    uint64x2_t hv = vdupq_n_u64(filled);
+    unsigned long long stable = get_stable_edge_opponent(discs_opponent, discs_player);
     
-//    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[0]), vshlq_u64(hv, shift[1])));
-//    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[2]), vshlq_u64(hv, shift[3])));
-//    hv = vandq_u64( hv, vorrq_u64(vshlq_u64(hv, shift[4]), vshlq_u64(hv, shift[5])));
-//
-//    hv = vcombine_u64(((vget_low_u64(hv) & 0x0101010101010101ULL) * 0xFFULL), vget_high_u64(hv));
-//    hv = vorrq_u64(hv, mask[0]);
-
-        
-    hv = vandq_u64(hv, vshlq_u64(hv, hv_shift[0]));
-    hv = vandq_u64(hv, vshlq_u64(hv, hv_shift[1]));
-    hv = vandq_u64(hv, vshlq_u64(hv, hv_shift[2]));
-    hv = vandq_u64(hv, hv_mask[0]);
-    hv = vcombine_u64((vget_low_u64(hv) * 0xFFULL), (vget_high_u64(hv) * 0x0101010101010101ULL)); // manque vmulq_u64
-    hv = vorrq_u64(hv, hv_mask[1]);
-    
-    //2 * diagonals full lines
-    uint64x2_t dg = vdupq_n_u64(filled);
-    
-    uint64x2_t
-    temp = vandq_u64(vshlq_u64(dg, dg_shift[0]), dg_mask[0]);
-    temp = vorrq_u64(temp , vandq_u64(vshlq_u64(dg, dg_shift[1]), dg_mask[1]));
-    dg = vandq_u64(dg, vorrq_u64(temp, dg_mask[2]));
-
-    temp = vandq_u64(vshlq_u64(dg, dg_shift[2]), dg_mask[3]);
-    temp = vorrq_u64(temp , vandq_u64(vshlq_u64(dg, dg_shift[3]), dg_mask[4]));
-    dg = vandq_u64(dg, vorrq_u64(temp, dg_mask[5]));
-
-    dg = vandq_u64(dg, vandq_u64(vshlq_u64(dg, dg_shift[6]), vshlq_u64(dg, dg_shift[7])));
-    dg = vorrq_u64(dg, dg_mask[6]);
+    uint64_t v;
+    uint8x8_t h;
+    uint64x2_t l79, r79;
+    const uint64x2_t e790 = vdupq_n_u64(0x007f7f7f7f7f7f7f);
+    const uint64x2_t e791 = vdupq_n_u64(0xfefefefefefefe00);
+    const uint64x2_t e792 = vdupq_n_u64(0x00003f3f3f3f3f3f);
+    const uint64x2_t e793 = vdupq_n_u64(0x0f0f0f0ff0f0f0f0);
     
     
-    // mix full lines and discs color
-    temp = vandq_u64(hv, dg);
-    temp = vandq_u64(vandq_u64(temp, vextq_u64(temp, temp, 1)), dd_color);
+    uint64_t s_h, s_v, s_d7, s_d9;
 
-    unsigned long long stable = vgetq_lane_u64(temp, 0);
     
+    h = vcreate_u8(filled);                 l79 = r79 = vreinterpretq_u64_u8(vcombine_u8(h, vrev64_u8(h)));
+    h = vceq_u8(h, vdup_n_u8(0xff));        l79 = vandq_u64(l79, vornq_u64(vshrq_n_u64(l79, 9), e790));
+    s_h = vget_lane_u64(vreinterpret_u64_u8(h), 0);
+                                            r79 = vandq_u64(r79, vornq_u64(vshlq_n_u64(r79, 9), e791));
+    v = filled;                             l79 = vbicq_u64(l79, vbicq_u64(e792, vshrq_n_u64(l79, 18)));
+    v &= (v >> 8) | (v << 56);              r79 = vbicq_u64(r79, vshlq_n_u64(vbicq_u64(e792, r79), 18));
+    v &= (v >> 16) | (v << 48);             l79 = vandq_u64(vandq_u64(l79, r79), vorrq_u64(e793, vsliq_n_u64(vshrq_n_u64(l79, 36), r79, 36)));
+    v &= (v >> 32) | (v << 32);             s_d7 = __builtin_bswap64(vgetq_lane_u64(l79, 1));
+    s_v = v;                                s_d9 = vgetq_lane_u64(l79, 0);
 
-
-    if(stable == 0)
-        return 0;
+    stable |= (s_h & s_v & s_d7 & s_d9 & central_mask);
+    
+//    if(stable == 0)
+//        return 0;
         
 
-    unsigned long long old_stable;
-    uint64x2_t dir_hv;
-    uint64x2_t dir_dg;
-    
+    unsigned long long old_stable = 0;
+    uint64_t stable_h, stable_v, stable_d7, stable_d9;
+
            
-    do {
-        
+    while (stable != old_stable) {
         old_stable = stable;
-        
-        dir_hv = vorrq_u64(vorrq_u64(vshlq_u64(temp, dg_shift[4]), vshlq_u64(temp, dg_shift[5])), hv);
-        dir_dg = vorrq_u64(vorrq_u64(vshlq_u64(temp, dg_shift[6]), vshlq_u64(temp, dg_shift[7])), dg);
-
-        temp = vandq_u64(dir_hv, dir_dg);
-        temp = vandq_u64(vandq_u64(temp, vextq_u64(temp, temp, 1)), dd_color);
-
-        stable = vgetq_lane_u64(temp, 0);
-        
-    } while(stable != old_stable);
+        stable_h  = ((stable >> 1) | (stable << 1) | s_h);
+        stable_v  = ((stable >> 8) | (stable << 8) | s_v);
+        stable_d7 = ((stable >> 7) | (stable << 7) | s_d7);
+        stable_d9 = ((stable >> 9) | (stable << 9) | s_d9);
+        stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
+    }
+    
+//    RXBitBoard::print_64bits(stable);
 
 //    if(stable == 0)
 //        return 0;
@@ -524,7 +499,7 @@ inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_pla
 /// - Parameters:
 ///   - color: couleur du joueur
 ///   - n_stables_cut: valeur de coupure (type alpha, beta)
-inline int RXBitBoard::get_stability_opponent(const unsigned long long discs_player, const unsigned long long discs_opponent) {
+inline int RXBitBoard::get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent) {
     
     
     unsigned long long filled = discs_player | discs_opponent;

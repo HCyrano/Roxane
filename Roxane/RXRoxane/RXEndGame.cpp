@@ -917,7 +917,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                 
                 if ( USE_ENHANCED_STABLILITY && lower <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
-                    int stability_bound = 2 * board.get_stability_opponent(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
+                    int stability_bound = 2 * board.get_stability(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
                     if ( stability_bound > lower ) {
                         return stability_bound;
                     }
@@ -955,7 +955,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
 
                 if ( USE_ENHANCED_STABLILITY && !pv && lower <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
-                    int stability_bound = 2 * board.get_stability_opponent(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
+                    int stability_bound = 2 * board.get_stability(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
                     if ( stability_bound > lower ) {
                         return stability_bound;
                     }
@@ -1390,7 +1390,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             if(!pv) {
                 if (USE_ENHANCED_STABLILITY && lower <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
-                    int stability_bound = 2 * board.get_stability_opponent(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
+                    int stability_bound = 2 * board.get_stability(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
                     if ( stability_bound > lower ) {
                         return stability_bound;
                     }
@@ -1427,7 +1427,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 
                 if (USE_ENHANCED_STABLILITY && !pv && lower <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
-                    int stability_bound = 2 * board.get_stability_opponent(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
+                    int stability_bound = 2 * board.get_stability(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
                     if ( stability_bound > lower ) {
                         return stability_bound;
                     }
@@ -2029,7 +2029,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
 
             if (USE_ENHANCED_STABLILITY && alpha <= -stability_threshold[board.n_empties-1]  ) {
                 const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
-                int stability_bound = 2 * board.get_stability_opponent(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
+                int stability_bound = 2 * board.get_stability(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
                 if ( stability_bound > alpha ) {
                     return stability_bound; // alpha
                 }
@@ -2070,7 +2070,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
 
                 if (USE_ENHANCED_STABLILITY && alpha <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
-                    int stability_bound = 2 * board.get_stability_opponent(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
+                    int stability_bound = 2 * board.get_stability(board.discs[board.player^1] ^ move->flipped, d_player) - 64*VALUE_DISC;
                     if ( stability_bound > alpha ) {
                         return stability_bound; // alpha
                     }

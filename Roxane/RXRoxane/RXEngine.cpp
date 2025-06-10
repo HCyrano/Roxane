@@ -1357,7 +1357,7 @@ void RXEngine::resume() {
 //
 // RXBitBoard::print_64bits(RXBitBoard::get_stable_edge_opponent(board.discs[board.player], board.discs[board.player^1]));
 //     
-//     board.get_stability(board.player);
+// std::cout << "pions stables : " << board.get_stability(board.player) << std::endl;
 // 
 // std::cout << std::endl;
 // }

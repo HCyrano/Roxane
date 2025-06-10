@@ -196,12 +196,8 @@ unsigned long long RXBitBoard::hashcodeTable_lines3_4[2][65536];
 unsigned long long RXBitBoard::hashcodeTable_lines5_6[2][65536];
 unsigned long long RXBitBoard::hashcodeTable_lines7_8[2][65536];
 
-//unsigned char RXBitBoard::EDGE_STABILITY[256*256]; //unsigned char
-//
-//#define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
-//#define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
-//#define    packA1A8(X)    ((((X) & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56)
-//#define    packH1H8(X)    ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
+unsigned char RXBitBoard::EDGE_STABILITY[256*256]; //unsigned char
+
 
 
 #ifdef __ARM_NEON
@@ -279,105 +275,87 @@ void RXBitBoard::init_hashcodeTable() {
     }
 }
 
-//
+//init edge stability table
 
-//int RXBitBoard::find_edge_stable(const int old_P, const int old_O, int stable) {
-//    int P, O, x, y;
-//    const int E = ~(old_P | old_O); // empties
-//
-//    stable &= old_P; // mask stable squares with remaining player squares.
-//    if (!stable || E == 0) return stable;
-//
-//    for (x = 0; x < 8; ++x) {
-//        if (E & 1<<x) { //is x an empty square ?
-//            O = old_O;
-//            P = old_P | 1<<x; // player plays on it
-//            if (x > 1) { // flip left discs
-//                for (y = x - 1; y > 0 && (O & 1<<y); --y) ;
-//                if (P & 1<<y) {
-//                    for (y = x - 1; y > 0 && (O & 1<<y); --y) {
-//                        O ^= 1<<y; P ^= 1<<y;
-//                    }
-//                }
-//            }
-//            if (x < 6) { // flip right discs
-//                for (y = x + 1; y < 8 && (O & 1<<y); ++y) ;
-//                if (P & 1<<y) {
-//                    for (y = x + 1; y < 8 && (O & 1<<y); ++y) {
-//                        O ^= 1<<y; P ^= 1<<y;
-//                    }
-//                }
-//            }
-//            stable = find_edge_stable(P, O, stable); // next move
-//            if (!stable) return stable;
-//
-//            P = old_P;
-//            O = old_O | 1<<x; // opponent plays on it
-//            if (x > 1) {
-//                for (y = x - 1; y > 0 && (P & 1<<y); --y) ;
-//                if (O & 1<<y) {
-//                    for (y = x - 1; y > 0 && (P & 1<<y); --y) {
-//                        O ^= 1<<y; P ^= 1<<y;
-//                    }
-//                }
-//            }
-//            if (x < 6) {
-//                for (y = x + 1; y < 8 && (P & 1<<y); ++y) ;
-//                if (O & 1<<y) {
-//                    for (y = x + 1; y < 8 && (P & 1<<y); ++y) {
-//                        O ^= 1<<y; P ^= 1<<y;
-//                    }
-//                }
-//            }
-//            stable = find_edge_stable(P, O, stable); // next move
-//            if (!stable) return stable;
-//        }
-//    }
-//
-//    return stable;
-//}
-//
-///**
-// * @brief Initialize the edge stability tables.
-// */
-//void RXBitBoard::edge_stability_init() {
-//
-//    for (int P = 0; P < 256; ++P)
-//        for (int O = 0; O < 256; ++O) {
-//            if (P & O) { // illegal positions
-//                EDGE_STABILITY[P * 256 + O] = 0;
-//            } else {
-//                EDGE_STABILITY[P * 256 + O] = find_edge_stable(P, O, P);
-//            }
-//        }
-//}
+int RXBitBoard::find_edge_stable(const int old_P, const int old_O, int stable) {
+    int P, O, x, y;
+    const int E = ~(old_P | old_O); // empties
 
-void RXBitBoard::static_init() {
-    init_hashcodeTable();
-//    edge_stability_init();
+    stable &= old_P; // mask stable squares with remaining player squares.
+    if (!stable || E == 0) return stable;
+
+    for (x = 0; x < 8; ++x) {
+        if (E & 1<<x) { //is x an empty square ?
+            O = old_O;
+            P = old_P | 1<<x; // player plays on it
+
+            
+            if (x > 1) { // flip left discs
+                for (y = x - 1; y > 0 && (O & 1<<y); --y) ;
+                if (P & 1<<y) {
+                    for (y = x - 1; y > 0 && (O & 1<<y); --y) {
+                        O ^= 1<<y; P ^= 1<<y;
+                    }
+                }
+            }
+            if (x < 6) { // flip right discs
+                for (y = x + 1; y < 8 && (O & 1<<y); ++y) ;
+                if (P & 1<<y) {
+                    for (y = x + 1; y < 8 && (O & 1<<y); ++y) {
+                        O ^= 1<<y; P ^= 1<<y;
+                    }
+                }
+            }
+            stable = find_edge_stable(P, O, stable); // next move
+            if (!stable) return stable;
+
+            P = old_P;
+            O = old_O | 1<<x; // opponent plays on it
+
+            if (x > 1) {
+                for (y = x - 1; y > 0 && (P & 1<<y); --y) ;
+                if (O & 1<<y) {
+                    for (y = x - 1; y > 0 && (P & 1<<y); --y) {
+                        O ^= 1<<y; P ^= 1<<y;
+                    }
+                }
+            }
+            if (x < 6) {
+                for (y = x + 1; y < 8 && (P & 1<<y); ++y) ;
+                if (O & 1<<y) {
+                    for (y = x + 1; y < 8 && (P & 1<<y); ++y) {
+                        O ^= 1<<y; P ^= 1<<y;
+                    }
+                }
+            }
+            stable = find_edge_stable(P, O, stable); // next move
+            if (!stable) return stable;
+        }
+    }
+
+    return stable;
 }
 
 /**
- * @brief Get stable edge.
- *
- * This function uses precomputed exact stable edge table to accelerate
- * the computation.
- *
- * @param P bitboard with player's discs.
- * @param O bitboard with opponent's discs.
- * @return a bitboard with (some of) player's stable discs.
- *
+ * @brief Initialize the edge stability tables.
  */
-//unsigned long long RXBitBoard::get_stable_edge_opponent(const unsigned long long P, const unsigned long long O) {
-//
-//    // compute the exact stable edges (from precomputed tables)
-//    return EDGE_STABILITY[(P & 0xff) * 256 + (O & 0xff)]
-//        |  ((uint64_t)EDGE_STABILITY[(P >> 56) * 256 + (O >> 56)]) << 56
-//        |  unpackA2A7(EDGE_STABILITY[packA1A8(P) * 256 + packA1A8(O)])
-//        |  unpackH2H7(EDGE_STABILITY[packH1H8(P) * 256 + packH1H8(O)]);
-//
-//
-//}
+void RXBitBoard::edge_stability_init() {
+
+    for (int P = 0; P < 256; ++P)
+        for (int O = 0; O < 256; ++O) {
+            if (P & O) { // illegal positions
+                EDGE_STABILITY[P * 256 + O] = 0;
+            } else {
+                EDGE_STABILITY[P * 256 + O] = find_edge_stable(P, O, P);
+            }
+        }
+}
+
+void RXBitBoard::static_init() {
+    init_hashcodeTable();
+    edge_stability_init();
+}
+
 
 #ifdef __ARM_NEON
 
