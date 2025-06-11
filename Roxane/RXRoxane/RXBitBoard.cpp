@@ -1039,6 +1039,31 @@ void RXBitBoard::print_Board() {
 
 }
 
+void RXBitBoard::print_Board(unsigned long long P, unsigned long long O) {
+
+    std::cout << "\n  A B C D E F G H " << std::endl;
+    for(int iLine = 1; iLine<=8; iLine++) {
+        std::cout << iLine << " ";
+        for(int iPosition = (9-iLine)*8 - 1; iPosition>(8-iLine)*8-1; iPosition--) {
+            unsigned long long _mask = 0x1ULL<<iPosition;
+            if((P & _mask) != 0) {
+                std::cout << "P ";
+            } else if((O & _mask) !=0) {
+                std::cout << "O ";
+            } else {
+                std::cout << ". ";
+            }
+            
+        }
+        std::cout << iLine;
+
+        std::cout << std::endl;
+    }
+    std::cout << "  A B C D E F G H \n" << std::endl;
+    
+
+}
+
 
 
 
