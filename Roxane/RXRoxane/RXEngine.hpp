@@ -248,7 +248,10 @@ class RXEngine: public Runnable, public RXHelper {
 
     //volatile bool resume_flag;
     std::atomic_bool resume_flag;
-	
+    
+    bool use_pv_ext;
+    int depth_pv_extension;
+    
 	std::ofstream* log;
     
     //track BUG final
@@ -298,6 +301,11 @@ class RXEngine: public Runnable, public RXHelper {
 
 	static const int MG_DEEP_TO_SHALLOW;
 	static const int MG_MOVING_WINDOW;
+    
+    static const bool USE_PV_EXTENSION;
+    static const int PV_EXTENSION_DEPTH;
+    static const int MIN_DEPTH_USE_PV_EXTENSION;
+
 	
 
 	void iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth, const int max_depth);

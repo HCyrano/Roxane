@@ -25,6 +25,10 @@ const int RXEngine::MIN_DEPTH_SPLITPOINT = 8;
 const int RXEngine::MG_DEEP_TO_SHALLOW = 4;
 const int RXEngine::MG_MOVING_WINDOW = 4; //4
 
+const bool RXEngine::USE_PV_EXTENSION = true;
+const int RXEngine::PV_EXTENSION_DEPTH = 14;
+const int RXEngine::MIN_DEPTH_USE_PV_EXTENSION = 16;
+
 
 void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth, const int max_depth) {
     
@@ -41,6 +45,24 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
         
         sBoard.board.n_nodes = 0;
         
+        use_pv_ext = false;
+        
+        if(USE_PV_EXTENSION && depth >= MIN_DEPTH_USE_PV_EXTENSION) {
+
+            use_pv_ext = true;
+            
+            depth_pv_extension = PV_EXTENSION_DEPTH + (depth & 1);
+
+            if(abs(list->next->score) > 18*VALUE_DISC)
+                depth_pv_extension -= 2;
+            
+            if(sBoard.board.n_empties-depth <= depth_pv_extension)
+                *log << "                 Use Pv Extension" << std::endl;
+
+
+        }
+
+
         aspiration_search(sBoard, depth, list);
         
         eTime = get_current_time();
@@ -66,11 +88,15 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
             } else if(list->next->score == entry.lower || entry.upper == MAX_SCORE) {
                 type = SUPERIOR;
                 score = entry.lower;
-            } else if(list->next->score == entry.upper || entry.lower == MAX_SCORE){
+            } else if(list->next->score == entry.upper || entry.lower == -MAX_SCORE) {
                 type = INFERIOR;
                 score = entry.upper;
             }
             
+            if(USE_PV_EXTENSION && use_pv_ext)
+                if(score%2*VALUE_DISC != 0)
+                    *log << "                 Error PV EXT" << std::endl;
+                
             *log << display(sBoard.board, type, depth, score, eTime, eTime - time_startLevel) << std::endl;
         }
         
@@ -299,9 +325,7 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, in
 int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, int beta, const bool passed) {
     
     //assert(alpha>=-MAX_SCORE && beta<=MAX_SCORE);
-    
-    
-    
+        
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
@@ -317,6 +341,19 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
     int bestmove = NOMOVE;
     int lower = alpha;
     int upper = beta;
+    
+    //PV EXTENSION
+    if (USE_PV_EXTENSION && pv && use_pv_ext && (board.n_empties) <= depth_pv_extension) {
+
+        if (board.n_empties <= EG_MEDIUM_HI_TO_LOW) {
+                        
+            return EG_PVS_hash_mobility(threadID, board, true, lower, upper, passed);
+            
+        } else if (board.n_empties < EG_DEEP_TO_MEDIUM) {
+            
+            return EG_PVS_ETC_mobility(threadID, sBoard, true, lower, upper, passed);
+        }
+    }
     
     
     //synchronized acces
@@ -455,7 +492,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
         } else {
             board.do_pass();
             board.n_nodes++;
-            
+                        
             if(depth <= MG_DEEP_TO_SHALLOW)
                 bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, true);
             else
@@ -744,8 +781,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
     hTable->update(   hash_code, pv, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     /*if(pv)*/
         hTable_PV->update(hash_code, pv, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
-    
-    
+        
     return bestscore;
     
 }
@@ -891,7 +927,6 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
     RXBitBoard& board = sBoard.board;
     int bestscore = UNDEF_SCORE;
 
-    
     if(depth == 0) {
         
         return sBoard.get_score();
@@ -938,6 +973,19 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
         
         return bestscore;
     }
+    
+    //PV EXTENSION
+    if (USE_PV_EXTENSION && pv && use_pv_ext && (board.n_empties- depth) <= depth_pv_extension) {
+        
+        if (board.n_empties <= EG_MEDIUM_HI_TO_LOW) {
+            
+            return EG_PVS_hash_mobility(threadID, board, true, alpha, beta, passed);
+            
+        }
+            
+        return EG_PVS_ETC_mobility(threadID, sBoard, true, alpha, beta, passed);
+    }
+
 
     //synchronized acces
     const unsigned long long hash_code = board.hashcode();
@@ -947,6 +995,8 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
     
     int upper = beta;
     int lower = alpha;
+    
+
     
     RXHashValue entry;
     if(hTable->get(hash_code, type_hashtable, entry)) {
@@ -1099,7 +1149,7 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
         } else {
             board.n_nodes++;
             board.do_pass();
-            
+                    
             bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, true);
             
             board.do_pass();
@@ -1110,7 +1160,7 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
     hTable->update(hash_code, pv, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
-    
+
     return bestscore;
     
 }

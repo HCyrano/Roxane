@@ -1352,7 +1352,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
         if(selectivity > EG_HIGH_SELECT)
             EG_PVS_deep(threadID, sBoard, pv, selectivity-1, child_selective_cutoff, lower, upper, passed);
         else
-            MG_PVS_deep(threadID, sBoard, pv, MG_SELECT, board.n_empties-8, child_selective_cutoff, lower, upper, passed);
+            MG_PVS_deep(threadID, sBoard, pv, MG_SELECT, board.n_empties-(USE_PV_EXTENSION? 10 : 8), child_selective_cutoff, lower, upper, passed);
         
         if(abort.load() || thread_should_stop(threadID))
             return INTERRUPT_SEARCH;
@@ -1592,7 +1592,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                             
                         }
                         
-                        iter->score += RXBitBoard::get_mobility(board.discs[o], board.discs[p])*VALUE_DISC - eval_move;// - (board.get_corner_stability(board.discs[board.player^1])*VALUE_DISC)/16;
+                        iter->score += RXBitBoard::get_mobility(board.discs[o], board.discs[p])*VALUE_DISC - eval_move; // - (board.get_edge_stability(board.player)*VALUE_DISC)/16;
                         
                         sBoard.undo_move(*iter);
                         

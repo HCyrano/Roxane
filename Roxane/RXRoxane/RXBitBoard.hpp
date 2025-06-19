@@ -175,7 +175,7 @@ bool generate_flips_##pos(RXMove& move) const \
     
     void moves_producing(RXMove* start) const;
     
-    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
+//    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
 
     static int count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs);
@@ -184,7 +184,7 @@ bool generate_flips_##pos(RXMove& move) const \
     static inline int get_mobility(const unsigned long long discs_player, const unsigned long long discs_opponent);
     static inline int get_corner_stability(const unsigned long long& discs_player);
     inline int get_edge_stability(const int player) const;
-    static unsigned long long get_stable_edge_opponent(const unsigned long long  discs_player, const unsigned long long discs_opponent);
+    static unsigned long long get_stable_edge(const unsigned long long  discs_player, const unsigned long long discs_opponent);
     inline int get_stability(const int player) const;
     static inline int get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
@@ -354,24 +354,24 @@ inline int RXBitBoard::get_mobility(const unsigned long long p_discs, const unsi
 // original code from http://www.amy.hi-ho.ne.jp/okuhara/bitboard.htm
 // modified by Nyanyan
 // version EDAX version identique a Roxane (presentation pour la vectorisation)
-inline uint64_t RXBitBoard::calc_legal(const uint64_t P, const uint64_t O){
-    uint64_t moves, mO;
-    uint64_t flip1, flip7, flip9, flip8, pre1, pre7, pre9, pre8;
-    mO = O & 0x7e7e7e7e7e7e7e7eULL;
-    flip1 = mO & (P << 1);         flip7  = mO & (P << 7);        flip9  = mO & (P << 9);        flip8  = O & (P << 8);
-    flip1 |= mO & (flip1 << 1);    flip7 |= mO & (flip7 << 7);    flip9 |= mO & (flip9 << 9);    flip8 |= O & (flip8 << 8);
-    pre1 = mO & (mO << 1);         pre7 = mO & (mO << 7);         pre9 = mO & (mO << 9);         pre8 = O & (O << 8);
-    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
-    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
-    moves = flip1 << 1;            moves |= flip7 << 7;           moves |= flip9 << 9;           moves |= flip8 << 8;
-    flip1 = mO & (P >> 1);         flip7  = mO & (P >> 7);        flip9  = mO & (P >> 9);        flip8  = O & (P >> 8);
-    flip1 |= mO & (flip1 >> 1);    flip7 |= mO & (flip7 >> 7);    flip9 |= mO & (flip9 >> 9);    flip8 |= O & (flip8 >> 8);
-    pre1 >>= 1;                    pre7 >>= 7;                    pre9 >>= 9;                    pre8 >>= 8;
-    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
-    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
-    moves |= flip1 >> 1;           moves |= flip7 >> 7;           moves |= flip9 >> 9;           moves |= flip8 >> 8;
-    return moves & ~(P | O);
-}
+//inline uint64_t RXBitBoard::calc_legal(const uint64_t P, const uint64_t O){
+//    uint64_t moves, mO;
+//    uint64_t flip1, flip7, flip9, flip8, pre1, pre7, pre9, pre8;
+//    mO = O & 0x7e7e7e7e7e7e7e7eULL;
+//    flip1 = mO & (P << 1);         flip7  = mO & (P << 7);        flip9  = mO & (P << 9);        flip8  = O & (P << 8);
+//    flip1 |= mO & (flip1 << 1);    flip7 |= mO & (flip7 << 7);    flip9 |= mO & (flip9 << 9);    flip8 |= O & (flip8 << 8);
+//    pre1 = mO & (mO << 1);         pre7 = mO & (mO << 7);         pre9 = mO & (mO << 9);         pre8 = O & (O << 8);
+//    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
+//    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
+//    moves = flip1 << 1;            moves |= flip7 << 7;           moves |= flip9 << 9;           moves |= flip8 << 8;
+//    flip1 = mO & (P >> 1);         flip7  = mO & (P >> 7);        flip9  = mO & (P >> 9);        flip8  = O & (P >> 8);
+//    flip1 |= mO & (flip1 >> 1);    flip7 |= mO & (flip7 >> 7);    flip9 |= mO & (flip9 >> 9);    flip8 |= O & (flip8 >> 8);
+//    pre1 >>= 1;                    pre7 >>= 7;                    pre9 >>= 9;                    pre8 >>= 8;
+//    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
+//    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
+//    moves |= flip1 >> 1;           moves |= flip7 >> 7;           moves |= flip9 >> 9;           moves |= flip8 >> 8;
+//    return moves & ~(P | O);
+//}
 
 /// retourne un pseudo (sous evalué) score de pions stables
 /// la 1ere partie determine les lignes (dans les 4 directions) pleines
@@ -384,7 +384,7 @@ inline int RXBitBoard::get_stability(const int player) const {
 }
 
 inline int RXBitBoard::get_edge_stability(const int player) const {
-    return __builtin_popcountll(RXBitBoard::get_stable_edge_opponent(discs[player], discs[player^1]));
+    return __builtin_popcountll(RXBitBoard::get_stable_edge(discs[player], discs[player^1]));
 }
 
 
@@ -420,7 +420,7 @@ inline int RXBitBoard::get_edge_stability(const int player) const {
  * @return a bitboard with (some of) player's stable discs.
  *
  */
-inline unsigned long long RXBitBoard::get_stable_edge_opponent(const unsigned long long P, const unsigned long long O) {
+inline unsigned long long RXBitBoard::get_stable_edge(const unsigned long long P, const unsigned long long O) {
 
     // compute the exact stable edges (from precomputed tables)
     return EDGE_STABILITY[(P & 0xff) * 256 + (O & 0xff)]
@@ -438,7 +438,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
     const unsigned long long filled = discs_player | discs_opponent;
     const unsigned long long central_mask = discs_player & 0x007e7e7e7e7e7e00ULL;
 
-    unsigned long long stable = get_stable_edge_opponent(discs_player, discs_opponent);
+    unsigned long long stable = get_stable_edge(discs_player, discs_opponent);
         
     uint8x8_t h8;
     uint64x2_t l79, r79;
@@ -1151,27 +1151,25 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
 inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const bool passed) {
     
     
-    if(!pv) {
-        //stability Cutoff
-        int diff_discs = 2*__builtin_popcountll(discs[player]) - 60;
+    //stability Cutoff
+    int diff_discs = 2*__builtin_popcountll(discs[player]) - 60;
+    
+    if (beta >= 6*VALUE_DISC || (beta >= 0 && (diff_discs*VALUE_DISC <= beta - 6*VALUE_DISC))) {
         
-        if (beta >= 6*VALUE_DISC || (beta >= 0 && (diff_discs*VALUE_DISC <= beta - 6*VALUE_DISC))) {
+        int stability_bound = 64*VALUE_DISC - 2 * get_stability(player^1);
+        if ( stability_bound <= alpha )
+            return stability_bound; //alpha
+        
+        if ( stability_bound < beta )
+            beta = stability_bound;
+        
+        
+    } else  if (beta <= -8*VALUE_DISC || (beta <= 0 && (diff_discs*VALUE_DISC >= beta + 8*VALUE_DISC))) {
 
-            int stability_bound = 64*VALUE_DISC - 2 * get_stability(player^1);
-            if ( stability_bound <= alpha )
-                return stability_bound; //alpha
-            
-            if ( stability_bound < beta )
-                beta = stability_bound;
-            
-            
-        } else  if (beta <= -8*VALUE_DISC || (beta <= 0 && (diff_discs*VALUE_DISC >= beta + 8*VALUE_DISC))) {
-            
-            int stability_bound = 2 * get_stability(player) - 64*VALUE_DISC;
-            if ( stability_bound >= beta )
-                return stability_bound; //beta
-            
-        }
+        int stability_bound = 2 * get_stability(player) - 64*VALUE_DISC;
+        if ( stability_bound >= beta )
+            return stability_bound; //beta
+        
     }
     
 

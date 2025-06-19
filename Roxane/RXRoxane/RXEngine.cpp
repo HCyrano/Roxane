@@ -1757,12 +1757,12 @@ void RXEngine::run() {
         
         
         int max_depth;
-        if(search_depth <= search_sBoard.board.n_empties-6) {
+        if(search_depth <= search_sBoard.board.n_empties-(USE_PV_EXTENSION ? 10: 6)) {
             depth = std::min(depth, search_depth);
             max_depth = search_depth;
         } else {
             depth = std::min(depth, search_sBoard.board.n_empties);
-            max_depth = search_sBoard.board.n_empties-6;
+            max_depth = search_sBoard.board.n_empties-(USE_PV_EXTENSION ? 10: 6);
         }
         
         //normalisation de depth
@@ -1924,7 +1924,7 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
 
 //monothread
 void RXEngine::determine_move_time(RXBitBoard& board) {
-    
+    /*
     static const int tSafety[] = {
          0,  0,  0,  0,  0,  0,  0,  0,
          0,  0,  0,  0,  0,  0,  0,  0,
@@ -1934,6 +1934,19 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         24, 24, 24, 24, 24, 24, 24, 24,
         24, 24, 24, 24, 24, 24, 24, 24,
         24, 24, 24, 24, 24, 24, 24, 24, 24 };
+     */
+    
+     //1 minute
+     static const int tSafety[] = {
+         0,  0,  0,  0,  0,  0,  0,  0,
+         0,  0,  0,  0,  0,  0,  0,  0,
+         0,  0,  0,  0,  0,  0,  0,  1,
+         1,  2,  2,  4,  4,  7,  7,  9,
+         9, 11, 11, 13, 13, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15,
+        15, 15, 15, 15, 15, 15, 15, 15, 15 };
+    
     
     int time_Safety = 1000 * tSafety[board.n_empties];
     *log << "                  time safety : " << time_Safety << std::endl;
@@ -1951,7 +1964,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     if(get_type_search() == MIDGAME) {
         
         //M3 pro
-        int n_empties_before_solved = std::max(2, board.n_empties-24); //M3 Pro solved at 24 empties
+        int n_empties_before_solved = std::max(2, board.n_empties-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
         //i5 2,7ghz
         //int n_empties_before_solved = std::max(2, board.n_empties-22); //i5 2,7ghz solved at 22 empties
 
