@@ -25,7 +25,12 @@ const int RXEngine::MIN_DEPTH_SPLITPOINT = 8;
 const int RXEngine::MG_DEEP_TO_SHALLOW = 4;
 const int RXEngine::MG_MOVING_WINDOW = 4; //4
 
-const bool RXEngine::USE_PV_EXTENSION = true;
+// 21/06/2025 : desabled PV EXTENSION
+// with vs without : 503 games s8r14 2:00
+// w        D       L
+// 85       293     125
+// 16,9%    58,25%  24,85%
+const bool RXEngine::USE_PV_EXTENSION = false;
 const int RXEngine::PV_EXTENSION_DEPTH = 14;
 const int RXEngine::MIN_DEPTH_USE_PV_EXTENSION = 16;
 
@@ -57,7 +62,7 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
                 depth_pv_extension -= 2;
             
             if(sBoard.board.n_empties-depth <= depth_pv_extension)
-                *log << "                 Use Pv Extension" << std::endl;
+                *log << "                  Use Pv Extension" << std::endl;
 
 
         }
@@ -92,11 +97,7 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
                 type = INFERIOR;
                 score = entry.upper;
             }
-            
-            if(USE_PV_EXTENSION && use_pv_ext)
-                if(score%2*VALUE_DISC != 0)
-                    *log << "                 Error PV EXT" << std::endl;
-                
+                            
             *log << display(sBoard.board, type, depth, score, eTime, eTime - time_startLevel) << std::endl;
         }
         
@@ -345,14 +346,11 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
     //PV EXTENSION
     if (USE_PV_EXTENSION && pv && use_pv_ext && (board.n_empties) <= depth_pv_extension) {
 
-        if (board.n_empties <= EG_MEDIUM_HI_TO_LOW) {
-                        
+        if (board.n_empties <= EG_MEDIUM_HI_TO_LOW)
             return EG_PVS_hash_mobility(threadID, board, true, lower, upper, passed);
             
-        } else if (board.n_empties < EG_DEEP_TO_MEDIUM) {
-            
-            return EG_PVS_ETC_mobility(threadID, sBoard, true, lower, upper, passed);
-        }
+        return EG_PVS_ETC_mobility(threadID, sBoard, true, lower, upper, passed);
+        
     }
     
     
@@ -977,13 +975,11 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
     //PV EXTENSION
     if (USE_PV_EXTENSION && pv && use_pv_ext && (board.n_empties- depth) <= depth_pv_extension) {
         
-        if (board.n_empties <= EG_MEDIUM_HI_TO_LOW) {
-            
+        if (board.n_empties <= EG_MEDIUM_HI_TO_LOW)
             return EG_PVS_hash_mobility(threadID, board, true, alpha, beta, passed);
             
-        }
-            
         return EG_PVS_ETC_mobility(threadID, sBoard, true, alpha, beta, passed);
+        
     }
 
 
