@@ -27,7 +27,7 @@ const int RXEngine::MG_MOVING_WINDOW = 4; //4
 
 // 21/06/2025 : desabled PV EXTENSION
 // with vs without : 503 games s8r14 2:00
-// w        D       L
+// W        D       L
 // 85       293     125
 // 16,9%    58,25%  24,85%
 const bool RXEngine::USE_PV_EXTENSION = false;
@@ -54,15 +54,16 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
         
         if(USE_PV_EXTENSION && depth >= MIN_DEPTH_USE_PV_EXTENSION) {
 
-            use_pv_ext = true;
             
             depth_pv_extension = PV_EXTENSION_DEPTH + (depth & 1);
 
             if(abs(list->next->score) > 18*VALUE_DISC)
                 depth_pv_extension -= 2;
             
-            if(sBoard.board.n_empties-depth <= depth_pv_extension)
+            if(sBoard.board.n_empties-depth <= depth_pv_extension) {
+                use_pv_ext = true;
                 *log << "                  Use Pv Extension" << std::endl;
+            }
 
 
         }

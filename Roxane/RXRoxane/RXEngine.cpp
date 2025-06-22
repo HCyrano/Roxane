@@ -1966,7 +1966,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         //M3 pro
         int n_empties_before_solved = std::max(2, board.n_empties-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
         //i5 2,7ghz
-        //int n_empties_before_solved = std::max(2, board.n_empties-22); //i5 2,7ghz solved at 22 empties
+        //int n_empties_before_solved = std::max(2, board.n_empties-24); //i5 2,7ghz solved at 24 empties
 
         float n_remaining_moves = std::floor((n_empties_before_solved)/2.0);
 
