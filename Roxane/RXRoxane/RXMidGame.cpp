@@ -751,9 +751,11 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         lower = bestscore;
                 }
                 
-                if ( child_selective_cutoff )
-                    selective_cutoff = true;
-                
+//                if ( child_selective_cutoff )
+//                    selective_cutoff = true;
+
+                selective_cutoff |= child_selective_cutoff;
+
             }
         }
         
@@ -847,9 +849,11 @@ void RXEngine::MG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
             pthread_mutex_lock(&(sp->lock));
             
             
-            if(child_selective_cutoff)
-                sp->selective_cutoff = true;
-            
+            //            if(child_selective_cutoff)
+            //                sp->selective_cutoff = true;
+                        
+            sp->selective_cutoff |= child_selective_cutoff;
+
             // New best move?
             if(score > sp->bestscore) {
                 sp->bestscore = score;
@@ -1381,9 +1385,11 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                 bestmove = iter->position;
             }
             
-            if(child_selective_cutoff)
-                selective_cutoff = true;
-            
+            //                if ( child_selective_cutoff )
+            //                    selective_cutoff = true;
+
+            selective_cutoff |= child_selective_cutoff;
+
             
         }
     }
@@ -1468,9 +1474,11 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            if(child_selective_cutoff)
-                sp->selective_cutoff = true;
-            
+            //            if(child_selective_cutoff)
+            //                sp->selective_cutoff = true;
+                        
+            sp->selective_cutoff |= child_selective_cutoff;
+
             // New best move?
             if(score > sp->bestscore) {
                 sp->bestscore = score;
