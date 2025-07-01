@@ -1682,7 +1682,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                     
                     // Split?
                     if(activeThreads > 1  && !abort.load() && !thread_should_stop(threadID) && idle_thread_exists(threadID)
-                       && split(sBoard, pv, 0, board.n_empties, selectivity, selective_cutoff, child_selective_cutoff,
+                       && split(sBoard, pv, 0, board.n_empties, selectivity, selective_cutoff,
                                 lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_PVS))
                         
                         break;
@@ -1798,47 +1798,13 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
         RXMove* move = sp->list->next;
         sp->list = move;
         
-        
-        //        RXMove* move;
-        //        if(sp->list != NULL && sp->list->next != NULL) {
-        //
-        //            RXMove* previous_move = sp->list;
-        //            move = previous_move->next;
-        //
-        //            RXMove* previous_iter = move;
-        //            for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-        //                if(iter->score < move->score) {
-        //                    move = iter;
-        //                    previous_move = previous_iter;
-        //                }
-        //            }
-        //
-        //            if(previous_move != sp->list) {
-        //                //move to front
-        //                previous_move->next = move->next;
-        //                move->next = sp->list->next;
-        //                sp->list->next = move;
-        //            }
-        //
-        //            sp->list = sp->list->next;
-        //
-        //
-        //        } else {
-        //            pthread_mutex_unlock(&(sp->lock));
-        //            break;
-        //        }
-        
-        
-        bool child_selective_cutoff = sp->child_selective_cutoff;
-        
         pthread_mutex_unlock(&(sp->lock));
         
         
-        
-        
         int score;
-        
         int alpha = sp->alpha; //local copy
+        bool child_selective_cutoff = false;
+        
         
         sBoard.do_move(*move);
         
@@ -1878,9 +1844,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            sp->child_selective_cutoff = child_selective_cutoff;
-            
-            if(sp->child_selective_cutoff)
+            if(child_selective_cutoff)
                 sp->selective_cutoff = true;
             
             // New best move?
@@ -2179,7 +2143,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             if(activeThreads > 1
                && (list->next)->next != NULL && !thread_should_stop(threadID)
                && !abort.load() && idle_thread_exists(threadID)
-               && split(sBoard, false, pvDev, board.n_empties, selectivity, selective_cutoff, child_selective_cutoff,
+               && split(sBoard, false, pvDev, board.n_empties, selectivity, selective_cutoff,
                         alpha, (alpha + VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::END_XPROBCUT))
                 
                 break;
@@ -2262,14 +2226,13 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
         RXMove* move = sp->list->next;
         sp->list = move;
         
-        //bool child_selective_cutoff = sp->child_selective_cutoff;
         
         pthread_mutex_unlock(&(sp->lock));
         
-        int alpha = sp->alpha; //local copy
-        
-        bool child_selective_cutoff = false;
         int score;
+        int alpha = sp->alpha; //local copy
+        bool child_selective_cutoff = false;
+        
         if(board.n_empties<=MIN_DEPTH_USE_ENDCUT) {
             board.do_move(*move);
             score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha-VALUE_DISC, -alpha, false);
@@ -2292,9 +2255,7 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
             
             //update SplitPoint
             
-            sp->child_selective_cutoff = child_selective_cutoff;
-            
-            if(sp->child_selective_cutoff)
+            if(child_selective_cutoff)
                 sp->selective_cutoff = true;
             
             // New best move?
@@ -2573,24 +2534,21 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         pthread_mutex_lock(&(sp->lock));
         
-        
         if(sp->list == NULL) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
         
-        
         RXMove* move = sp->list;
         sp->list = move->next;
         
-        bool child_selective_cutoff = sp->child_selective_cutoff;
-        
         pthread_mutex_unlock(&(sp->lock));
         
+        int alpha = sp->alpha; //local copy
+        bool child_selective_cutoff = false;
         
         sBoard.do_move(*move);
         
-        int alpha = sp->alpha; //local copy
         
         int score = -EG_PVS_deep(threadID, sBoard, false, sp->selectivity, child_selective_cutoff, -alpha - VALUE_DISC, -alpha, false);
         
@@ -2631,9 +2589,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            sp->child_selective_cutoff = child_selective_cutoff;
-            
-            if(sp->child_selective_cutoff)
+            if(child_selective_cutoff)
                 sp->selective_cutoff = true;
             
             // New best move?

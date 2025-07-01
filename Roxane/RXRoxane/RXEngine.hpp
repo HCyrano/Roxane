@@ -85,7 +85,7 @@ public:
 	int pvDev;
 	int depth;
 	int selectivity;
-	volatile bool selective_cutoff, child_selective_cutoff;
+    volatile bool selective_cutoff;
     volatile int alpha, beta, bestscore, bestmove;
 
 	//non copiableAssignable, mais il n'y a pas de redimensionnenent (semble fonctionner)
@@ -394,7 +394,7 @@ class RXEngine: public Runnable, public RXHelper {
 	bool thread_should_stop(unsigned int threadID);
 	
 	bool split(	RXBBPatterns& sBoard, bool pv, int pvDev, 
-			   int depth, int selectivity, bool& selective_cutoff, bool& child_selective_cutoff,
+			   int depth, int selectivity, bool& selective_cutoff,
 			   int alpha, int beta, int& bestscore, int& bestmove,
 			   RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback);
 	

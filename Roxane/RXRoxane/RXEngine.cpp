@@ -2370,7 +2370,7 @@ bool RXEngine::thread_is_available(unsigned int slave, unsigned int master) {
 
 
 bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
-                     int depth, int selectivity, bool& selective_cutoff, bool& child_selective_cutoff,
+                     int depth, int selectivity, bool& selective_cutoff,
                      int alpha, int beta, int& bestscore, int& bestmove,
                      RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback) {
     
@@ -2456,7 +2456,6 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
     splitPoint.beta = beta;
     
     splitPoint.selective_cutoff = selective_cutoff;
-    splitPoint.child_selective_cutoff = child_selective_cutoff;
     splitPoint.bestscore = bestscore;
     splitPoint.bestmove = bestmove;
     
@@ -2502,7 +2501,6 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
     bestscore = splitPoint.bestscore;
     bestmove = splitPoint.bestmove;
     selective_cutoff = splitPoint.selective_cutoff;
-    child_selective_cutoff = splitPoint.child_selective_cutoff;
     
     
     pthread_mutex_lock(&MP_sync);
