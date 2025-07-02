@@ -590,8 +590,9 @@ void RXRoxane::imposed_opening(const std::string& line) {
 				
 				int square = (('8' - ordonne)*8 + ('H' - abscise));
 				
-				
-				if(((board).*(board.generate_flips[square]))(move)) {
+                ((board).*(board.generate_flips[square]))(move);
+                
+				if(move.flipped) {
 					hash_opening[60-board.n_empties] = board.hashcode();
 					move_opening[60-board.n_empties] = square;
 					

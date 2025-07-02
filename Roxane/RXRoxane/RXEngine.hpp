@@ -75,6 +75,8 @@ public:
 	RXSplitPoint* parent;
 	
 	RXBBPatterns* sBoard;
+    //non copiableAssignable, mais il n'y a pas de redimensionnenent (semble fonctionner)
+    //soluce : remplacer le vector par un tableau static a taille fixe :-(
 	std::vector<RXBBPatterns> sBoardStack;
 	
 	RXMove* list;
@@ -88,8 +90,6 @@ public:
     volatile bool selective_cutoff;
     volatile int alpha, beta, bestscore, bestmove;
 
-	//non copiableAssignable, mais il n'y a pas de redimensionnenent (semble fonctionner)
-	//soluce : remplacer le vector par un tableau static a taille fixe :-(
 	
 	mutable pthread_mutex_t lock;
 	
@@ -111,6 +111,7 @@ public:
 	~RXSplitPoint() {
 		pthread_mutex_destroy(&lock);
 	}
+    
 	
 };
 
@@ -147,7 +148,7 @@ public:
 
 
     volatile thread_state state = UNINITIALISED;
-	
+    //std::atomic<thread_state> state{UNINITIALISED};
 	
 	//le parametre maxThread est utile pour splitPointStack
 	RXThread(int maxThreads, int maxActiveSplitPoint = 8) : splitPoint(NULL), activeSplitPoints(0),
@@ -163,8 +164,7 @@ public:
         pthread_mutex_destroy(&lock);
 
 	}
-		
-	
+    	
 	
 };
 

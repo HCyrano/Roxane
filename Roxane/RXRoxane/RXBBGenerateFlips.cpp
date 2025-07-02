@@ -14,7 +14,7 @@
 #include "RXTools.hpp"
 
 
-bool RXBitBoard::generate_flips_A1(RXMove& move) const {
+void RXBitBoard::generate_flips_A1(RXMove& move) const {
 	
 	const unsigned long long discs_player = discs[player];
 	const unsigned long long discs_opponent = discs[player^1];
@@ -46,18 +46,16 @@ bool RXBitBoard::generate_flips_A1(RXMove& move) const {
 	
 
     
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X8000000000000000ULL;
     move.position = A1;
     
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B1(RXMove& move) const {
+void RXBitBoard::generate_flips_B1(RXMove& move) const {
 	
 	const unsigned long long discs_player = discs[player];
 	const unsigned long long discs_opponent = discs[player^1];
@@ -87,18 +85,16 @@ bool RXBitBoard::generate_flips_B1(RXMove& move) const {
 		flipped |= 0X4000000000000000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X4000000000000000ULL;
     move.position = B1;
     
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C1(RXMove& move) const {
+void RXBitBoard::generate_flips_C1(RXMove& move) const {
 	
 	const unsigned long long discs_player = discs[player];
 	const unsigned long long discs_opponent = discs[player^1];
@@ -134,18 +130,16 @@ bool RXBitBoard::generate_flips_C1(RXMove& move) const {
 		flipped |= 0X2000000000000000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X2000000000000000ULL;
     move.position = C1;
     
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_D1(RXMove& move) const {
+void RXBitBoard::generate_flips_D1(RXMove& move) const {
 	
 	const unsigned long long discs_player = discs[player];
 	const unsigned long long discs_opponent = discs[player^1];
@@ -190,18 +184,16 @@ bool RXBitBoard::generate_flips_D1(RXMove& move) const {
 		flipped |= (r-1) & 0XE000000000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X1000000000000000ULL;
     move.position = D1;
     
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_E1(RXMove& move) const {
+void RXBitBoard::generate_flips_E1(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -247,18 +239,16 @@ bool RXBitBoard::generate_flips_E1(RXMove& move) const {
 		flipped |= (r-1) & 0XF000000000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0800000000000000ULL;
     move.position = E1;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F1(RXMove& move) const {
+void RXBitBoard::generate_flips_F1(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -296,18 +286,16 @@ bool RXBitBoard::generate_flips_F1(RXMove& move) const {
 		flipped |= (r-1) & 0XF800000000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0400000000000000ULL;
     move.position = F1;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G1(RXMove& move) const {
+void RXBitBoard::generate_flips_G1(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -338,18 +326,16 @@ bool RXBitBoard::generate_flips_G1(RXMove& move) const {
 		flipped |= (0X0200000000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0002020202020200ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0200000000000000ULL;
     move.position = G1;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H1(RXMove& move) const {
+void RXBitBoard::generate_flips_H1(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -380,18 +366,16 @@ bool RXBitBoard::generate_flips_H1(RXMove& move) const {
 		flipped |= (0X0100000000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0001010101010100ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0100000000000000ULL;
     move.position = H1;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A2(RXMove& move) const {
+void RXBitBoard::generate_flips_A2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -422,18 +406,16 @@ bool RXBitBoard::generate_flips_A2(RXMove& move) const {
 		flipped |= 0X0080000000000000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0080000000000000ULL;
     move.position = A2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B2(RXMove& move) const {
+void RXBitBoard::generate_flips_B2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -464,18 +446,16 @@ bool RXBitBoard::generate_flips_B2(RXMove& move) const {
 		flipped |= 0X0040000000000000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0040000000000000ULL;
     move.position = B2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C2(RXMove& move) const {
+void RXBitBoard::generate_flips_C2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -514,18 +494,16 @@ bool RXBitBoard::generate_flips_C2(RXMove& move) const {
 	}
 	
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0020000000000000ULL;
     move.position = C2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_D2(RXMove& move) const {
+void RXBitBoard::generate_flips_D2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -571,18 +549,16 @@ bool RXBitBoard::generate_flips_D2(RXMove& move) const {
 		flipped |= (r-1) & 0X00E0000000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0010000000000000ULL;
     move.position = D2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_E2(RXMove& move) const {
+void RXBitBoard::generate_flips_E2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -628,18 +604,16 @@ bool RXBitBoard::generate_flips_E2(RXMove& move) const {
 		flipped |= (r-1) & 0X00F0000000000000ULL;
 	}
 
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0008000000000000ULL;
     move.position = E2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F2(RXMove& move) const {
+void RXBitBoard::generate_flips_F2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -677,18 +651,16 @@ bool RXBitBoard::generate_flips_F2(RXMove& move) const {
 		flipped |= (r-1) & 0X00F8000000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0004000000000000ULL;
     move.position = F2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G2(RXMove& move) const {
+void RXBitBoard::generate_flips_G2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -720,18 +692,16 @@ bool RXBitBoard::generate_flips_G2(RXMove& move) const {
 	}
 	
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0002000000000000ULL;
     move.position = G2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H2(RXMove& move) const {
+void RXBitBoard::generate_flips_H2(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -762,18 +732,16 @@ bool RXBitBoard::generate_flips_H2(RXMove& move) const {
 		flipped |= (0X0001000000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000010101010100ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0001000000000000ULL;
     move.position = H2;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A3(RXMove& move) const {
+void RXBitBoard::generate_flips_A3(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -810,18 +778,16 @@ bool RXBitBoard::generate_flips_A3(RXMove& move) const {
 		flipped |= (0X0000800000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000008080808000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000800000000000ULL;
     move.position = A3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B3(RXMove& move) const {
+void RXBitBoard::generate_flips_B3(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -858,18 +824,16 @@ bool RXBitBoard::generate_flips_B3(RXMove& move) const {
 		flipped |= (0X0000400000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000004040404000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000400000000000ULL;
     move.position = B3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C3(RXMove& move) const {
+void RXBitBoard::generate_flips_C3(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -914,18 +878,16 @@ bool RXBitBoard::generate_flips_C3(RXMove& move) const {
 		flipped |= 0X0000200000000000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000200000000000ULL;
     move.position = C3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_D3(RXMove& move) const {
+void RXBitBoard::generate_flips_D3(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -980,18 +942,16 @@ bool RXBitBoard::generate_flips_D3(RXMove& move) const {
 		flipped |= (r-1) & 0X0000E00000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000100000000000ULL;
     move.position = D3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_E3(RXMove& move) const {
+void RXBitBoard::generate_flips_E3(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -1047,18 +1007,16 @@ bool RXBitBoard::generate_flips_E3(RXMove& move) const {
 		flipped |= (r-1) & 0X0000F00000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000080000000000ULL;
     move.position = E3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F3(RXMove& move) const {
+void RXBitBoard::generate_flips_F3(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1104,18 +1062,16 @@ bool RXBitBoard::generate_flips_F3(RXMove& move) const {
 		flipped |= (r-1) & 0X0000F80000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000040000000000ULL;
     move.position = F3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G3(RXMove& move) const {
+void RXBitBoard::generate_flips_G3(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1152,18 +1108,16 @@ bool RXBitBoard::generate_flips_G3(RXMove& move) const {
 		flipped |= (0X0000020000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000000202020200ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000020000000000ULL;
     move.position = G3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H3(RXMove& move) const {
+void RXBitBoard::generate_flips_H3(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1200,18 +1154,16 @@ bool RXBitBoard::generate_flips_H3(RXMove& move) const {
 		flipped |= (0X0000010000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000000101010100ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000010000000000ULL;
     move.position = H3;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A4(RXMove& move) const {
+void RXBitBoard::generate_flips_A4(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1258,18 +1210,16 @@ bool RXBitBoard::generate_flips_A4(RXMove& move) const {
 		flipped |= (0X0000008000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000000080808000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000008000000000ULL;
     move.position = A4;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B4(RXMove& move) const {
+void RXBitBoard::generate_flips_B4(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1316,18 +1266,16 @@ bool RXBitBoard::generate_flips_B4(RXMove& move) const {
 		flipped |= (0X0000004000000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000000040404000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000004000000000ULL;
     move.position = B4;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C4(RXMove& move) const {
+void RXBitBoard::generate_flips_C4(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1383,18 +1331,16 @@ bool RXBitBoard::generate_flips_C4(RXMove& move) const {
 		flipped |= (r-1) & 0X0020200000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000002000000000ULL;
     move.position = C4;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F4(RXMove& move) const {
+void RXBitBoard::generate_flips_F4(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1450,18 +1396,16 @@ bool RXBitBoard::generate_flips_F4(RXMove& move) const {
 		flipped |= (r-1) & 0X000000F800000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000400000000ULL;
     move.position = F4;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G4(RXMove& move) const {
+void RXBitBoard::generate_flips_G4(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1508,18 +1452,16 @@ bool RXBitBoard::generate_flips_G4(RXMove& move) const {
 		flipped |= (r-1) & 0X0002020000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000200000000ULL;
     move.position = G4;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H4(RXMove& move) const {
+void RXBitBoard::generate_flips_H4(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1566,18 +1508,16 @@ bool RXBitBoard::generate_flips_H4(RXMove& move) const {
 		flipped |= (r-1) & 0X0001010000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000100000000ULL;
     move.position = H4;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A5(RXMove& move) const {
+void RXBitBoard::generate_flips_A5(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1624,18 +1564,16 @@ bool RXBitBoard::generate_flips_A5(RXMove& move) const {
 		flipped |= (0X0000000080000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000000000808000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000080000000ULL;
     move.position = A5;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B5(RXMove& move) const {
+void RXBitBoard::generate_flips_B5(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1682,18 +1620,16 @@ bool RXBitBoard::generate_flips_B5(RXMove& move) const {
 		flipped |= (0X0000000040000000ULL - (0X2ULL<<_bsrll(my_discs))) & 0X0000000000404000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000040000000ULL;
     move.position = B5;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C5(RXMove& move) const {
+void RXBitBoard::generate_flips_C5(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1749,18 +1685,16 @@ bool RXBitBoard::generate_flips_C5(RXMove& move) const {
 		flipped |= (r-1) & 0X0020202000000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000020000000ULL;
     move.position = C5;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F5(RXMove& move) const {
+void RXBitBoard::generate_flips_F5(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1816,18 +1750,16 @@ bool RXBitBoard::generate_flips_F5(RXMove& move) const {
 		flipped |= (r-1) & 0X00000000F8000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000004000000ULL;
     move.position = F5;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G5(RXMove& move) const {
+void RXBitBoard::generate_flips_G5(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1874,18 +1806,16 @@ bool RXBitBoard::generate_flips_G5(RXMove& move) const {
 		flipped |= (r-1) & 0X0002020200000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000002000000ULL;
     move.position = G5;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H5(RXMove& move) const {
+void RXBitBoard::generate_flips_H5(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1932,18 +1862,16 @@ bool RXBitBoard::generate_flips_H5(RXMove& move) const {
 		flipped |= (r-1) & 0X0001010100000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000001000000ULL;
     move.position = H5;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A6(RXMove& move) const {
+void RXBitBoard::generate_flips_A6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -1980,18 +1908,16 @@ bool RXBitBoard::generate_flips_A6(RXMove& move) const {
 		flipped |= (r-1) & 0X0080808080000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000800000ULL;
     move.position = A6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B6(RXMove& move) const {
+void RXBitBoard::generate_flips_B6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2028,18 +1954,16 @@ bool RXBitBoard::generate_flips_B6(RXMove& move) const {
 		flipped |= (r-1) & 0X0040404040000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000400000ULL;
     move.position = B6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C6(RXMove& move) const {
+void RXBitBoard::generate_flips_C6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2085,18 +2009,16 @@ bool RXBitBoard::generate_flips_C6(RXMove& move) const {
 		flipped |= (r-1) & 0X0020202020000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000200000ULL;
     move.position = C6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_D6(RXMove& move) const {
+void RXBitBoard::generate_flips_D6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2151,18 +2073,16 @@ bool RXBitBoard::generate_flips_D6(RXMove& move) const {
 		flipped |= (r-1) & 0X0000000000E00000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000100000ULL;
     move.position = D6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_E6(RXMove& move) const {
+void RXBitBoard::generate_flips_E6(RXMove& move) const {
 	
 
 
@@ -2218,18 +2138,16 @@ bool RXBitBoard::generate_flips_E6(RXMove& move) const {
 		flipped |= (r-1) & 0X0000000000F00000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000080000ULL;
     move.position = E6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F6(RXMove& move) const {
+void RXBitBoard::generate_flips_F6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2275,18 +2193,16 @@ bool RXBitBoard::generate_flips_F6(RXMove& move) const {
 		flipped |= (r-1) & 0X0000000000F80000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000040000ULL;
     move.position = F6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G6(RXMove& move) const {
+void RXBitBoard::generate_flips_G6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2323,18 +2239,16 @@ bool RXBitBoard::generate_flips_G6(RXMove& move) const {
 		flipped |= (r-1) & 0X0002020202000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000020000ULL;
     move.position = G6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H6(RXMove& move) const {
+void RXBitBoard::generate_flips_H6(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2371,18 +2285,16 @@ bool RXBitBoard::generate_flips_H6(RXMove& move) const {
 		flipped |= (r-1) & 0X0001010101000000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000010000ULL;
     move.position = H6;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A7(RXMove& move) const {
+void RXBitBoard::generate_flips_A7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2413,18 +2325,16 @@ bool RXBitBoard::generate_flips_A7(RXMove& move) const {
 		flipped |= 0X0000000000008000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000008000ULL;
     move.position = A7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B7(RXMove& move) const {
+void RXBitBoard::generate_flips_B7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2455,18 +2365,16 @@ bool RXBitBoard::generate_flips_B7(RXMove& move) const {
 		flipped |= 0X0000000000004000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000004000ULL;
     move.position = B7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C7(RXMove& move) const {
+void RXBitBoard::generate_flips_C7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2503,18 +2411,16 @@ bool RXBitBoard::generate_flips_C7(RXMove& move) const {
 		flipped |= 0X0000000000002000ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000002000ULL;
     move.position = C7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_D7(RXMove& move) const {
+void RXBitBoard::generate_flips_D7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2560,18 +2466,16 @@ bool RXBitBoard::generate_flips_D7(RXMove& move) const {
 		flipped |= (r-1) & 0X000000000000E000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000001000ULL;
     move.position = D7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_E7(RXMove& move) const {
+void RXBitBoard::generate_flips_E7(RXMove& move) const {
 	
 
 	const unsigned long long discs_player = discs[player];
@@ -2617,18 +2521,16 @@ bool RXBitBoard::generate_flips_E7(RXMove& move) const {
 		flipped |= (r-1) & 0X000000000000F000ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000800ULL;
     move.position = E7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F7(RXMove& move) const {
+void RXBitBoard::generate_flips_F7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2665,18 +2567,16 @@ bool RXBitBoard::generate_flips_F7(RXMove& move) const {
 		flipped |= (r-1) & 0X000000000000F800ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000400ULL;
     move.position = F7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G7(RXMove& move) const {
+void RXBitBoard::generate_flips_G7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2707,18 +2607,16 @@ bool RXBitBoard::generate_flips_G7(RXMove& move) const {
 		flipped |= (r-1) & 0X000000000000FC00ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000200ULL;
     move.position = G7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H7(RXMove& move) const {
+void RXBitBoard::generate_flips_H7(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2749,18 +2647,16 @@ bool RXBitBoard::generate_flips_H7(RXMove& move) const {
 		flipped |= (r-1) & 0X000000000000FE00ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000100ULL;
     move.position = H7;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_A8(RXMove& move) const {
+void RXBitBoard::generate_flips_A8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2791,18 +2687,16 @@ bool RXBitBoard::generate_flips_A8(RXMove& move) const {
 		flipped |= 0X0000000000000080ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000080ULL;
     move.position = A8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_B8(RXMove& move) const {
+void RXBitBoard::generate_flips_B8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2833,18 +2727,16 @@ bool RXBitBoard::generate_flips_B8(RXMove& move) const {
 		flipped |= 0X0000000000000040ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000040ULL;
     move.position = B8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_C8(RXMove& move) const {
+void RXBitBoard::generate_flips_C8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2881,18 +2773,16 @@ bool RXBitBoard::generate_flips_C8(RXMove& move) const {
 		flipped |= 0X0000000000000020ULL - (0X2ULL<<_bsrll(my_discs));
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000020ULL;
     move.position = C8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_D8(RXMove& move) const {
+void RXBitBoard::generate_flips_D8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2938,18 +2828,16 @@ bool RXBitBoard::generate_flips_D8(RXMove& move) const {
 		flipped |= (r-1) & 0X00000000000000E0ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000010ULL;
     move.position = D8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_E8(RXMove& move) const {
+void RXBitBoard::generate_flips_E8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -2995,18 +2883,16 @@ bool RXBitBoard::generate_flips_E8(RXMove& move) const {
 		flipped |= (r-1) & 0X00000000000000F0ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000008ULL;
     move.position = E8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_F8(RXMove& move) const {
+void RXBitBoard::generate_flips_F8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -3044,18 +2930,16 @@ bool RXBitBoard::generate_flips_F8(RXMove& move) const {
 		flipped |= (r-1) & 0X00000000000000F8ULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000004ULL;
     move.position = F8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_G8(RXMove& move) const {
+void RXBitBoard::generate_flips_G8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -3086,18 +2970,16 @@ bool RXBitBoard::generate_flips_G8(RXMove& move) const {
 		flipped |= (r-1) & 0X00000000000000FCULL;
 	}
 	
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000002ULL;
     move.position = G8;
 	
-	return true;
+	
 
 }
 
-bool RXBitBoard::generate_flips_H8(RXMove& move) const {
+void RXBitBoard::generate_flips_H8(RXMove& move) const {
 
 
 	const unsigned long long discs_player = discs[player];
@@ -3129,14 +3011,12 @@ bool RXBitBoard::generate_flips_H8(RXMove& move) const {
 		flipped |= (r-1) & 0X00000000000000FEULL;
 	}
 
-	if(flipped == 0)
-		return false;
 		
 	move.flipped = flipped;
 	move.square = 0X0000000000000001ULL;
     move.position = H8;
 	
-	return true;
+	
 
 }
 

@@ -126,7 +126,7 @@ class RXBitBoard {
     
     // move functions
 #define func(pos) static bool do_flips_##pos(unsigned long long& discs_player, unsigned long long& discs_opponent); \
-bool generate_flips_##pos(RXMove& move) const \
+void generate_flips_##pos(RXMove& move) const \
     
     func(A1); func(B1); func(C1); func(D1); func(E1); func(F1); func(G1); func(H1);
     func(A2); func(B2); func(C2); func(D2); func(E2); func(F2); func(G2); func(H2);
@@ -141,7 +141,7 @@ bool generate_flips_##pos(RXMove& move) const \
     
     typedef bool (*type_do_flips)(unsigned long long& discs_player, unsigned long long& discs_opponent);
     static type_do_flips const do_flips[];
-    bool (RXBitBoard::*generate_flips[64])(RXMove& move) const;
+    void (RXBitBoard::*generate_flips[64])(RXMove& move) const;
     void init_generate_flips();
 
     
