@@ -13,7 +13,7 @@
 #include "RXBitBoard.hpp"
 #include "RXTools.hpp"
 
-bool RXBitBoard::do_flips_A1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -40,17 +40,11 @@ bool RXBitBoard::do_flips_A1(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X8000000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -77,17 +71,11 @@ bool RXBitBoard::do_flips_B1(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X4000000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 	
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -121,17 +109,11 @@ bool RXBitBoard::do_flips_C1(unsigned long long& discs_player, unsigned long lon
 	}
 
 
-	if(flipped) {
-		discs_player |= (flipped | 0X2000000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_D1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_D1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 	
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -173,17 +155,11 @@ bool RXBitBoard::do_flips_D1(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0XE000000000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X1000000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_E1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_E1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -225,17 +201,11 @@ bool RXBitBoard::do_flips_E1(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0XF000000000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0800000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -270,17 +240,11 @@ bool RXBitBoard::do_flips_F1(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0XF800000000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0400000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -307,17 +271,11 @@ bool RXBitBoard::do_flips_G1(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0002020202020200ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0200000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H1(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H1(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -344,17 +302,11 @@ bool RXBitBoard::do_flips_H1(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0001010101010100ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0100000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -381,17 +333,11 @@ bool RXBitBoard::do_flips_A2(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0080000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -418,17 +364,11 @@ bool RXBitBoard::do_flips_B2(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0040000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -462,17 +402,11 @@ bool RXBitBoard::do_flips_C2(unsigned long long& discs_player, unsigned long lon
 	/* direction _W */
 	flipped |= (discs_opponent & 0X0040000000000000ULL) & (discs_player >> 1);
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0020000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_D2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_D2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -514,17 +448,11 @@ bool RXBitBoard::do_flips_D2(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00E0000000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0010000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_E2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_E2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -566,17 +494,11 @@ bool RXBitBoard::do_flips_E2(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00F0000000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0008000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -610,17 +532,11 @@ bool RXBitBoard::do_flips_F2(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00F8000000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0004000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -647,17 +563,11 @@ bool RXBitBoard::do_flips_G2(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000020202020200ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0002000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H2(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H2(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -684,17 +594,11 @@ bool RXBitBoard::do_flips_H2(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000010101010100ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0001000000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -727,17 +631,11 @@ bool RXBitBoard::do_flips_A3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000008080808000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000800000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -770,17 +668,11 @@ bool RXBitBoard::do_flips_B3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000004040404000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000400000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 	
 	unsigned long long my_discs, opp_discs, r;
 		
@@ -822,17 +714,11 @@ bool RXBitBoard::do_flips_C3(unsigned long long& discs_player, unsigned long lon
 	}
 
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000200000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_D3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_D3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -883,17 +769,12 @@ bool RXBitBoard::do_flips_D3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0000E00000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000100000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
 	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_E3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_E3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -945,17 +826,11 @@ bool RXBitBoard::do_flips_E3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0000F00000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000080000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -997,17 +872,11 @@ bool RXBitBoard::do_flips_F3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0000F80000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000040000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1040,17 +909,11 @@ bool RXBitBoard::do_flips_G3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000000202020200ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000020000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H3(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H3(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 
@@ -1083,17 +946,11 @@ bool RXBitBoard::do_flips_H3(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000000101010100ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000010000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A4(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A4(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1136,17 +993,11 @@ bool RXBitBoard::do_flips_A4(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000000080808000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000008000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B4(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B4(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1189,17 +1040,11 @@ bool RXBitBoard::do_flips_B4(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000000040404000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000004000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C4(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C4(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1251,17 +1096,11 @@ bool RXBitBoard::do_flips_C4(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0020200000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000002000000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F4(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F4(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1313,17 +1152,11 @@ bool RXBitBoard::do_flips_F4(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X000000F800000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000400000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G4(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G4(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1366,17 +1199,11 @@ bool RXBitBoard::do_flips_G4(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0002020000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000200000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H4(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H4(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1419,17 +1246,11 @@ bool RXBitBoard::do_flips_H4(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0001010000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000100000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A5(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A5(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1472,17 +1293,11 @@ bool RXBitBoard::do_flips_A5(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000000000808000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000080000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B5(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B5(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1525,17 +1340,11 @@ bool RXBitBoard::do_flips_B5(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r - (0X2ULL<<_bsrll(my_discs))) & 0X0000000000404000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000040000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C5(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C5(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1587,17 +1396,11 @@ bool RXBitBoard::do_flips_C5(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0020202000000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000020000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F5(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F5(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1649,17 +1452,11 @@ bool RXBitBoard::do_flips_F5(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00000000F8000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000004000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G5(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G5(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1702,17 +1499,11 @@ bool RXBitBoard::do_flips_G5(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0002020200000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000002000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H5(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H5(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -1755,17 +1546,11 @@ bool RXBitBoard::do_flips_H5(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0001010100000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000001000000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1798,17 +1583,11 @@ bool RXBitBoard::do_flips_A6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0080808080000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000800000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1841,17 +1620,11 @@ bool RXBitBoard::do_flips_B6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0040404040000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000400000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1894,17 +1667,11 @@ bool RXBitBoard::do_flips_C6(unsigned long long& discs_player, unsigned long lon
 	}
 	
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000200000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_D6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_D6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -1955,17 +1722,11 @@ bool RXBitBoard::do_flips_D6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0000000000E00000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000100000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_E6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_E6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2016,17 +1777,11 @@ bool RXBitBoard::do_flips_E6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0000000000F00000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000080000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2068,17 +1823,11 @@ bool RXBitBoard::do_flips_F6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0000000000F80000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000040000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2111,17 +1860,11 @@ bool RXBitBoard::do_flips_G6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0002020202000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000020000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H6(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H6(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2154,17 +1897,11 @@ bool RXBitBoard::do_flips_H6(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X0001010101000000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000010000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2191,17 +1928,11 @@ bool RXBitBoard::do_flips_A7(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000008000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2228,17 +1959,11 @@ bool RXBitBoard::do_flips_B7(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000004000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2271,17 +1996,11 @@ bool RXBitBoard::do_flips_C7(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000002000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_D7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_D7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2323,17 +2042,11 @@ bool RXBitBoard::do_flips_D7(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X000000000000E000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000001000ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_E7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_E7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2375,17 +2088,11 @@ bool RXBitBoard::do_flips_E7(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X000000000000F000ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000800ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2418,17 +2125,11 @@ bool RXBitBoard::do_flips_F7(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X000000000000F800ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000400ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2455,17 +2156,11 @@ bool RXBitBoard::do_flips_G7(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X000000000000FC00ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000200ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H7(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H7(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2492,17 +2187,11 @@ bool RXBitBoard::do_flips_H7(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X000000000000FE00ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000100ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_A8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_A8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2529,17 +2218,11 @@ bool RXBitBoard::do_flips_A8(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000080ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_B8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_B8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2566,17 +2249,11 @@ bool RXBitBoard::do_flips_B8(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000040ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_C8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_C8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2609,17 +2286,11 @@ bool RXBitBoard::do_flips_C8(unsigned long long& discs_player, unsigned long lon
 		flipped |= r - (0X2ULL<<_bsrll(my_discs));
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000020ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_D8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_D8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2661,17 +2332,11 @@ bool RXBitBoard::do_flips_D8(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00000000000000E0ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000010ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_E8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_E8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2713,17 +2378,11 @@ bool RXBitBoard::do_flips_E8(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00000000000000F0ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000008ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_F8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_F8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r;
 	
@@ -2757,17 +2416,11 @@ bool RXBitBoard::do_flips_F8(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00000000000000F8ULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000004ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_G8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_G8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2794,17 +2447,11 @@ bool RXBitBoard::do_flips_G8(unsigned long long& discs_player, unsigned long lon
 		flipped |= (r-1) & 0X00000000000000FCULL;
 	}
 
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000002ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
-	
-	return false;
+	return flipped;
 
 }
 
-bool RXBitBoard::do_flips_H8(unsigned long long& discs_player, unsigned long long& discs_opponent) {
+unsigned long long RXBitBoard::do_flips_H8(const unsigned long long& discs_player, const unsigned long long& discs_opponent) {
 
 	unsigned long long my_discs, opp_discs, r, flipped = 0ULL;
 	
@@ -2830,14 +2477,8 @@ bool RXBitBoard::do_flips_H8(unsigned long long& discs_player, unsigned long lon
 	if(r != 0) {
 		flipped |= (r-1) & 0X00000000000000FEULL;
 	}
-
-	if(flipped) {
-		discs_player |= (flipped | 0X0000000000000001ULL);
-		discs_opponent ^= flipped;
-		return true;
-	}
 	
-	return false;
+	return flipped;
 
 }
 

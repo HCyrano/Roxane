@@ -61,7 +61,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 18 -t 1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 20 -t 6"
@@ -69,7 +69,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 24 -t 12"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.src"
@@ -77,11 +77,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.src"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-59.src"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-60-79.src"

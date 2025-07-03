@@ -125,7 +125,7 @@ class RXBitBoard {
     bool isEndGame();
     
     // move functions
-#define func(pos) static bool do_flips_##pos(unsigned long long& discs_player, unsigned long long& discs_opponent); \
+#define func(pos) static unsigned long long do_flips_##pos(const unsigned long long& discs_player, const unsigned long long& discs_opponent); \
 void generate_flips_##pos(RXMove& move) const \
     
     func(A1); func(B1); func(C1); func(D1); func(E1); func(F1); func(G1); func(H1);
@@ -139,7 +139,7 @@ void generate_flips_##pos(RXMove& move) const \
     
 #undef func
     
-    typedef bool (*type_do_flips)(unsigned long long& discs_player, unsigned long long& discs_opponent);
+    typedef unsigned long long  (*type_do_flips)(const unsigned long long& discs_player, const unsigned long long& discs_opponent);
     static type_do_flips const do_flips[];
     void (RXBitBoard::*generate_flips[64])(RXMove& move) const;
     void init_generate_flips();
@@ -625,29 +625,34 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
 //unroll
 inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) {
     
-    unsigned long long d_player = discs_player;
-    unsigned long long d_opponent = discs_opponent;
+    unsigned long long flipped;
+    unsigned long long n_player;
+    unsigned long long n_opponent;
             
     int n_flips, bestscore = UNDEF_SCORE;
             
     // try to play on the first available square
-    if((d_opponent & NEIGHBOR[idSquare1]) && (do_flips[idSquare1](d_player, d_opponent))) {
+    if((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))) {
         n_nodes++;
         
-        bestscore = 62 - 2*__builtin_popcountll(d_opponent);
+        n_opponent = discs_opponent ^ flipped;
+        
+        bestscore = 62 - 2*__builtin_popcountll(n_opponent);
 
-        n_flips = count_flips(idSquare2, d_opponent);
+        n_flips = count_flips(idSquare2, n_opponent);
         if(n_flips !=0) {
             bestscore -= n_flips;
         } else {
+            
+            n_player = discs_player ^ (flipped | 0x1ULL<<idSquare1);
             if(bestscore >= 0) {
                 bestscore += 2;
                 if(bestscore < beta) {
-                    bestscore += count_flips(idSquare2, d_player);
+                    bestscore += count_flips(idSquare2, n_player);
                 }
             } else {
                 if(bestscore < beta) {
-                    n_flips = count_flips(idSquare2, d_player);
+                    n_flips = count_flips(idSquare2, n_player);
 
                     if(n_flips != 0)
                         bestscore += n_flips + 2;
@@ -657,31 +662,32 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
 
         if(bestscore >= beta)
             return bestscore;
-
-        d_player = discs_player;
-        d_opponent = discs_opponent;
             
     }
                                 
     // if needed, try to play on the second & last available square
-    if((d_opponent & NEIGHBOR[idSquare2]) && (do_flips[idSquare2](d_player, d_opponent))) {
+    if((discs_opponent & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_player, discs_opponent))) {
         n_nodes++;
+ 
+        n_opponent = discs_opponent ^ flipped;
         
-        int score = 62 - 2*__builtin_popcountll(d_opponent);
+        int score = 62 - 2*__builtin_popcountll(n_opponent);
 
         
-        n_flips = count_flips(idSquare1, d_opponent);
+        n_flips = count_flips(idSquare1, n_opponent);
         if(n_flips !=0) {
             score -= n_flips;
         } else {
+            n_player = discs_player ^ (flipped | 0x1ULL<<idSquare2);
+
             if(score >= 0) {
                 score += 2;
                 if(score < beta) {
-                    score += count_flips(idSquare1, d_player);
+                    score += count_flips(idSquare1, n_player);
                 }
             } else {
                 if(score < beta) {
-                    n_flips = count_flips(idSquare1, d_player);
+                    n_flips = count_flips(idSquare1, n_player);
                     if(n_flips != 0)
                         score += n_flips + 2;
                 }
@@ -699,23 +705,27 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
     if(bestscore == UNDEF_SCORE) {
         n_nodes++; //PASS
         
-        if((do_flips[idSquare1](d_opponent, d_player))) {
+        if((flipped = do_flips[idSquare1](discs_opponent, discs_player))) {
             n_nodes++;
             
-            bestscore = 62 - 2*__builtin_popcountll(d_player);
+            n_player = discs_player ^ flipped;
             
-            n_flips = count_flips(idSquare2, d_player);
+            bestscore = 62 - 2*__builtin_popcountll(n_player);
+            
+            n_flips = count_flips(idSquare2, n_player);
             if(n_flips !=0) {
                 bestscore -= n_flips;
             } else {
+                
+                n_opponent = discs_opponent ^(flipped | 0x1ULL<<idSquare1);
                 if(bestscore >= 0) {
                     bestscore += 2;
                     if(bestscore < -alpha) {
-                        bestscore += count_flips(idSquare2, d_opponent);
+                        bestscore += count_flips(idSquare2, n_opponent);
                     }
                 } else {
                     if(bestscore < -alpha) {
-                        n_flips = count_flips(idSquare2, d_opponent);
+                        n_flips = count_flips(idSquare2, n_opponent);
                         
                         if(n_flips != 0)
                             bestscore += n_flips + 2;
@@ -726,36 +736,38 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
             if(bestscore >= -alpha)
                 return -bestscore;
             
-            d_player = discs_player;
-            d_opponent = discs_opponent;
             
         }
         
         // if needed, try to play on the second & last available square
-        if((do_flips[idSquare2](d_opponent, d_player))) {
+        if((flipped = do_flips[idSquare2](discs_opponent, discs_player))) {
             n_nodes++;
             
-            int score = 62 - 2*__builtin_popcountll(d_player);
+            n_player = discs_player ^ flipped;
             
+            int score = 62 - 2*__builtin_popcountll(n_player);
             
-            n_flips = count_flips(idSquare1, d_player);
+            n_flips = count_flips(idSquare1, n_player);
             if(n_flips !=0) {
                 score -= n_flips;
             } else {
+                
+                n_opponent = discs_opponent ^ (flipped | 0x1ULL<<idSquare2);
                 if(score >= 0) {
                     score += 2;
                     if(score < -alpha) {
-                        score += count_flips(idSquare1, d_opponent);
+                        score += count_flips(idSquare1, n_opponent);
                     }
                 } else {
                     if(score < -alpha) {
-                        n_flips = count_flips(idSquare1, d_opponent);
+                        n_flips = count_flips(idSquare1, n_opponent);
+                        
                         if(n_flips != 0)
                             score += n_flips + 2;
                     }
                 }
             }
-            
+
             if(score > bestscore)
                 return -score;
  
@@ -852,29 +864,34 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move)  const {
 
 inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) {
     
-    unsigned long long d_player = discs_player;
-    unsigned long long d_opponent = discs_opponent;
+    unsigned long long flipped;
+    unsigned long long n_player;
+    unsigned long long n_opponent;
             
     int n_flips, bestscore = UNDEF_SCORE;
             
     // try to play on the first available square
-    if((d_opponent & NEIGHBOR[idSquare1]) && (do_flips[idSquare1](d_player, d_opponent))) {
+    if((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))) {
         n_nodes++;
         
-        bestscore = 62 - 2*__builtin_popcountll(d_opponent);
+        n_opponent = discs_opponent ^ flipped;
+        
+        bestscore = 62 - 2*__builtin_popcountll(n_opponent);
 
-        n_flips = count_flips[idSquare2](d_opponent);
+        n_flips = count_flips[idSquare2](n_opponent);
         if(n_flips !=0) {
             bestscore -= n_flips;
         } else {
+            
+            n_player = discs_player ^ (flipped | 0x1ULL<<idSquare1);
             if(bestscore >= 0) {
                 bestscore += 2;
                 if(bestscore < beta) {
-                    bestscore += count_flips[idSquare2](d_player);
+                    bestscore += count_flips[idSquare2](n_player);
                 }
             } else {
                 if(bestscore < beta) {
-                    n_flips = count_flips[idSquare2](d_player);
+                    n_flips = count_flips[idSquare2](n_player);
 
                     if(n_flips != 0)
                         bestscore += n_flips + 2;
@@ -885,30 +902,32 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
         if(bestscore >= beta)
             return bestscore;
 
-        d_player = discs_player;
-        d_opponent = discs_opponent;
             
     }
                                 
     // if needed, try to play on the second & last available square
-    if((d_opponent & NEIGHBOR[idSquare2]) && (do_flips[idSquare2](d_player, d_opponent))) {
+    if((discs_opponent & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_player, discs_opponent))) {
         n_nodes++;
         
-        int score = 62 - 2*__builtin_popcountll(d_opponent);
+        n_opponent = discs_opponent ^ flipped;
+        
+        int score = 62 - 2*__builtin_popcountll(n_opponent);
 
         
-        n_flips = count_flips[idSquare1](d_opponent);
+        n_flips = count_flips[idSquare1](n_opponent);
         if(n_flips !=0) {
             score -= n_flips;
         } else {
+            
+            n_player = discs_player ^ (flipped | 0x1ULL<<idSquare2);
             if(score >= 0) {
                 score += 2;
                 if(score < beta) {
-                    score += count_flips[idSquare1](d_player);
+                    score += count_flips[idSquare1](n_player);
                 }
             } else {
                 if(score < beta) {
-                    n_flips = count_flips[idSquare1](d_player);
+                    n_flips = count_flips[idSquare1](n_player);
                     if(n_flips != 0)
                         score += n_flips + 2;
                 }
@@ -926,23 +945,27 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
     if(bestscore == UNDEF_SCORE) {
         n_nodes++; //PASS
         
-        if((do_flips[idSquare1](d_opponent, d_player))) {
+        if((flipped = do_flips[idSquare1](discs_opponent, discs_player))) {
             n_nodes++;
             
-            bestscore = 62 - 2*__builtin_popcountll(d_player);
+            n_player = discs_player ^ flipped;
             
-            n_flips = count_flips[idSquare2](d_player);
+            bestscore = 62 - 2*__builtin_popcountll(n_player);
+            
+            n_flips = count_flips[idSquare2](n_player);
             if(n_flips !=0) {
                 bestscore -= n_flips;
             } else {
+                
+                n_opponent = discs_opponent ^ (flipped | 0x1ULL<<idSquare1);
                 if(bestscore >= 0) {
                     bestscore += 2;
                     if(bestscore < -alpha) {
-                        bestscore += count_flips[idSquare2](d_opponent);
+                        bestscore += count_flips[idSquare2](n_opponent);
                     }
                 } else {
                     if(bestscore < -alpha) {
-                        n_flips = count_flips[idSquare2](d_opponent);
+                        n_flips = count_flips[idSquare2](n_opponent);
                         
                         if(n_flips != 0)
                             bestscore += n_flips + 2;
@@ -953,30 +976,31 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
             if(bestscore >= -alpha)
                 return -bestscore;
             
-            d_player = discs_player;
-            d_opponent = discs_opponent;
             
         }
         
         // if needed, try to play on the second & last available square
-        if((do_flips[idSquare2](d_opponent, d_player))) {
+        if((flipped = do_flips[idSquare2](discs_opponent, discs_player))) {
             n_nodes++;
             
-            int score = 62 - 2*__builtin_popcountll(d_player);
+            n_player = discs_player ^ flipped;
             
+            int score = 62 - 2*__builtin_popcountll(n_player);
             
-            n_flips = count_flips[idSquare1](d_player);
+            n_flips = count_flips[idSquare1](n_player);
             if(n_flips !=0) {
                 score -= n_flips;
             } else {
+                
+                n_opponent = discs_opponent ^ (flipped | 0x1ULL<<idSquare2);
                 if(score >= 0) {
                     score += 2;
                     if(score < -alpha) {
-                        score += count_flips[idSquare1](d_opponent);
+                        score += count_flips[idSquare1](n_opponent);
                     }
                 } else {
                     if(score < -alpha) {
-                        n_flips = count_flips[idSquare1](d_opponent);
+                        n_flips = count_flips[idSquare1](n_opponent);
                         if(n_flips != 0)
                             score += n_flips + 2;
                     }
@@ -1015,8 +1039,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
 
 	int score, bestscore = UNDEF_SCORE;
 	
-	unsigned long long d_player = discs_player;
-	unsigned long long d_opponent = discs_opponent;
+    unsigned long long flipped;
     
     // parity based move sorting
     switch (sort3 & 0x03) {
@@ -1032,10 +1055,10 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
     }
 
 		
-	if ((d_opponent & NEIGHBOR[idSquare1]) && (do_flips[idSquare1](d_player, d_opponent))){ 
+	if ((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))){
 		n_nodes++;
 		
-		bestscore = -final_score_2(d_opponent, d_player, -beta, -alpha, idSquare2, idSquare3);
+		bestscore = -final_score_2(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare1), -beta, -alpha, idSquare2, idSquare3);
 										
 		if(bestscore>=beta)
 			return bestscore;
@@ -1043,15 +1066,12 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
 		if(bestscore>alpha)
 			alpha = bestscore;
 		
-		d_player = discs_player;
-		d_opponent = discs_opponent;
-
 	}
 
-	if ((d_opponent & NEIGHBOR[idSquare2]) && (do_flips[idSquare2](d_player, d_opponent))){ 
+	if ((discs_opponent & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_player, discs_opponent))){
 		n_nodes++;
 		
-		score = -final_score_2(d_opponent, d_player, -beta, -alpha, idSquare1, idSquare3);
+		score = -final_score_2(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare2), -beta, -alpha, idSquare1, idSquare3);
 		
 		if(score>=beta)
 			return score;
@@ -1061,16 +1081,13 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
 			if (bestscore > alpha)
 				alpha = bestscore;
 		}
-		
-		d_player = discs_player;
-		d_opponent = discs_opponent;
-		
+				
 	}
 	
-	if ((d_opponent & NEIGHBOR[idSquare3]) && (do_flips[idSquare3](d_player, d_opponent))){ 
+	if ((discs_opponent & NEIGHBOR[idSquare3]) && (flipped = do_flips[idSquare3](discs_player, discs_opponent))){
 		n_nodes++;
 		
-		score = -final_score_2(d_opponent, d_player, -beta, -alpha, idSquare1, idSquare2);
+		score = -final_score_2(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare3), -beta, -alpha, idSquare1, idSquare2);
 		
 		if(score > bestscore)
 			return score;
@@ -1082,10 +1099,10 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
         
         n_nodes++; //PASS
         
-        if (do_flips[idSquare1](d_opponent, d_player)){
+        if ((flipped = do_flips[idSquare1](discs_opponent, discs_player))){
             n_nodes++;
             
-            bestscore = -final_score_2(d_player, d_opponent, alpha, beta, idSquare2, idSquare3);
+            bestscore = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare1), alpha, beta, idSquare2, idSquare3);
                                             
             if(bestscore>=-alpha)
                 return -bestscore;
@@ -1093,15 +1110,12 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
             if(bestscore>-beta)
                 beta = -bestscore;
             
-            d_player = discs_player;
-            d_opponent = discs_opponent;
-
         }
 
-        if (do_flips[idSquare2](d_opponent, d_player)){
+        if ((flipped = do_flips[idSquare2](discs_opponent, discs_player))){
             n_nodes++;
             
-            score = -final_score_2(d_player, d_opponent, alpha, beta, idSquare1, idSquare3);
+            score = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare2), alpha, beta, idSquare1, idSquare3);
             
             if(score>=-alpha)
                 return -score;
@@ -1112,15 +1126,13 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
                     beta = -bestscore;
             }
             
-            d_player = discs_player;
-            d_opponent = discs_opponent;
             
         }
         
-        if (do_flips[idSquare3](d_opponent, d_player)){
+        if ((flipped = do_flips[idSquare3](discs_opponent, discs_player))){
             n_nodes++;
             
-            score = -final_score_2(d_player, d_opponent, alpha, beta, idSquare1, idSquare2);
+            score = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare3), alpha, beta, idSquare1, idSquare2);
             
             if(score > bestscore)
                 return -score;
@@ -1247,14 +1259,13 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
 
 		
 	int score, bestscore = UNDEF_SCORE;
-		
-	unsigned long long d_player = discs_player;
-	unsigned long long d_opponent = discs_opponent;
 	
-	if ((d_opponent & NEIGHBOR[idSquare1]) && (do_flips[idSquare1](d_player, d_opponent))){ 
+    unsigned long long flipped;
+	
+	if ((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))){
 		n_nodes++;
         			 
-		bestscore = -final_score_3(d_opponent, d_player, -beta, -alpha, sort3, idSquare2, idSquare3, idSquare4);
+		bestscore = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare1), -beta, -alpha, sort3, idSquare2, idSquare3, idSquare4);
 				
 		if(bestscore>=beta)
 			return bestscore;
@@ -1262,15 +1273,13 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
 		if(bestscore>alpha)
 			alpha = bestscore;
 		
-		d_player = discs_player;
-		d_opponent = discs_opponent;
 		
 	}
 
-	if ((d_opponent & NEIGHBOR[idSquare2]) && (do_flips[idSquare2](d_player, d_opponent))){ 
+	if ((discs_opponent & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_player, discs_opponent))){
 		n_nodes++;
 		
-		score = -final_score_3(d_opponent, d_player, -beta, -alpha, sort3>>4, idSquare1, idSquare3, idSquare4);
+		score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare2), -beta, -alpha, sort3>>4, idSquare1, idSquare3, idSquare4);
 		
 		if(score>=beta)
 			return score;
@@ -1281,15 +1290,13 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
 				alpha = bestscore;
 		}
 
-		d_player = discs_player;
-		d_opponent = discs_opponent;
 		
 	}
 	
-	if ((d_opponent & NEIGHBOR[idSquare3]) && (do_flips[idSquare3](d_player, d_opponent))) {
+	if ((discs_opponent & NEIGHBOR[idSquare3]) && (flipped = do_flips[idSquare3](discs_player, discs_opponent))) {
 		n_nodes++;
 		
-		score = -final_score_3(d_opponent, d_player, -beta, -alpha, sort3>>8, idSquare1, idSquare2, idSquare4);
+		score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare3), -beta, -alpha, sort3>>8, idSquare1, idSquare2, idSquare4);
 		
 		if(score>=beta)
 			return score;
@@ -1300,15 +1307,13 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
 				alpha = bestscore;
 		}
 
-		d_player = discs_player;
-		d_opponent = discs_opponent;
 		
 	}
 
-	if ((d_opponent & NEIGHBOR[idSquare4]) && (do_flips[idSquare4](d_player, d_opponent))){ 
+	if ((discs_opponent & NEIGHBOR[idSquare4]) && (flipped = do_flips[idSquare4](discs_player, discs_opponent))){
 		n_nodes++;
 		
-		score = -final_score_3(d_opponent, d_player, -beta, -alpha, sort3>>12, idSquare1, idSquare2, idSquare3);
+		score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare4), -beta, -alpha, sort3>>12, idSquare1, idSquare2, idSquare3);
 
 		if(score > bestscore)
 			return score;
@@ -1329,7 +1334,7 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
 								
 		} else {
 			n_nodes++;
-			bestscore = -final_score_4(d_opponent, d_player, -beta, -alpha, true, sort3, idSquare1, idSquare2, idSquare3, idSquare4);
+			bestscore = -final_score_4(discs_opponent, discs_player, -beta, -alpha, true, sort3, idSquare1, idSquare2, idSquare3, idSquare4);
 		}
 	}
 	
