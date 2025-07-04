@@ -1925,6 +1925,7 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
 //monothread
 void RXEngine::determine_move_time(RXBitBoard& board) {
     /*
+    // > 3 minutes
     static const int tSafety[] = {
          0,  0,  0,  0,  0,  0,  0,  0,
          0,  0,  0,  0,  0,  0,  0,  0,

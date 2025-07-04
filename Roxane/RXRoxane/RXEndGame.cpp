@@ -2384,7 +2384,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
             
             if(activeThreads > 1 && iter->next != NULL && board.n_empties >= EG_DEEP_TO_MEDIUM
                && !abort.load() && idle_thread_exists(0) && !thread_should_stop(0)
-               && split(sBoard, true, 0, board.n_empties, selectivity, selective_cutoff, child_selective_cutoff,
+               && split(sBoard, true, 0, board.n_empties, selectivity, selective_cutoff,
                         lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::END_ROOT)) {
                 
                 
@@ -2685,12 +2685,12 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
     s_beta  = std::min( 64*VALUE_DISC, s_beta);
     
     //for record fforum-40-59 setting
-    //for(selectivity = 2; !abort.load()  && selectivity <= end_selectivity; selectivity+=4) {
+    //for(selectivity = 2; !abort.load()  && selectivity <= end_selectivity; selectivity+=(selectivity == NO_SELECT? 1:(NO_SELECT-selectivity)) ) {
     
     for(; !abort.load()  && selectivity <= end_selectivity; selectivity++) {
         
         selectivity = std::max(std::min(NO_SELECT, std::max(EG_HIGH_SELECT, 28-sBoard.board.n_empties)), std::max(EG_HIGH_SELECT, selectivity));
-        
+                
         set_select_search(selectivity);
         
         if(dependent_time)

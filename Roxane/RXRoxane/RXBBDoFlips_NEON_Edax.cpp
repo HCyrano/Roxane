@@ -15,7 +15,6 @@
 
 unsigned long long RXBitBoard::do_flips_A1(const unsigned long long& P, const unsigned long long& O) {
     
-    
     unsigned int outflank_h;
     unsigned long long flipped, outflank_v, outflank_d9;
     
@@ -65,7 +64,6 @@ unsigned long long RXBitBoard::do_flips_C1(const unsigned long long& P, const un
     
     outflank_h = outflank_right_H((unsigned int) (O >> 57) << 28) & (unsigned int) (P >> 29);
     flipped |= (unsigned long long) (outflank_h * (unsigned int) -2) << 29;
-    
     
     return flipped;
     
@@ -371,8 +369,7 @@ unsigned long long RXBitBoard::do_flips_C3(const unsigned long long& P, const un
     
     flipped |= ((((P >> 7) | (P << 7)) & 0x0010004000000000) | ((P >> 8) & 0x0020000000000000)
                 | ((P >> 9) & 0x0040000000000000) | ((P >> 1) & 0x0000400000000000)) & O;
-    
-    
+        
     return flipped;
     
 }
@@ -399,8 +396,7 @@ unsigned long long RXBitBoard::do_flips_D3(const unsigned long long& P, const un
 }
 
 unsigned long long RXBitBoard::do_flips_E3(const unsigned long long& P, const unsigned long long& O) {
-    
-    
+        
     unsigned int outflank_h;
     unsigned long long flipped, outflank_v, outflank_d;
     
@@ -586,8 +582,7 @@ unsigned long long RXBitBoard::do_flips_F4(const unsigned long long& P, const un
     
     flippedLH = vtrn_u32(vget_high_u32(flippedL), vorr_u32(vget_low_u32(flippedH4), vget_high_u32(flippedH4)));
     flip = vreinterpret_u64_u32(vorr_u32(vorr_u32(flippedLH.val[0], flippedLH.val[1]), vget_low_u32(flippedL)));
-    
-    
+
     uint64_t flipped = vget_lane_u64(flip, 0);
     
     return flipped;
