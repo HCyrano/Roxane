@@ -1999,7 +1999,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                 if(-entry.upper > alpha) {
                     if(entry.selectivity != NO_SELECT)
                         selective_cutoff = true;
-                    
+
                     return -entry.upper;
                 }
                 
@@ -2046,7 +2046,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                         if(entry.selectivity >= selectivity ) {
                             if(entry.selectivity != NO_SELECT)
                                 selective_cutoff = true;
-                            
+
                             return -entry.upper;
                         }
                         

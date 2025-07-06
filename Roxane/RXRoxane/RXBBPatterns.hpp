@@ -44,7 +44,6 @@ class RXBBPatterns {
     ~RXBBPatterns();
     
     void build(const std::string& init);
-    void copy_pattern(const RXPattern* src);
     
     void do_move(RXMove& move);
     void undo_move(const RXMove& move);
@@ -104,68 +103,6 @@ inline int RXBBPatterns::final_score() const {
 
 #ifndef NEW_EVAL
 
-inline void RXBBPatterns::copy_pattern(const RXPattern* src) {
-    
-    pattern->diag_5a = src->diag_5a;
-    pattern->diag_5b = src->diag_5b;
-    pattern->diag_5c = src->diag_5c;
-    pattern->diag_5d = src->diag_5d;
-    
-    pattern->diag_6a = src->diag_6a;
-    pattern->diag_6b = src->diag_6b;
-    pattern->diag_6c = src->diag_6c;
-    pattern->diag_6d = src->diag_6d;
-    
-    pattern->diag_7a = src->diag_7a;
-    pattern->diag_7b = src->diag_7b;
-    pattern->diag_7c = src->diag_7c;
-    pattern->diag_7d = src->diag_7d;
-    
-    pattern->diag_8a = src->diag_8a;
-    pattern->diag_8b = src->diag_8b;
-    
-    pattern->hv_4a = src->hv_4a;
-    pattern->hv_4b = src->hv_4b;
-    pattern->hv_4c = src->hv_4c;
-    pattern->hv_4d = src->hv_4d;
-    
-    pattern->hv_3a = src->hv_3a;
-    pattern->hv_3b = src->hv_3b;
-    pattern->hv_3c = src->hv_3c;
-    pattern->hv_3d = src->hv_3d;
-    
-    pattern->hv_2a = src->hv_2a;
-    pattern->hv_2b = src->hv_2b;
-    pattern->hv_2c = src->hv_2c;
-    pattern->hv_2d = src->hv_2d;
-    
-    pattern->corner2x5a = src->corner2x5a;
-    pattern->corner2x5b = src->corner2x5b;
-    pattern->corner2x5c = src->corner2x5c;
-    pattern->corner2x5d = src->corner2x5d;
-    pattern->corner2x5e = src->corner2x5e;
-    pattern->corner2x5f = src->corner2x5f;
-    pattern->corner2x5g = src->corner2x5g;
-    pattern->corner2x5h = src->corner2x5h;
-    
-    pattern->edge64a = src->edge64a;
-    pattern->edge64b = src->edge64b;
-    pattern->edge64c = src->edge64c;
-    pattern->edge64d = src->edge64d;
-    
-    pattern->corner11a = src->corner2x5a;
-    pattern->corner11b = src->corner2x5b;
-    pattern->corner11c = src->corner2x5c;
-    pattern->corner11d = src->corner2x5d;
-    
-    pattern->edge2XCa = src->edge2XCa;
-    pattern->edge2XCb = src->edge2XCb;
-    pattern->edge2XCc = src->edge2XCc;
-    pattern->edge2XCd = src->edge2XCd;
-    
-    
-    
-}
 
 /*
 inline int RXBBPatterns::verif_score() const {
@@ -891,49 +828,6 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
 
 #else
 
-inline void RXBBPatterns::copy_pattern(const RXPattern* src) {
-    
-    pattern->diag_5a = src->diag_5a;
-    pattern->diag_5b = src->diag_5b;
-    pattern->diag_5c = src->diag_5c;
-    pattern->diag_5d = src->diag_5d;
-    
-    pattern->diag_6a = src->diag_6a;
-    pattern->diag_6b = src->diag_6b;
-    pattern->diag_6c = src->diag_6c;
-    pattern->diag_6d = src->diag_6d;
-    
-    pattern->diag_7a = src->diag_7a;
-    pattern->diag_7b = src->diag_7b;
-    pattern->diag_7c = src->diag_7c;
-    pattern->diag_7d = src->diag_7d;
-    
-    pattern->diag_8a = src->diag_8a;
-    pattern->diag_8b = src->diag_8b;
-    
-    pattern->hv_4a = src->hv_4a;
-    pattern->hv_4b = src->hv_4b;
-    pattern->hv_4c = src->hv_4c;
-    pattern->hv_4d = src->hv_4d;
-    
-    pattern->hv_3a = src->hv_3a;
-    pattern->hv_3b = src->hv_3b;
-    pattern->hv_3c = src->hv_3c;
-    pattern->hv_3d = src->hv_3d;
-    
-    pattern->corner11a = src->corner11a;
-    pattern->corner11b = src->corner11b;
-    pattern->corner11c = src->corner11c;
-    pattern->corner11d = src->corner11d;
-    
-    pattern->edge_1 = src->edge_1;
-    pattern->edge_2 = src->edge_2;
-    pattern->edge_3 = src->edge_3;
-    pattern->edge_4 = src->edge_4;
-    
-    
-    
-}
 
 
 

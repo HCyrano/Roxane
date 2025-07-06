@@ -1804,7 +1804,7 @@ void RXEngine::run() {
                     
                     
                     if (score != UNDEF_SCORE && (final_player == search_sBoard.board.player ? score:-score) < final_score) {
-                        std::cout << "RED ARLET BUG IN FINAL" << std::endl;
+                        std::cout << "RED ALERT BUG IN FINAL" << std::endl;
                         std::cout << "final_score = " << final_score << "player : " << final_player << std::endl;
                         std::cout << "      score = " << score << "player : " << search_sBoard.board.player << std::endl;
 
