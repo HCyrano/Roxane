@@ -1298,9 +1298,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 upper = entry.upper;
                 
                 if (upper <= lower) {
-                    if(entry.selectivity != NO_SELECT)
-                        selective_cutoff = true;
-                    
+                    selective_cutoff = (entry.selectivity != NO_SELECT);
+
                     return upper;
                 }
             }
@@ -1310,9 +1309,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 lower = entry.lower;
                 
                 if (lower >= upper) {
-                    if(entry.selectivity != NO_SELECT)
-                        selective_cutoff = true;
-                    
+                    selective_cutoff = (entry.selectivity != NO_SELECT);
+
                     return lower;
                 }
             }
@@ -1390,9 +1388,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             if(USE_ETC && !pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth>=(board.n_empties-1)) {
                 
                 if(-entry.upper >= upper) {
-                    if(entry.selectivity != NO_SELECT)
-                        selective_cutoff = true;
-                    
+                    selective_cutoff = (entry.selectivity != NO_SELECT);
+
                     return -entry.upper ;
                 }
             }
@@ -1431,9 +1428,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                     
                     if(!pv && entry.selectivity >= selectivity && -entry.upper >= upper) {
                         
-                        if(entry.selectivity != NO_SELECT)
-                            selective_cutoff = true;
-                        
+                        selective_cutoff = (entry.selectivity != NO_SELECT);
+
                         return -entry.upper ;
                     }
                     
@@ -1467,9 +1463,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             board.do_pass();
             bestmove = PASS;
             
-            if(child_selective_cutoff)
-                selective_cutoff = true;
-            
+            selective_cutoff |= child_selective_cutoff;
+
         }
     } else {
         
@@ -1504,9 +1499,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             if (bestscore > lower)
                 lower = bestscore;
             
-            if (child_selective_cutoff)
-                selective_cutoff = true;
-            
+            selective_cutoff |= child_selective_cutoff;
+
         }
         
         if(lower < upper && list->next != NULL) {
@@ -1846,9 +1840,6 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            //            if(child_selective_cutoff)
-            //                sp->selective_cutoff = true;
-                        
             sp->selective_cutoff |= child_selective_cutoff;
 
             // New best move?
@@ -1912,16 +1903,14 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             
             
             if(entry.lower > alpha) {
-                if(entry.selectivity != NO_SELECT)
-                    selective_cutoff = true;
-                
+                selective_cutoff = (entry.selectivity != NO_SELECT);
+                                
                 return entry.lower;
             }
             
             if(entry.upper <= alpha) {
-                if(entry.selectivity != NO_SELECT)
-                    selective_cutoff = true;
-                
+                selective_cutoff = (entry.selectivity != NO_SELECT);
+
                 return  entry.upper;
             }
             
@@ -1997,8 +1986,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             if(USE_ETC && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth >= (board.n_empties-1)) {
                 
                 if(-entry.upper > alpha) {
-                    if(entry.selectivity != NO_SELECT)
-                        selective_cutoff = true;
+                    selective_cutoff = (entry.selectivity != NO_SELECT);
 
                     return -entry.upper;
                 }
@@ -2044,8 +2032,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                     if(-entry.upper > alpha) {
                         
                         if(entry.selectivity >= selectivity ) {
-                            if(entry.selectivity != NO_SELECT)
-                                selective_cutoff = true;
+                            selective_cutoff = (entry.selectivity != NO_SELECT);
 
                             return -entry.upper;
                         }
@@ -2085,8 +2072,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             board.do_pass();
             bestmove = PASS;
             
-            if(child_selective_cutoff)
-                selective_cutoff = true;
+            selective_cutoff |= child_selective_cutoff;
             
         }
         
@@ -2132,8 +2118,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
         bestmove = move->position;
         list = list->next;
         
-        if(child_selective_cutoff)
-            selective_cutoff = true;
+        selective_cutoff |= child_selective_cutoff;
         
         
         int score;
@@ -2261,9 +2246,6 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
             
             //update SplitPoint
             
-//            if(child_selective_cutoff)
-//                sp->selective_cutoff = true;
-            
             sp->selective_cutoff |= child_selective_cutoff;
             
             // New best move?
@@ -2371,8 +2353,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
             //            *log << "                  [extra time <=:" << extra_time << "]" << std::endl;
         }
         
-        if (child_selective_cutoff)
-            selective_cutoff = true;
+        selective_cutoff |= child_selective_cutoff;
         
         /* other moves : try to refute the first/best one */
         int score;
@@ -2598,9 +2579,6 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             
             //update
             pthread_mutex_lock(&(sp->lock));
-            
-            //            if(child_selective_cutoff)
-            //                sp->selective_cutoff = true;
             
             sp->selective_cutoff |= child_selective_cutoff;
             

@@ -34,9 +34,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_NEON
 //Standart
 const int RXEngine::CONFIDENCE[]   = {60, 72, 84, 91, 95, 98, 100}; // 99
-//const float RXEngine::PERCENTILE[] = {1.05f, 1.2f, 1.4f, 1.7f, 2.2f, 2.8f}; // standard
 const float RXEngine::PERCENTILE[] = {1.00f, 1.1f, 1.35f, 1.7f, 2.2f, 2.8f}; // en test 22/03/2025
-
 const int RXEngine::NO_SELECT = 6;
 #else
 //i386
@@ -322,9 +320,9 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                     
                     if(iter->score <= -(2*upper_probcut-alpha)) { // ==  -(beta + 2*sigma)
                         //good move    "probable beta cut"    study in first
-                        if(endgame)
-                            iter->score /= 2;
                         iter->score -= 12*VALUE_DISC;
+//                        if(endgame)
+//                            iter->score /= 2;
                     }
                     
                     if(endgame)
@@ -571,10 +569,8 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 iter->score = -alphabeta_last_three_ply(threadID, sBoard, -lower_probcut-VALUE_DISC, -lower_probcut, false);
             } else {
                 iter->score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower_probcut-VALUE_DISC, false); // pvDev = 1
-                
-                if(child_selective_cutoff)
-                    selectif_cutoff = true;
-                
+                 
+                selective_cutoff |= child_selective_cutoff;
             }
             
             sBoard.undo_move(*iter);
