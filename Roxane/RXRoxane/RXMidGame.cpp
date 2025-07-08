@@ -1366,9 +1366,6 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                 bestmove = iter->position;
             }
             
-            //                if ( child_selective_cutoff )
-            //                    selective_cutoff = true;
-
             selective_cutoff |= child_selective_cutoff;
 
             

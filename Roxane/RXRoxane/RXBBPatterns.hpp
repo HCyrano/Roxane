@@ -633,12 +633,13 @@ inline int RXBBPatterns::get_score() const {
     
     // theorie des quantas
     eval >>= 3; 
-    if(eval < 0)
-        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-    else
-        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
+//    if(eval < 0)
+//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
+//    else
+//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
     
-    
+    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+
 }
 
 
@@ -818,12 +819,13 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     
     // theorie des quantas
     eval >>= 3; 
-    if(eval <  0)
-        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-    else
-        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
+//    if(eval <  0)
+//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
+//    else
+//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
     
-    
+    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+
 }
 
 #else
@@ -940,12 +942,13 @@ inline int RXBBPatterns::get_score() const {
     
     // theorie des quantas
     eval >>= 3;
-    if(eval < 0)
-        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-    else
-        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
+//    if(eval < 0)
+//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
+//    else
+//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
     
-    
+    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+
 }
 
 
@@ -1058,12 +1061,13 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
         
     // theorie des quantas
     eval >>= 3;
-    if(eval <  0)
-        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-    else
-        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
+//    if(eval <  0)
+//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
+//    else
+//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
     
-    
+    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+
 }
 
 /*

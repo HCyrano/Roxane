@@ -244,7 +244,10 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                 
                 int lower_probcut = -MAX_SCORE;
                 int upper_probcut =  MAX_SCORE;
-                probcut_bounds(board, (selectivity == NO_SELECT ? selectivity-1:selectivity), ((depth & 0x1UL) == 0 ? 6:5), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                if(endgame)
+                    probcut_bounds(board, std::max(EG_HIGH_SELECT, (selectivity == NO_SELECT ? selectivity-2:selectivity-1)), ((board.n_empties & 0x1UL) == 0 ? 9:8), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                else
+                    probcut_bounds(board, MG_SELECT, ((depth & 0x1UL) == 0 ? 6:5), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 
                 for(; iter != NULL; iter = iter->next) {
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
@@ -430,6 +433,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 //interrupt search
                 if(abort.load() || thread_should_stop(threadID))
                     return false;
+              
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
@@ -499,6 +503,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 //interrupt search
                 if(abort.load() || thread_should_stop(threadID))
                     return false;
+               
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
@@ -2420,12 +2425,7 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
     }
     
     pthread_mutex_lock(&MP_sync);
-    
-    //    if(splitPoint.n_Slaves == 1) {
-    //        pthread_mutex_unlock(&MP_sync);
-    //        return false;
-    //    }
-    
+        
     threads[master].activeSplitPoints++;
     splitPoint.parent = threads[master].splitPoint;
     
