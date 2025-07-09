@@ -33,8 +33,6 @@ void RXBitBoard::generate_flips_A1(RXMove& move) const {
 
     outflank_h = outflank_right_H((unsigned int) (O >> 57) << 26) & (unsigned int) (P >> 31);
     flipped |= (unsigned long long) (outflank_h * (unsigned int) -2) << 31;
-    
-    
         
     move.flipped = flipped;
     move.square = 0X8000000000000000ULL;
@@ -90,9 +88,6 @@ void RXBitBoard::generate_flips_C1(RXMove& move) const {
     outflank_h = outflank_right_H((unsigned int) (O >> 57) << 28) & (unsigned int) (P >> 29);
     flipped |= (unsigned long long) (outflank_h * (unsigned int) -2) << 29;
 
-    
-    
-        
     move.flipped = flipped;
     move.square = 0X2000000000000000ULL;
     move.position = C1;
@@ -119,8 +114,6 @@ void RXBitBoard::generate_flips_D1(RXMove& move) const {
     outflank_h = OUTFLANK_4[(O >> 57) & 0x3f] & rotl8(P >> 56, 2);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_4_H[outflank_h] << 56;
 
-    
-        
     move.flipped = flipped;
     move.square = 0X1000000000000000ULL;
     move.position = D1;
@@ -231,9 +224,6 @@ void RXBitBoard::generate_flips_H1(RXMove& move) const {
     outflank_h = (O + 0x0200000000000000) & P;
     flipped |= (outflank_h - (outflank_h >> 8)) & 0x7e00000000000000;
 
-    
-    
-        
     move.flipped = flipped;
     move.square = 0X0100000000000000ULL;
     move.position = H1;
@@ -318,9 +308,6 @@ void RXBitBoard::generate_flips_C2(RXMove& move) const {
     outflank_h = outflank_right_H((unsigned int) (O >> 49) << 28) & (unsigned int) (P >> 21);
     flipped |= (unsigned long long) (outflank_h * (unsigned int) -2) << 21;
 
-    
-    
-        
     move.flipped = flipped;
     move.square = 0X0020000000000000ULL;
     move.position = C2;
@@ -436,9 +423,6 @@ void RXBitBoard::generate_flips_G2(RXMove& move) const {
     outflank_h = ((unsigned int) (O >> 24) + 0x04000000) & (unsigned int) (P >> 24);
     flipped |= (((unsigned long long) outflank_h << 24) - outflank_h) & 0x007c000000000000;
 
-    
-    
-        
     move.flipped = flipped;
     move.square = 0X0002000000000000ULL;
     move.position = G2;
@@ -556,9 +540,6 @@ void RXBitBoard::generate_flips_C3(RXMove& move) const {
     flipped |= ((((P >> 7) | (P << 7)) & 0x0010004000000000) | ((P >> 8) & 0x0020000000000000)
         | ((P >> 9) & 0x0040000000000000) | ((P >> 1) & 0x0000400000000000)) & O;
 
-    
-    
-        
     move.flipped = flipped;
     move.square = 0X0000200000000000ULL;
     move.position = C3;
@@ -743,8 +724,6 @@ void RXBitBoard::generate_flips_A4(RXMove& move) const {
     flip = vbslq_u64(maskH, vqsubq_u64(outflankH, one), flip);
 
     uint64_t flipped =vget_lane_u64(vorr_u64(vget_low_u64(flip), vget_high_u64(flip)), 0);
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000008000000000ULL;
@@ -983,8 +962,6 @@ void RXBitBoard::generate_flips_A5(RXMove& move) const {
     flip = vbslq_u64(maskH, vqsubq_u64(outflankH, one), flip);
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flip), vget_high_u64(flip)), 0);
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000080000000ULL;
@@ -1064,8 +1041,6 @@ void RXBitBoard::generate_flips_C5(RXMove& move) const {
     flip = vreinterpret_u64_u32(vorr_u32(vorr_u32(flippedLH.val[0], flippedLH.val[1]), vget_low_u32(flippedH)));
 
     uint64_t flipped = vget_lane_u64(flip, 0);
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000020000000ULL;
@@ -1107,8 +1082,6 @@ void RXBitBoard::generate_flips_F5(RXMove& move) const {
     flip = vreinterpret_u64_u32(vorr_u32(vorr_u32(flippedLH.val[0], flippedLH.val[1]), vget_low_u32(flippedH)));
 
     uint64_t flipped = vget_lane_u64(flip, 0);
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000004000000ULL;
@@ -1181,8 +1154,6 @@ void RXBitBoard::generate_flips_H5(RXMove& move) const {
     flip = vbslq_u64(maskH, vreinterpretq_u64_u32(vqsubq_u32(outflankH, one)), flip);
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flip), vget_high_u64(flip)), 0);
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000001000000ULL;
@@ -1298,8 +1269,6 @@ void RXBitBoard::generate_flips_C6(RXMove& move) const {
     flipped_g3g4 = (((P >> 9) & 0x0000000040000000) | ((P >> 1) & 0x000000000400000)) & O;
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flip), vget_high_u64(flip)), 0) | flipped_g3g4;
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000000200000ULL;
@@ -1528,8 +1497,6 @@ void RXBitBoard::generate_flips_B7(RXMove& move) const {
     flipped_h = (outflank_h * (unsigned int) -2) >> 18;
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flip), vget_high_u64(flip)), 0) | flipped_h;
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000000004000ULL;
@@ -1653,9 +1620,6 @@ void RXBitBoard::generate_flips_F7(RXMove& move) const {
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flipped_vd), vget_high_u64(flipped_vd)), 0) | flipped_h;
 
-    
-    
-        
     move.flipped = flipped;
     move.square = 0X0000000000000400ULL;
     move.position = F7;
@@ -1683,8 +1647,6 @@ void RXBitBoard::generate_flips_G7(RXMove& move) const {
     flipped_h = (outflank_h - (outflank_h >> 8)) & 0x7c00;
 
     uint64_t flipped =  vget_lane_u64(vorr_u64(vget_low_u64(flipped_vd), vget_high_u64(flipped_vd)), 0) | flipped_h;
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000000000200ULL;
@@ -1805,15 +1767,10 @@ void RXBitBoard::generate_flips_C8(RXMove& move) const {
     flipped_h |= ((((unsigned int) P >> 1) & 0x00000040) | (((unsigned int) P >> 9) & 0x00004000)) & O;
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flip), vget_high_u64(flip)), 0) | flipped_h;
-    
-    
-        
+
     move.flipped = flipped;
     move.square = 0X0000000000000020ULL;
     move.position = C8;
-    
-    
-
 }
 
 void RXBitBoard::generate_flips_D8(RXMove& move) const {
@@ -1835,15 +1792,10 @@ void RXBitBoard::generate_flips_D8(RXMove& move) const {
 
     outflank_h = OUTFLANK_4[(O >> 1) & 0x3f] & rotl8(P, 2);
     flipped |= (unsigned char) FLIPPED_4_H[outflank_h];
-    
-    
         
     move.flipped = flipped;
     move.square = 0X0000000000000010ULL;
     move.position = D8;
-    
-    
-
 }
 
 void RXBitBoard::generate_flips_E8(RXMove& move) const {
@@ -1865,15 +1817,10 @@ void RXBitBoard::generate_flips_E8(RXMove& move) const {
 
     outflank_h = OUTFLANK_3[(O >> 1) & 0x3f] & rotl8(P, 3);
     flipped |= (unsigned char) FLIPPED_3_H[outflank_h];
-
-    
         
     move.flipped = flipped;
     move.square = 0X0000000000000008ULL;
     move.position = E8;
-    
-    
-
 }
 
 void RXBitBoard::generate_flips_F8(RXMove& move) const {
@@ -1898,8 +1845,6 @@ void RXBitBoard::generate_flips_F8(RXMove& move) const {
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flipped_vd), vget_high_u64(flipped_vd)), 0) | flipped_h;
 
-    
-        
     move.flipped = flipped;
     move.square = 0X0000000000000004ULL;
     move.position = F8;
@@ -1928,8 +1873,6 @@ void RXBitBoard::generate_flips_G8(RXMove& move) const {
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flipped_vd), vget_high_u64(flipped_vd)), 0) | flipped_h;
 
-    
-        
     move.flipped = flipped;
     move.square = 0X0000000000000002ULL;
     move.position = G8;
@@ -1957,9 +1900,7 @@ void RXBitBoard::generate_flips_H8(RXMove& move) const {
     flipped_h = outflank_h - ((unsigned int) (outflank_h != 0) << 1);
 
     uint64_t flipped = vget_lane_u64(vorr_u64(vget_low_u64(flipped_vd), vget_high_u64(flipped_vd)), 0) | flipped_h;
-    
-    
-        
+
     move.flipped = flipped;
     move.square = 0X0000000000000001ULL;
     move.position = H8;

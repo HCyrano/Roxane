@@ -328,8 +328,18 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
 //                            iter->score /= 2;
                     }
                     
-                    if(endgame)
-                        iter->score += RXBitBoard::get_mobility(board.discs[board.player], board.discs[board.player^1])*VALUE_DISC;// - (board.get_corner_stability(board.discs[board.player^1])*VALUE_DISC)/8;
+                    if(endgame) {
+                        int mobility = RXBitBoard::get_mobility(board.discs[board.player], board.discs[board.player^1])*VALUE_DISC;
+                        if(depth <= 17 && 11 <depth) {
+                            mobility = 5*mobility/4;
+                        } else if(depth <= 11 && 5 < depth) {
+                            mobility = 3*mobility/2;
+                        } else if(depth <= 5) {
+                            mobility = 7*mobility/4;
+                        }
+                        
+                        iter->score += mobility;// - (board.get_corner_stability(board.discs[board.player^1])*VALUE_DISC)/8;
+                    }
                     
                     sBoard.undo_move(*iter);
                     

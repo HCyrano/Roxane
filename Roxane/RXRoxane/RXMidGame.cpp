@@ -536,7 +536,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         
                         int lower_probcut = -MAX_SCORE;
                         int upper_probcut =  MAX_SCORE;
-                        probcut_bounds(board, 3, (4+depth/4+depth&1), 0, (lower+upper)/2, lower_probcut, upper_probcut); //selectivity 3 = 91%
+                        probcut_bounds(board, 3, (4 + depth/4 + depth&0x1UL), 0, (lower+upper)/2, lower_probcut, upper_probcut); //selectivity 3 = 91%
                         
                         if(lower_probcut<= sBoard.get_score()) { // && eval_position<=(beta+upper_probcut*4)) { //alpha 95% / beta 99%
                             
@@ -548,23 +548,29 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                                 
                                 //stable move -> sorting on evaluation
                                 sBoard.do_move(*iter);
-                                
-                                if(depth >= 22) {
+
+                                if(depth >= 30) {
                                     
-                                    if((depth & 1) == 0)
+                                    if((depth & 0x1UL) == 0)
+                                        iter->score += PVS_last_ply(threadID, sBoard, 6, -MAX_SCORE , -lower_probcut, false);
+                                    else
+                                        iter->score += PVS_last_ply(threadID, sBoard, 5, -MAX_SCORE , -lower_probcut, false);
+                                                                        
+                                } else if(depth >= 24) {
+                                    
+                                    if((depth & 0x1UL) == 0)
                                         iter->score += PVS_last_ply(threadID, sBoard, 4, -MAX_SCORE , -lower_probcut, false);
                                     else
                                         iter->score += alphabeta_last_three_ply(threadID, sBoard, -MAX_SCORE , -lower_probcut, false);
                                     
-                                    
                                 } else if(depth >= 18) {
                                     
-                                    if((depth & 1) == 0)
+                                    if((depth & 0x1UL) == 0)
                                         iter->score += alphabeta_last_two_ply(threadID, sBoard, -MAX_SCORE , -lower_probcut, false);
                                     else
                                         iter->score += alphabeta_last_three_ply(threadID, sBoard, -MAX_SCORE , -lower_probcut, false);
                                     
-                                } else  if((depth & 1) == 0) {
+                                } else  if((depth & 0x1UL) == 0) {
                                     
                                     iter->score += alphabeta_last_two_ply(threadID, sBoard, -MAX_SCORE , -lower_probcut, false);
                                     
@@ -1165,7 +1171,7 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
     //param mpc
     int lower_probcut, upper_probcut;
     probcut_bounds(board, selectivity, depth, pvDev, alpha, lower_probcut, upper_probcut);
-    int probcut_depth = (depth/4)*2 + (depth&1);
+    int probcut_depth = (depth/4)*2 + (depth & 0x1UL);
     
     
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {
@@ -1429,7 +1435,7 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         //deverouillage de splitpoint
         
         int alpha = sp->alpha; //local copy
-        bool child_selective_cutoff = false;;
+        bool child_selective_cutoff = false;
         
         int score;
         sBoard.do_move(*move);

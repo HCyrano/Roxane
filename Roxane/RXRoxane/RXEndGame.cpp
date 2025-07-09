@@ -1586,7 +1586,14 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                             
                         }
                         
-                        iter->score += RXBitBoard::get_mobility(board.discs[o], board.discs[p])*VALUE_DISC - eval_move; // - (board.get_edge_stability(board.player)*VALUE_DISC)/16;
+                        int mobility = RXBitBoard::get_mobility(board.discs[o], board.discs[p])*VALUE_DISC;
+                        if(board.n_empties <= 27 && 22 < board.n_empties) {
+                            mobility = 4*mobility/3;
+                        } else if(board.n_empties <= 22) {
+                            mobility = 3*mobility/2;
+                        }
+
+                        iter->score += mobility - eval_move; // - (board.get_edge_stability(board.player)*VALUE_DISC)/16;
                         
                         sBoard.undo_move(*iter);
                         
@@ -1932,7 +1939,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
     
     //param mpc
     int lower_probcut, upper_probcut;
-    int probcut_depth = (board.n_empties/4)*2 + (board.n_empties&1);
+    int probcut_depth = (board.n_empties/4)*2 + (board.n_empties & 0x1UL);
     probcut_bounds(board, selectivity, board.n_empties, pvDev, alpha, lower_probcut, upper_probcut);
     
     
@@ -2159,9 +2166,6 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                 bestmove = iter->position;
             }
             
-            //                if ( child_selective_cutoff )
-            //                    selective_cutoff = true;
-
             selective_cutoff |= child_selective_cutoff;
 
         }
