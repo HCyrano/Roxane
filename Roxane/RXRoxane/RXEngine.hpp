@@ -38,6 +38,8 @@
  #define USE_PROBCUT_ALPHA
 */
 
+//for record fforum-40-59 setting
+//#define USE_SPLIT_AT_ROOT
 
 
 extern "C"
@@ -70,7 +72,7 @@ class RXSplitPoint {
 	
 public:
 	
-	enum t_callBackSearch {MID_PVS, MID_XPROBCUT, END_ROOT, END_PVS, END_XPROBCUT, END_ETC_MOBILITY};
+	enum t_callBackSearch {MID_ROOT, MID_PVS, MID_XPROBCUT, END_ROOT, END_PVS, END_XPROBCUT, END_ETC_MOBILITY};
 		
 	RXSplitPoint* parent;
 	
@@ -312,9 +314,10 @@ class RXEngine: public Runnable, public RXHelper {
 	void aspiration_search(RXBBPatterns& sBoard, const int depth, RXMove* list);
 	
 	void MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, int beta, RXMove* list);
+    void MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
 	
 	int MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, int beta, const bool passed);
-	void MG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID);
+	void MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID);
 	
 	int MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, const int depth, int alpha, int beta, const bool passed);
 	

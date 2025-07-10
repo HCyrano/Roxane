@@ -20,6 +20,7 @@
 
 #define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
 
+
 const int RXEngine::CHECK_TO_LAST_THREE = 4; // DO NOT CHANGE
 
 
@@ -2186,9 +2187,12 @@ void RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
             //functions callback
             switch (splitPoint->CBSearch) {
                     
-                    
+                case RXSplitPoint::MID_ROOT:
+                    MG_SP_search_root(splitPoint, threadID);
+                    break;
+
                 case RXSplitPoint::MID_PVS:
-                    MG_SP_search_DEEP(splitPoint, threadID);
+                    MG_SP_search_deep(splitPoint, threadID);
                     break;
                     
                 case RXSplitPoint::MID_XPROBCUT:

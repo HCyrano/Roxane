@@ -16,8 +16,6 @@
 #include "RXBitBoard.hpp"
 
 //#define USE_SPLIT_AT_ETC_MOBILITY
-//for record fforum-40-59 setting
-//#define USE_SPLIT_AT_ROOT
 
 
 const bool RXEngine::USE_ETC = true;

@@ -244,6 +244,18 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, in
         int score;
         for(iter = iter->next; !abort.load()  && lower<upper && iter != NULL; iter = iter->next) {
             
+
+#ifdef USE_SPLIT_AT_ROOT
+                        
+            // Split?
+            if(activeThreads > 1 && iter->next != NULL && depth>(MIN_DEPTH_SPLITPOINT-1) && !abort.load()
+               && !thread_should_stop(0) && idle_thread_exists(0)
+               && split(sBoard, true, 0, depth, selectivity, selective_cutoff,
+                        lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::MID_ROOT))
+                
+                break;
+#endif
+            
             sBoard.do_move(*iter);
             
             //simple_PV pv == false ???
@@ -320,6 +332,114 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, in
     }
     
 }
+
+void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) {
+    
+    //    assert(threadID >= 0 && threadID < activeThreads);
+    //    assert(activeThreads > 1);
+    
+    
+    RXBBPatterns& sBoard = sp->sBoardStack[threadID];
+    sBoard = *(sp->sBoard); //operator=
+    RXBitBoard& board = sBoard.board;
+    board.n_nodes = 0;
+    
+    //here sp->beta is const
+    while(sp->alpha < sp->beta && !abort.load() && !thread_should_stop(threadID)) {
+        
+        pthread_mutex_lock(&(sp->lock));
+        
+        if(sp->list == NULL) {
+            pthread_mutex_unlock(&(sp->lock));
+            break;
+        }
+        
+        RXMove* move = sp->list;
+        sp->list = move->next;
+        
+        pthread_mutex_unlock(&(sp->lock));
+        
+        int score;
+        int alpha = sp->alpha; //local copy
+        int depth = sp->depth;
+        bool child_selective_cutoff = false;
+        
+        sBoard.do_move(*move);
+        
+        
+        score = -MG_PVS_deep(threadID, sBoard, false, sp->selectivity, depth-1, child_selective_cutoff, -alpha-VALUE_DISC, -alpha, false); //change
+
+        if (!abort.load()  && alpha < score && score < sp->beta) {
+            
+            extra_time++;
+            
+            if(dependent_time && board.n_empties>13)
+                manager->sendMsg("         " + RXMove::index_to_coord(move->position) + " maybe better? ");
+            
+            score = -MG_PVS_deep(threadID, sBoard, true, sp->selectivity, depth-1, child_selective_cutoff, -sp->beta, (child_selective_cutoff? -alpha : -score), false);
+            
+
+            if(search_client == RXSearch::kGGSMode && !(abort.load() || thread_should_stop(threadID))) {    // GGS mode
+                if(dependent_time && board.n_empties>13 && score <= sp->bestscore)
+                    manager->sendMsg("         " + RXMove::index_to_coord(move->position) + " refuted ");
+            }
+            
+            
+            extra_time--; //thread-safe?
+            
+        }
+        
+        sBoard.undo_move(*move);
+        
+        if(abort.load() || thread_should_stop(threadID))
+            break;
+        
+        
+        
+        
+        
+        //first without mutex
+        if((score > sp->bestscore) || (!sp->selective_cutoff && child_selective_cutoff)) {
+            
+            //update
+            pthread_mutex_lock(&(sp->lock));
+            
+            sp->selective_cutoff |= child_selective_cutoff;
+            
+            // New best move?
+            if(score > sp->bestscore) {
+                sp->bestscore = score;
+                sp->bestmove = move->position;
+                
+                if(dependent_time && board.n_empties>13)
+                    manager->sendMsg(showBestmove(depth, sp->selectivity, sp->alpha, sp->beta, sp->bestscore, sp->bestmove));
+                
+                if(score > sp->alpha) {
+                    
+                    if(score >= sp->beta) {
+                        sp->explored = true;
+                    } else {
+                        sp->alpha = score;
+                    }
+                    
+                }
+            }
+            
+            pthread_mutex_unlock(&(sp->lock));
+        }
+        
+    }
+    
+    pthread_mutex_lock(&(sp->lock));
+    
+    sp->sBoard->board.n_nodes += board.n_nodes;
+    
+    sp->slaves[threadID] = false;
+    sp->n_Slaves--;
+    
+    pthread_mutex_unlock(&(sp->lock));
+}
+
 
 int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, int beta, const bool passed) {
     
@@ -776,15 +896,15 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
     
 }
 
-// MG_SP_search_DEEP() is used to search from a PV split point.  This function
+// MG_SP_search_deep() is used to search from a PV split point.  This function
 // is called by each thread working at the split point.  It is similar to
 // the normal EG_PVS_deep() function, but simpler.  Because we have already
 // probed the hash table and searched the first move before splitting, we
-// don't have to repeat all this work in MG_SP_search_DEEP().  We also don't
+// don't have to repeat all this work in MG_SP_search_deep().  We also don't
 // need to store anything to the hash table here:  This is taken care of
 // after we return from the split point.
 
-void RXEngine::MG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) {
+void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) {
     
     
     RXBBPatterns& sBoard = sp->sBoardStack[threadID];
