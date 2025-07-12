@@ -31,7 +31,7 @@ const int RXEngine::SUPERIOR = 3;
 const int RXEngine::INTERRUPT = 4;
 const int RXEngine::GGS_MSG = 5;
 
-
+// pas de difference significative apres 300 jeux s8r14 1:00:
 #ifdef __ARM_NEON
 //Standart
 const int RXEngine::CONFIDENCE[]   = {60, 72, 84, 91, 95, 98, 100}; // 99
@@ -325,9 +325,8 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                     if(iter->score <= -(2*upper_probcut-alpha)) { // ==  -(beta + 2*sigma)
                         //good move    "probable beta cut"    study in first
                         iter->score -= 12*VALUE_DISC;
-//                        if(endgame)
-//                            iter->score /= 2;
                     }
+                    
                     
                     if(endgame) {
                         int mobility = RXBitBoard::get_mobility(board.discs[board.player], board.discs[board.player^1])*VALUE_DISC;
@@ -335,11 +334,11 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                             mobility = 5*mobility/4;
                         } else if(depth <= 11 && 5 < depth) {
                             mobility = 3*mobility/2;
-                        } else if(depth <= 5) {
+                        } else {
                             mobility = 7*mobility/4;
                         }
                         
-                        iter->score += mobility;// - (board.get_corner_stability(board.discs[board.player^1])*VALUE_DISC)/8;
+                        iter->score += mobility - (board.get_corner_stability(board.discs[board.player^1])*VALUE_DISC)/8;
                     }
                     
                     sBoard.undo_move(*iter);
@@ -347,7 +346,7 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                 }
                 
             } else {
-                
+                                
                 for(; iter != NULL; iter = iter->next) {
                     board.n_nodes++;
                     
@@ -1746,11 +1745,13 @@ void RXEngine::run() {
             
         }
         
-        int lower = list->next->score - 8*VALUE_DISC;
-        int upper = list->next->score + 8*VALUE_DISC;
-        
-        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, lower, upper, list1);
-                
+//        int lower = list->next->score - 8*VALUE_DISC;
+//        int upper = list->next->score + 8*VALUE_DISC;
+//        
+//        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, lower, upper, list1);
+
+        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, -MAX_SCORE, MAX_SCORE, list1);
+
         //if no hashmove
         list1->next->score = 0;
         
@@ -1976,10 +1977,15 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     
     if(get_type_search() == MIDGAME) {
         
-        //M3 pro
-        int n_empties_before_solved = std::max(2, board.n_empties-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
+        int n_empties_before_solved;
+        
+#ifdef __ARM_ACLE
+        //apple ARM
+        n_empties_before_solved = std::max(2, board.n_empties-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
+#else
         //i5 2,7ghz
-        //int n_empties_before_solved = std::max(2, board.n_empties-24); //i5 2,7ghz solved at 24 empties
+        n_empties_before_solved = std::max(2, board.n_empties-24); //i5 2,7ghz solved at 24 empties
+#endif
 
         float n_remaining_moves = std::floor((n_empties_before_solved)/2.0);
 

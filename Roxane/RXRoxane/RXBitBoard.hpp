@@ -186,6 +186,7 @@ void generate_flips_##pos(RXMove& move) const \
     inline int get_edge_stability(const int player) const;
     static unsigned long long get_stable_edge(const unsigned long long  discs_player, const unsigned long long discs_opponent);
     inline int get_stability(const int player) const;
+    static inline unsigned int count_stable_edge(const unsigned long long discs_player, const unsigned long long discs_opponent);
     static inline int get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
     
@@ -408,6 +409,10 @@ inline int RXBitBoard::get_edge_stability(const int player) const {
 //    return __builtin_popcountll(vgetq_lane_u64(stable, 0) | vgetq_lane_u64(stable, 1));
 //
 //}
+
+inline unsigned int RXBitBoard::count_stable_edge(const unsigned long long P, const unsigned long long O) {
+    return __builtin_popcountll(RXBitBoard::get_stable_edge(P, O));
+}
 
 /**
  * @brief Get stable edge.

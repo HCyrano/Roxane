@@ -471,14 +471,15 @@ unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs,
     adjacent_v = vandq_u64(oo_discs, vshlq_u64(oo_discs, shift[1]));
     
     uint64x2_t shift4 = vaddq_u64(shift[0],shift[0]);
-    uint64x2_t shift5 = vaddq_u64(shift[1],shift[1]);
-    uint64x2_t shift6 = vaddq_u64(shift[2],shift[2]);
-    uint64x2_t shift7 = vaddq_u64(shift[3],shift[3]);
-
-
     flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift4), adjacent_h));
+    
+    uint64x2_t shift5 = vaddq_u64(shift[1],shift[1]);
     flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift5), adjacent_v));
+    
+    uint64x2_t shift6 = vaddq_u64(shift[2],shift[2]);
     flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift6), adjacent_d7));
+    
+    uint64x2_t shift7 = vaddq_u64(shift[3],shift[3]);
     flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift7), adjacent_d9));
 
     flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift4), adjacent_h));

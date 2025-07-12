@@ -39,7 +39,10 @@
 */
 
 //for record fforum-40-59 setting
-//#define USE_SPLIT_AT_ROOT
+//Matchs avec /sans :
+//69/319/58 [446] s8r14 2:00
+//15,5%/71,5%/13%
+#define USE_SPLIT_AT_ROOT
 
 
 extern "C"
@@ -205,8 +208,8 @@ class RXEngine: public Runnable, public RXHelper {
 
     volatile int time_move;
     volatile int extratime_move;
-    volatile int extra_time;
-    //std::atomic<int> extra_time;
+    //volatile int extra_time;
+    std::atomic<int> extra_time;
 
     //volatile bool first_move;
     std::atomic_bool first_move;

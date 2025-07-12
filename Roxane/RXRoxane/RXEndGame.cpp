@@ -1591,7 +1591,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                             mobility = 3*mobility/2;
                         }
 
-                        iter->score += mobility - eval_move; // - (board.get_edge_stability(board.player)*VALUE_DISC)/16;
+                        iter->score += mobility - eval_move - RXBitBoard::get_corner_stability(board.discs[p])*VALUE_DISC/3;
                         
                         sBoard.undo_move(*iter);
                         
@@ -1606,9 +1606,9 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         
                         board.n_nodes++;
                         const unsigned long long p_discs = board.discs[p] | (iter->flipped | iter->square);
-                        
+
                         //test 1 : score + 2*mobility_adv + corner_stability/4
-                        iter->score += sBoard.get_score(*iter) + (8*(RXBitBoard::get_mobility(board.discs[o] ^ iter->flipped, p_discs)) - (RXBitBoard::get_corner_stability(p_discs)))*VALUE_DISC/3;
+                        iter->score += sBoard.get_score(*iter) + (8*(RXBitBoard::get_mobility(board.discs[o] ^ iter->flipped, p_discs)) - RXBitBoard::get_corner_stability(p_discs))*VALUE_DISC/3;
                     }
                     
                 }
@@ -2563,7 +2563,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             }
             
             
-            extra_time--; //thread-safe?
+            extra_time--; //atomic = thread-safe
             
         }
         
@@ -2571,9 +2571,6 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         if(abort.load() || thread_should_stop(threadID))
             break;
-        
-        
-        
         
         
         //first without mutex

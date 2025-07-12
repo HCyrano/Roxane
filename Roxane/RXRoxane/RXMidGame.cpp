@@ -20,7 +20,7 @@ const int RXEngine::MG_SELECT = 1; //72%
 
 const int RXEngine::MIN_DEPTH_USE_PROBCUT = 4; // DO NOT CHANGE
 
-const int RXEngine::MIN_DEPTH_SPLITPOINT = 8;
+const int RXEngine::MIN_DEPTH_SPLITPOINT = 7;
 
 const int RXEngine::MG_DEEP_TO_SHALLOW = 4;
 const int RXEngine::MG_MOVING_WINDOW = 4; //4
@@ -248,7 +248,7 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, in
 #ifdef USE_SPLIT_AT_ROOT
                         
             // Split?
-            if(activeThreads > 1 && iter->next != NULL && depth>(MIN_DEPTH_SPLITPOINT-1) && !abort.load()
+            if(activeThreads > 1 && iter->next != NULL && depth>MIN_DEPTH_SPLITPOINT && !abort.load()
                && !thread_should_stop(0) && idle_thread_exists(0)
                && split(sBoard, true, 0, depth, selectivity, selective_cutoff,
                         lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::MID_ROOT))
@@ -385,7 +385,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             }
             
             
-            extra_time--; //thread-safe?
+            extra_time--; //atomic = thread-safe
             
         }
         
@@ -394,11 +394,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         if(abort.load() || thread_should_stop(threadID))
             break;
         
-        
-        
-        
-        
-        //first without mutex
+       //first without mutex
         if((score > sp->bestscore) || (!sp->selective_cutoff && child_selective_cutoff)) {
             
             //update
@@ -806,7 +802,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 if(move->next != NULL) {	//more 1 move
                     
                     // Split?
-                    if(activeThreads > 1 && depth>(MIN_DEPTH_SPLITPOINT-1) && !abort.load()
+                    if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && !abort.load()
                        && !thread_should_stop(threadID) && idle_thread_exists(threadID)
                        && split(sBoard, pv, 0, depth, selectivity, selective_cutoff,
                                 lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::MID_PVS))
