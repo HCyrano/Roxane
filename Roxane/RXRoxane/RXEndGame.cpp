@@ -1585,13 +1585,14 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         }
                         
                         int mobility = RXBitBoard::get_mobility(board.discs[o], board.discs[p])*VALUE_DISC;
+                        int corner_stability = RXBitBoard::get_corner_stability(board.discs[p])*VALUE_DISC;
                         if(board.n_empties < 27 && 22 < board.n_empties) {
-                            mobility = 4*mobility/3;
+                            mobility = 4*mobility/3 - corner_stability/5;
                         } else if(board.n_empties <= 22) {
-                            mobility = 3*mobility/2;
+                            mobility = 3*mobility/2 - corner_stability/3;
                         }
 
-                        iter->score += mobility - eval_move - RXBitBoard::get_corner_stability(board.discs[p])*VALUE_DISC/3;
+                        iter->score += mobility - eval_move;
                         
                         sBoard.undo_move(*iter);
                         
