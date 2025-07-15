@@ -46,7 +46,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		371D4D602D1EBFBA0072E829 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = Roxane; path = /Users/caussebruno/Documents/developpement/Roxane/build/Debug/Roxane; sourceTree = "<absolute>"; };
 		372326DE2D1FF69D002CFAF4 /* GGSMessage.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GGSMessage.hpp; sourceTree = "<group>"; };
 		372326DF2D1FF69D002CFAF4 /* GGSMessage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GGSMessage.cpp; sourceTree = "<group>"; };
 		372326E02D1FF69D002CFAF4 /* GGSObjects.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GGSObjects.hpp; sourceTree = "<group>"; };
@@ -94,6 +93,8 @@
 		3723270B2D1FF69D002CFAF4 /* RXSquareList.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSquareList.hpp; sourceTree = "<group>"; };
 		3723270C2D1FF69D002CFAF4 /* RXTools.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXTools.hpp; sourceTree = "<group>"; };
 		3723270E2D1FF69D002CFAF4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		37BF368B2E266CBC0029C7F6 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Roxane; sourceTree = BUILT_PRODUCTS_DIR; };
+		37BF368C2E268CDC0029C7F6 /* RXSetting.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSetting.hpp; sourceTree = "<group>"; };
 		37C2DE1E2D1F0B4100B93DBD /* Roxane.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roxane.profdata; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,6 +119,7 @@
 		371D4D612D1EBFBA0072E829 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				37BF368B2E266CBC0029C7F6 /* Roxane */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -149,6 +151,7 @@
 			children = (
 				3723270C2D1FF69D002CFAF4 /* RXTools.hpp */,
 				372326F82D1FF69D002CFAF4 /* RXConstantes.hpp */,
+				37BF368C2E268CDC0029C7F6 /* RXSetting.hpp */,
 				3723270B2D1FF69D002CFAF4 /* RXSquareList.hpp */,
 				372327062D1FF69D002CFAF4 /* RXPattern.hpp */,
 				372326F42D1FF69D002CFAF4 /* RXBBPatterns.hpp */,
@@ -215,7 +218,7 @@
 			);
 			name = Roxane;
 			productName = Roxane;
-			productReference = 371D4D602D1EBFBA0072E829 /* Roxane */;
+			productReference = 37BF368B2E266CBC0029C7F6 /* Roxane */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */

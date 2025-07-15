@@ -18,7 +18,7 @@
 #include "RXEngine.hpp"
 #include "RXRoxane.hpp"
 
-#define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
+
 
 
 const int RXEngine::CHECK_TO_LAST_THREE = 4; // DO NOT CHANGE
@@ -32,7 +32,7 @@ const int RXEngine::INTERRUPT = 4;
 const int RXEngine::GGS_MSG = 5;
 
 // pas de difference significative apres 300 jeux s8r14 1:00:
-#ifdef __ARM_NEON
+#ifdef __ARM_ACLE
 //Standart
 const int RXEngine::CONFIDENCE[]   = {60, 72, 84, 91, 95, 98, 100}; // 99
 const float RXEngine::PERCENTILE[] = {1.00f, 1.1f, 1.35f, 1.7f, 2.2f, 2.8f}; // en test 22/03/2025
@@ -346,7 +346,7 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                 }
                 
             } else {
-                                
+                
                 for(; iter != NULL; iter = iter->next) {
                     board.n_nodes++;
                     
@@ -380,11 +380,11 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
     int static_eval = sBoard.get_score();
     
     int bestscore = UNDEF_SCORE;
-
+    
     RXMove* list1 = list;
-
+    
     int sigma = (upper_probcut - lower_probcut)/2;
-
+    
     if(hashMove) {
         
         list1= list->next ;
@@ -397,7 +397,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
             bool child_selective_cutoff = false;
             
             
-          if(sBoard.get_score(*list1)<-(upper_probcut)) {
+            if(sBoard.get_score(*list1)<-(upper_probcut)) {
                 
                 sBoard.do_move(*list1);
                 
@@ -443,7 +443,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 //interrupt search
                 if(abort.load() || thread_should_stop(threadID))
                     return false;
-              
+                
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
@@ -452,7 +452,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                     hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selectivity : NO_SELECT, depth, upper_probcut-VALUE_DISC, bestscore, list1->position);
                     return BETA_CUT;
                 }
-           }
+            }
         }
     }
     
@@ -466,7 +466,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
             bool selectif_cutoff = false;
             bool child_selective_cutoff = false;
             
-           if(sBoard.get_score(*iter)<-(upper_probcut)) {
+            if(sBoard.get_score(*iter)<-(upper_probcut)) {
                 
                 sBoard.do_move(*iter);
                 
@@ -513,7 +513,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 //interrupt search
                 if(abort.load() || thread_should_stop(threadID))
                     return false;
-               
+                
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
@@ -584,7 +584,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 iter->score = -alphabeta_last_three_ply(threadID, sBoard, -lower_probcut-VALUE_DISC, -lower_probcut, false);
             } else {
                 iter->score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower_probcut-VALUE_DISC, false); // pvDev = 1
-                 
+                
                 selective_cutoff |= child_selective_cutoff;
             }
             
@@ -601,7 +601,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 
                 if(bestscore > lower_probcut) { //no cut
                     list->sort_bestmove(bestmove);
-
+                    
                     selectif_cutoff = child_selective_cutoff;
                     hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selective_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
                     return NO_CUT;
@@ -613,7 +613,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
         selectif_cutoff = child_selective_cutoff;
         hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selective_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
         return ALPHA_CUT;
-
+        
         
     }
     
@@ -653,9 +653,9 @@ int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int al
                 if (lower >= upper)
                     return lower;
             }
- 
+            
             bestmove = entry.move;
-
+            
         }
         
     }
@@ -715,13 +715,13 @@ int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int al
                         if (depth == 6) { 
                             
                             // [endgame n_empties >= 30]
-
+                            
                             iter->score = alphabeta_last_two_ply(threadID, sBoard, -MAX_SCORE, +MAX_SCORE, false);
                             
                         } else if(depth == 5) {
                             
                             // [endgame n_empties >= 28]
-
+                            
                             RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
                             const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
                             int bestscore1 = UNDEF_SCORE;
@@ -879,7 +879,7 @@ int RXEngine::alphabeta_last_three_ply(int threadID, RXBBPatterns& sBoard, int a
     RXBitBoard& board = sBoard.board;
     const unsigned long long  hash_code = board.hashcode();
     hTable_shallow->entry_prefetch(hash_code);
-
+    
     
     int bestmove = NOMOVE;
     
@@ -891,19 +891,19 @@ int RXEngine::alphabeta_last_three_ply(int threadID, RXBBPatterns& sBoard, int a
     RXHashValue entry;
     if (hTable_shallow->get(hash_code, entry)) {
         //if(entry.depth >= 3) { //always true
-            
-            if (upper > entry.upper) {
-                upper = entry.upper;
-                if (upper <= lower)
-                    return upper;
-            }
-            
-            if (lower < entry.lower) {
-                lower = entry.lower;
-                if (lower >= upper)
-                    return lower;
-            }
-
+        
+        if (upper > entry.upper) {
+            upper = entry.upper;
+            if (upper <= lower)
+                return upper;
+        }
+        
+        if (lower < entry.lower) {
+            lower = entry.lower;
+            if (lower >= upper)
+                return lower;
+        }
+        
         //}
         
         bestmove = entry.move;
@@ -935,9 +935,9 @@ int RXEngine::alphabeta_last_three_ply(int threadID, RXBBPatterns& sBoard, int a
             unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
             if(bestmove != NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
-
+            
             RXSquareList* empties = board.empties_list->next;
-
+            
             int score;
             do {
                 if(legal_movesBB & 0x1ULL<<empties->position) {
@@ -1135,7 +1135,7 @@ std::string RXEngine::showPV(RXBitBoard& board, int depthLine) const {
         
         if(entry.selectivity != NO_SELECT)
             buffer << " ";
-
+        
         buffer << "  " << RXMove::index_to_coord(entry.move);
         
         int score;
@@ -1201,7 +1201,7 @@ std::string RXEngine::showBestmove(const int depth, const int selectivity, const
     
     if(selectivity != NO_SELECT)
         buffer << " ";
-
+    
     buffer << "  " << RXMove::index_to_coord(bestmove);
     
     if(score<=alpha)
@@ -1235,7 +1235,7 @@ std::string RXEngine::display(RXBitBoard& board, const int type, const int allow
         buffer <<std::fixed << std::setw(2) << depth ;
         if(entry.selectivity != NO_SELECT) {
             buffer << "@" << std::setw(2) << CONFIDENCE[entry.selectivity];
-                        
+            
         } else {
             buffer << "   ";
         }
@@ -1355,7 +1355,7 @@ void RXEngine::resume() {
     
     hTable_shallow->reset();
     
-
+    
 }
 
 
@@ -1371,8 +1371,8 @@ void RXEngine::resume() {
 // 
 // std::cout << std::endl;
 // }
- 
- 
+
+
 
 
 /* synchronized method */
@@ -1674,8 +1674,8 @@ void RXEngine::run() {
         }
         
         bool endgame_flag = false;
- 
-
+        
+        
         RXHashValue entry;
         if(hTable->get(hash_code, type_hashtable, entry)) {
             
@@ -1699,7 +1699,7 @@ void RXEngine::run() {
             if(entry.upper == entry.lower) {
                 
                 list1->score = entry.upper;
- 
+                
                 if(search_alpha<list1->score && list1->score<search_beta) {
                     if(endgame_flag) //endgame
                         selectivity = std::min(NO_SELECT, selectivity+1);
@@ -1712,7 +1712,7 @@ void RXEngine::run() {
                 
                 if(entry.upper == MAX_SCORE) {
                     list1->score = entry.lower;
-  
+                    
                     if(list1->score>=search_beta) {
                         if(endgame_flag) //endgame
                             selectivity = std::min(NO_SELECT, selectivity+1);
@@ -1745,13 +1745,13 @@ void RXEngine::run() {
             
         }
         
-//        int lower = list->next->score - 8*VALUE_DISC;
-//        int upper = list->next->score + 8*VALUE_DISC;
-//        
-//        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, lower, upper, list1);
-
+        //        int lower = list->next->score - 8*VALUE_DISC;
+        //        int upper = list->next->score + 8*VALUE_DISC;
+        //        
+        //        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, lower, upper, list1);
+        
         sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, -MAX_SCORE, MAX_SCORE, list1);
-
+        
         //if no hashmove
         list1->next->score = 0;
         
@@ -1796,13 +1796,13 @@ void RXEngine::run() {
         if (!abort.load() && search_depth > (search_sBoard.board.n_empties-10)) {
             //coherence selectivty et end_selectivity
             int end_selectivity = search_depth < search_sBoard.board.n_empties? RXEngine::EG_HIGH_SELECT:search_selectivity;
-                        
+            
             //for test
             //end_selectivity =  MG_SELECT;
             
             EG_driver(search_sBoard, std::min(selectivity, end_selectivity), end_selectivity, list);
         }
- 
+        
         //track BUG final
         if(hTable->get(hash_code, type_hashtable, entry)) {
             
@@ -1820,11 +1820,11 @@ void RXEngine::run() {
                         std::cout << "RED ALERT BUG IN FINAL" << std::endl;
                         std::cout << "final_score = " << final_score << "player : " << final_player << std::endl;
                         std::cout << "      score = " << score << "player : " << search_sBoard.board.player << std::endl;
-
+                        
                         //exit(1); //for tournamant
                     }
                     
-
+                    
                     final_score = score;
                     final_player = search_sBoard.board.player;
                     
@@ -1839,7 +1839,7 @@ void RXEngine::run() {
                 final_player = UNDEF_COLOR;
             }
         }
-
+        
         
     }
     
@@ -1881,16 +1881,16 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
     //*log << "                  time level : " << time_level << std::endl;
     
     if(get_type_search() == MIDGAME) { //midgame
- 
+        
         if(next_depth > board.n_empties-6) {
             //*log << "                  depth " << depth << " to @60" << std::endl;
-
+            
             //Start ENDGAME
             probable_Time_next_level = time_level * 9;
-
+            
         } else if(depth>13 && time_level != 0) {
             //*log << "                  depth " << depth << " to " << next_depth << std::endl;
-
+            
             
             double width = std::min(pow(board.n_nodes, 1.0/depth), 1.85); //std::max
             double newNodes = pow(width, next_depth);
@@ -1938,25 +1938,25 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
 //monothread
 void RXEngine::determine_move_time(RXBitBoard& board) {
     /*
-    // > 3 minutes
-    static const int tSafety[] = {
-         0,  0,  0,  0,  0,  0,  0,  0,
-         0,  0,  0,  0,  0,  0,  0,  0,
-         0,  0,  0,  0,  0,  0,  0,  1,
-         1,  2,  2,  5,  5,  9,  9, 13,
-        13, 18, 18, 22, 22, 24, 24, 24,
-        24, 24, 24, 24, 24, 24, 24, 24,
-        24, 24, 24, 24, 24, 24, 24, 24,
-        24, 24, 24, 24, 24, 24, 24, 24, 24 };
+     // > 3 minutes
+     static const int tSafety[] = {
+     0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  0,
+     0,  0,  0,  0,  0,  0,  0,  1,
+     1,  2,  2,  5,  5,  9,  9, 13,
+     13, 18, 18, 22, 22, 24, 24, 24,
+     24, 24, 24, 24, 24, 24, 24, 24,
+     24, 24, 24, 24, 24, 24, 24, 24,
+     24, 24, 24, 24, 24, 24, 24, 24, 24 };
      */
     
-     //1 minute
-     static const int tSafety[] = {
-         0,  0,  0,  0,  0,  0,  0,  0,
-         0,  0,  0,  0,  0,  0,  0,  0,
-         0,  0,  0,  0,  0,  0,  0,  1,
-         1,  2,  2,  4,  4,  7,  7,  9,
-         9, 11, 11, 13, 13, 15, 15, 15,
+    //1 minute
+    static const int tSafety[] = {
+        0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  1,
+        1,  2,  2,  4,  4,  7,  7,  9,
+        9, 11, 11, 13, 13, 15, 15, 15,
         15, 15, 15, 15, 15, 15, 15, 15,
         15, 15, 15, 15, 15, 15, 15, 15,
         15, 15, 15, 15, 15, 15, 15, 15, 15 };
@@ -1964,10 +1964,10 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     
     int time_Safety = 1000 * tSafety[board.n_empties];
     *log << "                  time safety : " << time_Safety << std::endl;
-
-        
+    
+    
     int tElasped = get_current_dependentTime();
-   
+    
     int tRemaining = time_remaining - tElasped;
     
     *log << "                  time remaining : " << tRemaining << std::endl;
@@ -1986,9 +1986,9 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         //i5 2,7ghz
         n_empties_before_solved = std::max(2, board.n_empties-24); //i5 2,7ghz solved at 24 empties
 #endif
-
+        
         float n_remaining_moves = std::floor((n_empties_before_solved)/2.0);
-
+        
         //Midgame mode
         tMove = static_cast<int>((1+(n_remaining_moves-1)/n_remaining_moves)*(tRemaining-time_Safety) / n_remaining_moves);
         
@@ -2196,7 +2196,7 @@ void RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
                 case RXSplitPoint::MID_ROOT:
                     MG_SP_search_root(splitPoint, threadID);
                     break;
-
+                    
                 case RXSplitPoint::MID_PVS:
                     MG_SP_search_deep(splitPoint, threadID);
                     break;
@@ -2445,7 +2445,7 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
     }
     
     pthread_mutex_lock(&MP_sync);
-        
+    
     threads[master].activeSplitPoints++;
     splitPoint.parent = threads[master].splitPoint;
     

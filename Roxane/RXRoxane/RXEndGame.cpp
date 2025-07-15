@@ -14,23 +14,7 @@
 #include "RXEngine.hpp"
 #include "RXRoxane.hpp"
 #include "RXBitBoard.hpp"
-
-//#define USE_SPLIT_AT_ETC_MOBILITY
-
-
-const bool RXEngine::USE_ETC = true;
-const bool RXEngine::USE_STABILITY = true;
-const bool RXEngine::USE_ENHANCED_STABLILITY = true;
-
-//const int RXEngine::stability_threshold[] =
-//{   6500, 6500, 6500, 6500,  800, 1000, 1400, 1600,
-//    1800, 2200, 2400, 2600, 2800, 3000, 3200, 3400,
-//    3400, 3600, 3800, 4000, 4000, 4200, 4200, 4400,
-//    4400, 4600, 4600, 4800, 4800, 5000, 5200, 5200,
-//    5400, 5400, 5600, 5600, 5800, 5800, 6000, 6000,
-//    6200, 6200, 6500, 6500, 6500, 6500, 6500, 6500,
-//    6500, 6500, 6500, 6500, 6500, 6500, 6500, 6500,
-//    6500, 6500, 6500, 6500, 6500, 6500, 6500, 6500};
+#include "RXSetting.hpp"
 
 const int RXEngine::stability_threshold[] =
 {   6500, 6500, 6500, 6500,  600,  800, 1000, 1400,
@@ -42,19 +26,20 @@ const int RXEngine::stability_threshold[] =
     6500, 6500, 6500, 6500, 6500, 6500, 6500, 6500,
     6500, 6500, 6500, 6500, 6500, 6500, 6500, 6500};
 
-
+#ifdef SOLVER_SETTING
+/* for record fforum-40-59 setting*/
+const int RXEngine::EG_DEEP_TO_MEDIUM = 16;
+const int RXEngine::EG_MEDIUM_HI_TO_LOW = 13;
+const int RXEngine::EG_MEDIUM_TO_SHALLOW = 7;
+const int RXEngine::MIN_DEPTH_USE_ENDCUT = 16;
+#else
 /* standart setting */
 const int RXEngine::EG_DEEP_TO_MEDIUM = 17;
 const int RXEngine::EG_MEDIUM_HI_TO_LOW = 14;
 const int RXEngine::EG_MEDIUM_TO_SHALLOW = 8;
 const int RXEngine::MIN_DEPTH_USE_ENDCUT = 16;
+#endif
 
-
-/* for record fforum-40-59 setting*/
-//const int RXEngine::EG_DEEP_TO_MEDIUM = 16;
-//const int RXEngine::EG_MEDIUM_HI_TO_LOW = 13;
-//const int RXEngine::EG_MEDIUM_TO_SHALLOW = 7;
-//const int RXEngine::MIN_DEPTH_USE_ENDCUT = 16;
 
 
 /*!
@@ -75,16 +60,16 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv
     
     int score, bestscore = UNDEF_SCORE;
     
-    if(USE_STABILITY) {
-        if ( beta >= stability_threshold[board.n_empties]) {
-            
-            int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
-            if ( stability_bound <= alpha )
-                return stability_bound;
-            if ( stability_bound < beta )
-                beta = stability_bound;
-        }
+#ifdef USE_STABILITY
+    if ( beta >= stability_threshold[board.n_empties]) {
+        
+        int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
+        if ( stability_bound <= alpha )
+            return stability_bound;
+        if ( stability_bound < beta )
+            beta = stability_bound;
     }
+#endif
     
     
     const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
@@ -214,19 +199,19 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
     
     hTable->entry_prefetch(hash_code, type_hashtable);
     
-    if(USE_STABILITY) {
+#ifdef USE_STABILITY
+    
+    if ( upper >= stability_threshold[board.n_empties] ) {
         
-        if ( upper >= stability_threshold[board.n_empties] ) {
-            
-            int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
-            if ( stability_bound <= lower )
-                return stability_bound;
-            
-            if ( stability_bound < upper )
-                upper = stability_bound;
-            
-        }
+        int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
+        if ( stability_bound <= lower )
+            return stability_bound;
+        
+        if ( stability_bound < upper )
+            upper = stability_bound;
+        
     }
+#endif
     
     //synchronized acces
     RXHashValue entry;
@@ -375,19 +360,19 @@ int RXEngine::EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const 
     
     hTable->entry_prefetch(hash_code, type_hashtable);
     
-    if(USE_STABILITY) {
+#ifdef USE_STABILITY
+    
+    if ( upper >= stability_threshold[board.n_empties] ) {
         
-        if ( upper >= stability_threshold[board.n_empties] ) {
-            
-            int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
-            if ( stability_bound <= lower )
-                return stability_bound;
-            
-            if ( stability_bound < upper )
-                upper = stability_bound;
-            
-        }
+        int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
+        if ( stability_bound <= lower )
+            return stability_bound;
+        
+        if ( stability_bound < upper )
+            upper = stability_bound;
+        
     }
+#endif
     
     
     RXHashValue entry;
@@ -574,29 +559,29 @@ int RXEngine::EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool p
     
     hTable->entry_prefetch(hash_code, type_hashtable);
     
-    if(USE_STABILITY) {
+#ifdef USE_STABILITY
+    
+    /*
+     calculated stability is less than or equal to the real stability
+     stability_bound is overestimated.
+     score_max <= Stability_bound <= alpha ==> cutoff
+     &
+     score_max<=stability_bound < beta  ==> adjustment search window
+     */
+    
+    
+    if ( upper >= stability_threshold[board.n_empties] ) {
         
-        /*
-         calculated stability is less than or equal to the real stability
-         stability_bound is overestimated.
-         score_max <= Stability_bound <= alpha ==> cutoff
-         &
-         score_max<=stability_bound < beta  ==> adjustment search window
-         */
+        int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
+        if ( stability_bound <= lower )
+            return stability_bound;
         
-        
-        if ( upper >= stability_threshold[board.n_empties] ) {
-            
-            int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
-            if ( stability_bound <= lower )
-                return stability_bound;
-            
-            if ( stability_bound < upper )
-                upper = stability_bound;
-            
-        }
+        if ( stability_bound < upper )
+            upper = stability_bound;
         
     }
+    
+#endif
     
     
     RXHashValue entry;
@@ -860,7 +845,9 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
         
     }
     
-    if(USE_STABILITY && bestmove == NOMOVE) {
+#ifdef USE_STABILITY
+    
+    if(bestmove == NOMOVE) {
         
         /*
          calculated stability is less than or equal to the real stability
@@ -882,6 +869,8 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
         
     }
     
+#endif
+    
     int bestscore = UNDEF_SCORE;
     
     RXMove* list = threads[threadID]._move[board.n_empties];
@@ -892,7 +881,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
         RXMove* move = list + 1;
         RXMove* previous = list;
         
-        unsigned long long  hashcode_after_move;
+        unsigned long long  hashcode_after_move = 0;
         
         //ENHANCED TRANSPOSITION CUTOFF
         if(bestmove != NOMOVE) {
@@ -900,28 +889,33 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
             ((board).*(board.generate_flips[bestmove]))(*move);
             board.n_nodes++;
             
-            if(USE_ETC) {
-                hashcode_after_move = board.hashcode_after_move(move);
-                hTable->entry_prefetch(hashcode_after_move, type_hashtable);
-            }
+#ifdef USE_ETC
             
+            hashcode_after_move = board.hashcode_after_move(move);
+            hTable->entry_prefetch(hashcode_after_move, type_hashtable);
+#endif
             
-            if ( USE_ENHANCED_STABLILITY && lower <= -stability_threshold[board.n_empties-1]  ) {
+#ifdef USE_ENHANCED_STABLILITY
+            if (lower <= -stability_threshold[board.n_empties-1]  ) {
                 const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
                 int stability_bound = 2 * board.get_stability(d_player, board.discs[board.player^1] ^ move->flipped) - 64*VALUE_DISC;
                 if ( stability_bound >= upper ) {
                     return stability_bound;
                 }
             }
+#endif
             
             //synchronized acces
-            if(USE_ETC && !pv && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.selectivity == NO_SELECT && entry.depth>=(board.n_empties-1)) {
+#ifdef USE_ETC
+            
+            if(!pv && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.selectivity == NO_SELECT && entry.depth>=(board.n_empties-1)) {
                 
                 if(-entry.upper >= upper) {
                     return -entry.upper ;
                 }
                 
             }
+#endif
             
             
             previous = previous->next = move++;
@@ -938,22 +932,28 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                 ((board).*(board.generate_flips[empties->position]))(*move);
                 board.n_nodes++;
                 
-                if(USE_ETC) {
-                    hashcode_after_move = board.hashcode_after_move(move);
-                    hTable->entry_prefetch(hashcode_after_move, type_hashtable);
-                }
+#ifdef USE_ETC
                 
-                if ( USE_ENHANCED_STABLILITY && lower <= -stability_threshold[board.n_empties-1]  ) {
+                hashcode_after_move = board.hashcode_after_move(move);
+                hTable->entry_prefetch(hashcode_after_move, type_hashtable);
+#endif
+                
+#ifdef USE_ENHANCED_STABLILITY
+                if (lower <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
                     int stability_bound = 2 * board.get_stability(d_player, board.discs[board.player^1] ^ move->flipped) - 64*VALUE_DISC;
                     if ( stability_bound >= upper ) {
                         return stability_bound;
                     }
                 }
+#endif
+                
                 move->score = 0; //not in Hash
                 
                 //synchronized acces
-                if(USE_ETC && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
+#ifdef USE_ETC
+                
+                if(hTable->get(hashcode_after_move, type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
                     
                     if (!pv && entry.selectivity == NO_SELECT && -entry.upper >= upper )
                         return -entry.upper ;
@@ -961,6 +961,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                     move->score = -2; //*VALUE_DISC; //in hash
                     
                 }
+#endif
                 
                 
                 previous = previous->next = move++;
@@ -1297,7 +1298,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 
                 if (upper <= lower) {
                     selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                    
                     return upper;
                 }
             }
@@ -1308,7 +1309,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 
                 if (lower >= upper) {
                     selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                    
                     return lower;
                 }
             }
@@ -1319,7 +1320,9 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
         
     }
     
-    if(USE_STABILITY && bestmove == NOMOVE) {
+#ifdef USE_STABILITY
+    
+    if(bestmove == NOMOVE) {
         
         /*
          calculated stability is less than or equal to the real stability
@@ -1340,6 +1343,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
         }
         
     }
+    
+#endif
     
     //    IID & IIS
     if(pv && bestmove == NOMOVE && board.n_empties >= EG_DEEP_TO_MEDIUM) {
@@ -1375,22 +1380,28 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             ((board).*(board.generate_flips[bestmove]))(*move);
             board.n_nodes++;
             
-            if (USE_ENHANCED_STABLILITY && lower <= -stability_threshold[board.n_empties-1]  ) {
+#ifdef USE_ENHANCED_STABLILITY
+            
+            if (lower <= -stability_threshold[board.n_empties-1]  ) {
                 const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
                 int stability_bound = 2 * board.get_stability(d_player, board.discs[board.player^1] ^ move->flipped) - 64*VALUE_DISC;
                 if ( stability_bound >= upper ) {
                     return stability_bound;
                 }
             }
+#endif
             //synchronized acces
-            if(USE_ETC && !pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth>=(board.n_empties-1)) {
+#ifdef USE_ETC
+            
+            if(!pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth>=(board.n_empties-1)) {
                 
                 if(-entry.upper >= upper) {
                     selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                    
                     return -entry.upper ;
                 }
             }
+#endif
             
             
             
@@ -1410,30 +1421,36 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 ((board).*(board.generate_flips[empties->position]))(*move);
                 board.n_nodes++;
                 
-                if (USE_ENHANCED_STABLILITY && lower <= -stability_threshold[board.n_empties-1]  ) {
+#ifdef USE_ENHANCED_STABLILITY
+                
+                if (lower <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
                     int stability_bound = 2 * board.get_stability(d_player, board.discs[board.player^1] ^ move->flipped) - 64*VALUE_DISC;
                     if ( stability_bound >= upper ) {
                         return stability_bound;
                     }
                 }
+#endif
                 
                 move->score = 0;    //not in hash
                 
                 //synchronized acces
-                if(USE_ETC && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
+#ifdef USE_ETC
+                
+                if(hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
                     
                     
                     if(!pv && entry.selectivity >= selectivity && -entry.upper >= upper) {
                         
                         selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                        
                         return -entry.upper ;
                     }
                     
                     move->score = -3*VALUE_DISC;    //in hash
                     
                 }
+#endif
                 
                 previous = previous->next = move++;
                 
@@ -1462,7 +1479,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             bestmove = PASS;
             
             selective_cutoff |= child_selective_cutoff;
-
+            
         }
     } else {
         
@@ -1498,7 +1515,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 lower = bestscore;
             
             selective_cutoff |= child_selective_cutoff;
-
+            
         }
         
         if(lower < upper && list->next != NULL) {
@@ -1591,7 +1608,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         } else if(board.n_empties <= 22) {
                             mobility = 3*mobility/2 - corner_stability/3;
                         }
-
+                        
                         iter->score += mobility - eval_move;
                         
                         sBoard.undo_move(*iter);
@@ -1607,7 +1624,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         
                         board.n_nodes++;
                         const unsigned long long p_discs = board.discs[p] | (iter->flipped | iter->square);
-
+                        
                         //test 1 : score + 2*mobility_adv + corner_stability/4
                         iter->score += sBoard.get_score(*iter) + (8*(RXBitBoard::get_mobility(board.discs[o] ^ iter->flipped, p_discs)) - RXBitBoard::get_corner_stability(p_discs))*VALUE_DISC/3;
                     }
@@ -1744,7 +1761,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 
                 //                if ( child_selective_cutoff )
                 //                    selective_cutoff = true;
-
+                
                 selective_cutoff |= child_selective_cutoff;
             }
             
@@ -1847,7 +1864,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
             pthread_mutex_lock(&(sp->lock));
             
             sp->selective_cutoff |= child_selective_cutoff;
-
+            
             // New best move?
             if(score > sp->bestscore) {
                 sp->bestscore = score;
@@ -1910,13 +1927,13 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             
             if(entry.lower > alpha) {
                 selective_cutoff = (entry.selectivity != NO_SELECT);
-                                
+                
                 return entry.lower;
             }
             
             if(entry.upper <= alpha) {
                 selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                
                 return  entry.upper;
             }
             
@@ -1927,7 +1944,8 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
         
     }
     
-    if(USE_STABILITY && bestmove == NOMOVE) {
+#ifdef USE_STABILITY
+    if(bestmove == NOMOVE) {
         if ( alpha+VALUE_DISC >= stability_threshold[board.n_empties] ) {
             
             int stability_bound = 64*VALUE_DISC - 2 * board.get_stability(board.player^1);
@@ -1935,6 +1953,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                 return stability_bound;
         }
     }
+#endif
     
     //param mpc
     int lower_probcut, upper_probcut;
@@ -1966,7 +1985,9 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
         RXMove* move = list + 1;
         RXMove* previous = list;
         
+#ifdef USE_ETC
         unsigned long long  hashcode_after_move;
+#endif
         
         //ENHANCED TRANSPOSITION CUTOFF
         if(bestmove != NOMOVE) {
@@ -1974,30 +1995,35 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             ((board).*(board.generate_flips[bestmove]))(*move);
             board.n_nodes++;
             
-            if(USE_ETC) {
-                hashcode_after_move = board.hashcode_after_move(move);
-                hTable->entry_prefetch(hashcode_after_move, type_hashtable);
-            }
+#ifdef USE_ETC
             
+            hashcode_after_move = board.hashcode_after_move(move);
+            hTable->entry_prefetch(hashcode_after_move, type_hashtable);
+#endif
             
-            if (USE_ENHANCED_STABLILITY && alpha <= -stability_threshold[board.n_empties-1]  ) {
+#ifdef USE_ENHANCED_STABLILITY
+            if (alpha <= -stability_threshold[board.n_empties-1]  ) {
                 const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
                 int stability_bound = 2 * board.get_stability(d_player, board.discs[board.player^1] ^ move->flipped) - 64*VALUE_DISC;
                 if ( stability_bound > alpha ) {
                     return stability_bound; // alpha
                 }
             }
+#endif
             
             //synchronized acces
-            if(USE_ETC && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth >= (board.n_empties-1)) {
+#ifdef USE_ETC
+            
+            if(hTable->get(hashcode_after_move, type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth >= (board.n_empties-1)) {
                 
                 if(-entry.upper > alpha) {
                     selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                    
                     return -entry.upper;
                 }
                 
             }
+#endif
             
             
             previous = previous->next = move++;
@@ -2015,23 +2041,28 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                 ((board).*(board.generate_flips[empties->position]))(*move);
                 board.n_nodes++;
                 
-                if(USE_ETC) {
-                    hashcode_after_move = board.hashcode_after_move(move);
-                    hTable->entry_prefetch(hashcode_after_move, type_hashtable);
-                }
+#ifdef USE_ETC
                 
-                if (USE_ENHANCED_STABLILITY && alpha <= -stability_threshold[board.n_empties-1]  ) {
+                hashcode_after_move = board.hashcode_after_move(move);
+                hTable->entry_prefetch(hashcode_after_move, type_hashtable);
+#endif
+                
+#ifdef USE_ENHANCED_STABLILITY
+                if (alpha <= -stability_threshold[board.n_empties-1]  ) {
                     const unsigned long long d_player = board.discs[board.player] | (move->flipped | move->square);
                     int stability_bound = 2 * board.get_stability(d_player, board.discs[board.player^1] ^ move->flipped) - 64*VALUE_DISC;
                     if ( stability_bound > alpha ) {
                         return stability_bound; // alpha
                     }
                 }
+#endif
                 
                 move->score = 0;
                 
                 //synchronized acces
-                if(USE_ETC && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
+#ifdef USE_ETC
+                
+                if(hTable->get(hashcode_after_move, type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
                     
                     move->score = -3*VALUE_DISC;
                     
@@ -2039,7 +2070,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                         
                         if(entry.selectivity >= selectivity ) {
                             selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                            
                             return -entry.upper;
                         }
                         
@@ -2048,6 +2079,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                     }
                     
                 }
+#endif
                 
                 
                 
@@ -2166,7 +2198,7 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             }
             
             selective_cutoff |= child_selective_cutoff;
-
+            
         }
     }
     
@@ -2478,9 +2510,9 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
             
             //                if ( child_selective_cutoff )
             //                    selective_cutoff = true;
-
+            
             selective_cutoff |= child_selective_cutoff;
-
+            
             
         }
         
@@ -2662,89 +2694,33 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
     s_alpha = std::max(-64*VALUE_DISC, s_alpha);
     s_beta  = std::min( 64*VALUE_DISC, s_beta);
     
-    //for record fforum-40-59 setting
-    //for(selectivity = 2; !abort.load()  && selectivity <= end_selectivity; selectivity+=(selectivity == NO_SELECT? 1:(NO_SELECT-selectivity)) ) {
-    
-    for(; !abort.load()  && selectivity <= end_selectivity; selectivity++) {
-        
-        selectivity = std::max(std::min(NO_SELECT, std::max(EG_HIGH_SELECT, 28-sBoard.board.n_empties)), std::max(EG_HIGH_SELECT, selectivity));
-                
-        set_select_search(selectivity);
-        
-        if(dependent_time)
-            determine_move_time(sBoard.board);
-        
-        new_search = false;
-        
-        int eTime_start_level = get_current_time();
-        
-        time_startLevel = eTime_start_level;
-        
-        
-        sBoard.board.n_nodes = 0;
-        
-        
-        int alpha = std::max(s_alpha, std::min(s_beta-VALUE_DISC, score - VALUE_DISC));
-        int beta  = std::min(s_beta, std::max(s_alpha+VALUE_DISC, score + VALUE_DISC));
-        
-        //always even window
-        if(alpha<0) {
-            if(alpha%(2*VALUE_DISC) != 0)
-                alpha -= 2*VALUE_DISC + alpha%(2*VALUE_DISC) ;
-        } else {
-            alpha -= alpha%(2*VALUE_DISC);
-        }
-        
-        if(beta <0) {
-            beta  -= beta%(2*VALUE_DISC);
-        } else {
-            if(beta%(2*VALUE_DISC) != 0)
-                beta  += 2*VALUE_DISC - beta%(2*VALUE_DISC);
-        }
-        
-        //high score >= 48 skip selectivity stage
-        if (selectivity == EG_HIGH_SELECT && abs(alpha) > 48*VALUE_DISC) {
-            selectivity = 2;
-        } else  if (selectivity != EG_HIGH_SELECT && abs(alpha) > 51*VALUE_DISC ) {
-            selectivity = std::min(++selectivity, NO_SELECT);
-            if (abs(alpha) > 59*VALUE_DISC )
-                selectivity = NO_SELECT;
-        }
-        
-        EG_PVS_root(sBoard, selectivity, alpha, beta, list);
-        score = list->next->score;
-        
-        int left = 2;
-        int right = 2;
-        
-        while (!abort.load() && !(alpha < score && score < beta)) {
+#ifdef SOLVER_DRIVER
+    for(selectivity = 2; !abort.load()  && selectivity <= end_selectivity; selectivity+=(selectivity == NO_SELECT? 1:(NO_SELECT-selectivity)) ) {
+#else
+        for(; !abort.load()  && selectivity <= end_selectivity; selectivity++) {
+#endif
             
-            //*log << "                  EG research : [" << alpha << " < " << list->next->score << " < " << beta << "]" <<std::endl;
+            selectivity = std::max(std::min(NO_SELECT, std::max(EG_HIGH_SELECT, 28-sBoard.board.n_empties)), std::max(EG_HIGH_SELECT, selectivity));
             
-            if (score <= alpha) {
-                
-                if(alpha <= s_alpha)
-                    break;
-                
-                left *=2;
-                
-                alpha = score - left*VALUE_DISC;
-                
-            } else if (score >= beta) {
-                
-                if(beta >= s_beta)
-                    break;
-                
-                right *=2;
-                
-                beta  = score + right*VALUE_DISC;
-            }
+            set_select_search(selectivity);
+            
+            if(dependent_time)
+                determine_move_time(sBoard.board);
+            
+            new_search = false;
+            
+            int eTime_start_level = get_current_time();
+            
+            time_startLevel = eTime_start_level;
             
             
-            alpha = std::max(s_alpha, std::min(s_beta-VALUE_DISC, alpha));
-            beta  = std::min(s_beta, std::max(s_alpha+VALUE_DISC, beta ));
+            sBoard.board.n_nodes = 0;
             
-            //search window has always peers limits
+            
+            int alpha = std::max(s_alpha, std::min(s_beta-VALUE_DISC, score - VALUE_DISC));
+            int beta  = std::min(s_beta, std::max(s_alpha+VALUE_DISC, score + VALUE_DISC));
+            
+            //always even window
             if(alpha<0) {
                 if(alpha%(2*VALUE_DISC) != 0)
                     alpha -= 2*VALUE_DISC + alpha%(2*VALUE_DISC) ;
@@ -2759,217 +2735,274 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
                     beta  += 2*VALUE_DISC - beta%(2*VALUE_DISC);
             }
             
+            //high score >= 48 skip selectivity stage
+            if (selectivity == EG_HIGH_SELECT && abs(alpha) > 48*VALUE_DISC) {
+                selectivity = 2;
+            } else  if (selectivity != EG_HIGH_SELECT && abs(alpha) > 51*VALUE_DISC ) {
+                selectivity = std::min(++selectivity, NO_SELECT);
+                if (abs(alpha) > 59*VALUE_DISC )
+                    selectivity = NO_SELECT;
+            }
+            
             EG_PVS_root(sBoard, selectivity, alpha, beta, list);
             score = list->next->score;
             
+            int left = 2;
+            int right = 2;
             
-        };
-        
-        
-        extra_time = 0;
-        
-        //        //check PV at 100%
-        //        if(!abort.load() && selectivity == NO_SELECT && s_alpha < list->next->score && list->next->score < s_beta) {
-        //            RXSearch::t_client save_client = search_client;
-        //            search_client = RXSearch::kPrivate;
-        //            check_PV(search_sBoard, list->next->score, list->next->score-VALUE_DISC, list->next->score+VALUE_DISC);
-        //            search_client = save_client;
-        //        }
-        
-        best_answer.position = list->next->position;
-        best_answer.score = list->next->score;
-        best_answer.depth = list->next->depth;
-        best_answer.selectivity = CONFIDENCE[list->next->selectivity];
-        std::ostringstream buf;
-        hTable->mainline(buf, sBoard.board, type_hashtable);
-        best_answer.mainLine = buf.str();
-        
-        best_answer.nodes += sBoard.board.n_nodes;
-        
-        
-        int eTime = get_current_time();
-        
-        
-        //unsynchronized acces
-        RXHashValue entry;
-        if(hTable->get(sBoard.board, type_hashtable, entry) && entry.depth >= sBoard.board.n_empties && entry.selectivity>=selectivity) {
-            int type = EXACT;
+            while (!abort.load() && !(alpha < score && score < beta)) {
+                
+                //*log << "                  EG research : [" << alpha << " < " << list->next->score << " < " << beta << "]" <<std::endl;
+                
+                if (score <= alpha) {
+                    
+                    if(alpha <= s_alpha)
+                        break;
+                    
+                    left *=2;
+                    
+                    alpha = score - left*VALUE_DISC;
+                    
+                } else if (score >= beta) {
+                    
+                    if(beta >= s_beta)
+                        break;
+                    
+                    right *=2;
+                    
+                    beta  = score + right*VALUE_DISC;
+                }
+                
+                
+                alpha = std::max(s_alpha, std::min(s_beta-VALUE_DISC, alpha));
+                beta  = std::min(s_beta, std::max(s_alpha+VALUE_DISC, beta ));
+                
+                //search window has always peers limits
+                if(alpha<0) {
+                    if(alpha%(2*VALUE_DISC) != 0)
+                        alpha -= 2*VALUE_DISC + alpha%(2*VALUE_DISC) ;
+                } else {
+                    alpha -= alpha%(2*VALUE_DISC);
+                }
+                
+                if(beta <0) {
+                    beta  -= beta%(2*VALUE_DISC);
+                } else {
+                    if(beta%(2*VALUE_DISC) != 0)
+                        beta  += 2*VALUE_DISC - beta%(2*VALUE_DISC);
+                }
+                
+                EG_PVS_root(sBoard, selectivity, alpha, beta, list);
+                score = list->next->score;
+                
+                
+            };
             
-            int score = list->next->score;
-            if(entry.lower == entry.upper) {
-                if(abort.load())
-                    type = INTERRUPT;
-            } else if(list->next->score == entry.lower || entry.upper ==  MAX_SCORE) {
-                type = SUPERIOR;
-                score = entry.lower;
-            } else if(list->next->score == entry.upper || entry.lower == -MAX_SCORE){
-                type = INFERIOR;
-                score = entry.upper;
+            
+            extra_time = 0;
+            
+            //        //check PV at 100%
+            //        if(!abort.load() && selectivity == NO_SELECT && s_alpha < list->next->score && list->next->score < s_beta) {
+            //            RXSearch::t_client save_client = search_client;
+            //            search_client = RXSearch::kPrivate;
+            //            check_PV(search_sBoard, list->next->score, list->next->score-VALUE_DISC, list->next->score+VALUE_DISC);
+            //            search_client = save_client;
+            //        }
+            
+            best_answer.position = list->next->position;
+            best_answer.score = list->next->score;
+            best_answer.depth = list->next->depth;
+            best_answer.selectivity = CONFIDENCE[list->next->selectivity];
+            std::ostringstream buf;
+            hTable->mainline(buf, sBoard.board, type_hashtable);
+            best_answer.mainLine = buf.str();
+            
+            best_answer.nodes += sBoard.board.n_nodes;
+            
+            
+            int eTime = get_current_time();
+            
+            
+            //unsynchronized acces
+            RXHashValue entry;
+            if(hTable->get(sBoard.board, type_hashtable, entry) && entry.depth >= sBoard.board.n_empties && entry.selectivity>=selectivity) {
+                int type = EXACT;
+                
+                int score = list->next->score;
+                if(entry.lower == entry.upper) {
+                    if(abort.load())
+                        type = INTERRUPT;
+                } else if(list->next->score == entry.lower || entry.upper ==  MAX_SCORE) {
+                    type = SUPERIOR;
+                    score = entry.lower;
+                } else if(list->next->score == entry.upper || entry.lower == -MAX_SCORE){
+                    type = INFERIOR;
+                    score = entry.upper;
+                }
+                
+                
+                *log << display(sBoard.board, type, selectivity, score, eTime, eTime - eTime_start_level) << std::endl;
+                
+            }
+            
+            if(abort.load() )
+                break;
+            
+            time_nextLevel = pTime_next_level(sBoard.board, eTime - eTime_start_level);
+            
+            if(probable_timeout(time_nextLevel)) {
+                abort.store(true);
+                *log << "                  EG Driver : likely timeout" << std::endl;
+                
+                break;
             }
             
             
-            *log << display(sBoard.board, type, selectivity, score, eTime, eTime - eTime_start_level) << std::endl;
             
         }
-        
-        if(abort.load() )
-            break;
-        
-        time_nextLevel = pTime_next_level(sBoard.board, eTime - eTime_start_level);
-        
-        if(probable_timeout(time_nextLevel)) {
-            abort.store(true);
-            *log << "                  EG Driver : likely timeout" << std::endl;
-            
-            break;
-        }
-        
-        
         
     }
     
-}
-
-
-/*!
- * \brief Extension of research until the solution.
- *
- * This function prepare parameters for solver
- *
- * \param sBoard      	sBoard.
- * \param alpha      	lower bound.
- * \param beta       	upper bound.
- */
-
-
-void RXEngine::check_PV(RXBBPatterns& sBoard, const int score, const int alpha, const int beta) {
     
-    RXBitBoard& board = sBoard.board;
+    /*!
+     * \brief Extension of research until the solution.
+     *
+     * This function prepare parameters for solver
+     *
+     * \param sBoard      	sBoard.
+     * \param alpha      	lower bound.
+     * \param beta       	upper bound.
+     */
     
-    if(board.n_empties>6) { //hash limit
+    
+    void RXEngine::check_PV(RXBBPatterns& sBoard, const int score, const int alpha, const int beta) {
         
-        //move in hash
-        int movePV = NOMOVE;
-        RXHashValue entry;
-        const unsigned long long hash_code = board.hashcode();
-        if(hTable->get(hash_code, type_hashtable, entry)) {
-            
-            if(entry.depth >= board.n_empties && entry.selectivity == NO_SELECT) {
-                
-                if(entry.lower == entry.upper) {
-                    movePV = entry.move;
-                } else if(entry.lower == score && entry.upper >= beta) {
-                    if(!(alpha < entry.lower && entry.lower < beta))
-                        movePV = entry.move;
-                } else if(entry.upper == score && entry.lower <= alpha) {
-                    if(!(alpha < entry.upper && entry.upper < beta))
-                        movePV = entry.move;
-                }
-                
-            }
-        }
+        RXBitBoard& board = sBoard.board;
         
-        if(movePV != NOMOVE) {
+        if(board.n_empties>6) { //hash limit
             
-            //check value;
+            //move in hash
+            int movePV = NOMOVE;
             RXHashValue entry;
+            const unsigned long long hash_code = board.hashcode();
             if(hTable->get(hash_code, type_hashtable, entry)) {
                 
                 if(entry.depth >= board.n_empties && entry.selectivity == NO_SELECT) {
                     
-                    
-                    if(entry.lower>=beta) {
-                        if (entry.upper<entry.lower) {
-                            manager->sendMsg("ERROR ON PV 1\n");
-                        }
-                    } else if(entry.upper<=alpha) {
-                        if(entry.upper<entry.lower) {
-                            manager->sendMsg("ERROR ON PV 2\n");
-                        }
-                    } else if(!(alpha < entry.lower && entry.upper < beta && entry.lower == entry.upper && entry.lower == score)) {
-                        
-                        std::ostringstream buffer;
-                        buffer << "[ " << alpha << " ; " << beta << " ] ";
-                        buffer << "[ " << entry.lower << " ; " << entry.upper << " ] ";
-                        buffer << "score : " << score << " move : " << RXMove::index_to_coord(entry.move) << std::endl;
-                        
-                        manager->sendMsg(buffer.str());
-                        
-                        manager->sendMsg("ERROR ON PV 3\n");
+                    if(entry.lower == entry.upper) {
+                        movePV = entry.move;
+                    } else if(entry.lower == score && entry.upper >= beta) {
+                        if(!(alpha < entry.lower && entry.lower < beta))
+                            movePV = entry.move;
+                    } else if(entry.upper == score && entry.lower <= alpha) {
+                        if(!(alpha < entry.upper && entry.upper < beta))
+                            movePV = entry.move;
                     }
                     
                 }
-                
-            } else {
-                manager->sendMsg("ERROR ON PV 4\n");
             }
             
-            
-            if(movePV == PASS) {
-                board.do_pass();
-                check_PV(sBoard, -score, -beta, -alpha);
-                board.do_pass();
+            if(movePV != NOMOVE) {
                 
-            } else {
-                RXMove move;
+                //check value;
+                RXHashValue entry;
+                if(hTable->get(hash_code, type_hashtable, entry)) {
+                    
+                    if(entry.depth >= board.n_empties && entry.selectivity == NO_SELECT) {
+                        
+                        
+                        if(entry.lower>=beta) {
+                            if (entry.upper<entry.lower) {
+                                manager->sendMsg("ERROR ON PV 1\n");
+                            }
+                        } else if(entry.upper<=alpha) {
+                            if(entry.upper<entry.lower) {
+                                manager->sendMsg("ERROR ON PV 2\n");
+                            }
+                        } else if(!(alpha < entry.lower && entry.upper < beta && entry.lower == entry.upper && entry.lower == score)) {
+                            
+                            std::ostringstream buffer;
+                            buffer << "[ " << alpha << " ; " << beta << " ] ";
+                            buffer << "[ " << entry.lower << " ; " << entry.upper << " ] ";
+                            buffer << "score : " << score << " move : " << RXMove::index_to_coord(entry.move) << std::endl;
+                            
+                            manager->sendMsg(buffer.str());
+                            
+                            manager->sendMsg("ERROR ON PV 3\n");
+                        }
+                        
+                    }
+                    
+                } else {
+                    manager->sendMsg("ERROR ON PV 4\n");
+                }
                 
-                ((board).*(board.generate_flips[movePV]))(move);
-                ((sBoard).*(sBoard.update_patterns[movePV][board.player]))(move);
-                sBoard.do_move(move);
-                check_PV(sBoard, -score, -beta, -alpha);
-                sBoard.undo_move(move);
+                
+                if(movePV == PASS) {
+                    board.do_pass();
+                    check_PV(sBoard, -score, -beta, -alpha);
+                    board.do_pass();
+                    
+                } else {
+                    RXMove move;
+                    
+                    ((board).*(board.generate_flips[movePV]))(move);
+                    ((sBoard).*(sBoard.update_patterns[movePV][board.player]))(move);
+                    sBoard.do_move(move);
+                    check_PV(sBoard, -score, -beta, -alpha);
+                    sBoard.undo_move(move);
+                }
+                
             }
             
-        }
-        
-        //find move
-        if (movePV == NOMOVE) {
-            
-            int lower = alpha;
-            int upper = beta;
-            
-            if(score <= lower)
-                upper = lower + VALUE_DISC;
-            
-            if (score >= upper)
-                lower = upper - VALUE_DISC;
-            
-            
-            RXMove list[32];
-            board.moves_producing(list);
-            
-            int value = UNDEF_SCORE;
-            if(list->next != NULL) {
+            //find move
+            if (movePV == NOMOVE) {
                 
-                for(RXMove* iter = list->next; iter != NULL; iter= iter->next)
-                    ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
+                int lower = alpha;
+                int upper = beta;
                 
-                EG_PVS_root(sBoard, NO_SELECT, lower, upper, list);
-                movePV = list->next->position;
-                value  = list->next->score;
+                if(score <= lower)
+                    upper = lower + VALUE_DISC;
                 
-            } else {
+                if (score >= upper)
+                    lower = upper - VALUE_DISC;
                 
-                board.do_pass();
+                
+                RXMove list[32];
                 board.moves_producing(list);
+                
+                int value = UNDEF_SCORE;
                 if(list->next != NULL) {
-                    for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
+                    
+                    for(RXMove* iter = list->next; iter != NULL; iter= iter->next)
                         ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                     
-                    EG_PVS_root(sBoard, NO_SELECT, -upper, -lower, list);
-                    movePV = PASS;
-                    value = -list->next->score;
+                    EG_PVS_root(sBoard, NO_SELECT, lower, upper, list);
+                    movePV = list->next->position;
+                    value  = list->next->score;
+                    
+                } else {
+                    
+                    board.do_pass();
+                    board.moves_producing(list);
+                    if(list->next != NULL) {
+                        for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
+                            ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
+                        
+                        EG_PVS_root(sBoard, NO_SELECT, -upper, -lower, list);
+                        movePV = PASS;
+                        value = -list->next->score;
+                    }
+                    board.do_pass();
+                    
                 }
-                board.do_pass();
+                
+                if(movePV != NOMOVE)
+                    hTable->update(hash_code, true, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empties, lower, upper, value, movePV);
+                
                 
             }
-            
-            if(movePV != NOMOVE)
-                hTable->update(hash_code, true, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empties, lower, upper, value, movePV);
-            
             
         }
         
     }
-    
-}

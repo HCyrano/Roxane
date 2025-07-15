@@ -244,9 +244,9 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, in
         int score;
         for(iter = iter->next; !abort.load()  && lower<upper && iter != NULL; iter = iter->next) {
             
-
+            
 #ifdef USE_SPLIT_AT_ROOT
-                        
+            
             // Split?
             if(activeThreads > 1 && iter->next != NULL && depth>MIN_DEPTH_SPLITPOINT && !abort.load()
                && !thread_should_stop(0) && idle_thread_exists(0)
@@ -368,7 +368,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         
         score = -MG_PVS_deep(threadID, sBoard, false, sp->selectivity, depth-1, child_selective_cutoff, -alpha-VALUE_DISC, -alpha, false); //change
-
+        
         if (!abort.load()  && alpha < score && score < sp->beta) {
             
             extra_time++;
@@ -378,7 +378,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             
             score = -MG_PVS_deep(threadID, sBoard, true, sp->selectivity, depth-1, child_selective_cutoff, -sp->beta, (child_selective_cutoff? -alpha : -score), false);
             
-
+            
             if(search_client == RXSearch::kGGSMode && !(abort.load() || thread_should_stop(threadID))) {    // GGS mode
                 if(dependent_time && board.n_empties>13 && score <= sp->bestscore)
                     manager->sendMsg("         " + RXMove::index_to_coord(move->position) + " refuted ");
@@ -394,7 +394,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         if(abort.load() || thread_should_stop(threadID))
             break;
         
-       //first without mutex
+        //first without mutex
         if((score > sp->bestscore) || (!sp->selective_cutoff && child_selective_cutoff)) {
             
             //update
@@ -481,7 +481,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 if(lower >= upper) {
                     
                     selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                    
                     return lower;
                 }
             }
@@ -491,8 +491,8 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 upper = entry.upper;
                 if(upper <= lower) {
                     
-                     selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                    selective_cutoff = (entry.selectivity != NO_SELECT);
+                    
                     return  upper;
                 }
             }
@@ -531,7 +531,8 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
             board.n_nodes++;
             
             //synchronized acces
-            if(USE_ETC && !pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=depth-1) {
+#ifdef USE_ETC
+            if(!pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=depth-1) {
                 
                 if(-entry.upper >= upper) {
                     selective_cutoff = (entry.selectivity != NO_SELECT);
@@ -539,6 +540,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 }
                 
             }
+#endif
             
             previous = previous->next = move++;
         }
@@ -557,7 +559,9 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 move->score = 0;
                 
                 //synchronized acces
-                if(USE_ETC && !pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry)  && entry.depth>=depth-1) {
+#ifdef USE_ETC
+                
+                if(!pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry)  && entry.depth>=depth-1) {
                     
                     if(-entry.upper >= upper) {
                         selective_cutoff = (entry.selectivity != NO_SELECT);
@@ -571,6 +575,7 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                     
                     
                 }
+#endif
                 
                 previous = previous->next = move++;
                 
@@ -664,14 +669,14 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                                 
                                 //stable move -> sorting on evaluation
                                 sBoard.do_move(*iter);
-
+                                
                                 if(depth >= 30) {
                                     
                                     if((depth & 0x1UL) == 0)
                                         iter->score += PVS_last_ply(threadID, sBoard, 6, -MAX_SCORE , -lower_probcut, false);
                                     else
                                         iter->score += PVS_last_ply(threadID, sBoard, 5, -MAX_SCORE , -lower_probcut, false);
-                                                                        
+                                    
                                 } else if(depth >= 24) {
                                     
                                     if((depth & 0x1UL) == 0)
@@ -862,11 +867,11 @@ int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                         lower = bestscore;
                 }
                 
-//                if ( child_selective_cutoff )
-//                    selective_cutoff = true;
-
+                //                if ( child_selective_cutoff )
+                //                    selective_cutoff = true;
+                
                 selective_cutoff |= child_selective_cutoff;
-
+                
             }
         }
         
@@ -961,7 +966,7 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
             
             
             sp->selective_cutoff |= child_selective_cutoff;
-
+            
             // New best move?
             if(score > sp->bestscore) {
                 sp->bestscore = score;
@@ -1265,14 +1270,14 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
             if(entry.lower > alpha) {
                 
                 selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                
                 return entry.lower;
             }
             
             if(entry.upper <= alpha) {
                 
                 selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                
                 return  entry.upper;
             }
             
@@ -1322,14 +1327,17 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                 board.n_nodes++;
                 
                 //synchronized acces
-                if(USE_ETC && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth >= depth-1) {
+#ifdef USE_ETC
+                
+                if(hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth >= depth-1) {
                     
                     if(-entry.upper > alpha) {
                         selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                        
                         return -entry.upper ;
                     }
                 }
+#endif
                 
                 previous = previous->next = move++;
                 
@@ -1349,11 +1357,13 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                     move->score = 0;
                     
                     //synchronized acces
-                    if(USE_ETC && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=depth-1) {
+#ifdef USE_ETC
+                    
+                    if(hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=depth-1) {
                         
                         if(-entry.upper > alpha) {
-                             selective_cutoff = (entry.selectivity != NO_SELECT);
-
+                            selective_cutoff = (entry.selectivity != NO_SELECT);
+                            
                             return -entry.upper ;
                         }
                         
@@ -1364,6 +1374,7 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                             move->score = 3*VALUE_DISC;
                         
                     }
+#endif
                     
                     previous = previous->next = move++;
                     
@@ -1486,7 +1497,7 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
             }
             
             selective_cutoff |= child_selective_cutoff;
-
+            
             
         }
     }
@@ -1572,7 +1583,7 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
             pthread_mutex_lock(&(sp->lock));
             
             sp->selective_cutoff |= child_selective_cutoff;
-
+            
             // New best move?
             if(score > sp->bestscore) {
                 sp->bestscore = score;
