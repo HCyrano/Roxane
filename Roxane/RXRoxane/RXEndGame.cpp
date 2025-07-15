@@ -958,7 +958,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                     if (!pv && entry.selectivity == NO_SELECT && -entry.upper >= upper )
                         return -entry.upper ;
                     
-                    move->score = -2*VALUE_DISC; //in hash
+                    move->score = -2; //*VALUE_DISC; //in hash
                     
                 }
                 
@@ -1026,9 +1026,9 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                     const unsigned long long o_discs = board.discs[o] ^ iter->flipped;
                     
                     //score for try : mobility * VALUE_DISC - corner_stability * 8
-                    iter->score += (2*RXBitBoard::get_mobility(o_discs, p_discs) - RXBitBoard::get_corner_stability(p_discs))*VALUE_DISC;
-                    /* + (RXBitBoard::count_potential_moves(o_discs, p_discs)*VALUE_DISC/64)*/
-                    /*- ((board.parity & RXBitBoard::QUADRANT_ID[iter->position])>>RXBitBoard::QUADRANT_SHITF[iter->position])*VALUE_DISC/64;*/
+                    iter->score += (2*RXBitBoard::get_mobility(o_discs, p_discs) - RXBitBoard::get_corner_stability(p_discs)); //*VALUE_DISC;
+                    /*+ (RXBitBoard::count_potential_moves(o_discs, p_discs)>>2); //VALUE_DISC/64)*/
+                    /*- (((board.parity & RXBitBoard::QUADRANT_ID[iter->position])>>RXBitBoard::QUADRANT_SHITF[iter->position])>>2);//VALUE_DISC/64;*/
                     
                     
                     

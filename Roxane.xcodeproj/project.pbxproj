@@ -46,7 +46,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		371D4D602D1EBFBA0072E829 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Roxane; sourceTree = BUILT_PRODUCTS_DIR; };
+		371D4D602D1EBFBA0072E829 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = Roxane; path = /Users/caussebruno/Documents/developpement/Roxane/build/Debug/Roxane; sourceTree = "<absolute>"; };
 		372326DE2D1FF69D002CFAF4 /* GGSMessage.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GGSMessage.hpp; sourceTree = "<group>"; };
 		372326DF2D1FF69D002CFAF4 /* GGSMessage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GGSMessage.cpp; sourceTree = "<group>"; };
 		372326E02D1FF69D002CFAF4 /* GGSObjects.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GGSObjects.hpp; sourceTree = "<group>"; };
@@ -118,7 +118,6 @@
 		371D4D612D1EBFBA0072E829 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				371D4D602D1EBFBA0072E829 /* Roxane */,
 			);
 			name = Products;
 			sourceTree = "<group>";

@@ -1324,9 +1324,6 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                 //synchronized acces
                 if(USE_ETC && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth >= depth-1) {
                     
-                    /*
-                     BE CARREFUL : (board.n_empties-1)-(depth-1) == board.n_empties-depth
-                     */
                     if(-entry.upper > alpha) {
                         selective_cutoff = (entry.selectivity != NO_SELECT);
 

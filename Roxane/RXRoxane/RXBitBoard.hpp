@@ -280,11 +280,6 @@ inline void RXBitBoard::moves_producing(RXMove* start) const {
 	previous->next = NULL;
 }
 
-
-
-
-
-
 inline void RXBitBoard::do_move(const RXMove& move) {
 	
 	discs[player] |= (move.flipped | move.square);
@@ -345,34 +340,6 @@ inline int RXBitBoard::get_mobility(const unsigned long long p_discs, const unsi
 
 
 
-/*
-    @brief Get a bitboard representing all legal moves
-
-    @param P                    a bitboard representing player
-    @param O                    a bitboard representing opponent
-    @return all legal moves as a bitboard
-*/
-// original code from http://www.amy.hi-ho.ne.jp/okuhara/bitboard.htm
-// modified by Nyanyan
-// version EDAX version identique a Roxane (presentation pour la vectorisation)
-//inline uint64_t RXBitBoard::calc_legal(const uint64_t P, const uint64_t O){
-//    uint64_t moves, mO;
-//    uint64_t flip1, flip7, flip9, flip8, pre1, pre7, pre9, pre8;
-//    mO = O & 0x7e7e7e7e7e7e7e7eULL;
-//    flip1 = mO & (P << 1);         flip7  = mO & (P << 7);        flip9  = mO & (P << 9);        flip8  = O & (P << 8);
-//    flip1 |= mO & (flip1 << 1);    flip7 |= mO & (flip7 << 7);    flip9 |= mO & (flip9 << 9);    flip8 |= O & (flip8 << 8);
-//    pre1 = mO & (mO << 1);         pre7 = mO & (mO << 7);         pre9 = mO & (mO << 9);         pre8 = O & (O << 8);
-//    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
-//    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
-//    moves = flip1 << 1;            moves |= flip7 << 7;           moves |= flip9 << 9;           moves |= flip8 << 8;
-//    flip1 = mO & (P >> 1);         flip7  = mO & (P >> 7);        flip9  = mO & (P >> 9);        flip8  = O & (P >> 8);
-//    flip1 |= mO & (flip1 >> 1);    flip7 |= mO & (flip7 >> 7);    flip9 |= mO & (flip9 >> 9);    flip8 |= O & (flip8 >> 8);
-//    pre1 >>= 1;                    pre7 >>= 7;                    pre9 >>= 9;                    pre8 >>= 8;
-//    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
-//    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
-//    moves |= flip1 >> 1;           moves |= flip7 >> 7;           moves |= flip9 >> 9;           moves |= flip8 >> 8;
-//    return moves & ~(P | O);
-//}
 
 /// retourne un pseudo (sous evalué) score de pions stables
 /// la 1ere partie determine les lignes (dans les 4 directions) pleines
@@ -390,19 +357,42 @@ inline int RXBitBoard::get_edge_stability(const int player) const {
 
 
 
+
+inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_player) {
+
+    unsigned long long stables = discs_player & 0x8100000000000081ULL;
+
+    stables |= (discs_player & (stables << 1)) & 0x0200000000000002ULL;
+    stables |= (discs_player & (stables >> 1)) & 0x4000000000000040ULL;
+    stables |= (discs_player & (stables << 8)) & 0x0000000000008100ULL;
+    stables |= (discs_player & (stables >> 8)) & 0x0081000000000000ULL;
+
+    return __builtin_popcountll(stables);
+    
+//    unsigned int P2187 = static_cast<unsigned int>((discs_player >> 48) | (discs_player << 16));    // ror 48
+//    unsigned int stable = 0x00818100 & P2187;
+//    stable |= ((((stable * 5) >> 1) & 0x00424200) | (stable << 8) | (stable >> 8)) & P2187;    // 1-8 alias does not matter since corner is stable anyway
+//    return __builtin_popcount(stable);
+
+}
+
+
+inline int RXBitBoard::final_score_2(int alpha, const int beta) {
+	return final_score_2(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC,  empties_list->next->position,  empties_list->next->next->position)*VALUE_DISC;
+}
+
 #ifdef __ARM_NEON
 
-
 //inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_player) {
-//    
+//
 //    static const int64x2_t shift[] = {{-1,-8}, { 1, 8}};
 //    static const uint64x2_t mask[] = {
 //        {0x4000000000000040ULL, 0x0081000000000000ULL},
 //        {0x0200000000000002ULL, 0x0000000000008100ULL}};
-//    
+//
 //    const uint64x2_t discs  = vdupq_n_u64(discs_player);
 //    uint64x2_t stable = vdupq_n_u64(discs_player & 0x8100000000000081ULL);
-// 
+//
 //    stable = vorrq_u64(vandq_u64(vandq_u64(vshlq_u64(stable, shift[0]), discs), mask[0]), stable);
 //    stable = vorrq_u64(vandq_u64(vandq_u64(vshlq_u64(stable, shift[1]), discs), mask[1]), stable);
 //
@@ -483,108 +473,6 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
  
 }
 
-#else
-
-
-
-/// retourne un pseudo (sous evalué) score de pions stables
-/// - Parameters:
-///   - color: couleur du joueur
-///   - n_stables_cut: valeur de coupure (type alpha, beta)
-inline int RXBitBoard::get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent) {
-    
-    
-    unsigned long long filled = discs_player | discs_opponent;
-    
-    unsigned long long left_right, up_down, diag_a, diag_b;
-
-    left_right = filled;
-    left_right &= left_right >> 4;
-    left_right &= left_right >> 2;
-    left_right &= left_right >> 1;
-    left_right &= 0x0101010101010101ULL;
-    
-    //trick multiplication par 255 (remplit les lignes)
-    left_right = (left_right << 8) - left_right; //*=255
-    left_right |= 0x8181818181818181ULL;
-     
-    up_down = filled;
-    up_down &= (up_down >> 32) | (up_down << 32);
-    up_down &= (up_down >> 16) | (up_down << 16);
-    up_down &= (up_down >>  8) | (up_down <<  8);
-    
-    up_down |= 0xFF000000000000FFULL;
-        
-    diag_a = filled;
-    diag_a &= ((diag_a>>28) & 0x00000000F0F0F0F0ULL) | ((diag_a<<28) & 0x0F0F0F0F00000000ULL) | 0xF0F0F0F00F0F0F0FULL;
-    diag_a &= ((diag_a>>14) & 0x0000FCFCFCFCFCFCULL) | ((diag_a<<14) & 0x3F3F3F3F3F3F0000ULL) | 0xC0C0000000000303ULL;
-    diag_a &= (diag_a>> 7) & (diag_a<< 7);
-    
-    diag_a |= 0xFF818181818181FFULL;
-    
-    diag_b = filled;
-    //diag_b &= ((diag_b>>36) & 0x000000000F0F0F0FULL) | ((diag_b<<36) & 0xF0F0F0F000000000ULL) | 0x0F0F0F0FF0F0F0F0ULL;
-    diag_b &= (diag_b>>36) | (diag_b<<36) | 0x0F0F0F0FF0F0F0F0ULL;
-    diag_b &= ((diag_b>>18) & 0x00003F3F3F3F3F3FULL) | ((diag_b<<18) & 0xFCFCFCFCFCFC0000ULL) | 0x030300000000C0C0ULL;
-    diag_b &= (diag_b>> 9) & (diag_b<< 9);
-    
-    diag_b |= 0xFF818181818181FFULL;
-    
-    unsigned long long stable = left_right & up_down & diag_a & diag_b & discs_player;
-
-
-    if(stable == 0)
-        return 0;
-
-    unsigned long long old_stable, dir_1, dir_2, dir_3, dir_4;
-    
-    
-    do {
-
-        old_stable = stable;
-
-        dir_1 = (stable << 1) | (stable >> 1 ) | left_right;
-        dir_2 = (stable << 8) | (stable >> 8 ) | up_down;
-        dir_3 = (stable << 7) | (stable >> 7 ) | diag_a;
-        dir_4 = (stable << 9) | (stable >> 9 ) | diag_b;
-
-        stable = dir_1 & dir_2 & dir_3 & dir_4 & discs_player;
-
-
-    } while(stable != old_stable);
-    
-        
-    return VALUE_DISC * __builtin_popcountll(stable);
-
- 
-}
-
-#endif
-
-inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_player) {
-
-    unsigned long long stables = discs_player & 0x8100000000000081ULL;
-
-    stables |= (discs_player & (stables << 1)) & 0x0200000000000002ULL;
-    stables |= (discs_player & (stables >> 1)) & 0x4000000000000040ULL;
-    stables |= (discs_player & (stables << 8)) & 0x0000000000008100ULL;
-    stables |= (discs_player & (stables >> 8)) & 0x0081000000000000ULL;
-
-    return __builtin_popcountll(stables);
-    
-//    unsigned int P2187 = static_cast<unsigned int>((discs_player >> 48) | (discs_player << 16));    // ror 48
-//    unsigned int stable = 0x00818100 & P2187;
-//    stable |= ((((stable * 5) >> 1) & 0x00424200) | (stable << 8) | (stable >> 8)) & P2187;    // 1-8 alias does not matter since corner is stable anyway
-//    return __builtin_popcount(stable);
-
-}
-
-
-inline int RXBitBoard::final_score_2(int alpha, const int beta) {
-	return final_score_2(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC,  empties_list->next->position,  empties_list->next->next->position)*VALUE_DISC;
-}
-
-#ifdef __ARM_NEON
 
 inline unsigned long long RXBitBoard::hashcode() const {
             
@@ -625,6 +513,118 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
     return hashcode;
     
 }
+
+////3 directions NEON + 1 direction CPU
+//inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long P, const unsigned long long O)
+//{
+//    unsigned int  mO, movesL, movesH, flip1, pre1;
+//    uint64x1_t    rP, rO;
+//    uint64x2_t    PP, OO, MM, flip, pre;
+//
+//    /*vertical_mirror in PP[1], OO[1]*/                                  mO = (unsigned int) O & 0x7e7e7e7e;
+//    rP = vreinterpret_u64_u8(vrev64_u8(vcreate_u8(P)));                  flip1  = mO & ((unsigned int) P << 1);
+//    PP = vcombine_u64(vcreate_u64(P), rP);                               flip1 |= mO & (flip1 << 1);
+//                                                                         pre1   = mO & (mO << 1);
+//    rO = vreinterpret_u64_u8(vrev64_u8(vcreate_u8(O)));                  flip1 |= pre1 & (flip1 << 2);
+//    OO = vcombine_u64(vcreate_u64(O), rO);                               flip1 |= pre1 & (flip1 << 2);
+//                                                                         movesL = flip1 << 1;
+//
+//    flip = vandq_u64(OO, vshlq_n_u64(PP, 8));                            flip1  = mO & ((unsigned int) P >> 1);
+//    flip = vorrq_u64(flip, vandq_u64(OO, vshlq_n_u64(flip, 8)));         flip1 |= mO & (flip1 >> 1);
+//    pre  = vandq_u64(OO, vshlq_n_u64(OO, 8));                            pre1 >>= 1;
+//    flip = vorrq_u64(flip, vandq_u64(pre, vshlq_n_u64(flip, 16)));       flip1 |= pre1 & (flip1 >> 2);
+//    flip = vorrq_u64(flip, vandq_u64(pre, vshlq_n_u64(flip, 16)));       flip1 |= pre1 & (flip1 >> 2);
+//    MM = vshlq_n_u64(flip, 8);                                           movesL |= flip1 >> 1;
+//
+//    OO = vandq_u64(OO, vdupq_n_u64(0x7e7e7e7e7e7e7e7e));                 mO = (unsigned int) (O >> 32) & 0x7e7e7e7e;
+//    flip = vandq_u64(OO, vshlq_n_u64(PP, 7));                            flip1  = mO & ((unsigned int) (P >> 32) << 1);
+//    flip = vorrq_u64(flip, vandq_u64(OO, vshlq_n_u64(flip, 7)));         flip1 |= mO & (flip1 << 1);
+//    pre  = vandq_u64(OO, vshlq_n_u64(OO, 7));                            pre1   = mO & (mO << 1);
+//    flip = vorrq_u64(flip, vandq_u64(pre, vshlq_n_u64(flip, 14)));       flip1 |= pre1 & (flip1 << 2);
+//    flip = vorrq_u64(flip, vandq_u64(pre, vshlq_n_u64(flip, 14)));       flip1 |= pre1 & (flip1 << 2);
+//    MM = vorrq_u64(MM, vshlq_n_u64(flip, 7));                            movesH = flip1 << 1;
+//
+//    flip = vandq_u64(OO, vshlq_n_u64(PP, 9));                            flip1  = mO & ((unsigned int) (P >> 32) >> 1);
+//    flip = vorrq_u64(flip, vandq_u64(OO, vshlq_n_u64(flip, 9)));         flip1 |= mO & (flip1 >> 1);
+//    pre  = vandq_u64(OO, vshlq_n_u64(OO, 9));                            pre1 >>= 1;
+//    flip = vorrq_u64(flip, vandq_u64(pre, vshlq_n_u64(flip, 18)));       flip1 |= pre1 & (flip1 >> 2);
+//    flip = vorrq_u64(flip, vandq_u64(pre, vshlq_n_u64(flip, 18)));       flip1 |= pre1 & (flip1 >> 2);
+//    MM = vorrq_u64(MM, vshlq_n_u64(flip, 9));                            movesH |= flip1 >> 1;
+//
+//    movesL |= vgetq_lane_u32(vreinterpretq_u32_u64(MM), 0) | __builtin_bswap32(vgetq_lane_u32(vreinterpretq_u32_u64(MM), 3));
+//    movesH |= vgetq_lane_u32(vreinterpretq_u32_u64(MM), 1) | __builtin_bswap32(vgetq_lane_u32(vreinterpretq_u32_u64(MM), 2));
+//    return (movesL | ((unsigned long long) movesH << 32)) & ~(P|O);    // mask with empties
+//}
+
+
+
+//interleave version :more speed ? NO
+inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs, const unsigned long long o_discs ) {
+
+    //vector directions
+    static const int64x2_t shift[] = {
+        { -1,  1},     //id 0
+        { -8,  8},     //id 1
+        { -7,  7},     //id 2
+        { -9,  9}};    //id 3
+        
+    
+
+    const uint64x2_t pp_discs = vdupq_n_u64(p_discs);
+    const uint64x2_t oo_discs = vdupq_n_u64(o_discs);
+    
+    const uint64x2_t inner_oo_discs = vdupq_n_u64(o_discs & 0x7E7E7E7E7E7E7E7EULL);
+
+    uint64x2_t
+    flip_h = vandq_u64(vshlq_u64(pp_discs, shift[0]), inner_oo_discs);
+    uint64x2_t
+    flip_d7 = vandq_u64(vshlq_u64(pp_discs, shift[2]), inner_oo_discs);
+    uint64x2_t
+    flip_d9 = vandq_u64(vshlq_u64(pp_discs, shift[3]), inner_oo_discs);
+    uint64x2_t
+    flip_v = vandq_u64(vshlq_u64(pp_discs, shift[1]), oo_discs);
+
+
+    flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift[0]), inner_oo_discs));
+    flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift[2]), inner_oo_discs));
+    flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift[3]), inner_oo_discs));
+    flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift[1]), oo_discs));
+
+
+    uint64x2_t
+    adjacent_h = vandq_u64(inner_oo_discs, vshlq_u64(inner_oo_discs, shift[0]));
+    uint64x2_t
+    adjacent_d7 = vandq_u64(inner_oo_discs, vshlq_u64(inner_oo_discs, shift[2]));
+    uint64x2_t
+    adjacent_d9 = vandq_u64(inner_oo_discs, vshlq_u64(inner_oo_discs, shift[3]));
+    uint64x2_t
+    adjacent_v = vandq_u64(oo_discs, vshlq_u64(oo_discs, shift[1]));
+    
+    uint64x2_t shift4 = vaddq_u64(shift[0],shift[0]);
+    flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift4), adjacent_h));
+    
+    uint64x2_t shift5 = vaddq_u64(shift[1],shift[1]);
+    flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift5), adjacent_v));
+    
+    uint64x2_t shift6 = vaddq_u64(shift[2],shift[2]);
+    flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift6), adjacent_d7));
+    
+    uint64x2_t shift7 = vaddq_u64(shift[3],shift[3]);
+    flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift7), adjacent_d9));
+
+    flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift4), adjacent_h));
+    flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift5), adjacent_v));
+    flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift6), adjacent_d7));
+    flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift7), adjacent_d9));
+
+    uint64x2_t legals = vorrq_u64(vshlq_u64(flip_d9, shift[3]), vorrq_u64(vshlq_u64(flip_d7, shift[2]), vorrq_u64(vshlq_u64(flip_h, shift[0]), vshlq_u64(flip_v, shift[1]))));
+    
+    
+    return ((vgetq_lane_u64(legals, 0) | vgetq_lane_u64(legals, 1)) & ~(p_discs | o_discs));
+
+}
+
+
 
 
 //unroll
@@ -792,6 +792,79 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
 
 #else
 
+/// retourne un pseudo (sous evalué) score de pions stables
+/// - Parameters:
+///   - color: couleur du joueur
+///   - n_stables_cut: valeur de coupure (type alpha, beta)
+inline int RXBitBoard::get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent) {
+    
+    
+    unsigned long long filled = discs_player | discs_opponent;
+    
+    unsigned long long left_right, up_down, diag_a, diag_b;
+
+    left_right = filled;
+    left_right &= left_right >> 4;
+    left_right &= left_right >> 2;
+    left_right &= left_right >> 1;
+    left_right &= 0x0101010101010101ULL;
+    
+    //trick multiplication par 255 (remplit les lignes)
+    left_right = (left_right << 8) - left_right; //*=255
+    left_right |= 0x8181818181818181ULL;
+     
+    up_down = filled;
+    up_down &= (up_down >> 32) | (up_down << 32);
+    up_down &= (up_down >> 16) | (up_down << 16);
+    up_down &= (up_down >>  8) | (up_down <<  8);
+    
+    up_down |= 0xFF000000000000FFULL;
+        
+    diag_a = filled;
+    diag_a &= ((diag_a>>28) & 0x00000000F0F0F0F0ULL) | ((diag_a<<28) & 0x0F0F0F0F00000000ULL) | 0xF0F0F0F00F0F0F0FULL;
+    diag_a &= ((diag_a>>14) & 0x0000FCFCFCFCFCFCULL) | ((diag_a<<14) & 0x3F3F3F3F3F3F0000ULL) | 0xC0C0000000000303ULL;
+    diag_a &= (diag_a>> 7) & (diag_a<< 7);
+    
+    diag_a |= 0xFF818181818181FFULL;
+    
+    diag_b = filled;
+    //diag_b &= ((diag_b>>36) & 0x000000000F0F0F0FULL) | ((diag_b<<36) & 0xF0F0F0F000000000ULL) | 0x0F0F0F0FF0F0F0F0ULL;
+    diag_b &= (diag_b>>36) | (diag_b<<36) | 0x0F0F0F0FF0F0F0F0ULL;
+    diag_b &= ((diag_b>>18) & 0x00003F3F3F3F3F3FULL) | ((diag_b<<18) & 0xFCFCFCFCFCFC0000ULL) | 0x030300000000C0C0ULL;
+    diag_b &= (diag_b>> 9) & (diag_b<< 9);
+    
+    diag_b |= 0xFF818181818181FFULL;
+    
+    unsigned long long stable = left_right & up_down & diag_a & diag_b & discs_player;
+
+
+    if(stable == 0)
+        return 0;
+
+    unsigned long long old_stable, dir_1, dir_2, dir_3, dir_4;
+    
+    
+    do {
+
+        old_stable = stable;
+
+        dir_1 = (stable << 1) | (stable >> 1 ) | left_right;
+        dir_2 = (stable << 8) | (stable >> 8 ) | up_down;
+        dir_3 = (stable << 7) | (stable >> 7 ) | diag_a;
+        dir_4 = (stable << 9) | (stable >> 9 ) | diag_b;
+
+        stable = dir_1 & dir_2 & dir_3 & dir_4 & discs_player;
+
+
+    } while(stable != old_stable);
+    
+        
+    return VALUE_DISC * __builtin_popcountll(stable);
+
+ 
+}
+
+
 inline unsigned long long RXBitBoard::hashcode() const {
     
     
@@ -858,6 +931,150 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move)  const {
     
     
     return hashcode;
+    
+}
+
+/*
+    @brief Get a bitboard representing all legal moves
+
+    @param P                    a bitboard representing player
+    @param O                    a bitboard representing opponent
+    @return all legal moves as a bitboard
+*/
+// original code from http://www.amy.hi-ho.ne.jp/okuhara/bitboard.htm
+// modified by Nyanyan
+// version EDAX version identique a Roxane (presentation pour la vectorisation)
+//inline uint64_t RXBitBoard::calc_legal(const uint64_t P, const uint64_t O){
+//    uint64_t moves, mO;
+//    uint64_t flip1, flip7, flip9, flip8, pre1, pre7, pre9, pre8;
+//    mO = O & 0x7e7e7e7e7e7e7e7eULL;
+//    flip1 = mO & (P << 1);         flip7  = mO & (P << 7);        flip9  = mO & (P << 9);        flip8  = O & (P << 8);
+//    flip1 |= mO & (flip1 << 1);    flip7 |= mO & (flip7 << 7);    flip9 |= mO & (flip9 << 9);    flip8 |= O & (flip8 << 8);
+//    pre1 = mO & (mO << 1);         pre7 = mO & (mO << 7);         pre9 = mO & (mO << 9);         pre8 = O & (O << 8);
+//    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
+//    flip1 |= pre1 & (flip1 << 2);  flip7 |= pre7 & (flip7 << 14); flip9 |= pre9 & (flip9 << 18); flip8 |= pre8 & (flip8 << 16);
+//    moves = flip1 << 1;            moves |= flip7 << 7;           moves |= flip9 << 9;           moves |= flip8 << 8;
+//    flip1 = mO & (P >> 1);         flip7  = mO & (P >> 7);        flip9  = mO & (P >> 9);        flip8  = O & (P >> 8);
+//    flip1 |= mO & (flip1 >> 1);    flip7 |= mO & (flip7 >> 7);    flip9 |= mO & (flip9 >> 9);    flip8 |= O & (flip8 >> 8);
+//    pre1 >>= 1;                    pre7 >>= 7;                    pre9 >>= 9;                    pre8 >>= 8;
+//    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
+//    flip1 |= pre1 & (flip1 >> 2);  flip7 |= pre7 & (flip7 >> 14); flip9 |= pre9 & (flip9 >> 18); flip8 |= pre8 & (flip8 >> 16);
+//    moves |= flip1 >> 1;           moves |= flip7 >> 7;           moves |= flip9 >> 9;           moves |= flip8 >> 8;
+//    return moves & ~(P | O);
+//}
+
+
+inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs, const unsigned long long o_discs) {
+    
+    
+    const unsigned long long inner_o_discs = o_discs & 0x7E7E7E7E7E7E7E7EULL;
+    
+    
+    /* direction W */
+    unsigned long long
+    flipped  = (p_discs >> 1) & inner_o_discs;
+    flipped |= (flipped >> 1) & inner_o_discs;
+    
+    unsigned long long adjacent_o_discs = inner_o_discs & (inner_o_discs >> 1);
+    
+    flipped |= (flipped >> 2) & adjacent_o_discs;
+    flipped |= (flipped >> 2) & adjacent_o_discs;
+    
+    unsigned long long legals = flipped >> 1;
+    
+    
+    //    /* direction _E*/
+    //    flipped  = (p_discs << 1) & inner_o_discs;
+    //    flipped |= (flipped << 1) & inner_o_discs;
+    //
+    //    adjacent_o_discs = inner_o_discs & (inner_o_discs << 1);
+    //
+    //    flipped |= (flipped << 2) & adjacent_o_discs;
+    //    flipped |= (flipped << 2) & adjacent_o_discs;
+    //
+    //    legals |= flipped << 1;
+    
+    // trick
+    /* direction _E */
+    flipped = (p_discs << 1);
+    legals |= ((flipped + inner_o_discs) & ~flipped);
+    
+    
+    /* direction S */
+    flipped  = (p_discs >>  8) & o_discs;
+    flipped |= (flipped >>  8) & o_discs;
+    
+    adjacent_o_discs = o_discs & (o_discs >> 8);
+    
+    flipped |= (flipped >> 16) & adjacent_o_discs;
+    flipped |= (flipped >> 16) & adjacent_o_discs;
+    
+    legals |= flipped >> 8;
+    
+    
+    /* direction N */
+    flipped  = (p_discs <<  8) & o_discs;
+    flipped |= (flipped <<  8) & o_discs;
+    
+    adjacent_o_discs = o_discs & (o_discs << 8);
+    
+    flipped |= (flipped << 16) & adjacent_o_discs;
+    flipped |= (flipped << 16) & adjacent_o_discs;
+    
+    legals |= flipped << 8;
+    
+    
+    /* direction NE */
+    flipped  = (p_discs >>  7) & inner_o_discs;
+    flipped |= (flipped >>  7) & inner_o_discs;
+    
+    adjacent_o_discs = inner_o_discs & (inner_o_discs >> 7);
+    
+    flipped |= (flipped >> 14) & adjacent_o_discs;
+    flipped |= (flipped >> 14) & adjacent_o_discs;
+    
+    legals |= flipped >> 7;
+    
+    
+    /* direction SW */
+    flipped  = (p_discs <<  7) & inner_o_discs;
+    flipped |= (flipped <<  7) & inner_o_discs;
+    
+    adjacent_o_discs = inner_o_discs & (inner_o_discs << 7);
+    
+    flipped |= (flipped << 14) & adjacent_o_discs;
+    flipped |= (flipped << 14) & adjacent_o_discs;
+    
+    legals |= flipped << 7;
+    
+    
+    /* direction NW */
+    flipped  = (p_discs >>  9) & inner_o_discs;
+    flipped |= (flipped >>  9) & inner_o_discs;
+    
+    adjacent_o_discs = inner_o_discs & (inner_o_discs >> 9);
+    
+    flipped |= (flipped >> 18) & adjacent_o_discs;
+    flipped |= (flipped >> 18) & adjacent_o_discs;
+    
+    legals |= flipped >> 9;
+    
+    
+    /* direction SE */
+    flipped  = (p_discs <<  9) & inner_o_discs;
+    flipped |= (flipped <<  9) & inner_o_discs;
+    
+    adjacent_o_discs = inner_o_discs & (inner_o_discs << 9);
+    
+    flipped |= (flipped << 18) & adjacent_o_discs;
+    flipped |= (flipped << 18) & adjacent_o_discs;
+    
+    legals |= flipped << 9;
+    
+    //Removes existing discs
+    legals &= ~(p_discs | o_discs);
+    
+    return legals;
     
 }
 
@@ -1047,7 +1264,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
             //carefull not break
         case 3:
             std::swap(idSquare2, idSquare3);
-            break;
+            //break;
     }
 
 		
@@ -1095,7 +1312,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
         
         n_nodes++; //PASS
         
-        if ((flipped = do_flips[idSquare1](discs_opponent, discs_player))){
+        if ((discs_player & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_opponent, discs_player))){
             n_nodes++;
             
             bestscore = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare1), alpha, beta, idSquare2, idSquare3);
@@ -1108,7 +1325,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
             
         }
 
-        if ((flipped = do_flips[idSquare2](discs_opponent, discs_player))){
+        if ((discs_player & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_opponent, discs_player))){
             n_nodes++;
             
             score = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare2), alpha, beta, idSquare1, idSquare3);
@@ -1125,7 +1342,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
             
         }
         
-        if ((flipped = do_flips[idSquare3](discs_opponent, discs_player))){
+        if ((discs_player & NEIGHBOR[idSquare3]) && (flipped = do_flips[idSquare3](discs_opponent, discs_player))){
             n_nodes++;
             
             score = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare3), alpha, beta, idSquare1, idSquare2);

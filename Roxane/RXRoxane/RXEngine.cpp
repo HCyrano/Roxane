@@ -334,7 +334,7 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                             mobility = 5*mobility/4;
                         } else if(depth <= 11 && 5 < depth) {
                             mobility = 3*mobility/2;
-                        } else {
+                        } else if(depth <= 5) {
                             mobility = 7*mobility/4;
                         }
                         
