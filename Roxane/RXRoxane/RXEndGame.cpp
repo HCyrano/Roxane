@@ -881,7 +881,9 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
         RXMove* move = list + 1;
         RXMove* previous = list;
         
-        unsigned long long  hashcode_after_move = 0;
+#ifdef USE_ETC
+        unsigned long long  hashcode_after_move;
+#endif
         
         //ENHANCED TRANSPOSITION CUTOFF
         if(bestmove != NOMOVE) {
@@ -890,7 +892,6 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
             board.n_nodes++;
             
 #ifdef USE_ETC
-            
             hashcode_after_move = board.hashcode_after_move(move);
             hTable->entry_prefetch(hashcode_after_move, type_hashtable);
 #endif
@@ -905,9 +906,8 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
             }
 #endif
             
-            //synchronized acces
 #ifdef USE_ETC
-            
+            //synchronized acces
             if(!pv && hTable->get(hashcode_after_move, type_hashtable, entry) && entry.selectivity == NO_SELECT && entry.depth>=(board.n_empties-1)) {
                 
                 if(-entry.upper >= upper) {
@@ -933,7 +933,6 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                 board.n_nodes++;
                 
 #ifdef USE_ETC
-                
                 hashcode_after_move = board.hashcode_after_move(move);
                 hTable->entry_prefetch(hashcode_after_move, type_hashtable);
 #endif
@@ -950,9 +949,8 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                 
                 move->score = 0; //not in Hash
                 
-                //synchronized acces
 #ifdef USE_ETC
-                
+                //synchronized acces
                 if(hTable->get(hashcode_after_move, type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
                     
                     if (!pv && entry.selectivity == NO_SELECT && -entry.upper >= upper )
@@ -962,7 +960,6 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
                     
                 }
 #endif
-                
                 
                 previous = previous->next = move++;
                 
@@ -1390,9 +1387,9 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 }
             }
 #endif
-            //synchronized acces
-#ifdef USE_ETC
             
+#ifdef USE_ETC
+            //synchronized acces
             if(!pv && hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.selectivity >= selectivity && entry.depth>=(board.n_empties-1)) {
                 
                 if(-entry.upper >= upper) {
@@ -1402,8 +1399,6 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 }
             }
 #endif
-            
-            
             
             previous = previous->next = move++;
             
@@ -1434,9 +1429,8 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                 
                 move->score = 0;    //not in hash
                 
-                //synchronized acces
 #ifdef USE_ETC
-                
+                //synchronized acces
                 if(hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=(board.n_empties-1)) {
                     
                     
@@ -1556,12 +1550,12 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                                 RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
                                 
                                 int bestscore = UNDEF_SCORE; //masquage
-                                const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+                                const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[o], board.discs[p]);
                                 for(RXSquareList* empties = board.empties_list->next; bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
                                     if ((legal_movesBB & 0x1ULL<<empties->position)){
                                         
                                         ((board).*(board.generate_flips[empties->position]))(lastMove);
-                                        ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
+                                        ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
                                         board.n_nodes++;
                                         
                                         int score = -sBoard.get_score(lastMove);
@@ -1617,7 +1611,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                     
                 } else {
                     
-                    //empties<18;
+                    //empties<=EG_DEEP_TO_MEDIUM;
                     
                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
                         ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
@@ -1996,7 +1990,6 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
             board.n_nodes++;
             
 #ifdef USE_ETC
-            
             hashcode_after_move = board.hashcode_after_move(move);
             hTable->entry_prefetch(hashcode_after_move, type_hashtable);
 #endif
@@ -2042,7 +2035,6 @@ int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev
                 board.n_nodes++;
                 
 #ifdef USE_ETC
-                
                 hashcode_after_move = board.hashcode_after_move(move);
                 hTable->entry_prefetch(hashcode_after_move, type_hashtable);
 #endif
@@ -2856,9 +2848,7 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
                 
                 break;
             }
-            
-            
-            
+             
         }
         
     }

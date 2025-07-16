@@ -631,9 +631,7 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
 //unroll
 inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) {
     
-    unsigned long long flipped;
-    unsigned long long n_player;
-    unsigned long long n_opponent;
+    unsigned long long flipped, n_player, n_opponent;
     
     int n_flips, bestscore = UNDEF_SCORE;
     

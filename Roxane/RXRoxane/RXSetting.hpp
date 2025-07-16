@@ -10,7 +10,6 @@
 #define RXSETTING_HPP
 
 
-
 #ifdef __ARM_ACLE
 #define NEW_EVAL //-h 18 -t 1 fforum-40-59 -5% midgame-1-10
 #endif
@@ -24,7 +23,7 @@
 #define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
 
 //for record fforum-40-59 setting
-//Matchs avec /sans :
+//Matchs avec / sans :
 //69/319/58 [446] s8r14 2:00
 //15,5%/71,5%/13%
 #define USE_SPLIT_AT_ROOT
