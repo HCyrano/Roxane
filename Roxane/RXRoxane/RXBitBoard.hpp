@@ -3,6 +3,7 @@
  *  Roxane
  *
  *  Created by Bruno Causse on 27/06/05.
+ *  many ideas from Toshihiko Okuhara [http://www.amy.hi-ho.ne.jp/okuhara/edaxopt.htm]
  *  Copyleft 2005-2025 personnel.
  *
  */
@@ -201,9 +202,9 @@ void generate_flips_##pos(RXMove& move) const \
     int final_score_2(int alpha, const int beta);
     int final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2);
     int final_score_3(int alpha, const int beta);
-    int final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const int sort3, int idSquare1, int idSquare2, int idSquare3);
+    int final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const unsigned int shuf3, const unsigned int empties3);
     int	final_score_4(const bool pv, int alpha, int beta, const bool passed);
-    int	final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const int sort3, const int idSquare1, const int idSquare2, const int idSquare3, const int idSquare4);
+    int	final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4);
     
     std::string cassio_script() const;
     
@@ -1243,29 +1244,26 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
 
 
 inline int RXBitBoard::final_score_3(int alpha, const int beta) {
-    return final_score_3(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, 0,  empties_list->next->position,  empties_list->next->next->position,  empties_list->next->next->next->position)*VALUE_DISC;
+    
+    unsigned int
+    empties3  = (empties_list->next->position << 16);
+    empties3 |= (empties_list->next->next->position << 8);
+    empties3 |=  empties_list->next->next->next->position;
+    
+    return final_score_3(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, 0xE4UL,  empties3)*VALUE_DISC;
 }
 
 //unroll
-inline int RXBitBoard::final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const int sort3, int idSquare1, int idSquare2, int idSquare3) {
+inline int RXBitBoard::final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const unsigned int shuf3, const unsigned int empties3) {
     
     int score, bestscore = UNDEF_SCORE;
     
     unsigned long long flipped;
-    
-    // parity based move sorting
-    switch (sort3 & 0x03) {
-        case 1:
-            std::swap(idSquare1, idSquare2);
-            break;
-        case 2:
-            std::swap(idSquare1, idSquare3);
-            //carefull not break
-        case 3:
-            std::swap(idSquare2, idSquare3);
-            //break;
-    }
-    
+        
+    const int idSquare1 = (empties3 >> ((shuf3 & 0x30) >> 1)) & 0xFF;
+    const int idSquare2 = (empties3 >> ((shuf3 & 0x0C) << 1)) & 0xFF;
+    const int idSquare3 = (empties3 >> ((shuf3 & 0x03) * 8))  & 0xFF;
+
     
     if ((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))){
         n_nodes++;
@@ -1420,68 +1418,50 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
         /*0220*/ 11, /*0221*/  5, /*0230*/  6, /*0231*/  0, /*0320*/  6, /*0321*/  0, /*0330*/ 11, /*0331*/  5,
         /*0222*/  3, /*0223*/  5, /*0232*/  7, /*0233*/  8, /*0322*/  8, /*0323*/  7, /*0332*/  5, /*0333*/  3
     };
+
     
-    static const short sort3_shuf[] = {
-        0x0000,    //  0: 1(sq_1) 3(sq_2 sq_3 sq_4),      1(sq_1) 1(sq_2) 2(sq_3 sq_4), 1 1 1 1, 4                              sq_4sq_1sq_2sq_3-sq_3sq_1sq_2sq_4-sq_2sq_1sq_3sq_4-sq_1sq_2sq_3sq_4
-        0x1100,    //  1: 1(sq_2) 3(sq_1 sq_3 sq_4)       sq_4sq_2sq_1sq_3-sq_3sq_2sq_1sq_4-sq_2sq_1sq_3sq_4-sq_1sq_2sq_3sq_4
-        0x2011,    //  2: 1(sq_3) 3(sq_1 sq_2 sq_4)       sq_4sq_3sq_1sq_2-sq_3sq_1sq_2sq_4-sq_2sq_3sq_1sq_4-sq_1sq_3sq_2sq_4
-        0x0222,    //  3: 1(sq_4) 3(sq_1 sq_2 sq_3)       sq_4sq_1sq_2sq_3-sq_3sq_4sq_1sq_2-sq_2sq_4sq_1sq_3-sq_1sq_4sq_2sq_3
-        0x3000,    //  4: 1(sq_1) 1(sq_3) 2(sq_2 sq_4)    sq_4sq_1sq_2sq_3-sq_2sq_1sq_3sq_4-sq_3sq_1sq_2sq_4-sq_1sq_3sq_2sq_4 <- sq_4sq_1sq_3sq_2-sq_2sq_1sq_3sq_4-sq_3sq_1sq_2sq_4-sq_1sq_3sq_2sq_4
-        0x3300,    //  5: 1(sq_1) 1(sq_4) 2(sq_2 sq_3)    sq_3sq_1sq_2sq_4-sq_2sq_1sq_3sq_4-sq_4sq_1sq_2sq_3-sq_1sq_4sq_2sq_3 <- sq_3sq_1sq_4sq_2-sq_2sq_1sq_4sq_3-sq_4sq_1sq_2sq_3-sq_1sq_4sq_2sq_3
-        0x2000,    //  6: 1(sq_2) 1(sq_3) 2(sq_1 sq_4)    sq_4sq_1sq_2sq_3-sq_1sq_2sq_3sq_4-sq_3sq_2sq_1sq_4-sq_2sq_3sq_1sq_4 <- sq_4sq_2sq_3sq_1-sq_1sq_2sq_3sq_4-sq_3sq_2sq_1sq_4-sq_2sq_3sq_1sq_4
-        0x2300,    //  7: 1(sq_2) 1(sq_4) 2(sq_1 sq_3)    sq_3sq_1sq_2sq_4-sq_1sq_2sq_3sq_4-sq_4sq_2sq_1sq_3-sq_2sq_4sq_1sq_3 <- sq_3sq_2sq_4sq_1-sq_1sq_2sq_4sq_3-sq_4sq_2sq_1sq_3-sq_2sq_4sq_1sq_3
-        0x2200,    //  8: 1(sq_3) 1(sq_4) 2(sq_1 sq_2)    sq_2sq_1sq_3sq_4-sq_1sq_2sq_3sq_4-sq_4sq_3sq_1sq_2-sq_3sq_4sq_1sq_2 <- sq_2sq_3sq_4sq_1-sq_1sq_3sq_4sq_2-sq_4sq_3sq_1sq_2-sq_3sq_4sq_1sq_2
-        0x2200,    //  9: 2(sq_1 sq_2) 2(sq_3 sq_4)       sq_4sq_3sq_1sq_2-sq_3sq_4sq_1sq_2-sq_2sq_1sq_3sq_4-sq_1sq_2sq_3sq_4
-        0x1021,    // 10: 2(sq_1 sq_3) 2(sq_2 sq_4)       sq_4sq_2sq_1sq_3-sq_3sq_1sq_2sq_4-sq_2sq_4sq_1sq_3-sq_1sq_3sq_2sq_4
-        0x0112     // 11: 2(sq_1 sq_4) 2(sq_2 sq_3)       sq_4sq_1sq_2sq_3-sq_3sq_2sq_1sq_4-sq_2sq_3sq_1sq_4-sq_1sq_4sq_2sq_3
+    static const unsigned int sort4_shuf[] = {    // 4.5.5: use shuffle mask in non-simd version too.
+        0x3978b4e4,    //  0: 1(x1) 3(x2 x3 x4),      1(x1) 1(x2) 2(x3 x4), 1 1 1 1, 4        x4x1x2x3-x3x1x2x4-x2x1x3x4-x1x2x3x4
+        0x3978e4b4,    //  1: 1(x2) 3(x1 x3 x4)       x4x1x2x3-x3x1x2x4-x1x2x3x4-x2x1x3x4
+        0x39b4e478,    //  2: 1(x3) 3(x1 x2 x4)       x4x1x2x3-x2x1x3x4-x1x2x3x4-x3x1x2x4
+        0x78b4e439,    //  3: 1(x4) 3(x1 x2 x3)       x3x1x2x4-x2x1x3x4-x1x2x3x4-x4x1x2x3
+        0x39b478d8,    //  4: 1(x1) 1(x3) 2(x2 x4)    x4x1x2x3-x2x1x3x4-x3x1x2x4-x1x3x2x4
+        0x78b439c9,    //  5: 1(x1) 1(x4) 2(x2 x3)    x3x1x2x4-x2x1x3x4-x4x1x2x3-x1x4x2x3
+        0x39e46c9c,    //  6: 1(x2) 1(x3) 2(x1 x4)    x4x1x2x3-x1x2x3x4-x3x2x1x4-x2x3x1x4
+        0x78e42d8d,    //  7: 1(x2) 1(x4) 2(x1 x3)    x3x1x2x4-x1x2x3x4-x4x2x1x3-x2x4x1x3
+        0xb4e41e4e,    //  8: 1(x3) 1(x4) 2(x1 x2)    x2x1x3x4-x1x2x3x4-x4x3x1x2-x3x4x1x2
+        0x1e4eb4e4,    //  9: 2(x1 x2) 2(x3 x4)       x4x3x1x2-x3x4x1x2-x2x1x3x4-x1x2x3x4
+        0x2d788dd8,    // 10: 2(x1 x3) 2(x2 x4)       x4x2x1x3-x3x1x2x4-x2x4x1x3-x1x3x2x4
+        0x396c9cc9     // 11: 2(x1 x4) 2(x2 x3)       x4x1x2x3-x3x2x1x4-x2x3x1x4-x1x4x2x3
     };
-    
+
     // parity based move sorting.
     // The following hole sizes are possible:
-    //    4 - 1 3 - 2 2 - 1 1 2 - 1 1 1 1
-    // Only the 1 1 2 case needs move sorting on this ply.
-    
+    // 4 - 1 3 - 2 2 - 1 1 2 - 1 1 1 1
+    // the 1 1 2 case needs move sorting on this ply.
+    // prefer 1 empty over 3 empties, 1 3 case also needs sorting.
     int paritysort = parity_case[((sq_3 ^ sq_4) & 0x24) + (((sq_2 ^ sq_4) & 0x24) >> 1) + (((sq_1 ^ sq_4) & 0x24) >> 2)];
-    switch (paritysort) {
-        case 4: // case 1(sq_1) 1(sq_3) 2(sq_2 sq_4)
-            std::swap(sq_2, sq_3);
-            break;
-        case 5: // case 1(sq_1) 1(sq_4) 2(sq_2 sq_3)
-            std::swap(sq_2, sq_4);
-            std::swap(sq_3, sq_4);
-            break;
-        case 6:    // case 1(sq_2) 1(sq_3) 2(sq_1 sq_4)
-            std::swap(sq_1, sq_3);
-            std::swap(sq_1, sq_2);
-            break;
-        case 7: // case 1(sq_2) 1(sq_4) 2(sq_1 sq_3)
-            std::swap(sq_1, sq_2);
-            std::swap(sq_2, sq_4);
-            std::swap(sq_3, sq_4);
-            break;
-        case 8:    // case 1(sq_3) 1(sq_4) 2(sq_1 sq_2)
-            std::swap(sq_1, sq_3);
-            std::swap(sq_2, sq_4);
-            break;
-    }
+    unsigned int shuf4 = sort4_shuf[paritysort];
+    unsigned int empties4 = (sq_1 << 24) | (sq_2 << 16) | (sq_3 << 8) | sq_4;
+
     
     
     
-    
-    return final_score_4(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, passed, sort3_shuf[paritysort], sq_1,  sq_2, sq_3, sq_4)*VALUE_DISC;
+    return final_score_4(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, passed, shuf4, empties4)*VALUE_DISC;
 }
 
-inline int RXBitBoard::final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const int sort3, const int idSquare1, const int idSquare2, const int idSquare3, const int idSquare4) {
+inline int RXBitBoard::final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4) {
     
     
     int score, bestscore = UNDEF_SCORE;
     
     unsigned long long flipped;
     
+    int idSquare1 = (empties4 >> ((shuf4 >> (6 - 3)) & 0x18)) & 0xFF;
     if ((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))){
         n_nodes++;
         
-        bestscore = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare1), -beta, -alpha, sort3, idSquare2, idSquare3, idSquare4);
+        bestscore = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare1), -beta, -alpha, shuf4, empties4);
         
         if(bestscore>=beta)
             return bestscore;
@@ -1492,10 +1472,11 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
         
     }
     
+    int idSquare2 = (empties4 >> ((shuf4 >> (14 - 3)) & 0x18)) & 0xFF;
     if ((discs_opponent & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_player, discs_opponent))){
         n_nodes++;
         
-        score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare2), -beta, -alpha, sort3>>4, idSquare1, idSquare3, idSquare4);
+        score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare2), -beta, -alpha, shuf4>>8, empties4);
         
         if(score>=beta)
             return score;
@@ -1509,10 +1490,11 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
         
     }
     
+    int idSquare3 = (empties4 >> ((shuf4 >> (22 - 3)) & 0x18)) & 0xFF;
     if ((discs_opponent & NEIGHBOR[idSquare3]) && (flipped = do_flips[idSquare3](discs_player, discs_opponent))) {
         n_nodes++;
         
-        score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare3), -beta, -alpha, sort3>>8, idSquare1, idSquare2, idSquare4);
+        score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare3), -beta, -alpha, shuf4>>16, empties4);
         
         if(score>=beta)
             return score;
@@ -1526,10 +1508,11 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
         
     }
     
+    int idSquare4 = (empties4 >> ((shuf4 >> 30) * 8)) & 0xFF;
     if ((discs_opponent & NEIGHBOR[idSquare4]) && (flipped = do_flips[idSquare4](discs_player, discs_opponent))){
         n_nodes++;
         
-        score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare4), -beta, -alpha, sort3>>12, idSquare1, idSquare2, idSquare3);
+        score = -final_score_3(discs_opponent ^ flipped, discs_player ^ (flipped | 0x1ULL<<idSquare4), -beta, -alpha, shuf4>>24, empties4);
         
         if(score > bestscore)
             return score;
@@ -1550,7 +1533,7 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
             
         } else {
             n_nodes++;
-            bestscore = -final_score_4(discs_opponent, discs_player, -beta, -alpha, true, sort3, idSquare1, idSquare2, idSquare3, idSquare4);
+            bestscore = -final_score_4(discs_opponent, discs_player, -beta, -alpha, true, shuf4, empties4);
         }
     }
     
