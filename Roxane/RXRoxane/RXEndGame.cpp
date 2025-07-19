@@ -56,7 +56,7 @@ const int RXEngine::MIN_DEPTH_USE_ENDCUT = 16;
  * \return        the final score, as a disc difference.
  */
 
-int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed) {
+int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, int alpha, int beta, bool passed) {
     
     int score, bestscore = UNDEF_SCORE;
     
@@ -90,7 +90,7 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv
                         ((board).*(board.generate_flips[empties->position]))(move);
                         
                         board.do_move(move);
-                        score = -board.final_score_4(pv, -beta, -alpha, false);
+                        score = -board.final_score_4(-beta, -alpha, false);
                         board.undo_move(move);
                         
                         if (score >= beta)
@@ -118,7 +118,7 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv
                         ((board).*(board.generate_flips[empties->position]))(move);
                         
                         board.do_move(move);
-                        score = -EG_alphabeta_parity(threadID, board, pv, -beta, -alpha, false);
+                        score = -EG_alphabeta_parity(threadID, board, -beta, -alpha, false);
                         board.undo_move(move);
                         
                         if (score >= beta)
@@ -145,7 +145,7 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv
                             ((board).*(board.generate_flips[empties->position]))(move);
                             
                             board.do_move(move);
-                            score = -EG_alphabeta_parity(threadID, board, pv, -beta, -alpha, false);
+                            score = -EG_alphabeta_parity(threadID, board, -beta, -alpha, false);
                             board.undo_move(move);
                             
                             if (score >= beta)
@@ -174,7 +174,7 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv
             //update/restore player
             board.player ^= 1;
             board.n_nodes++;
-            bestscore = -EG_alphabeta_parity(threadID, board, pv, -beta, -alpha, true);
+            bestscore = -EG_alphabeta_parity(threadID, board, -beta, -alpha, true);
             //update/restore player
             board.player ^= 1;
         }
@@ -249,7 +249,7 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
             
             // first move
             board.do_move(move);
-            bestscore = -EG_alphabeta_parity(threadID, board, pv, -upper, -lower, false);
+            bestscore = -EG_alphabeta_parity(threadID, board, -upper, -lower, false);
             board.undo_move(move);
             
             if (bestscore > lower)
@@ -270,7 +270,7 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
                         ((board).*(board.generate_flips[empties->position]))(move);
                         
                         board.do_move(move);
-                        score = -EG_alphabeta_parity(threadID, board, pv, -upper, -lower, false);
+                        score = -EG_alphabeta_parity(threadID, board, -upper, -lower, false);
                         board.undo_move(move);
                         
                         if (score >= upper) {
@@ -300,7 +300,7 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
                             ((board).*(board.generate_flips[empties->position]))(move);
                             
                             board.do_move(move);
-                            score = -EG_alphabeta_parity(threadID, board, pv, -upper, -lower, false);
+                            score = -EG_alphabeta_parity(threadID, board, -upper, -lower, false);
                             board.undo_move(move);
                             
                             if (score >= upper) {
@@ -415,7 +415,7 @@ int RXEngine::EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const 
             //            if (pv)
             //                bestscore = -EG_alphabeta_hash_parity(threadID, board, pv, -upper, -lower, false);
             //            else
-            bestscore = -EG_alphabeta_parity(threadID, board, pv, -upper, -lower, false);
+            bestscore = -EG_alphabeta_parity(threadID, board, -upper, -lower, false);
             board.undo_move(*move);
             
             if (bestscore > lower)
@@ -493,7 +493,7 @@ int RXEngine::EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const 
                     
                     
                     board.do_move(*move);
-                    score = -EG_alphabeta_parity(threadID, board, pv, -upper, -lower, false);
+                    score = -EG_alphabeta_parity(threadID, board, -upper, -lower, false);
                     board.undo_move(*move);
                     
                     if (score > bestscore) {
@@ -673,7 +673,7 @@ int RXEngine::EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool p
                         
                         iter->score = (RXBitBoard::get_mobility(o_discs, p_discs)<<5)
                         - (RXBitBoard::get_corner_stability(p_discs)<<2)
-                        + RXBitBoard::count_potential_moves(o_discs, p_discs)
+                        + (RXBitBoard::count_potential_moves(o_discs, p_discs))
                         - ((board.parity & RXBitBoard::QUADRANT_ID[iter->position])>>RXBitBoard::QUADRANT_SHITF[iter->position]);
                         
                     }
@@ -1523,7 +1523,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                     
                     int lower_probcut = -MAX_SCORE;
                     int upper_probcut =  MAX_SCORE;
-                    probcut_bounds(board, std::max(EG_HIGH_SELECT, (selectivity == NO_SELECT ? selectivity-2:selectivity-1)), ((board.n_empties & 0x1UL) == 0 ? 9:8), 0, (lower+upper)/2, lower_probcut, upper_probcut);
+                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-(1+(selectivity == NO_SELECT))), (8+(board.n_empties & 0x1UL)), 0, (lower+upper)/2, lower_probcut, upper_probcut);
                     
                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
                         
@@ -2352,9 +2352,9 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
     } else if (board.n_empties == 3) {
         bestscore = -board.final_score_3(-upper, -lower);
     } else if (board.n_empties == 4) {
-        bestscore = -board.final_score_4(true, -upper, -lower, false);
+        bestscore = -board.final_score_4(-upper, -lower, false);
     } else if (board.n_empties < EG_MEDIUM_TO_SHALLOW) {
-        bestscore = -EG_alphabeta_parity(0, board, true, -upper, -lower, false);
+        bestscore = -EG_alphabeta_parity(0, board, -upper, -lower, false);
     } else if (board.n_empties < EG_MEDIUM_HI_TO_LOW) {
         bestscore = -EG_PVS_hash_mobility(0, board, true, -upper, -lower, false);
     } else  if (board.n_empties < EG_DEEP_TO_MEDIUM) {
@@ -2409,7 +2409,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
             } else if (board.n_empties == 3) {
                 score = -board.final_score_3(-upper, -lower);
             } else if (board.n_empties == 4) {
-                score = -board.final_score_4(true, -upper, -lower, false);
+                score = -board.final_score_4(-upper, -lower, false);
             } else {
                 
                 //				//multi_pv PV == true
@@ -2424,7 +2424,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
                 
                 //simple_pv PV == false
                 if (board.n_empties < EG_MEDIUM_TO_SHALLOW)
-                    score = -EG_alphabeta_parity(0, board, false, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_alphabeta_parity(0, board, -lower - VALUE_DISC, -lower, false);
                 else if (board.n_empties < EG_MEDIUM_HI_TO_LOW)
                     score = -EG_PVS_hash_mobility(0, board, false, -lower - VALUE_DISC, -lower, false);
                 else if (board.n_empties < EG_DEEP_TO_MEDIUM)
@@ -2443,7 +2443,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
                     }
                     
                     if (board.n_empties < EG_MEDIUM_TO_SHALLOW)
-                        score = -EG_alphabeta_parity(0, board, true, -upper, -score, false);
+                        score = -EG_alphabeta_parity(0, board, -upper, -score, false);
                     else if (board.n_empties < EG_MEDIUM_HI_TO_LOW)
                         score = -EG_PVS_hash_mobility(0, board, true, -upper, -score, false);
                     else if (board.n_empties < EG_DEEP_TO_MEDIUM)

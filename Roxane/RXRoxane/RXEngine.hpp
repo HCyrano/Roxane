@@ -346,7 +346,7 @@ class RXEngine: public Runnable, public RXHelper {
     int EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
     int EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
     int EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
-    int EG_alphabeta_parity(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
+    int EG_alphabeta_parity(int threadID, RXBitBoard& board, int alpha, int beta, bool passed);
     
     int EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, bool& selective_cutoff, int alpha, const bool passed);
     void EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadID);

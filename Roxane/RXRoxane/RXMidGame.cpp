@@ -1367,12 +1367,9 @@ int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDe
                             return -entry.upper ;
                         }
                         
-                        move->score = -2*VALUE_DISC;
+                        move->score = ((-entry.lower<=alpha)*5-2)*VALUE_DISC;
                         
-                        
-                        if(-entry.lower<=alpha)
-                            move->score = 3*VALUE_DISC;
-                        
+                                            
                     }
 #endif
                     

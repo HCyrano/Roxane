@@ -198,13 +198,13 @@ void generate_flips_##pos(RXMove& move) const \
     
     
     int final_score() const;
-    int final_score_1() const ;
-    int final_score_2(int alpha, const int beta);
-    int final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2);
-    int final_score_3(int alpha, const int beta);
-    int final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const unsigned int shuf3, const unsigned int empties3);
-    int	final_score_4(const bool pv, int alpha, int beta, const bool passed);
-    int	final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4);
+    int final_score_1() const;
+    int final_score_2(int alpha, const int beta) const;
+    int final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) const;
+    int final_score_3(int alpha, const int beta) const ;
+    int final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const unsigned int shuf3, const unsigned int empties3) const;
+    int	final_score_4(int alpha, int beta, const bool passed) const;
+    int	final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4) const;
     
     std::string cassio_script() const;
     
@@ -400,7 +400,7 @@ inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_play
 }
 
 
-inline int RXBitBoard::final_score_2(int alpha, const int beta) {
+inline int RXBitBoard::final_score_2(int alpha, const int beta) const {
     return final_score_2(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC,  empties_list->next->position,  empties_list->next->next->position)*VALUE_DISC;
 }
 
@@ -630,7 +630,7 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
 
 
 //unroll
-inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) {
+inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) const {
     
     unsigned long long flipped, n_player, n_opponent;
     
@@ -1079,7 +1079,7 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
 }
 
 
-inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) {
+inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) const {
     
     unsigned long long flipped;
     unsigned long long n_player;
@@ -1243,18 +1243,18 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
 #endif
 
 
-inline int RXBitBoard::final_score_3(int alpha, const int beta) {
+inline int RXBitBoard::final_score_3(int alpha, const int beta) const {
     
     unsigned int
     empties3  = (empties_list->next->position << 16);
     empties3 |= (empties_list->next->next->position << 8);
     empties3 |=  empties_list->next->next->next->position;
     
-    return final_score_3(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, 0xE4UL,  empties3)*VALUE_DISC;
+    return final_score_3(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, 0xE4UL, empties3)*VALUE_DISC;
 }
 
 //unroll
-inline int RXBitBoard::final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const unsigned int shuf3, const unsigned int empties3) {
+inline int RXBitBoard::final_score_3(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, int beta, const unsigned int shuf3, const unsigned int empties3) const {
     
     int score, bestscore = UNDEF_SCORE;
     
@@ -1370,7 +1370,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
 ///   - alpha: alpha bound
 ///   - beta: beta bound
 ///   - passed: true if  previous move is pass
-inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const bool passed) {
+inline int RXBitBoard::final_score_4(int alpha, int beta, const bool passed) const {
     
     
 #ifdef USE_STABILITY
@@ -1405,7 +1405,7 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
     int sq_3 = empties_list->next->next->next->position;
     int sq_4 = empties_list->next->next->next->next->position;
     
-    //Edax's sorting on the parity (4 empties square) **Bright
+    //Sorting on the parity (4 empties square) **Bright
     
     // parity sort
     static const unsigned char parity_case[64] = {    /* sq_4sq_3sq_2sq_1 = */
@@ -1420,7 +1420,7 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
     };
 
     
-    static const unsigned int sort4_shuf[] = {    // 4.5.5: use shuffle mask in non-simd version too.
+    static const unsigned int sort4_shuf[] = {
         0x3978b4e4,    //  0: 1(x1) 3(x2 x3 x4),      1(x1) 1(x2) 2(x3 x4), 1 1 1 1, 4        x4x1x2x3-x3x1x2x4-x2x1x3x4-x1x2x3x4
         0x3978e4b4,    //  1: 1(x2) 3(x1 x3 x4)       x4x1x2x3-x3x1x2x4-x1x2x3x4-x2x1x3x4
         0x39b4e478,    //  2: 1(x3) 3(x1 x2 x4)       x4x1x2x3-x2x1x3x4-x1x2x3x4-x3x1x2x4
@@ -1450,7 +1450,7 @@ inline int RXBitBoard::final_score_4(const bool pv, int alpha, int beta, const b
     return final_score_4(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, passed, shuf4, empties4)*VALUE_DISC;
 }
 
-inline int RXBitBoard::final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4) {
+inline int RXBitBoard::final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4) const {
     
     
     int score, bestscore = UNDEF_SCORE;
