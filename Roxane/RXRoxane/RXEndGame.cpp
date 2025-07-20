@@ -241,7 +241,7 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
     
     if(bestmove != PASS) {
         
-        RXMove move = threads[threadID]._move[board.n_empties][1];
+        RXMove& move = threads[threadID]._move[board.n_empties][1];
         
         if(bestmove != NOMOVE) {
             
@@ -1523,7 +1523,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                     
                     int lower_probcut = -MAX_SCORE;
                     int upper_probcut =  MAX_SCORE;
-                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-(1+(selectivity == NO_SELECT))), (8+(board.n_empties & 0x1UL)), 0, (lower+upper)/2, lower_probcut, upper_probcut);
+                    probcut_bounds(board, std::max(EG_HIGH_SELECT, std::min(selectivity-1, NO_SELECT-2)), (8+(board.n_empties & 0x1UL)), 0, (lower+upper)/2, lower_probcut, upper_probcut);
                     
                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
                         
@@ -1547,27 +1547,27 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                                 eval_move = -alphabeta_last_three_ply(threadID, sBoard, -MAX_SCORE, -lower_probcut, false);
                             } else {
                                 
-                                RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
-                                
                                 int bestscore = UNDEF_SCORE; //masquage
+                                RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+
                                 const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[o], board.discs[p]);
-                                for(RXSquareList* empties = board.empties_list->next; bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
-                                    if ((legal_movesBB & 0x1ULL<<empties->position)){
-                                        
-                                        ((board).*(board.generate_flips[empties->position]))(lastMove);
-                                        ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
-                                        board.n_nodes++;
-                                        
-                                        int score = -sBoard.get_score(lastMove);
-                                        if (score>bestscore)
-                                            bestscore = score;
-                                        
-                                        
+                                    for(RXSquareList* empties = board.empties_list->next; bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
+                                        if ((legal_movesBB & 0x1ULL<<empties->position)){
+                                            
+                                            ((board).*(board.generate_flips[empties->position]))(lastMove);
+                                            ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
+                                            board.n_nodes++;
+                                            
+                                            int score = -sBoard.get_score(lastMove);
+                                            if (score>bestscore)
+                                                bestscore = score;
+                                            
+                                            
+                                        }
                                     }
-                                }
-                                
-                                
-                                if(bestscore == UNDEF_SCORE) {
+                                    
+                                    
+                                if(bestscore == UNDEF_SCORE){
                                     //PASS
                                     sBoard.board.do_pass();
                                     bestscore = -sBoard.get_score();

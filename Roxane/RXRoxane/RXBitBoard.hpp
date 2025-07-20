@@ -1400,15 +1400,15 @@ inline int RXBitBoard::final_score_4(int alpha, int beta, const bool passed) con
     
     
     
-    int sq_1 = empties_list->next->position;
-    int sq_2 = empties_list->next->next->position;
-    int sq_3 = empties_list->next->next->next->position;
-    int sq_4 = empties_list->next->next->next->next->position;
+    const int sq_1 = empties_list->next->position;
+    const int sq_2 = empties_list->next->next->position;
+    const int sq_3 = empties_list->next->next->next->position;
+    const int sq_4 = empties_list->next->next->next->next->position;
     
     //Sorting on the parity (4 empties square) **Bright
     
     // parity sort
-    static const unsigned char parity_case[64] = {    /* sq_4sq_3sq_2sq_1 = */
+    static const unsigned char parity_case[64] = {    /* idQuadrant sq_4sq_3sq_2sq_1 = */
         /*0000*/  0, /*0001*/  0, /*0010*/  1, /*0011*/  9, /*0100*/  2, /*0101*/ 10, /*0110*/ 11, /*0111*/  3,
         /*0002*/  0, /*0003*/  0, /*0012*/  0, /*0013*/  0, /*0102*/  4, /*0103*/  4, /*0112*/  5, /*0113*/  5,
         /*0020*/  1, /*0021*/  0, /*0030*/  1, /*0031*/  0, /*0120*/  6, /*0121*/  7, /*0130*/  6, /*0131*/  7,

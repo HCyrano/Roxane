@@ -1011,9 +1011,7 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
         RXMove& move = threads[threadID]._move[board.n_empties][1];
         
         unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
-        
-        if(legal_movesBB) {
-            for(RXSquareList* empties = board.empties_list->next; alpha < beta &&  empties->position != NOMOVE; empties = empties->next) {
+                    for(RXSquareList* empties = board.empties_list->next; alpha < beta &&  empties->position != NOMOVE; empties = empties->next) {
                 if(legal_movesBB & 0x1ULL<<empties->position) {
                     
                     ((board).*(board.generate_flips[empties->position ]))(move);
@@ -1029,7 +1027,7 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
                 }
             }
             
-        } else {
+        if(bestscore == UNDEF_SCORE){
             
             if(passed) {
                 board.n_nodes--;

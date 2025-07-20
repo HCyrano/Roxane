@@ -250,6 +250,8 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                 else
                     probcut_bounds(board, MG_SELECT, (6 - (depth & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 
+                upper_probcut = std::min(static_cast<int>(MAX_SCORE), 2*upper_probcut-alpha); // 2*upper_probcut-alpha == beta + 2*sigma
+                
                 for(; iter != NULL; iter = iter->next) {
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                     
@@ -259,53 +261,53 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                     if(depth>(endgame? 17:19)) {
                         
                         if((depth & 0x1UL) == 0)
-                            eval_move = -PVS_last_ply(threadID, sBoard, 6, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -PVS_last_ply(threadID, sBoard, 6, -upper_probcut, -lower_probcut, false);
                         else
-                            eval_move = -PVS_last_ply(threadID, sBoard, 5, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -PVS_last_ply(threadID, sBoard, 5, -upper_probcut, -lower_probcut, false);
                         
                     } else if(depth>(endgame? 11:13)) {
                         
                         if((depth & 0x1UL) == 0)
-                            eval_move = -PVS_last_ply(threadID, sBoard, 4, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -PVS_last_ply(threadID, sBoard, 4, -upper_probcut, -lower_probcut, false);
                         else
-                            eval_move = -alphabeta_last_three_ply(threadID, sBoard, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                         
                     } else if(depth>7) {
                         
                         if((depth & 0x1UL) == 0)
-                            eval_move = -alphabeta_last_two_ply(threadID, sBoard, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                         else
-                            eval_move = -alphabeta_last_three_ply(threadID, sBoard, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                         
                     } else {
                         
                         if((depth & 0x1UL) == 0) {
                             
-                            eval_move = -alphabeta_last_two_ply(threadID, sBoard, -MAX_SCORE, -lower_probcut, false);
+                            eval_move = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                             
                         } else {
                             
-                            RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
                             
                             int bestscore = UNDEF_SCORE; //masquage
-                            
+                            RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+
                             const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[o], board.discs[p]);
-                            for(RXSquareList* empties = board.empties_list->next;bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
-                                if(legal_movesBB & 0x1ULL<<empties->position) {
-                                    ((board).*(board.generate_flips[empties->position]))(lastMove);
-                                    ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
-                                    board.n_nodes++;
-                                    
-                                    int score = -sBoard.get_score(lastMove);
-                                    if (score>bestscore) {
-                                        bestscore = score;
+                                for(RXSquareList* empties = board.empties_list->next;bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
+                                    if(legal_movesBB & 0x1ULL<<empties->position) {
+                                        ((board).*(board.generate_flips[empties->position]))(lastMove);
+                                        ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
+                                        board.n_nodes++;
+                                        
+                                        int score = -sBoard.get_score(lastMove);
+                                        if (score>bestscore) {
+                                            bestscore = score;
+                                        }
+                                        
                                     }
-                                    
                                 }
-                            }
-                            
-                            
-                            if(bestscore == UNDEF_SCORE) {
+                                
+                                
+                            if(bestscore == UNDEF_SCORE ){
                                 //PASS
                                 sBoard.board.do_pass();
                                 bestscore = -sBoard.get_score();
@@ -322,7 +324,7 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                     
                     iter->score -= eval_move;
                     
-                    if(iter->score <= -(2*upper_probcut-alpha)) { // ==  -(beta + 2*sigma)
+                    if(iter->score <= -upper_probcut) {
                         //good move    "probable beta cut"    study in first
                         iter->score -= 12*VALUE_DISC;
                     }
@@ -338,9 +340,9 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
                             mobility = 3*mobility/2;
                             corner_stability = corner_stability/2;
                         } /* else if(depth <= 5) {
-                            mobility = 7*mobility/4;
-                            corner_stability = 3*corner_stability/4;
-                        }*/
+                           mobility = 7*mobility/4;
+                           corner_stability = 3*corner_stability/4;
+                           }*/
                         
                         iter->score += mobility - corner_stability;
                     }
@@ -400,25 +402,26 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 
                 if(depth == 2) {
                     
-                    RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
                     
                     int bestscore_1 = UNDEF_SCORE;
+                    RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+
                     
                     const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
-                    for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
-                        if(legal_movesBB & 0x1ULL<<empties->position) {
-                            ((board).*(board.generate_flips[empties->position]))(lastMove);
-                            ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                            
-                            board.n_nodes++;
-                            
-                            int score= -sBoard.get_score(lastMove);
-                            if (score>bestscore_1)
-                                bestscore_1 = score;
-                            
-                        }
-                    
-                    if(bestscore_1 == UNDEF_SCORE) {
+                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
+                            if(legal_movesBB & 0x1ULL<<empties->position) {
+                                ((board).*(board.generate_flips[empties->position]))(lastMove);
+                                ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
+                                
+                                board.n_nodes++;
+                                
+                                int score= -sBoard.get_score(lastMove);
+                                if (score>bestscore_1)
+                                    bestscore_1 = score;
+                                
+                            }
+                        
+                    if(bestscore_1 == UNDEF_SCORE){
                         //PASS
                         sBoard.board.do_pass();
                         bestscore_1 = -sBoard.get_score();
@@ -468,27 +471,28 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
                 sBoard.do_move(*iter);
                 
                 if(depth == 2) {
-                    RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
                     
                     int bestscore_1 = UNDEF_SCORE;
-                    
+                    RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+
                     const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
-                    for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
-                        if(legal_movesBB & 0x1ULL<<empties->position) {
-                            ((board).*(board.generate_flips[empties->position]))(lastMove);
-                            ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                            board.n_nodes++;
-                            
-                            
-                            int score= -sBoard.get_score(lastMove);
-                            if (score> bestscore_1) {
-                                bestscore_1 = score;
+                        
+                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
+                            if(legal_movesBB & 0x1ULL<<empties->position) {
+                                ((board).*(board.generate_flips[empties->position]))(lastMove);
+                                ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
+                                board.n_nodes++;
+                                
+                                
+                                int score= -sBoard.get_score(lastMove);
+                                if (score> bestscore_1) {
+                                    bestscore_1 = score;
+                                }
+                                
+                                
                             }
-                            
-                            
-                        }
-                    
-                    if(bestscore_1 == UNDEF_SCORE) {
+                        
+                    if(bestscore_1 == UNDEF_SCORE){
                         //PASS
                         sBoard.board.do_pass();
                         bestscore_1 = -sBoard.get_score();
@@ -709,7 +713,7 @@ int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int al
                         
                         sBoard.do_move(*iter);
                         
-                        if (depth == 6) { 
+                        if (depth == 6) {
                             
                             // [endgame n_empties >= 30]
                             
@@ -719,23 +723,25 @@ int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int al
                             
                             // [endgame n_empties >= 28]
                             
-                            RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
-                            const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
                             int bestscore1 = UNDEF_SCORE;
-                            for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next)
-                                if(legal_movesBB & 0x1ULL<<empties->position) {
-                                    ((board).*(board.generate_flips[empties->position]))(lastMove);
-                                    ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                                    board.n_nodes++;
-                                    
-                                    int score= -sBoard.get_score(lastMove);
-                                    if (score>bestscore1) {
-                                        bestscore1 = score;
+                            RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+
+                            const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+                                
+                                for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next)
+                                    if(legal_movesBB & 0x1ULL<<empties->position) {
+                                        ((board).*(board.generate_flips[empties->position]))(lastMove);
+                                        ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
+                                        board.n_nodes++;
+                                        
+                                        int score= -sBoard.get_score(lastMove);
+                                        if (score>bestscore1) {
+                                            bestscore1 = score;
+                                        }
+                                        
                                     }
-                                    
-                                }
-                            
-                            if(bestscore1 == UNDEF_SCORE) {
+                                
+                            if(bestscore1 == UNDEF_SCORE){
                                 //PASS
                                 sBoard.board.do_pass();
                                 bestscore1 = -sBoard.get_score();
@@ -998,80 +1004,80 @@ int RXEngine::alphabeta_last_two_ply(int threadID, RXBBPatterns& sBoard, int alp
     
     //other moves
     const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
-    for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
-        if(legal_movesBB & 0x1ULL<<empties->position) {
-            ((board).*(board.generate_flips[empties->position]))(move);
-            ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(move);
-            
-            int opponent = board.player ^ 1;
-            
-            board.discs[board.player] |= (move.flipped | move.square);
-            board.discs[opponent] ^= move.flipped;
-            
-            board.n_empties--;
-            
-            board.n_nodes++;
-            board.player = opponent;
-            
-            empties->previous->next = empties->next;
-            
-            move.undo_pattern = sBoard.pattern;
-            sBoard.pattern = move.pattern;
-            
-            //*************************************************************************************************
-            // Last ply
-            //*************************************************************************************************
-            int bestscore_1 = UNDEF_SCORE;
-            const unsigned long long legal_movesBB_1 = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
-            for(RXSquareList* empties_1 = board.empties_list->next; bestscore_1 < -alpha && empties_1->position != NOMOVE; empties_1 = empties_1->next) {
-                if(legal_movesBB_1 & 0x1ULL<<empties_1->position) {
-                    ((board).*(board.generate_flips[empties_1->position]))(lastMove);
-                    ((sBoard).*(sBoard.update_patterns[empties_1->position][board.player]))(lastMove);
-                    board.n_nodes++;
-                    
-                    int score = -sBoard.get_score(lastMove);
-                    if(score>bestscore_1) {
-                        bestscore_1 = score;
+        for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
+            if(legal_movesBB & 0x1ULL<<empties->position) {
+                ((board).*(board.generate_flips[empties->position]))(move);
+                ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(move);
+                
+                int opponent = board.player ^ 1;
+                
+                board.discs[board.player] |= (move.flipped | move.square);
+                board.discs[opponent] ^= move.flipped;
+                
+                board.n_empties--;
+                
+                board.n_nodes++;
+                board.player = opponent;
+                
+                empties->previous->next = empties->next;
+                
+                move.undo_pattern = sBoard.pattern;
+                sBoard.pattern = move.pattern;
+                
+                //*************************************************************************************************
+                // Last ply
+                //*************************************************************************************************
+                int bestscore_1 = UNDEF_SCORE;
+                const unsigned long long legal_movesBB_1 = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+                    for(RXSquareList* empties_1 = board.empties_list->next; bestscore_1 < -alpha && empties_1->position != NOMOVE; empties_1 = empties_1->next) {
+                        if(legal_movesBB_1 & 0x1ULL<<empties_1->position) {
+                            ((board).*(board.generate_flips[empties_1->position]))(lastMove);
+                            ((sBoard).*(sBoard.update_patterns[empties_1->position][board.player]))(lastMove);
+                            board.n_nodes++;
+                            
+                            int score = -sBoard.get_score(lastMove);
+                            if(score>bestscore_1) {
+                                bestscore_1 = score;
+                            }
+                        }
                     }
+                    
+                if(bestscore_1 == UNDEF_SCORE){
+                    //PASS
+                    sBoard.board.do_pass();
+                    bestscore_1 = -sBoard.get_score();
+                    sBoard.board.do_pass();
+                    
+                }
+                /***************************************************************************************************/
+                
+                int score = -bestscore_1;
+                
+                opponent = board.player ^ 1;
+                
+                sBoard.pattern = move.undo_pattern;
+                
+                empties->previous->next = empties;
+                
+                board.n_empties++;
+                
+                board.discs[opponent] ^= (move.flipped | move.square);
+                board.discs[board.player] |= move.flipped;
+                
+                board.player = opponent;
+                
+                if(score>=beta)
+                    return score;
+                
+                if(score>bestscore) {
+                    bestscore = score;
+                    if(bestscore>alpha)
+                        alpha = bestscore;
                 }
             }
-            
-            if(bestscore_1 == UNDEF_SCORE) {
-                //PASS
-                sBoard.board.do_pass();
-                bestscore_1 = -sBoard.get_score();
-                sBoard.board.do_pass();
-                
-            }
-            /***************************************************************************************************/
-            
-            int score = -bestscore_1;
-            
-            opponent = board.player ^ 1;
-            
-            sBoard.pattern = move.undo_pattern;
-            
-            empties->previous->next = empties;
-            
-            board.n_empties++;
-            
-            board.discs[opponent] ^= (move.flipped | move.square);
-            board.discs[board.player] |= move.flipped;
-            
-            board.player = opponent;
-            
-            if(score>=beta)
-                return score;
-            
-            if(score>bestscore) {
-                bestscore = score;
-                if(bestscore>alpha)
-                    alpha = bestscore;
-            }
         }
-    }
-    
-    if(bestscore == UNDEF_SCORE) {	//PASS
+        
+    if(bestscore == UNDEF_SCORE ){	//PASS
         
         if(passed) {
             board.n_nodes--;
@@ -1085,19 +1091,20 @@ int RXEngine::alphabeta_last_two_ply(int threadID, RXBBPatterns& sBoard, int alp
             //*************************************************************************************************
             int bestscore_1 = UNDEF_SCORE;
             const unsigned long long legal_movesBB_1 = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
-            for(RXSquareList* empties_1 = board.empties_list->next; bestscore_1 < -alpha && empties_1->position != NOMOVE; empties_1 = empties_1->next) {
-                if(legal_movesBB_1 & 0x1ULL<<empties_1->position) {
-                    ((board).*(board.generate_flips[empties_1->position]))(lastMove);
-                    ((sBoard).*(sBoard.update_patterns[empties_1->position][board.player]))(lastMove);
-                    board.n_nodes++;
-                    
-                    int score = -sBoard.get_score(lastMove);
-                    if(score>bestscore_1)
-                        bestscore_1 = score;
+            if(legal_movesBB_1) {
+                for(RXSquareList* empties_1 = board.empties_list->next; bestscore_1 < -alpha && empties_1->position != NOMOVE; empties_1 = empties_1->next) {
+                    if(legal_movesBB_1 & 0x1ULL<<empties_1->position) {
+                        ((board).*(board.generate_flips[empties_1->position]))(lastMove);
+                        ((sBoard).*(sBoard.update_patterns[empties_1->position][board.player]))(lastMove);
+                        board.n_nodes++;
+                        
+                        int score = -sBoard.get_score(lastMove);
+                        if(score>bestscore_1)
+                            bestscore_1 = score;
+                    }
                 }
-            }
-            
-            if(bestscore_1 == UNDEF_SCORE) {		//PASS
+                
+            } else {		//PASS
                 board.n_nodes--;
                 bestscore_1 = sBoard.final_score();
             }
@@ -1357,15 +1364,15 @@ void RXEngine::resume() {
 
 
 // void RXEngine::verif_sBoard(RXSearch& s) {
-// 
+//
 // RXBBPatterns& sBoard = s.sBoard;
 // RXBitBoard& board = sBoard.board;
 //
 // std::cout << sBoard << std::endl;
 //
-//     
+//
 // std::cout << "pions stables = " << board.get_edge_stability(board.player) << std::endl;
-// 
+//
 // std::cout << std::endl;
 // }
 
@@ -1744,7 +1751,7 @@ void RXEngine::run() {
         
         //        int lower = list->next->score - 8*VALUE_DISC;
         //        int upper = list->next->score + 8*VALUE_DISC;
-        //        
+        //
         //        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, lower, upper, list1);
         
         sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, -MAX_SCORE, MAX_SCORE, list1);
@@ -2284,13 +2291,13 @@ void RXEngine::wake_sleeping_threads() {
 
 
 //void RXEngine::wake_sleeping_thread(unsigned int threadID) {
-//    
-//    
+//
+//
 //    assert(allThreadsShouldSleep == false);
-//    
+//
 //    pthread_cond_signal(&(threads[threadID].cond));
-//    
-//    
+//
+//
 //}
 
 // idle_thread_exists() tries to find an idle thread which is available as
