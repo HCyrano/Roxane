@@ -1548,9 +1548,11 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                             } else {
                                 
                                 int bestscore = UNDEF_SCORE; //masquage
-                                RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
 
                                 const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[o], board.discs[p]);
+                                if(legal_movesBB) {
+                                    RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+
                                     for(RXSquareList* empties = board.empties_list->next; bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
                                         if ((legal_movesBB & 0x1ULL<<empties->position)){
                                             
@@ -1567,7 +1569,7 @@ int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, con
                                     }
                                     
                                     
-                                if(bestscore == UNDEF_SCORE){
+                                } else {
                                     //PASS
                                     sBoard.board.do_pass();
                                     bestscore = -sBoard.get_score();
