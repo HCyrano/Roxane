@@ -248,12 +248,13 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, in
 #ifdef USE_SPLIT_AT_ROOT
             
             // Split?
-            if(activeThreads > 1 && iter->next != NULL && depth>MIN_DEPTH_SPLITPOINT && !abort.load()
+            if(activeThreads > 1 && iter->next != NULL && depth>(MIN_DEPTH_SPLITPOINT+3) && !abort.load()
                && !thread_should_stop(0) && idle_thread_exists(0)
                && split(sBoard, true, 0, depth, selectivity, selective_cutoff,
-                        lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::MID_ROOT))
+                        lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::MID_ROOT)) {
                 
                 break;
+            }
 #endif
             
             sBoard.do_move(*iter);
@@ -369,18 +370,18 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         score = -MG_PVS_deep(threadID, sBoard, false, sp->selectivity, depth-1, child_selective_cutoff, -alpha-VALUE_DISC, -alpha, false); //change
         
-        if (!abort.load()  && alpha < score && score < sp->beta) {
+        if (!(abort.load() || thread_should_stop(threadID)) && alpha < score && score < sp->beta) {
             
             extra_time++;
             
-            if(dependent_time && board.n_empties>13)
+            if(dependent_time && depth>13)
                 manager->sendMsg("         " + RXMove::index_to_coord(move->position) + " maybe better? ");
             
             score = -MG_PVS_deep(threadID, sBoard, true, sp->selectivity, depth-1, child_selective_cutoff, -sp->beta, (child_selective_cutoff? -alpha : -score), false);
             
             
             if(search_client == RXSearch::kGGSMode && !(abort.load() || thread_should_stop(threadID))) {    // GGS mode
-                if(dependent_time && board.n_empties>13 && score <= sp->bestscore)
+                if(dependent_time && depth>13 && score <= sp->bestscore)
                     manager->sendMsg("         " + RXMove::index_to_coord(move->position) + " refuted ");
             }
             
@@ -407,7 +408,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
                 sp->bestscore = score;
                 sp->bestmove = move->position;
                 
-                if(dependent_time && board.n_empties>13)
+                if(dependent_time && depth>13)
                     manager->sendMsg(showBestmove(depth, sp->selectivity, sp->alpha, sp->beta, sp->bestscore, sp->bestmove));
                 
                 if(score > sp->alpha) {

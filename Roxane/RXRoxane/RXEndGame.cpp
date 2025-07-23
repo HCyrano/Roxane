@@ -824,7 +824,7 @@ int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool
     RXHashValue entry;
     if(hTable->get(hash_code, type_hashtable, entry)) {
         
-        if(!pv &&  entry.selectivity == NO_SELECT && entry.depth >= board.n_empties) {
+        if(!pv && entry.selectivity == NO_SELECT && entry.depth >= board.n_empties) {
             
             if (upper > entry.upper) {
                 upper = entry.upper;
@@ -2572,7 +2572,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         int score = -EG_PVS_deep(threadID, sBoard, false, sp->selectivity, child_selective_cutoff, -alpha - VALUE_DISC, -alpha, false);
         
-        if (!abort.load()  && alpha < score && score < sp->beta) {
+        if (!(abort.load() || thread_should_stop(threadID)) && alpha < score && score < sp->beta) {
             
             extra_time++;
             
