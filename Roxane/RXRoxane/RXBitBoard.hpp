@@ -706,7 +706,6 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
     
     // if no move were available
     if(bestscore == UNDEF_SCORE) {
-        n_nodes++; //PASS
         
         if((flipped = do_flips[idSquare1](discs_opponent, discs_player))) {
             n_nodes++;
@@ -776,7 +775,6 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
         
         if(bestscore == UNDEF_SCORE) {
             
-            n_nodes--; //undo PASS
             bestscore = 62 - 2*__builtin_popcountll(discs_player);
             if(bestscore>0)
                 bestscore+=2;
@@ -1160,7 +1158,6 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
     
     // if no move were available
     if(bestscore == UNDEF_SCORE) {
-        n_nodes++; //PASS
         
         if((flipped = do_flips[idSquare1](discs_opponent, discs_player))) {
             n_nodes++;

@@ -227,7 +227,7 @@ unsigned int RXEngine::selectivity_to_confidence(int s) {
 }
 
 
-void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list) {
+void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list) {
     
     RXBitBoard& board = sBoard.board;
     
@@ -374,7 +374,7 @@ void RXEngine::sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard
     
 }
 
-int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
+int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
     
     RXBitBoard& board = sBoard.board;
     
@@ -632,7 +632,7 @@ int RXEngine::probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, co
 }
 
 //  PVS:  3 < depth <= 6
-int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int alpha, int beta, bool passed) {
+int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, int depth, int alpha, const int beta, const bool passed) {
     
     
     RXBitBoard& board = sBoard.board;
@@ -886,7 +886,7 @@ int RXEngine::PVS_last_ply(int threadID, RXBBPatterns& sBoard, int depth, int al
 
 
 
-int RXEngine::alphabeta_last_three_ply(int threadID, RXBBPatterns& sBoard, int alpha, int beta, bool passed) {
+int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed) {
     
     RXBitBoard& board = sBoard.board;
     const unsigned long long  hash_code = board.hashcode();
@@ -1001,7 +1001,7 @@ int RXEngine::alphabeta_last_three_ply(int threadID, RXBBPatterns& sBoard, int a
 
 
 
-int RXEngine::alphabeta_last_two_ply(int threadID, RXBBPatterns& sBoard, int alpha, int beta, bool passed) {
+int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed) {
     
     RXBitBoard& board = sBoard.board;
     
@@ -1780,8 +1780,8 @@ void RXEngine::run() {
         hTable_shallow->new_search(search_sBoard.board.n_empties);
         
         hTable_PV->new_search(search_sBoard.board.player, search_sBoard.board.n_empties);
-        
         hTable->new_search(search_sBoard.board.player, search_sBoard.board.n_empties);
+        
         hTable->protectPV(search_sBoard.board);
         
         
@@ -1810,6 +1810,7 @@ void RXEngine::run() {
         }
         
         if (!abort.load() && search_depth > (search_sBoard.board.n_empties-10)) {
+            
             //coherence selectivty et end_selectivity
             int end_selectivity = search_depth < search_sBoard.board.n_empties? RXEngine::EG_HIGH_SELECT:search_selectivity;
             

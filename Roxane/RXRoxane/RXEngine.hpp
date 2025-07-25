@@ -279,12 +279,12 @@ class RXEngine: public Runnable, public RXHelper {
     
     void probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const;
     
-    void sort_moves(int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
+    void sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
     
-    int probcut(int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove);
-    int PVS_last_ply(int threadID, RXBBPatterns& sBoard, const int depth, int alpha, int beta, bool passed);
-    int alphabeta_last_three_ply(int threadID, RXBBPatterns& sBoard, int alpha, int beta, bool passed);
-    int alphabeta_last_two_ply(int threadID, RXBBPatterns& sBoard, int alpha, int beta, bool passed);
+    int probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove);
+    int PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, const int depth, int alpha, const int beta, const bool passed);
+    int alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed);
+    int alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed);
     
     /*--------------------------------------------     MidGame part (RXMidGame.cpp)    --------------------------------------------*/ 
     
@@ -305,15 +305,15 @@ class RXEngine: public Runnable, public RXHelper {
     void iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth, const int max_depth);
     void aspiration_search(RXBBPatterns& sBoard, const int depth, RXMove* list);
     
-    void MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, int beta, RXMove* list);
+    void MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alpha, const int beta, RXMove* list);
     void MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
     
-    int MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, int beta, const bool passed);
+    int MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, const int beta, const bool passed);
     void MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID);
     
-    int MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, const int depth, int alpha, int beta, const bool passed);
+    int MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int depth, int alpha, const int beta, const bool passed);
     
-    int MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, bool& selective_cutoff, int alpha, const bool passed);
+    int MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, bool& selective_cutoff, const int alpha, const bool passed);
     void MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int threadID);
     
     
@@ -334,21 +334,21 @@ class RXEngine: public Runnable, public RXHelper {
     
     void EG_driver(RXBBPatterns& board, int selectivity, int end_selectivity, RXMove* list);
     
-    void EG_PVS_root(RXBBPatterns& board, const int selectivity, int alpha, int beta, RXMove* list);
+    void EG_PVS_root(RXBBPatterns& board, const int selectivity, int alpha, const int beta, RXMove* list);
     void EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
     
-    int	EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, bool& selective_cutoff, int alpha, int beta, bool passed);
+    int	EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, bool& selective_cutoff, int alpha, const int beta, const bool passed);
     void EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID);
     
-    int EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool pv, int alpha, int beta, bool passed);
+    int EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, int alpha, const int beta, const bool passed);
     void EG_SP_search_ETC_Mobility(RXSplitPoint* sp, const unsigned int threadID);
     
-    int EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
-    int EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
-    int EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed);
-    int EG_alphabeta_parity(int threadID, RXBitBoard& board, int alpha, int beta, bool passed);
+    int EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed);
+    int EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed);
+    int EG_alphabeta_hash_parity(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed);
+    int EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board, int alpha, int beta, const bool passed);
     
-    int EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, bool& selective_cutoff, int alpha, const bool passed);
+    int EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, bool& selective_cutoff, const int alpha, const bool passed);
     void EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadID);
     
     /*--------------------------------------------     Multithreads part (RXEngine.cpp)    --------------------------------------------*/ 

@@ -56,7 +56,7 @@ const int RXEngine::MIN_DEPTH_USE_ENDCUT = 16;
  * \return        the final score, as a disc difference.
  */
 
-int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, int alpha, int beta, bool passed) {
+int RXEngine::EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board, int alpha, int beta, const bool passed) {
     
     int score, bestscore = UNDEF_SCORE;
     
@@ -185,7 +185,7 @@ int RXEngine::EG_alphabeta_parity(int threadID, RXBitBoard& board, int alpha, in
 
 
 //unused [if hashmove at 7 empties]
-int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed) {
+int RXEngine::EG_alphabeta_hash_parity(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed) {
     
     
     int score, bestscore = UNDEF_SCORE;
@@ -347,7 +347,7 @@ int RXEngine::EG_alphabeta_hash_parity(int threadID, RXBitBoard& board, const bo
 }
 
 //7 empty
-int RXEngine::EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed) {
+int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed) {
     
     int bestscore = UNDEF_SCORE;
     int lower = alpha;
@@ -547,7 +547,7 @@ int RXEngine::EG_alphabeta_hash_mobility(int threadID, RXBitBoard& board, const 
  * \param passed     a flag indicating if previous move was a pass.
  * \return the final score, as a disc difference.
  */
-int RXEngine::EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool pv, int alpha, int beta, bool passed)
+int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed)
 {
     
     int bestmove = NOMOVE;
@@ -804,7 +804,7 @@ int RXEngine::EG_PVS_hash_mobility(int threadID, RXBitBoard& board, const bool p
  * \param passed     a flag indicating if previous move was a pass.
  * \return the final score, as a disc difference.
  */
-int RXEngine::EG_PVS_ETC_mobility(int threadID, RXBBPatterns& sBoard, const bool pv, int alpha, int beta, bool passed)
+int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, int alpha, const int beta, const bool passed)
 {
     
     //	assert(alpha>=-64*VALUE_DISC && beta<=64*VALUE_DISC);
@@ -1259,7 +1259,7 @@ void RXEngine::EG_SP_search_ETC_Mobility(RXSplitPoint* sp, const unsigned int th
 
 
 
-int RXEngine::EG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, bool& selective_cutoff, int alpha, int beta, bool passed) {
+int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, bool& selective_cutoff, int alpha, const int beta, const bool passed) {
     
     
     if(abort.load() || thread_should_stop(threadID))
@@ -1895,7 +1895,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
 /*
  Null Window Search  + XProbCut
  */
-int RXEngine::EG_NWS_XEndCut(int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, bool& selective_cutoff, int alpha, const bool passed) {
+int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, bool& selective_cutoff, const int alpha, const bool passed) {
     
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
@@ -2314,7 +2314,7 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
  * \param beta       	upper bound.
  * \param list   		List of legal moves (should actually contain moves !).
  */
-void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alpha, int beta, RXMove* list)
+void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alpha, const int beta, RXMove* list)
 {
     
     //	assert(alpha>=-64*VALUE_DISC && beta<=64*VALUE_DISC);

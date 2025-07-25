@@ -195,7 +195,7 @@ void RXEngine::aspiration_search(RXBBPatterns& sBoard, const int depth, RXMove* 
 //
 // root
 
-void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  int alpha, int beta, RXMove* list) {
+void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alpha, const int beta, RXMove* list) {
     
     //assert(alpha>=-MAX_SCORE && beta<=MAX_SCORE);
     
@@ -438,7 +438,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
 }
 
 
-int RXEngine::MG_PVS_deep(int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, int beta, const bool passed) {
+int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, const int beta, const bool passed) {
     
     //assert(alpha>=-MAX_SCORE && beta<=MAX_SCORE);
     
@@ -999,7 +999,7 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
 }
 
 
-int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, const int depth, int alpha, int beta, const bool passed) {
+int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int depth, int alpha, const int beta, const bool passed) {
     
     RXBitBoard& board = sBoard.board;
     int bestscore = UNDEF_SCORE;
@@ -1070,9 +1070,7 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
     
     int upper = beta;
     int lower = alpha;
-    
-    
-    
+        
     RXHashValue entry;
     if(hTable->get(hash_code, type_hashtable, entry)) {
         
@@ -1244,7 +1242,7 @@ int RXEngine::MG_PVS_shallow(int threadID, RXBBPatterns& sBoard, const bool pv, 
 /*
  Null Window Search  + XProbCut
  */
-int RXEngine::MG_NWS_XProbCut(int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, bool& selective_cutoff, int alpha, const bool passed) {
+int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, bool& selective_cutoff, const int alpha, const bool passed) {
     
     //assert(alpha>=-MAX_SCORE);
     
