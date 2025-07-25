@@ -860,13 +860,11 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
     if(bestscore == UNDEF_SCORE) {
         
         if(passed) {
-            board.n_nodes--;
             alpha = -MAX_SCORE;
             upper = MAX_SCORE;
             bestmove = NOMOVE;
             bestscore = sBoard.final_score();
         } else {
-            board.n_nodes++;
             board.do_pass();
             if(depth == CHECK_TO_LAST_THREE)
                 bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper, -lower, true);
@@ -979,13 +977,11 @@ int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns
     if(bestscore == UNDEF_SCORE) {
         
         if(passed) {
-            board.n_nodes--;
             alpha = -MAX_SCORE;
             upper = MAX_SCORE;
             bestmove = NOMOVE;
             bestscore = sBoard.final_score();
         } else {
-            board.n_nodes++;
             board.do_pass();
             bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper, -lower, true);
             board.do_pass();
@@ -1092,10 +1088,8 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
     } else {	//PASS
         
         if(passed) {
-            board.n_nodes--;
             bestscore = sBoard.final_score();
         } else {
-            board.n_nodes++;
             
             board.player ^=1;
             //*************************************************************************************************
@@ -1117,7 +1111,6 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 }
                 
             } else {		//PASS
-                board.n_nodes--;
                 bestscore_1 = sBoard.final_score();
             }
             /***************************************************************************************************/

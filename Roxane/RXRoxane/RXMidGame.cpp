@@ -593,13 +593,11 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if (list->next == NULL) {
         
         if (passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {
             board.do_pass();
-            board.n_nodes++;
             
             if(depth <= MG_DEEP_TO_SHALLOW)
                 bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, true);
@@ -1035,10 +1033,8 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
         } else {
             
             if(passed) {
-                board.n_nodes--;
                 bestscore = sBoard.final_score();
             } else {
-                board.n_nodes++;
                 board.do_pass();
                 
                 bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -beta, -alpha, true);
@@ -1214,13 +1210,11 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(bestscore == UNDEF_SCORE) {
         
         if(passed) {
-            board.n_nodes--;
             alpha = -MAX_SCORE;
             upper = MAX_SCORE;
             bestmove = NOMOVE;
             bestscore = sBoard.final_score();
         } else {
-            board.n_nodes++;
             board.do_pass();
             
             bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, true);
@@ -1396,12 +1390,10 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(list->next == NULL) {
         //PASS
         if(passed) {
-            board.n_nodes--;
             bestscore = sBoard.final_score();
             hTable->update(hash_code, false, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empties, -MAX_SCORE, MAX_SCORE,  bestscore, bestmove);
             return bestscore;
         } else {
-            board.n_nodes++;
             board.do_pass();
             if(depth > MIN_DEPTH_USE_PROBCUT) {
                 bestscore = -MG_NWS_XProbCut(threadID, sBoard, pvDev, selectivity, depth-1, child_selective_cutoff, -alpha-VALUE_DISC, true);

@@ -73,7 +73,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "2.9.6b";
+    std::string version = "2.9.6c";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;

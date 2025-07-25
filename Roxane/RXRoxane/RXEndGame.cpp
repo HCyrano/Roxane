@@ -168,15 +168,11 @@ int RXEngine::EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board
     } else {
         
         if(passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
         } else {
-            //update/restore player
-            board.player ^= 1;
-            board.n_nodes++;
+            board.do_pass();
             bestscore = -EG_alphabeta_parity(threadID, board, -beta, -alpha, true);
-            //update/restore player
-            board.player ^= 1;
+            board.do_pass();
         }
     }
     
@@ -327,13 +323,11 @@ int RXEngine::EG_alphabeta_hash_parity(const unsigned int threadID, RXBitBoard& 
     //if PASS
     if (bestscore == UNDEF_SCORE) {
         if (passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {
             board.do_pass();
-            board.n_nodes++;
             bestscore = -EG_alphabeta_hash_parity(threadID, board, pv, -upper, -lower, true);
             board.do_pass();
             bestmove = PASS;
@@ -514,13 +508,11 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
     //if PASS
     if (bestscore == UNDEF_SCORE) {
         if (passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {
             board.do_pass();
-            board.n_nodes++;
             bestscore = -EG_alphabeta_hash_mobility(threadID, board, pv, -upper, -lower, true);
             board.do_pass();
             bestmove = PASS;
@@ -771,13 +763,11 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
     
     if (bestscore == UNDEF_SCORE) {
         if (passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {
             board.do_pass();
-            board.n_nodes++;
             bestscore = -EG_PVS_hash_mobility(threadID, board, pv, -upper, -lower, true);
             board.do_pass();
             bestmove = PASS;
@@ -971,13 +961,11 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
     
     if (list->next == NULL) {
         if (passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {
             board.do_pass();
-            board.n_nodes++;
             bestscore = -EG_PVS_ETC_mobility(threadID, sBoard, pv, -upper, -lower, true);
             board.do_pass();
             bestmove = PASS;
@@ -1461,13 +1449,11 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     if (list->next == NULL) {
         if (passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {
             board.do_pass();
-            board.n_nodes++;
             bestscore = -EG_PVS_deep(threadID, sBoard, pv, selectivity, child_selective_cutoff, -upper, -lower, true);
             board.do_pass();
             bestmove = PASS;
@@ -2093,12 +2079,10 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(list->next == NULL) {
         //PASS
         if(passed) {
-            board.n_nodes--;
             bestscore = board.final_score();
             hTable->update(hash_code, false, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empties, -MAX_SCORE, MAX_SCORE,  bestscore, bestmove);
             return bestscore;
         } else {
-            board.n_nodes++;
             board.do_pass();
             bestscore = -EG_NWS_XEndCut(threadID, sBoard, pvDev, selectivity, child_selective_cutoff, -alpha-VALUE_DISC, true);
             board.do_pass();
