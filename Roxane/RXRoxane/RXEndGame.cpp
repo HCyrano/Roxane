@@ -72,7 +72,7 @@ int RXEngine::EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board
 #endif
     
     
-    const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+    const unsigned long long legal_movesBB = board.get_legal_moves();
     
     if(legal_movesBB) {
         
@@ -255,7 +255,7 @@ int RXEngine::EG_alphabeta_hash_parity(const unsigned int threadID, RXBitBoard& 
         
         if(lower < upper) {
             
-            unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+            unsigned long long legal_movesBB = board.get_legal_moves();
             if(bestmove !=NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
             
@@ -420,7 +420,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
         if(lower < upper) {
             
             //for all empty square
-            unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+            unsigned long long legal_movesBB = board.get_legal_moves();
             if(bestmove !=NOMOVE)
                 legal_movesBB ^=  0x1ULL<<bestmove;
             
@@ -631,7 +631,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
         if(lower < upper) {
             
             //for all empty square
-            unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+            unsigned long long legal_movesBB = board.get_legal_moves();
             if(bestmove !=NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
             
@@ -912,7 +912,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
         }
         
         //for all empty square
-        unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+        unsigned long long legal_movesBB = board.get_legal_moves();
         if(bestmove !=NOMOVE)
             legal_movesBB ^= 0x1ULL<<bestmove;
         
@@ -1182,16 +1182,12 @@ void RXEngine::EG_SP_search_ETC_Mobility(RXSplitPoint* sp, const unsigned int th
         
         pthread_mutex_unlock(&(sp->lock));
         
-        board.do_move(*move);
         
-        int alpha = sp->alpha; //local copy
-        /*
-         int score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha - VALUE_DISC, -alpha, false);
-         
-         if (alpha < score && score < sp->beta)
-         score = -EG_PVS_ETC_mobility(threadID, sBoard, sp->pv, -sp->beta, -score, false);
-         */
+        const int alpha = sp->alpha; //local copy
         int score;
+
+        board.do_move(*move);
+
         if (board.n_empties < EG_MEDIUM_HI_TO_LOW) {
             score = -EG_PVS_hash_mobility(threadID, board, false, -alpha - VALUE_DISC, -alpha, false);
             if (alpha < score && score < sp->beta)
@@ -1394,7 +1390,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         
         
         //for other move
-        unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+        unsigned long long legal_movesBB = board.get_legal_moves();
         if(bestmove !=NOMOVE)
             legal_movesBB ^= 0x1ULL<<bestmove;
         
@@ -1803,7 +1799,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
         
         
         int score;
-        int alpha = sp->alpha; //local copy
+        const int alpha = sp->alpha; //local copy
         bool child_selective_cutoff = false;
         
         
@@ -2012,7 +2008,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         }
         
         //for all empty square
-        unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+        unsigned long long legal_movesBB = board.get_legal_moves();
         if(bestmove !=NOMOVE)
             legal_movesBB ^= 0x1ULL<<bestmove;
         
@@ -2234,7 +2230,7 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
         pthread_mutex_unlock(&(sp->lock));
         
         int score;
-        int alpha = sp->alpha; //local copy
+        const int alpha = sp->alpha; //local copy
         bool child_selective_cutoff = false;
         
         if(board.n_empties<=MIN_DEPTH_USE_ENDCUT) {
@@ -2548,7 +2544,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         pthread_mutex_unlock(&(sp->lock));
         
-        int alpha = sp->alpha; //local copy
+        const int alpha = sp->alpha; //local copy
         bool child_selective_cutoff = false;
         
         sBoard.do_move(*move);

@@ -178,6 +178,7 @@ void generate_flips_##pos(RXMove& move) const \
     void moves_producing(RXMove* start) const;
     
     //    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
+    inline unsigned long long get_legal_moves() const;
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
     static int count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs);
@@ -315,6 +316,10 @@ inline void RXBitBoard::undo_move(const RXMove& move) {
 
 inline void RXBitBoard::do_pass() {
     player ^= 1;
+}
+
+inline unsigned long long RXBitBoard::get_legal_moves() const {
+    return get_legal_moves(discs[player], discs[player^1]);
 }
 
 

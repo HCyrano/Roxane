@@ -361,7 +361,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         pthread_mutex_unlock(&(sp->lock));
         
         int score;
-        int alpha = sp->alpha; //local copy
+        const int alpha = sp->alpha; //local copy
         int depth = sp->depth;
         bool child_selective_cutoff = false;
         
@@ -547,7 +547,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         }
         
         //for all empty square
-        unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+        unsigned long long legal_movesBB = board.get_legal_moves();
         if(bestmove != NOMOVE)
             legal_movesBB ^= 0x1ULL<<bestmove;
         
@@ -698,7 +698,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                                     
                                     int bestscore1 = UNDEF_SCORE; //masquage
                                     
-                                    const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+                                    const unsigned long long legal_movesBB = board.get_legal_moves();
                                     if(legal_movesBB) {
                                         
                                         RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
@@ -931,7 +931,7 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
         pthread_mutex_unlock(&(sp->lock));
         
         int score;
-        int alpha = sp->alpha; //local copy
+        const int alpha = sp->alpha; //local copy
         bool child_selective_cutoff = false;
         
         sBoard.do_move(*move);
@@ -1010,7 +1010,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
         
         
         
-        unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+        unsigned long long legal_movesBB = board.get_legal_moves();
         if(legal_movesBB) {
             
             RXMove& move = threads[threadID]._move[board.n_empties][1];
@@ -1068,9 +1068,9 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     int lower = alpha;
         
     RXHashValue entry;
-    if(hTable->get(hash_code, type_hashtable, entry)) {
+    if(!pv && hTable->get(hash_code, type_hashtable, entry)) {
         
-        if(!pv && entry.depth >= depth) {
+        if(entry.depth >= depth) {
             
             if(entry.lower > lower) {
                 
@@ -1119,7 +1119,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
         if(lower<upper) {
             
             
-            unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+            unsigned long long legal_movesBB = board.get_legal_moves();
             if(bestmove != NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
             
@@ -1339,7 +1339,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             }
             
             //for all empty square
-            unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[board.player], board.discs[board.player^1]);
+            unsigned long long legal_movesBB = board.get_legal_moves();
             if(bestmove != NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
             
@@ -1548,7 +1548,7 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         
         //deverouillage de splitpoint
         
-        int alpha = sp->alpha; //local copy
+        const int alpha = sp->alpha; //local copy
         bool child_selective_cutoff = false;
         
         int score;
