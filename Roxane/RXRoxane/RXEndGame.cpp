@@ -1332,9 +1332,9 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         bool child_selective_cutoff = false;
         
         if(selectivity > EG_HIGH_SELECT)
-            EG_PVS_deep(threadID, sBoard, pv, selectivity-1, child_selective_cutoff, lower, upper, passed);
+            EG_PVS_deep(threadID, sBoard, pv, selectivity-1, child_selective_cutoff, -MAX_SCORE, MAX_SCORE, passed); //lower, upper,
         else
-            MG_PVS_deep(threadID, sBoard, pv, MG_SELECT, board.n_empties-(USE_PV_EXTENSION? 10 : 8), child_selective_cutoff, lower, upper, passed);
+            MG_PVS_deep(threadID, sBoard, pv, MG_SELECT, board.n_empties-(USE_PV_EXTENSION? 10 : 8), child_selective_cutoff, -MAX_SCORE, MAX_SCORE, passed); //lower, upper,
         
         if(abort.load() || thread_should_stop(threadID))
             return INTERRUPT_SEARCH;

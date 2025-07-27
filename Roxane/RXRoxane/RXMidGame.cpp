@@ -507,7 +507,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(pv && bestmove == NOMOVE && depth > 8) {
         bool child_selective_cutoff = false;
         
-        MG_PVS_deep(threadID, sBoard, pv, selectivity, depth - 2, child_selective_cutoff, lower, upper, passed);
+        MG_PVS_deep(threadID, sBoard, pv, selectivity, depth - 2, child_selective_cutoff, -MAX_SCORE, MAX_SCORE, passed); //lower, upper,
         
         if(abort.load() || thread_should_stop(threadID))
             return INTERRUPT_SEARCH;
