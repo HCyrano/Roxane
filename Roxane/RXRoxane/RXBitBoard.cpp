@@ -548,13 +548,13 @@ void RXBitBoard::build(const std::string& init) {
             case 'x':
             case '*':
                 discs[BLACK] |= 0x1ULL<<i;
-                n_empties--;
+                --n_empties;
                 parity ^=QUADRANT_ID[i];
                 break;
             case 'o':
             case 'w':
                 discs[WHITE] |= 0x1ULL<<i;
-                n_empties--;
+                --n_empties;
                 parity ^=QUADRANT_ID[i];
                 break;
             case '-':
@@ -562,13 +562,13 @@ void RXBitBoard::build(const std::string& init) {
                 break;
             case ' ':
             case '[':
-                i++;
+                ++i;
                 break;
             default:
                 std::cerr << "RXBoard::build incorrect board" << std::endl;
                 exit(EXIT_FAILURE);
             }
-        id++;
+        ++id;
     }
     
     if(((discs[BLACK] | discs[WHITE]) & 0x0000001818000000ULL) != 0x0000001818000000ULL) {
@@ -696,9 +696,9 @@ int RXBitBoard::final_score_1 () const {
     } else if((nFlips = count_flips(pos, discs[player^1]))>0) {
         score -= nFlips+1;
     } else if(score<0)
-        score--;
+        --score;
     else if (score>0)
-        score++;
+        ++score;
     
     return score*VALUE_DISC;
 }
@@ -716,9 +716,9 @@ int RXBitBoard::final_score_1 () const {
 	} else if((nFlips = count_flips[pos](discs[player^1]))>0) {
 		score -= nFlips+1;
 	} else if(score<0)
-		score--;
+		--score;
 	else if (score>0)
-		score++;
+		++score;
 	
 	return score*VALUE_DISC;
 }

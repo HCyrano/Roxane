@@ -298,7 +298,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                                     if(legal_movesBB & 0x1ULL<<empties->position) {
                                         ((board).*(board.generate_flips[empties->position]))(lastMove);
                                         ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
-                                        board.n_nodes++;
+                                        ++board.n_nodes;
                                         
                                         int score = -sBoard.get_score(lastMove);
                                         if (score>bestscore) {
@@ -356,7 +356,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
             } else {
                 
                 for(; iter != NULL; iter = iter->next) {
-                    board.n_nodes++;
+                    ++board.n_nodes;
                     
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                     iter->score += sBoard.get_score(*iter);
@@ -417,7 +417,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                                 ((board).*(board.generate_flips[empties->position]))(lastMove);
                                 ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
                                 
-                                board.n_nodes++;
+                                ++board.n_nodes;
                                 
                                 int score= -sBoard.get_score(lastMove);
                                 if (score>bestscore_1)
@@ -486,7 +486,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                             if(legal_movesBB & 0x1ULL<<empties->position) {
                                 ((board).*(board.generate_flips[empties->position]))(lastMove);
                                 ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                                board.n_nodes++;
+                                ++board.n_nodes;
                                 
                                 
                                 int score= -sBoard.get_score(lastMove);
@@ -566,7 +566,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                         if(legal_movesBB & 0x1ULL<<empties->position) {
                             ((board).*(board.generate_flips[empties->position]))(lastMove);
                             ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                            board.n_nodes++;
+                            ++board.n_nodes;
                             
                             
                             int score= -sBoard.get_score(lastMove);
@@ -741,7 +741,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                                     if(legal_movesBB & 0x1ULL<<empties->position) {
                                         ((board).*(board.generate_flips[empties->position]))(lastMove);
                                         ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                                        board.n_nodes++;
+                                        ++board.n_nodes;
                                         
                                         int score= -sBoard.get_score(lastMove);
                                         if (score>bestscore1) {
@@ -1020,8 +1020,8 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 board.player ^= 1;
                 board.discs[board.player] ^= move.flipped;
                 
-                board.n_empties--;
-                board.n_nodes++;
+                --board.n_empties;
+                ++board.n_nodes;
                 
                 empties->previous->next = empties->next;
                 
@@ -1038,7 +1038,7 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                         if(legal_movesBB_1 & 0x1ULL<<empties_1->position) {
                             ((board).*(board.generate_flips[empties_1->position]))(lastMove);
                             ((sBoard).*(sBoard.update_patterns[empties_1->position][board.player]))(lastMove);
-                            board.n_nodes++;
+                            ++board.n_nodes;
                             
                             int score = -sBoard.get_score(lastMove);
                             if(score>bestscore_1) {
@@ -1062,12 +1062,12 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 
                 empties->previous->next = empties;
                 
-                board.n_empties++;
+                ++board.n_empties;
                 
                 board.discs[board.player^1] ^= (move.flipped | move.square);
+                board.discs[board.player] |= move.flipped;
                 board.player ^= 1;
-                board.discs[board.player^1] |= move.flipped;
-                
+
                 
                 if(score>=beta)
                     return score;
@@ -1097,7 +1097,7 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                     if(legal_movesBB_1 & 0x1ULL<<empties_1->position) {
                         ((board).*(board.generate_flips[empties_1->position]))(lastMove);
                         ((sBoard).*(sBoard.update_patterns[empties_1->position][board.player]))(lastMove);
-                        board.n_nodes++;
+                        ++board.n_nodes;
                         
                         int score = -sBoard.get_score(lastMove);
                         if(score>bestscore_1)
@@ -1785,11 +1785,11 @@ void RXEngine::run() {
         
         //normalisation de depth
         if(depth%2 == (search_sBoard.board.n_empties%2 == 1 ? 0 : 1))
-            depth++;
+            ++depth;
         
         //normalisation de max_depth
         if(max_depth%2 == (search_sBoard.board.n_empties%2 == 1? 0:1))
-            max_depth++;
+            ++max_depth;
         
         
         
@@ -2248,17 +2248,7 @@ void RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
         
         // If this thread is the master of a split point and all threads have
         // finished their work at this split point, return from the idle loop:
-        
-        // attente active des slaves threads
-        
-        //		unsigned int i = 0;
-        //		while( waitSp && i < activeThreads && !waitSp->slaves[i])
-        //			i++;
-        //
-        //		if (i == activeThreads) {
-        
-        
-        
+                
         //n_Slaves without mutex
         if (waitSp && waitSp->n_Slaves == 0) {
             

@@ -446,7 +446,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                     //sort list by mobility
                     for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
                         
-                        board.n_nodes++;
+                        ++board.n_nodes;
                         
                         const unsigned long long p_discs = board.discs[p] | (iter->flipped | iter->square);
                         const unsigned long long o_discs = board.discs[o] ^ iter->flipped;
@@ -658,7 +658,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                     //sort list by mobility
                     for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
                         
-                        board.n_nodes++;
+                        ++board.n_nodes;
                         
                         const unsigned long long p_discs = board.discs[p] | (iter->flipped | iter->square);
                         const unsigned long long o_discs = board.discs[o] ^ iter->flipped;
@@ -879,7 +879,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
         if(bestmove != NOMOVE) {
             
             ((board).*(board.generate_flips[bestmove]))(*move);
-            board.n_nodes++;
+            ++board.n_nodes;
             
 #ifdef USE_ETC
             hashcode_after_move = board.hashcode_after_move(move);
@@ -920,7 +920,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
             if(legal_movesBB & 0x1ULL<<empties->position){
                 
                 ((board).*(board.generate_flips[empties->position]))(*move);
-                board.n_nodes++;
+                ++board.n_nodes;
                 
 #ifdef USE_ETC
                 hashcode_after_move = board.hashcode_after_move(move);
@@ -1006,7 +1006,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                 //calc answer move->score
                 for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
                     
-                    board.n_nodes++;
+                    ++board.n_nodes;
                     
                     const unsigned long long p_discs = board.discs[p] | (iter->flipped | iter->square);
                     const unsigned long long o_discs = board.discs[o] ^ iter->flipped;
@@ -1359,7 +1359,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         if(bestmove != NOMOVE) {
             
             ((board).*(board.generate_flips[bestmove]))(*move);
-            board.n_nodes++;
+            ++board.n_nodes;
             
 #ifdef USE_ENHANCED_STABLILITY
             
@@ -1398,7 +1398,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             if(legal_movesBB & 0x1ULL<<empties->position){
                 
                 ((board).*(board.generate_flips[empties->position]))(*move);
-                board.n_nodes++;
+                ++board.n_nodes;
                 
 #ifdef USE_ENHANCED_STABLILITY
                 
@@ -1540,7 +1540,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                                             
                                             ((board).*(board.generate_flips[empties->position]))(lastMove);
                                             ((sBoard).*(sBoard.update_patterns[empties->position][o]))(lastMove);
-                                            board.n_nodes++;
+                                            ++board.n_nodes;
                                             
                                             int score = -sBoard.get_score(lastMove);
                                             if (score>bestscore)
@@ -1600,7 +1600,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
                         ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                         
-                        board.n_nodes++;
+                        ++board.n_nodes;
                         const unsigned long long p_discs = board.discs[p] | (iter->flipped | iter->square);
                         
                         //test 1 : score + 2*mobility_adv + corner_stability/4
@@ -1971,7 +1971,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         if(bestmove != NOMOVE) {
             
             ((board).*(board.generate_flips[bestmove]))(*move);
-            board.n_nodes++;
+            ++board.n_nodes;
             
 #ifdef USE_ETC
             hashcode_after_move = board.hashcode_after_move(move);
@@ -2016,7 +2016,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
             if(legal_movesBB & 0x1ULL<<empties->position){
                 
                 ((board).*(board.generate_flips[empties->position]))(*move);
-                board.n_nodes++;
+                ++board.n_nodes;
                 
 #ifdef USE_ETC
                 hashcode_after_move = board.hashcode_after_move(move);
@@ -2431,7 +2431,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
                     else if (board.n_empties < EG_DEEP_TO_MEDIUM)
                         score = -EG_PVS_ETC_mobility(0, sBoard, true, -upper, -score, false);
                     else {
-                        extra_time++;
+                        ++extra_time;
                         //                        *log << "                  [extra time > :" << extra_time << "]" << std::endl;
                         
                         if(selectivity != NO_SELECT)
@@ -2445,7 +2445,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
                         }
                         
                         
-                        extra_time--;
+                        --extra_time;
                         //                        *log << "                  [extra time end :" << extra_time << "]" << std::endl;
                         
                     }
@@ -2554,7 +2554,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         if (!(abort.load() || thread_should_stop(threadID)) && alpha < score && score < sp->beta) {
             
-            extra_time++;
+            ++extra_time;
             
             if(dependent_time && board.n_empties>19)
                 manager->sendMsg("         " + RXMove::index_to_coord(move->position) + " maybe better? ");
@@ -2570,7 +2570,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             }
             
             
-            extra_time--; //atomic = thread-safe
+            --extra_time; //atomic = thread-safe
             
         }
         

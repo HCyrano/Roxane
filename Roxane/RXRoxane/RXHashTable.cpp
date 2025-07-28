@@ -110,7 +110,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 	
 	int _date = date[type_hashtable	== HASH_WHITE? WHITE:BLACK];
 	if(pv)
-		_date++; //bonus for pv
+		++_date; //bonus for pv
 	
 	
 	/* try to update deepest entry */

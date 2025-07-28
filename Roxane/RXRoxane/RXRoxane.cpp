@@ -604,7 +604,7 @@ void RXRoxane::imposed_opening(const std::string& line) {
 					break;
 				}
 				
-				index++;
+				++index;
 				
 			}
 		}
