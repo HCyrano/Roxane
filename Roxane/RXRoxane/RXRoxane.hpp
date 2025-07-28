@@ -84,7 +84,7 @@ public :
 	void connectGGS(CODKStream* client);
 	void imposed_opening(const std::string& line);
     
-    void stop_engine(const std::string& _idg, COsGame* game);
+    void stop_engine(COsGame* game);
 
 	void get_move(const std::string& _idg, COsGame* game);
 

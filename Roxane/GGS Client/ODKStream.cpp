@@ -109,7 +109,7 @@ void CODKStream::HandleOsEnd(const CMsgOsEnd *pmsg) {
     BaseOsEnd(pmsg);
     COsGame* pgame=PGame(pmsg->idg);
     if (pgame!=NULL) {
-        pComputer->stop_engine(pmsg->idg, pgame);
+        pComputer->stop_engine(pgame);
     }
 }
 
@@ -123,7 +123,7 @@ void CODKStream::HandleOsTimeout(const CMsgOsTimeout* pmsg){
         (*this) << "t /os break " << pmsg->idg << "\n";
         //BaseOsGameOver(pmsg->idg);
     } /*else if (pgame!=NULL) {
-        pComputer->stop_engine(pmsg->idg, pgame);
+        pComputer->stop_engine(pgame);
     }*/
     
 

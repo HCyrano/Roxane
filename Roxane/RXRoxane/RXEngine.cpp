@@ -1064,9 +1064,9 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 
                 ++board.n_empties;
                 
-                board.discs[board.player^1] ^= (move.flipped | move.square);
                 board.discs[board.player] |= move.flipped;
                 board.player ^= 1;
+                board.discs[board.player] ^= (move.flipped | move.square);
 
                 
                 if(score>=beta)
