@@ -1754,8 +1754,8 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     if(bestscore>=upper)
         selective_cutoff = child_selective_cutoff;
-    
-    
+
+     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
     hTable->update(   hash_code, pv, type_hashtable, selective_cutoff? selectivity : NO_SELECT, DEPTH_BOOSTER+board.n_empties, alpha, upper, bestscore, bestmove);
     /*if(pv)*/
@@ -2634,6 +2634,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
 
 void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectivity, RXMove* list) {
     
+    
     set_type_search(ENDGAME);
     
     
@@ -2718,6 +2719,7 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
                     selectivity = NO_SELECT;
             }
             
+ 
             EG_PVS_root(sBoard, selectivity, alpha, beta, list);
             score = list->next->score;
             
@@ -2726,8 +2728,8 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
             
             while (!abort.load() && !(alpha < score && score < beta)) {
                 
-                //*log << "                  EG research : [" << alpha << " < " << list->next->score << " < " << beta << "]" <<std::endl;
-                
+//                *log << "                  EG research : [" << alpha << " < " << list->next->score << " < " << beta << "]" <<std::endl;
+
                 if (score <= alpha) {
                     
                     if(alpha <= s_alpha)
@@ -2765,7 +2767,9 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
                     if(beta%(2*VALUE_DISC) != 0)
                         beta  += 2*VALUE_DISC - beta%(2*VALUE_DISC);
                 }
-                
+ 
+//                *log << "                  EG research : [" << alpha << " < " << list->next->score << " < " << beta << "]" <<std::endl;
+
                 EG_PVS_root(sBoard, selectivity, alpha, beta, list);
                 score = list->next->score;
                 
