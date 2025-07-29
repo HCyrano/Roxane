@@ -83,7 +83,22 @@ void RXHashTable::reset() {
 
 
 void RXHashTable::update(const unsigned long long hash_code, const bool pv, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
-    	    
+	
+//	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE);
+//	assert(beta >= -MAX_SCORE && beta <= MAX_SCORE);
+//
+//	assert(score != -MAX_SCORE || score != MAX_SCORE);
+//	assert(score != -INTERRUPT_SEARCH || score != INTERRUPT_SEARCH);
+//	assert(score != -UNDEF_SCORE || score != UNDEF_SCORE);
+	
+//    //track Bug hash 24/01/2025
+//    if (std::abs(score) == MAX_SCORE) {
+//        std::cout << "RED ALERT : abs(score) == MAX_SCORE" << std::endl;
+//        std::cout << "score = " << score << std::endl;
+//        std::cout << "alpha = " << alpha << std::endl;
+//        std::cout << "beta  = " << beta << std::endl;
+//    }
+
 	RXHashEntry& entry = table[_offsetTable[type_hashtable] | (static_cast<unsigned int>(hash_code>>32) & _maskTable[type_hashtable])];
 	
 	RXHashRecord& deepest = entry.deepest;
@@ -100,16 +115,12 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 	
 	
 	/* try to update deepest entry */
-	if (hash_code == deepest_hashcode && selectivity == deepest_value.selectivity  && depth == deepest_value.depth) {
+	if (hash_code == deepest_hashcode && selectivity == deepest_value.selectivity  && depth == deepest_value.depth /*&& alpha < score*/) {
         
-//        if (score < deepest_value.upper)
-//            deepest_value.upper = static_cast<short>(score);
-//        if (score > deepest_value.lower)
-//            deepest_value.lower = static_cast<short>(score);
-
-		if (score <= beta && score < deepest_value.upper)
+		
+		if (score < beta && score < deepest_value.upper) 
 			deepest_value.upper = static_cast<short>(score);
-		if (score >= alpha && score > deepest_value.lower)
+		if (score > alpha && score > deepest_value.lower)
 			deepest_value.lower = static_cast<short>(score);
 
         /* control if lower>upper : Instability */
@@ -128,7 +139,8 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 		}
 		
 		deepest_value.date = _date;
-		deepest_value.move = move;
+        if(score>alpha || score == -MAX_SCORE)
+            deepest_value.move = move;
         		
 		deepest.packed = deepest_value.wide_2_compact();
 		deepest.lock   = hash_code ^ deepest.packed;
@@ -143,11 +155,11 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 		
 		
 		/* else try to update newest entry */
-		if (hash_code == newest_hashcode && selectivity == newest_value.selectivity  && depth == newest_value.depth) {
-
-			if (score <= beta && score < newest_value.upper)
+		if (hash_code == newest_hashcode && selectivity == newest_value.selectivity  && depth == newest_value.depth /*&& alpha < score*/) {
+			
+			if (score < beta && score < newest_value.upper)
 				newest_value.upper = static_cast<short>(score);
-			if (score >= alpha && score > newest_value.lower)
+			if (score > alpha && score > newest_value.lower)
 				newest_value.lower =  static_cast<short>(score);
 
             /* control if lower>upper : Instability */
@@ -165,7 +177,8 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 			}
 			
 			newest_value.date = _date;
-			newest_value.move =  move;
+            if(score>alpha || score == -MAX_SCORE)
+                newest_value.move =  move;
             
 			newest.packed = newest_value.wide_2_compact();
 			newest.lock   = hash_code ^ newest.packed;
@@ -192,7 +205,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 			deepest_value.upper = +MAX_SCORE;
 			if (score < beta) deepest_value.upper = static_cast<short>(score);
 			if (score > alpha) deepest_value.lower = static_cast<short>(score);
-			deepest_value.move =  move;
+            deepest_value.move =  move;
 
 			deepest.packed = deepest_value.wide_2_compact();
 			deepest.lock   = hash_code ^ deepest.packed;
@@ -208,7 +221,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 			newest_value.upper = +MAX_SCORE;
 			if (score < beta) newest_value.upper = static_cast<short>(score);
 			if (score > alpha) newest_value.lower = static_cast<short>(score);
-			newest_value.move =  move;
+            newest_value.move =  move;
 
 			newest.packed = newest_value.wide_2_compact();
 			newest.lock   = hash_code ^ newest.packed;
@@ -220,7 +233,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 }
 
 void RXHashTable::update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int score, const char move) {
-    
+
 //	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE-1);
 //	
 //	assert(score != -MAX_SCORE || score != MAX_SCORE);
@@ -274,7 +287,8 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		}
 		
 		deepest_value.date = _date;
-		deepest_value.move = move;
+//        if(score>alpha || score == -MAX_SCORE)
+            deepest_value.move = move;
 		
 		deepest.packed = deepest_value.wide_2_compact();
 		deepest.lock   = hash_code ^ deepest.packed;
@@ -312,7 +326,8 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			}
 			
 			newest_value.date = _date;
-			newest_value.move =  move;
+//            if(score>alpha || score == -MAX_SCORE)
+                newest_value.move =  move;
 			
 			newest.packed = newest_value.wide_2_compact();
 			newest.lock   = hash_code ^ newest.packed;
@@ -393,25 +408,26 @@ void RXHashTable::mainVariation(std::ostringstream& buffer, RXBitBoard& board, c
             
 //            if(entry.depth >= board.n_empties && entry.selectivity == RXEngine::NO_SELECT) {
 //                
-//                if(entry.lower == entry.upper)
-//                    buffer << "=";
-//                else if (entry.lower == -MAX_SCORE) {
-//                    buffer << "<";
-//                } else if (entry.upper == MAX_SCORE)
-//                    buffer << ">";
-//                else
-//                    buffer << "#";
+//                			if(entry.lower == entry.upper)
+//                				buffer << "=";
+//                			else if (entry.lower == -MAX_SCORE) {
+//                				buffer << "<";
+//                			} else if (entry.upper == MAX_SCORE)
+//                				buffer << ">";
+//                			else
+//                				buffer << "#";
+//                
 //            }
 
 			std::string data = RXMove::index_to_coord(entry.move);
 			if(!myTurn)
 				std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 			
-			buffer << data << ' ';
-            
-//            if(!(entry.depth >= board.n_empties && entry.selectivity == RXEngine::NO_SELECT))
-//                buffer << ' ';
-            
+			buffer << data;
+
+ //           if(!(entry.depth >= board.n_empties && entry.selectivity == RXEngine::NO_SELECT))
+                buffer << ' ';
+
 			if(entry.move == PASS) {
 				board.do_pass();
 				mainVariation(buffer, board, type_hashtable, depth-1, !myTurn);

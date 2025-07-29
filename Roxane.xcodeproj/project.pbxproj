@@ -69,7 +69,7 @@
 		372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBGenerateFlips_NEON_Edax.cpp; sourceTree = "<group>"; };
 		372326F42D1FF69D002CFAF4 /* RXBBPatterns.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBBPatterns.hpp; sourceTree = "<group>"; };
 		372326F52D1FF69D002CFAF4 /* RXBBPatterns.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBPatterns.cpp; sourceTree = "<group>"; };
-		372326F62D1FF69D002CFAF4 /* RXBitBoard.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBitBoard.hpp; sourceTree = "<group>"; usesTabs = 0; };
+		372326F62D1FF69D002CFAF4 /* RXBitBoard.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBitBoard.hpp; sourceTree = "<group>"; };
 		372326F72D1FF69D002CFAF4 /* RXBitBoard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBitBoard.cpp; sourceTree = "<group>"; };
 		372326F82D1FF69D002CFAF4 /* RXConstantes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXConstantes.hpp; sourceTree = "<group>"; };
 		372326F92D1FF69D002CFAF4 /* RXEndGame.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXEndGame.cpp; sourceTree = "<group>"; };

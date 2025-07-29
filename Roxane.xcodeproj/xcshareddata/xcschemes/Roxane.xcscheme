@@ -72,10 +72,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-1-19.src"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.src"
             isEnabled = "YES">
          </CommandLineArgument>

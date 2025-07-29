@@ -840,12 +840,10 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 sBoard.do_move(*move);
                 
                 if(depth <= MG_DEEP_TO_SHALLOW) {
-                    
                     score = -MG_PVS_shallow(threadID, sBoard, false, depth-1, -lower-VALUE_DISC, -lower, false);
                     if(lower < score && score < upper) {
                         score = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -score, false);
                     }
-                    
                 } else {
                     
                     score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower-VALUE_DISC, false);
@@ -890,7 +888,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(bestscore>=upper)
         selective_cutoff = child_selective_cutoff;
     
-
+    
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
     hTable->update(   hash_code, pv, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     /*if(pv)*/
@@ -945,7 +943,6 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
             if(alpha < score && score < sp->beta) {
                 score = -MG_PVS_shallow(threadID, sBoard, sp->pv, sp->depth-1, -sp->beta, -score, false);
             }
-            
         } else {
             
             score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, sp->depth-1, child_selective_cutoff, -alpha-VALUE_DISC, false);
