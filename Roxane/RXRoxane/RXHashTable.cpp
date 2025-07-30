@@ -392,57 +392,52 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 }
 
 
-std::string RXHashTable::line2String(RXBitBoard& board, int depth, const t_hash type_hashtable) const {
+std::string RXHashTable::line2String(RXBitBoard& board, const int depth, const t_hash type_hashtable) const {
+    
+    std::vector<unsigned char> pv;
+	mainVariation(pv, board, type_hashtable, depth);
+    
+    std::ostringstream buffer;
+    bool player = false;
+    for(auto it : pv) {
 
-	std::ostringstream buffer;
-	mainVariation(buffer, board, type_hashtable, depth, true);
+        std::string coord = RXMove::index_to_coord(it);
+        if(player)
+            std::transform(coord.begin(), coord.end(), coord.begin(), ::tolower);
+        buffer << coord << ' ';
+
+        player = !player;
+        
+    }
+    
 	return buffer.str();
 	
 }
 
-void RXHashTable::mainVariation(std::ostringstream& buffer, RXBitBoard& board, const t_hash type_hashtable, int depth, const bool myTurn) const {
+void RXHashTable::mainVariation(std::vector<unsigned char>& pv, RXBitBoard& board, const t_hash type_hashtable, const int depth) const {
 	
 
 	if(depth>0) {
 		RXHashValue entry;
 		if(get(board, type_hashtable, entry) && entry.move != NOMOVE) {
             
-//            if(entry.depth >= board.n_empties && entry.selectivity == RXEngine::NO_SELECT) {
-//                
-//                			if(entry.lower == entry.upper)
-//                				buffer << "=";
-//                			else if (entry.lower == -MAX_SCORE) {
-//                				buffer << "<";
-//                			} else if (entry.upper == MAX_SCORE)
-//                				buffer << ">";
-//                			else
-//                				buffer << "#";
-//                
-//            }
-
-			std::string data = RXMove::index_to_coord(entry.move);
-			if(!myTurn)
-				std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-			
-			buffer << data;
-
- //           if(!(entry.depth >= board.n_empties && entry.selectivity == RXEngine::NO_SELECT))
-                buffer << ' ';
-
+            pv.push_back(entry.move);
+            
 			if(entry.move == PASS) {
 				board.do_pass();
-				mainVariation(buffer, board, type_hashtable, depth-1, !myTurn);
+				mainVariation(pv, board, type_hashtable, depth-1);
 				board.do_pass();
 			} else {
 				RXMove& move = _move[board.n_empties][type_hashtable==HASH_WHITE? WHITE:BLACK]; //multithread, for shared use BLACK
 				((board).*(board.generate_flips[entry.move]))(move);
 				board.do_move(move);
-				mainVariation(buffer, board, type_hashtable, depth-1, !myTurn);
+				mainVariation(pv, board, type_hashtable, depth-1);
 				board.undo_move(move);
 			}
+            
 		} else {
-			buffer << "-- ";
-			mainVariation(buffer, board, type_hashtable, depth-1, !myTurn);
+            pv.push_back(NOMOVE);
+			mainVariation(pv, board, type_hashtable, depth-1);
 		}
 	}
 }

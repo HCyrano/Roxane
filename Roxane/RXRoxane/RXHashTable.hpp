@@ -130,7 +130,7 @@ class RXHashTable {
 
     RXHashRecord* get_record(const RXBitBoard& board, const t_hash type_hashtable) const;
 
-    void mainVariation(std::ostringstream& buffer, RXBitBoard& board, const t_hash type_hashtable, int depth, const bool myTurn) const;
+    void mainVariation(std::vector<unsigned char>& pv, RXBitBoard& board, const t_hash type_hashtable, const int depth) const;
 
     void copyPV(RXBitBoard& board, const t_hash from_hashtable, const t_hash to_hashtable);
     void protectPV(RXBitBoard& board, const t_hash type_hashtable, const bool passed = false);
@@ -163,7 +163,7 @@ class RXHashTable {
     void update(const unsigned long long hash_code, const bool pv, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move);
     void update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int score, const char move);
     
-    std::string line2String(RXBitBoard& board, int depth, const t_hash type_hashtable) const;
+    std::string line2String(RXBitBoard& board, const int depth, const t_hash type_hashtable) const;
     
     void new_search(const unsigned int color, const int n_empties);
     int get_date(const unsigned int color) { return date[_shared ? 0:color];};

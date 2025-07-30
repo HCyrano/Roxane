@@ -1040,7 +1040,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
             }
             
         }
-        
+
         return bestscore;
     }
     

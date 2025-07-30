@@ -43,6 +43,9 @@ std::string RXMove::index_to_coord(int index) {
 	if (index == PASS)
 		return std::string("PA");
 
+    if (index == NOMOVE)
+        return std::string("--");
+
 	return (std::string(1, "HGFEDCBA"[index%8]) + std::string(1, "87654321"[index/8]));
 
 }
