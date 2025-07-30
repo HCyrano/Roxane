@@ -83,7 +83,7 @@ void RXHashTable::reset() {
 
 
 void RXHashTable::update(const unsigned long long hash_code, const bool pv, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
-	
+    	
 //	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE);
 //	assert(beta >= -MAX_SCORE && beta <= MAX_SCORE);
 //
@@ -139,7 +139,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 		}
 		
 		deepest_value.date = _date;
-        if(score>alpha || score == -MAX_SCORE)
+        if(score>alpha /* || score == -MAX_SCORE*/)
             deepest_value.move = move;
         		
 		deepest.packed = deepest_value.wide_2_compact();
@@ -177,7 +177,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 			}
 			
 			newest_value.date = _date;
-            if(score>alpha || score == -MAX_SCORE)
+            if(score>alpha /* || score == -MAX_SCORE*/)
                 newest_value.move =  move;
             
 			newest.packed = newest_value.wide_2_compact();
@@ -234,6 +234,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 
 void RXHashTable::update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int score, const char move) {
 
+
 //	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE-1);
 //	
 //	assert(score != -MAX_SCORE || score != MAX_SCORE);
@@ -287,7 +288,7 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		}
 		
 		deepest_value.date = _date;
-//        if(score>alpha || score == -MAX_SCORE)
+        if(score>alpha /* || score == -MAX_SCORE*/)
             deepest_value.move = move;
 		
 		deepest.packed = deepest_value.wide_2_compact();
@@ -326,7 +327,7 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			}
 			
 			newest_value.date = _date;
-//            if(score>alpha || score == -MAX_SCORE)
+            if(score>alpha /* || score == -MAX_SCORE*/)
                 newest_value.move =  move;
 			
 			newest.packed = newest_value.wide_2_compact();

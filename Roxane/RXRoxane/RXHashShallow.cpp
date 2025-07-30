@@ -42,7 +42,8 @@ void RXHashShallow::reset() {
 
 //implementation LockFree
 void RXHashShallow::update(const unsigned long long hash_code, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
-		
+
+
 	RXHashEntry& entry = table[static_cast<unsigned int>(hash_code>>32) & _maskTable];
 	
 	RXHashRecord& deepest = entry.deepest;
@@ -55,31 +56,35 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
 	
 	
 	/* try to update deepest entry */
-	if (hash_code == deepest_hashcode && depth == deepest_value.depth && alpha < score) {
+	if (hash_code == deepest_hashcode && depth == deepest_value.depth) {
 		
-		if (score < beta && score < deepest_value.upper) 
-			deepest_value.upper = static_cast<short>(score);
-		if (score > deepest_value.lower)
-			deepest_value.lower = static_cast<short>(score);
-        
+        if (score < beta && score < deepest_value.upper)
+            deepest_value.upper = static_cast<short>(score);
+        if (score > alpha && score > deepest_value.lower)
+            deepest_value.lower = static_cast<short>(score);
+
         /* control if lower>upper : Instability */
         if(deepest_value.lower>deepest_value.upper) {
 
-            if(score<beta)
+             if(score<beta)
                 deepest_value.upper = static_cast<short>(score);
             else
                 deepest_value.upper = MAX_SCORE;
             
-            deepest_value.lower = static_cast<short>(score);
+            if(score>alpha)
+                deepest_value.lower = static_cast<short>(score);
+            else
+                deepest_value.lower = -MAX_SCORE;
             
         }
         
-		deepest_value.date = date;
-		deepest_value.move = move;
-		
-		deepest.packed = deepest_value.wide_2_compact();
-		deepest.lock = hash_code ^ deepest.packed;
-		
+        deepest_value.date = date;
+        if(score>alpha /* || score == -MAX_SCORE*/)
+            deepest_value.move = move;
+                
+        deepest.packed = deepest_value.wide_2_compact();
+        deepest.lock   = hash_code ^ deepest.packed;
+
 	} else {
 		
 		RXHashRecord& newest = entry.newest;
@@ -90,32 +95,35 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
 		
 		
 		/* else try to update newest entry */
-		if (hash_code == newest_hashcode && depth == newest_value.depth && alpha < score) {
+		if (hash_code == newest_hashcode && depth == newest_value.depth) {
 			
-			if (score < beta && score < newest_value.upper)
-				newest_value.upper = static_cast<short>(score);
-			if (score > newest_value.lower)
-				newest_value.lower =  static_cast<short>(score);
+			
+            if (score < beta && score < newest_value.upper)
+                newest_value.upper = static_cast<short>(score);
+            if (score > alpha && score > newest_value.lower)
+                newest_value.lower =  static_cast<short>(score);
 
             /* control if lower>upper : Instability */
             if(newest_value.lower>newest_value.upper) {
 
                 if(score<beta)
-                     newest_value.upper = static_cast<short>(score);
+                    newest_value.upper = static_cast<short>(score);
                 else
                     newest_value.upper = MAX_SCORE;
                 
-                newest_value.lower = static_cast<short>(score);
-                
+                if(score>alpha)
+                    newest_value.lower = static_cast<short>(score);
+                else
+                    newest_value.lower = -MAX_SCORE;
             }
             
             newest_value.date = date;
-			newest_value.move =  move;
-			
-			newest.packed = newest_value.wide_2_compact();
-			newest.lock = hash_code ^ newest.packed;
-			
-			
+            if(score>alpha /* || score == -MAX_SCORE*/)
+                newest_value.move =  move;
+            
+            newest.packed = newest_value.wide_2_compact();
+            newest.lock   = hash_code ^ newest.packed;
+
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code || deepest_value.date < date ||  deepest_value.depth < depth) { // priority 
 			
