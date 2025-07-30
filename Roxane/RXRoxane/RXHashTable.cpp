@@ -402,7 +402,7 @@ std::string RXHashTable::line2String(RXBitBoard& board, int depth, const t_hash 
 
 void RXHashTable::mainVariation(std::ostringstream& buffer, RXBitBoard& board, const t_hash type_hashtable, int depth, const bool myTurn) const {
 	
-	
+
 	if(depth>0) {
 		RXHashValue entry;
 		if(get(board, type_hashtable, entry) && entry.move != NOMOVE) {
@@ -447,82 +447,6 @@ void RXHashTable::mainVariation(std::ostringstream& buffer, RXBitBoard& board, c
 	}
 }
 
-void RXHashTable::mainline(std::ostringstream& buffer, RXBitBoard& board, const int pos, const t_hash type_hashtable) const {
-
-	RXMove& move = _move[board.n_empties][type_hashtable==HASH_WHITE? WHITE:BLACK]; //multithread, for shared use BLACK
-	((board).*(board.generate_flips[pos]))(move);
-	board.do_move(move);
-	mainline(buffer, board, type_hashtable);
-	board.undo_move(move);	
-
-}
-
-int RXHashTable::bestmove(RXBitBoard& board, const t_hash type_hashtable) const {
-	
-	
-	RXHashValue entry;
-	if(get(board, type_hashtable, entry) && entry.move != NOMOVE)
-		return entry.move;
-	
-	return NOMOVE;
-	
-}
-
-void RXHashTable::mainline(std::ostringstream& buffer, RXBitBoard& board, const t_hash type_hashtable) const {
-	
-	
-	RXHashValue entry;
-	if(get(board, type_hashtable, entry) && entry.move != NOMOVE) {	
-					
-		buffer << RXMove::index_to_coord(entry.move);
-		if(entry.move == PASS) {
-			board.do_pass();
-			mainline(buffer, board, type_hashtable);
-			board.do_pass();
-		} else {
-			RXMove& move = _move[board.n_empties][type_hashtable==HASH_WHITE? WHITE:BLACK]; //multithread, for shared use BLACK
-			((board).*(board.generate_flips[entry.move]))(move);
-			board.do_move(move);
-			mainline(buffer, board, type_hashtable);
-			board.undo_move(move);
-		}
-	}
-	
-}
-
-
-void RXHashTable::printVariation(RXBitBoard& board, const t_hash type_hashtable, const bool myTurn) const {
-	
-	
-		RXHashValue entry;
-		if(get(board, type_hashtable, entry) && entry.move != NOMOVE) {	
-			
-			
-			std::string data = RXMove::index_to_coord(entry.move);
-			if(!myTurn)
-				std::transform(data.begin(), data.end(), data.begin(), ::tolower);
-			
-			int depth = entry.depth;
-			int selectivity = entry.selectivity;
-			
-			std::cout << data  << " " << depth << "@" << selectivity << "[" << entry.lower << ";" << entry.upper << "] " ;
-			if(entry.move == PASS) {
-				board.do_pass();
-				printVariation(board, type_hashtable, !myTurn);
-				board.do_pass();
-			} else {
-				RXMove& move = _move[board.n_empties][type_hashtable==HASH_WHITE? WHITE:BLACK]; //multithread, for shared use BLACK
-				((board).*(board.generate_flips[entry.move]))(move);
-				board.do_move(move);
-				printVariation(board, type_hashtable, !myTurn);
-				board.undo_move(move);
-			}
-		} else {
-			std::cout << std::endl;
-		}
-
-	
-}
 
 
 void RXHashTable::copyPV(RXHashTable* from_hash, const t_hash from_type_hash, RXBitBoard& board, const t_hash to_type_hash) {

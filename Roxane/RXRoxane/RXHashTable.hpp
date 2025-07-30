@@ -112,8 +112,9 @@ class RXHashEntry {
 
 class RXHashTable {
     
-    public :
+    public:
     enum t_hash {HASH_SHARED, HASH_BLACK, HASH_WHITE};
+
     
     private :
     mutable RXMove _move[61][2];
@@ -126,18 +127,16 @@ class RXHashTable {
     unsigned char date[2];
     
     bool _shared;
-    
+
+    RXHashRecord* get_record(const RXBitBoard& board, const t_hash type_hashtable) const;
+
     void mainVariation(std::ostringstream& buffer, RXBitBoard& board, const t_hash type_hashtable, int depth, const bool myTurn) const;
-    
-    
+
     void copyPV(RXBitBoard& board, const t_hash from_hashtable, const t_hash to_hashtable);
     void protectPV(RXBitBoard& board, const t_hash type_hashtable, const bool passed = false);
  
-
     
     public :
-    
-    
     
     RXHashTable(unsigned int nBTable);
     ~RXHashTable() {};
@@ -153,7 +152,6 @@ class RXHashTable {
     bool get(const RXBitBoard& board, const t_hash type_hashtable, RXHashValue& entry) const;
     bool get(const unsigned long long hash_code, const t_hash type_hashtable, RXHashValue& entry) const;
     
-    RXHashRecord* get_record(const RXBitBoard& board, const t_hash type_hashtable) const;
     
     void copyPV(RXHashTable* from_hashtable, const t_hash from_type_hash, RXBitBoard&board, const t_hash to_type_hash);
     
@@ -170,13 +168,8 @@ class RXHashTable {
     void new_search(const unsigned int color, const int n_empties);
     int get_date(const unsigned int color) { return date[_shared ? 0:color];};
     
-    //void update(const unsigned long offset, const RXHash* entry) { entry->date = date[offset == 0 ? 0:1] ;};
     
     
-    int bestmove(RXBitBoard& board, const t_hash type_hashtable) const;
-    void mainline(std::ostringstream& buffer, RXBitBoard& board, const int move, const t_hash type_hashtable) const;
-    void mainline(std::ostringstream& buffer, RXBitBoard& board, const t_hash type_hashtable) const;
-    void printVariation(RXBitBoard& board, const t_hash type_hashtable, const bool myTurn) const;
     
    
     

@@ -106,9 +106,6 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
         best_answer.score = list->next->score;
         best_answer.depth = list->next->depth;
         best_answer.selectivity = CONFIDENCE[list->next->selectivity];
-        std::ostringstream buf;
-        hTable->mainline(buf, sBoard.board, type_hashtable);
-        best_answer.mainLine = buf.str();
         
         best_answer.nodes += sBoard.board.n_nodes;
         

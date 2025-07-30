@@ -2787,9 +2787,6 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
         best_answer.score = list->next->score;
         best_answer.depth = list->next->depth;
         best_answer.selectivity = CONFIDENCE[list->next->selectivity];
-        std::ostringstream buf;
-        hTable->mainline(buf, sBoard.board, type_hashtable);
-        best_answer.mainLine = buf.str();
         
         best_answer.nodes += sBoard.board.n_nodes;
         

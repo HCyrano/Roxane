@@ -25,7 +25,6 @@ class RXBestMove {
 	int score;
 	int selectivity;
 	double tElapsed;
-	std::string mainLine;
 	
 	unsigned long long nodes;
 	
