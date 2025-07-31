@@ -2811,12 +2811,14 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
         }
         
         //check PV at 100%
+#ifdef EG_CHECK_PV
         if(!abort.load() && sBoard.board.n_empties-6 > 0 && selectivity == NO_SELECT && s_alpha <= list->next->score && list->next->score <= s_beta) {
             RXSearch::t_client save_client = search_client;
             search_client = RXSearch::kPrivate;
             EG_check_PV(search_sBoard, list->next->score);
             search_client = save_client;
         }
+#endif
 
         
         if(abort.load() )
@@ -2851,67 +2853,84 @@ void RXEngine::EG_check_PV(RXBBPatterns& sBoard, const int score) {
     std::vector<unsigned char> pv;
     hTable->mainVariation(pv, sBoard.board, type_hashtable, sBoard.board.n_empties-6);
     
-    bool check_pv = EG_check_PV(pv, sBoard, -score);
     
-    if(!check_pv)
-        std::cout << "RED ALERT : wrong PV" << std::endl;
+    //print PV
+    std::ostringstream buffer;
+    bool player = false;
+    for(auto it : pv) {
 
+        std::string coord = RXMove::index_to_coord(it);
+        if(player)
+            std::transform(coord.begin(), coord.end(), coord.begin(), ::tolower);
+        buffer << coord << ' ';
+
+        player = !player;
+        
+    }
+    std:: cout << buffer.str() << std::endl;;
+
+    //
+    EG_check_PV(pv, sBoard, -score);
 
 }
 
 bool RXEngine::EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard, const int score) {
-    
-    const int pos = pv.front();
-    if(pos == NOMOVE)
-        return true;
-    
-    RXBitBoard& board = sBoard.board;
-    
-    RXMove& move = threads[0]._move[board.n_empties][1];
-    if(pos == PASS) {
-        board.do_pass();
-    } else {
-        ((board).*(board.generate_flips[pos]))(move);
-        ((sBoard).*(sBoard.update_patterns[pos][board.player]))(move);
-        sBoard.do_move(move);
-    }
-    
-    pv.erase(pv.begin());
-    
+
     bool good_pv = true;
-    
-    if(!pv.empty() && pv.front() != NOMOVE) {
+
+    const int pos = pv.front();
+    if(pos != NOMOVE) {
         
-        if(pv.front() == PASS) {
-            good_pv = EG_check_PV(pv, sBoard, -score);
+        RXBitBoard& board = sBoard.board;
+        
+        RXMove& move = threads[0]._move[board.n_empties][1];
+        if(pos == PASS) {
+            board.do_pass();
         } else {
-            RXMove* list = threads[0]._move[board.n_empties];
-            board.moves_producing(list);
-            list->sort_bestmove(pv.front());
-
-            for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
-                ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
-
-            EG_PVS_root(sBoard, NO_SELECT, score-VALUE_DISC, score+VALUE_DISC, list);
-            
-            int result = list->next->score;
-            
-            if(result == score)
-                good_pv = EG_check_PV(pv, sBoard, -score);
-            else
-                good_pv = false;
-
+            ((board).*(board.generate_flips[pos]))(move);
+            ((sBoard).*(sBoard.update_patterns[pos][board.player]))(move);
+            sBoard.do_move(move);
         }
-
-    }
-
-    
-    pv.insert(pv.begin(), pos);
-    
-    if(pos == PASS) {
-        board.do_pass();
-    } else {
-        sBoard.undo_move(move);
+        
+        pv.erase(pv.begin());
+        
+        if(!pv.empty() && pv.front() != NOMOVE) {
+            
+            if(pv.front() == PASS) {
+                good_pv = EG_check_PV(pv, sBoard, -score);
+            } else {
+                RXMove* list = threads[0]._move[board.n_empties];
+                board.moves_producing(list);
+                list->sort_bestmove(pv.front());
+                
+                for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
+                    ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
+                
+                EG_PVS_root(sBoard, NO_SELECT, score-VALUE_DISC, score+VALUE_DISC, list);
+                
+                int result = list->next->score;
+                
+                if(result == score)
+                    good_pv = EG_check_PV(pv, sBoard, -score);
+                else {
+                    std::cout << "RED ALERT : wrong PV" << std::endl;
+                    std::cout << "bad move : " << RXMove::index_to_coord(pos) << std::endl;
+                    std::cout << "score = " << score << " result = " << result << std::endl;
+                    good_pv = false;
+                }
+                
+            }
+            
+        }
+        
+        
+        pv.insert(pv.begin(), pos);
+        
+        if(pos == PASS) {
+            board.do_pass();
+        } else {
+            sBoard.undo_move(move);
+        }
     }
 
     return good_pv;
