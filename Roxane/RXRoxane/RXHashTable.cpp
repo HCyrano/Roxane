@@ -83,7 +83,7 @@ void RXHashTable::reset() {
 
 
 void RXHashTable::update(const unsigned long long hash_code, const bool pv, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
-    	
+
 //	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE);
 //	assert(beta >= -MAX_SCORE && beta <= MAX_SCORE);
 //
@@ -110,7 +110,7 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 	RXHashValue deepest_value(deepest_packed);
 	
 	int _date = date[type_hashtable	== HASH_WHITE? WHITE:BLACK];
-	if(pv)
+	if(pv && !(alpha == beta-VALUE_DISC))
 		++_date; //bonus for pv
 	
 	
