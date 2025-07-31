@@ -2633,7 +2633,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
  */
 
 void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectivity, RXMove* list) {
-    
+        
     set_type_search(ENDGAME);
     
     
@@ -2674,8 +2674,9 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
     for(; !abort.load()  && selectivity <= end_selectivity; selectivity++)
 #endif
     {
-        selectivity = std::max(std::min(NO_SELECT, std::max(EG_HIGH_SELECT, 28-sBoard.board.n_empties)), std::max(EG_HIGH_SELECT, selectivity));
         
+        selectivity = std::max(std::min(NO_SELECT, std::max(EG_HIGH_SELECT, 28-sBoard.board.n_empties)), std::max(EG_HIGH_SELECT, selectivity));
+
         set_select_search(selectivity);
         
         if(dependent_time)
@@ -2775,13 +2776,6 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
         
         extra_time = 0;
         
-        //check PV at 100%
-        if(!abort.load() && selectivity == NO_SELECT && s_alpha <= list->next->score && list->next->score <= s_beta) {
-            RXSearch::t_client save_client = search_client;
-            search_client = RXSearch::kPrivate;
-            EG_check_PV(search_sBoard, list->next->score, list->next->score-VALUE_DISC, list->next->score+VALUE_DISC);
-            search_client = save_client;
-        }
         
         best_answer.position = list->next->position;
         best_answer.score = list->next->score;
@@ -2816,6 +2810,15 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
             
         }
         
+        //check PV at 100%
+        if(!abort.load() && sBoard.board.n_empties-6 > 0 && selectivity == NO_SELECT && s_alpha <= list->next->score && list->next->score <= s_beta) {
+            RXSearch::t_client save_client = search_client;
+            search_client = RXSearch::kPrivate;
+            EG_check_PV(search_sBoard, list->next->score);
+            search_client = save_client;
+        }
+
+        
         if(abort.load() )
             break;
         
@@ -2839,23 +2842,79 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
  * This function prepare parameters for solver
  *
  * \param sBoard      	sBoard.
- * \param alpha      	lower bound.
- * \param beta       	upper bound.
  */
 
 
-void RXEngine::EG_check_PV(RXBBPatterns& sBoard, const int score, const int alpha, const int beta) {
+void RXEngine::EG_check_PV(RXBBPatterns& sBoard, const int score) {
         
-//    //collecte PV
-//    std::vector<unsigned char> PV;
-//    hTable->pv(PV, sBoard.board, type_hashtable);
-//    
-//    //print PV
-//    std::for_each(PV.begin(), PV.end(), [](const unsigned char n) {
-//        std::cout << RXMove::index_to_coord(n) << ' ';
-//    });
-//    
-//    std::cout << std::endl;
+    //collecte PV
+    std::vector<unsigned char> pv;
+    hTable->mainVariation(pv, sBoard.board, type_hashtable, sBoard.board.n_empties-6);
+    
+    bool check_pv = EG_check_PV(pv, sBoard, -score);
+    
+    if(!check_pv)
+        std::cout << "RED ALERT : wrong PV" << std::endl;
 
+
+}
+
+bool RXEngine::EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard, const int score) {
+    
+    const int pos = pv.front();
+    if(pos == NOMOVE)
+        return true;
+    
+    RXBitBoard& board = sBoard.board;
+    
+    RXMove& move = threads[0]._move[board.n_empties][1];
+    if(pos == PASS) {
+        board.do_pass();
+    } else {
+        ((board).*(board.generate_flips[pos]))(move);
+        ((sBoard).*(sBoard.update_patterns[pos][board.player]))(move);
+        sBoard.do_move(move);
+    }
+    
+    pv.erase(pv.begin());
+    
+    bool good_pv = true;
+    
+    if(!pv.empty() && pv.front() != NOMOVE) {
+        
+        if(pv.front() == PASS) {
+            good_pv = EG_check_PV(pv, sBoard, -score);
+        } else {
+            RXMove* list = threads[0]._move[board.n_empties];
+            board.moves_producing(list);
+            list->sort_bestmove(pv.front());
+
+            for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
+                ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
+
+            EG_PVS_root(sBoard, NO_SELECT, score-VALUE_DISC, score+VALUE_DISC, list);
+            
+            int result = list->next->score;
+            
+            if(result == score)
+                good_pv = EG_check_PV(pv, sBoard, -score);
+            else
+                good_pv = false;
+
+        }
+
+    }
+
+    
+    pv.insert(pv.begin(), pos);
+    
+    if(pos == PASS) {
+        board.do_pass();
+    } else {
+        sBoard.undo_move(move);
+    }
+
+    return good_pv;
+    
 }
 

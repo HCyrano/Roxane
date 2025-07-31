@@ -416,7 +416,6 @@ std::string RXHashTable::line2String(RXBitBoard& board, const int depth, const t
 
 void RXHashTable::mainVariation(std::vector<unsigned char>& pv, RXBitBoard& board, const t_hash type_hashtable, const int depth) const {
 	
-
 	if(depth>0) {
 		RXHashValue entry;
 		if(get(board, type_hashtable, entry) && entry.move != NOMOVE) {

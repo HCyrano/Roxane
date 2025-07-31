@@ -330,7 +330,9 @@ class RXEngine: public Runnable, public RXHelper {
     static const int EG_HIGH_SELECT;
     
     
-    void EG_check_PV(RXBBPatterns& sBoard, const int score, const int alpha, const int beta);
+    void EG_check_PV(RXBBPatterns& sBoard, const int score);
+    bool EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard, const int score);
+
     
     void EG_driver(RXBBPatterns& board, int selectivity, int end_selectivity, RXMove* list);
     

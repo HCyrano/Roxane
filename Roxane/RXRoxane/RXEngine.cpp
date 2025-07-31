@@ -1612,7 +1612,7 @@ void RXEngine::get_move(RXSearch& s) {
 
 
 void RXEngine::run() {
-    
+        
     time_search = get_system_time();
     
     abort.store(false);
