@@ -159,7 +159,7 @@ class RXHashTable {
     void mergePV(RXBitBoard& board);
     void protectPV(RXBitBoard& board);
     
-    void update(const unsigned long long hash_code, const bool pv, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move);
+    void update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move);
     void update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int score, const char move);
     
     std::string line2String(RXBitBoard& board, const int depth, const t_hash type_hashtable) const;

@@ -82,21 +82,17 @@ void RXHashTable::reset() {
 }
 
 
-void RXHashTable::update(const unsigned long long hash_code, const bool pv, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
+void RXHashTable::update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
 
-//	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE);
-//	assert(beta >= -MAX_SCORE && beta <= MAX_SCORE);
-//
-//	assert(score != -MAX_SCORE || score != MAX_SCORE);
-//	assert(score != -INTERRUPT_SEARCH || score != INTERRUPT_SEARCH);
-//	assert(score != -UNDEF_SCORE || score != UNDEF_SCORE);
-	
-//    //track Bug hash 24/01/2025
-//    if (std::abs(score) == MAX_SCORE) {
-//        std::cout << "RED ALERT : abs(score) == MAX_SCORE" << std::endl;
-//        std::cout << "score = " << score << std::endl;
-//        std::cout << "alpha = " << alpha << std::endl;
-//        std::cout << "beta  = " << beta << std::endl;
+//    Exemple for track wrong PV
+//    if(hash_code == 888464045989717864) {
+//        std::cout << " pv = " << (pv? "true":"false") << std::endl;
+//        std::cout << " selectivity = " << static_cast<int>(selectivity) << std::endl;
+//        std::cout << " depth = " << static_cast<int>(depth) << std::endl;
+//        std::cout << " [ " << alpha << " : " << beta << " ]" << std::endl;
+//        std::cout << " score = " << score << std::endl;
+//        std::cout << " move = " << RXMove::index_to_coord(move) << std::endl;
+//        std::cout << std::endl;
 //    }
 
 	RXHashEntry& entry = table[_offsetTable[type_hashtable] | (static_cast<unsigned int>(hash_code>>32) & _maskTable[type_hashtable])];
@@ -110,8 +106,10 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 	RXHashValue deepest_value(deepest_packed);
 	
 	int _date = date[type_hashtable	== HASH_WHITE? WHITE:BLACK];
-	if(pv && !(alpha == beta-VALUE_DISC))
-		++_date; //bonus for pv
+    
+//  Bug wrong pv 32/07/2025
+//	if(pv || (alpha < score && score < beta))
+//		++_date; //bonus for pv
 	
 	
 	/* try to update deepest entry */
@@ -235,20 +233,17 @@ void RXHashTable::update(const unsigned long long hash_code, const bool pv, cons
 void RXHashTable::update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int score, const char move) {
 
 
-//	assert(alpha >= -MAX_SCORE && alpha <= MAX_SCORE-1);
-//	
-//	assert(score != -MAX_SCORE || score != MAX_SCORE);
-//	assert(score != -INTERRUPT_SEARCH || score != INTERRUPT_SEARCH);
-//	assert(score != -UNDEF_SCORE || score != UNDEF_SCORE);
-    
-    
-//    //track Bug hash 24/01/2025
-//    if (std::abs(score) == MAX_SCORE) {
-//        std::cout << "RED ALERT : abs(score) == MAX_SCORE" << std::endl;
-//        std::cout << "score = " << score << std::endl;
-//        std::cout << "alpha = " << alpha << std::endl;
+//    Exemple for track wrong PV
+//    if(hash_code == 888464045989717864) {
+//        std::cout << " NWS " << std::endl;
+//        std::cout << " selectivity = " << static_cast<int>(selectivity) << std::endl;
+//        std::cout << " depth = " << static_cast<int>(depth) << std::endl;
+//        std::cout << " alpha =  " << alpha << std::endl;
+//        std::cout << " score = " << score << std::endl;
+//        std::cout << " move = " << RXMove::index_to_coord(move) << std::endl;
+//        std::cout << std::endl;
 //    }
-        
+
 	RXHashEntry& entry = table[_offsetTable[type_hashtable] | (static_cast<unsigned int>(hash_code>>32) & _maskTable[type_hashtable])];
 	
 	RXHashRecord& deepest = entry.deepest;

@@ -324,7 +324,7 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alp
         
         
         
-        hTable->update(sBoard.board.hashcode(), true, type_hashtable, selective_cutoff? MG_SELECT: NO_SELECT, depth, alpha, upper, bestscore, bestmove);
+        hTable->update(sBoard.board.hashcode(), type_hashtable, selective_cutoff? MG_SELECT: NO_SELECT, depth, alpha, upper, bestscore, bestmove);
         
         
     }
@@ -887,9 +887,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    hTable->update(   hash_code, pv, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
+    hTable->update(   hash_code, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     /*if(pv)*/
-    hTable_PV->update(hash_code, pv, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
+    hTable_PV->update(hash_code, type_hashtable, selective_cutoff? MG_SELECT : NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     
     return bestscore;
     
@@ -1223,7 +1223,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     }
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    hTable->update(hash_code, pv, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
+    hTable->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     
     return bestscore;
     
@@ -1388,7 +1388,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         //PASS
         if(passed) {
             bestscore = sBoard.final_score();
-            hTable->update(hash_code, false, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empties, -MAX_SCORE, MAX_SCORE,  bestscore, bestmove);
+            hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empties, -MAX_SCORE, MAX_SCORE,  bestscore, bestmove);
             return bestscore;
         } else {
             board.do_pass();
