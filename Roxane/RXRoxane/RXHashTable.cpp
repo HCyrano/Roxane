@@ -105,11 +105,10 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 	
 	RXHashValue deepest_value(deepest_packed);
 	
-	int _date = date[type_hashtable	== HASH_WHITE? WHITE:BLACK];
+	unsigned int _date = date[type_hashtable == HASH_WHITE? WHITE:BLACK];
     
-//  Bug wrong pv 32/07/2025
-//	if(pv || (alpha < score && score < beta))
-//		++_date; //bonus for pv
+	if(alpha < score && score < beta)
+		++_date; //bonus for exact score
 	
 	
 	/* try to update deepest entry */
@@ -184,7 +183,7 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code ||  deepest_value.date <  _date ||
-													(deepest_value.date == _date && ( deepest_value.depth <  depth ||
+													(deepest_value.date == _date && ( deepest_value.depth < depth ||
 													(deepest_value.depth == depth && deepest_value.selectivity < selectivity)))) { // priority
 			
 			if(deepest_hashcode != hash_code &&	(newest_hashcode == hash_code ||  newest_value.date <  deepest_value.date ||
@@ -254,34 +253,24 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 	
 	RXHashValue deepest_value(deepest_packed);
 	
-	int _date = date[type_hashtable	== HASH_WHITE? WHITE:BLACK];
+	const unsigned int _date = date[type_hashtable == HASH_WHITE? WHITE:BLACK];
 
 	
 	/* try to update deepest entry */
 	if (hash_code == deepest_hashcode && selectivity == deepest_value.selectivity  && depth == deepest_value.depth) {
 		
 		if (score > alpha) {
-			if(score > deepest_value.lower)
-				deepest_value.lower =  static_cast<short>(score);
+            if(score > deepest_value.lower) {
+                deepest_value.lower =  static_cast<short>(score);
+                deepest_value.upper =  MAX_SCORE;
+            }
 		} else { //score <= alpha equivalent score < alpha + VALUE_DISC
             if(score < deepest_value.upper) {
+                deepest_value.lower =  -MAX_SCORE;
                 deepest_value.upper =  static_cast<short>(score);
             }
-                
 		}
-		
-		/* control if lower>upper : Instability */
-		if(deepest_value.lower>deepest_value.upper) {
-
-			if (score > alpha) {
-				deepest_value.upper = MAX_SCORE;
-				deepest_value.lower = static_cast<short>(score);
-			} else {
-				deepest_value.upper = static_cast<short>(score);
-				deepest_value.lower = -MAX_SCORE;
-			}
-		}
-		
+				
 		deepest_value.date = _date;
         if(score>alpha /* || score == -MAX_SCORE*/)
             deepest_value.move = move;
@@ -302,25 +291,17 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		if (hash_code == newest_hashcode && selectivity == newest_value.selectivity  && depth == newest_value.depth) {
 			
 			if (score > alpha) {
-				if(score > newest_value.lower)
-					newest_value.lower = static_cast<short>(score);
+                if(score > newest_value.lower) {
+                    newest_value.lower = static_cast<short>(score);
+                    newest_value.upper = MAX_SCORE;
+                }
             } else {
-				if(score < newest_value.upper)
-					newest_value.upper = static_cast<short>(score);
+                if(score < newest_value.upper) {
+                    newest_value.lower = -MAX_SCORE;
+                    newest_value.upper = static_cast<short>(score);
+                }
 			}
-			
-            /* control if lower>upper : Instability */
-			if(newest_value.lower>newest_value.upper) {
 
-				if (score > alpha) {
-					newest_value.upper = MAX_SCORE;
-					newest_value.lower = static_cast<short>(score);
-				} else {
-					newest_value.upper = static_cast<short>(score);
-					newest_value.lower = -MAX_SCORE;
-				}
-			}
-			
 			newest_value.date = _date;
             if(score>alpha /* || score == -MAX_SCORE*/)
                 newest_value.move =  move;
@@ -331,7 +312,7 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code ||  deepest_value.date <  _date ||
-													(deepest_value.date == _date && (deepest_value.depth <  depth ||
+													(deepest_value.date == _date && (deepest_value.depth < depth ||
 													(deepest_value.depth == depth && deepest_value.selectivity < selectivity)))) { // priority
         
     
@@ -385,6 +366,7 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 	}	
 	
 }
+
 
 
 std::string RXHashTable::line2String(RXBitBoard& board, const int depth, const t_hash type_hashtable) const {

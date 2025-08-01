@@ -188,7 +188,7 @@ inline void RXHashTable::entry_prefetch(const unsigned long long hash_code, cons
 
 inline void RXHashTable::new_search(const unsigned int color, const int n_empties) {
 	
-	int stage = 60-n_empties;
+	int stage = 2*(60-n_empties);
 	
 	if(stage>date[_shared ? 0:color])
 		date[_shared ? 0:color] = stage;
