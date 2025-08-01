@@ -2849,7 +2849,7 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
 
 void RXEngine::EG_check_PV(RXBBPatterns& sBoard, const int score) {
         
-    //collecte PV
+    //collect PV
     std::vector<unsigned char> pv;
     hTable->mainVariation(pv, sBoard.board, type_hashtable, sBoard.board.n_empties-6);
     
@@ -2869,8 +2869,9 @@ void RXEngine::EG_check_PV(RXBBPatterns& sBoard, const int score) {
     }
     std:: cout << buffer.str() << std::endl;;
 
-    //
-    EG_check_PV(pv, sBoard, -score);
+    // check PV
+    if(!pv.empty())
+       EG_check_PV(pv, sBoard, -score);
 
 }
 
