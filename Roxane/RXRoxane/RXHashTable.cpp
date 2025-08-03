@@ -84,17 +84,6 @@ void RXHashTable::reset() {
 
 void RXHashTable::update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int beta, const int score, const char move) {
 
-//    Exemple for track wrong PV
-//    if(hash_code == 888464045989717864) {
-//        std::cout << " pv = " << (pv? "true":"false") << std::endl;
-//        std::cout << " selectivity = " << static_cast<int>(selectivity) << std::endl;
-//        std::cout << " depth = " << static_cast<int>(depth) << std::endl;
-//        std::cout << " [ " << alpha << " : " << beta << " ]" << std::endl;
-//        std::cout << " score = " << score << std::endl;
-//        std::cout << " move = " << RXMove::index_to_coord(move) << std::endl;
-//        std::cout << std::endl;
-//    }
-
 	RXHashEntry& entry = table[_offsetTable[type_hashtable] | (static_cast<unsigned int>(hash_code>>32) & _maskTable[type_hashtable])];
 	
 	RXHashRecord& deepest = entry.deepest;
@@ -117,8 +106,12 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		
 		if (score < beta && score < deepest_value.upper) 
 			deepest_value.upper = static_cast<short>(score);
-		if (score > alpha && score > deepest_value.lower)
-			deepest_value.lower = static_cast<short>(score);
+        if (score > alpha) {
+            deepest_value.move = move;
+            
+            if(score > deepest_value.lower)
+                deepest_value.lower = static_cast<short>(score);
+        }
 
         /* control if lower>upper : Instability */
 		if(deepest_value.lower>deepest_value.upper) {
@@ -133,11 +126,11 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			else
 				deepest_value.lower = -MAX_SCORE;
             
+            deepest_value.move = move;
+            
 		}
 		
 		deepest_value.date = _date;
-        if(score>alpha /* || score == -MAX_SCORE*/)
-            deepest_value.move = move;
         		
 		deepest.packed = deepest_value.wide_2_compact();
 		deepest.lock   = hash_code ^ deepest.packed;
@@ -156,8 +149,12 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			
 			if (score < beta && score < newest_value.upper)
 				newest_value.upper = static_cast<short>(score);
-			if (score > alpha && score > newest_value.lower)
-				newest_value.lower =  static_cast<short>(score);
+            if (score > alpha) {
+                newest_value.move =  move;
+                
+                if(score > newest_value.lower)
+                    newest_value.lower =  static_cast<short>(score);
+            }
 
             /* control if lower>upper : Instability */
 			if(newest_value.lower>newest_value.upper) {
@@ -171,15 +168,28 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 					newest_value.lower = static_cast<short>(score);
 				else
 					newest_value.lower = -MAX_SCORE;
+                
+                newest_value.move =  move;
+
 			}
 			
 			newest_value.date = _date;
-            if(score>alpha /* || score == -MAX_SCORE*/)
-                newest_value.move =  move;
             
-			newest.packed = newest_value.wide_2_compact();
-			newest.lock   = hash_code ^ newest.packed;
-			
+            //implementation 2025-08-02 (en test)
+            if(newest_value.date > deepest_value.date) {
+                
+                newest.lock   = deepest_lock;
+                newest.packed = deepest_packed;
+                
+                deepest.packed = newest_value.wide_2_compact();
+                deepest.lock   = hash_code ^ deepest.packed;
+
+            } else {
+                
+                newest.packed = newest_value.wide_2_compact();
+                newest.lock   = hash_code ^ newest.packed;
+            }
+
 			
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code ||  deepest_value.date <  _date ||
@@ -232,17 +242,6 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 void RXHashTable::update(const unsigned long long hash_code, const t_hash type_hashtable, const unsigned char selectivity, const unsigned char depth, const int alpha, const int score, const char move) {
 
 
-//    Exemple for track wrong PV
-//    if(hash_code == 888464045989717864) {
-//        std::cout << " NWS " << std::endl;
-//        std::cout << " selectivity = " << static_cast<int>(selectivity) << std::endl;
-//        std::cout << " depth = " << static_cast<int>(depth) << std::endl;
-//        std::cout << " alpha =  " << alpha << std::endl;
-//        std::cout << " score = " << score << std::endl;
-//        std::cout << " move = " << RXMove::index_to_coord(move) << std::endl;
-//        std::cout << std::endl;
-//    }
-
 	RXHashEntry& entry = table[_offsetTable[type_hashtable] | (static_cast<unsigned int>(hash_code>>32) & _maskTable[type_hashtable])];
 	
 	RXHashRecord& deepest = entry.deepest;
@@ -260,6 +259,8 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 	if (hash_code == deepest_hashcode && selectivity == deepest_value.selectivity  && depth == deepest_value.depth) {
 		
 		if (score > alpha) {
+            deepest_value.move = move;
+            
             if(score > deepest_value.lower) {
                 deepest_value.lower =  static_cast<short>(score);
                 deepest_value.upper =  MAX_SCORE;
@@ -272,8 +273,6 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		}
 				
 		deepest_value.date = _date;
-        if(score>alpha /* || score == -MAX_SCORE*/)
-            deepest_value.move = move;
 		
 		deepest.packed = deepest_value.wide_2_compact();
 		deepest.lock   = hash_code ^ deepest.packed;
@@ -291,6 +290,8 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		if (hash_code == newest_hashcode && selectivity == newest_value.selectivity  && depth == newest_value.depth) {
 			
 			if (score > alpha) {
+                newest_value.move =  move;
+                
                 if(score > newest_value.lower) {
                     newest_value.lower = static_cast<short>(score);
                     newest_value.upper = MAX_SCORE;
@@ -303,8 +304,6 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 			}
 
 			newest_value.date = _date;
-            if(score>alpha /* || score == -MAX_SCORE*/)
-                newest_value.move =  move;
 			
 			newest.packed = newest_value.wide_2_compact();
 			newest.lock   = hash_code ^ newest.packed;
