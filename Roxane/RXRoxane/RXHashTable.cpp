@@ -129,6 +129,9 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
             deepest_value.move = move;
             
 		}
+        
+        if(deepest_value.upper == deepest_value.lower)
+            ++_date;
 		
 		deepest_value.date = _date;
         		
@@ -172,7 +175,10 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
                 newest_value.move =  move;
 
 			}
-			
+
+            if(newest_value.upper == newest_value.lower)
+                ++_date;
+
 			newest_value.date = _date;
             
             //implementation 2025-08-02 (en test)
