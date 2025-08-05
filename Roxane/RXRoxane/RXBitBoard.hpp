@@ -406,6 +406,7 @@ inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_play
 
 
 inline int RXBitBoard::final_score_2(int alpha, const int beta) const {
+    --n_nodes; // delete removes the duplicate
     return final_score_2(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC,  empties_list->next->position,  empties_list->next->next->position)*VALUE_DISC;
 }
 
@@ -1253,6 +1254,8 @@ inline int RXBitBoard::final_score_3(int alpha, const int beta) const {
     empties3 |= (empties_list->next->next->position << 8);
     empties3 |=  empties_list->next->next->next->position;
     
+    --n_nodes; // delete removes the duplicate
+    
     return final_score_3(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, 0xE4UL, empties3)*VALUE_DISC;
 }
 
@@ -1368,7 +1371,6 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
 ///   - beta: beta bound
 ///   - passed: true if  previous move is pass
 inline int RXBitBoard::final_score_4(int alpha, int beta, const bool passed) const {
-    
     
 #ifdef USE_STABILITY
     
