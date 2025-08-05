@@ -174,7 +174,7 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
                 
                 newest_value.move =  move;
 
-			} else if(deepest_value.lower == deepest_value.upper) {
+			} else if(newest_value.lower == newest_value.upper) {
                 if(_date == date[type_hashtable == HASH_WHITE? WHITE:BLACK])
                     ++_date;
             }

@@ -45,6 +45,8 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
     
     RXHashEntry& entry = table[static_cast<unsigned int>(hash_code>>32) & _maskTable];
     
+    int _date = date;
+    
     RXHashRecord& deepest = entry.deepest;
     
     const unsigned long long deepest_packed = deepest.packed;
@@ -81,7 +83,11 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
             
             deepest_value.move = move;
             
+        } else if(deepest_value.lower == deepest_value.upper) {
+            ++_date;
         }
+        
+        deepest_value.date = _date;
         
         deepest.packed = deepest_value.wide_2_compact();
         deepest.lock   = hash_code ^ deepest.packed;
@@ -122,11 +128,14 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
                 
                 newest_value.move =  move;
                 
+            }else if(newest_value.lower == newest_value.upper) {
+                ++_date;
             }
             
-            
+            newest_value.date = _date;
+
             //implementation 2025-08-05 (en test)
-            if((newest_value.lower == newest_value.upper) && (deepest_value.lower != deepest_value.upper)) {
+            if(newest_value.date > deepest_value.date) {
                 
                 //copy
                 newest.lock   = deepest_lock;
@@ -142,7 +151,7 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
             }
             
             /* else try to add to deepest entry */
-        } else if (deepest_hashcode == hash_code || deepest_value.date < date ||  deepest_value.depth < depth) { // priority
+        } else if (deepest_hashcode == hash_code || deepest_value.date < _date ||  deepest_value.depth < depth) { // priority
             
             if(deepest_hashcode != hash_code &&	(newest_hashcode == hash_code || (newest_value.date < deepest_value.date ||
                                                                                   ((newest_value.date == deepest_value.date) && (newest_value.depth <= deepest_value.depth))))) {
@@ -153,7 +162,7 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
             }
             
             deepest_value.depth = depth;
-            deepest_value.date = date;
+            deepest_value.date = _date;
             deepest_value.lower = -MAX_SCORE;
             deepest_value.upper = +MAX_SCORE;
             if (score < beta) deepest_value.upper = static_cast<short>(score);
@@ -168,7 +177,7 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
         } else {
             
             newest_value.depth = depth;
-            newest_value.date = date;
+            newest_value.date = _date;
             newest_value.lower = -MAX_SCORE;
             newest_value.upper = +MAX_SCORE;
             if (score < beta) newest_value.upper = static_cast<short>(score);

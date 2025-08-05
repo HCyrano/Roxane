@@ -52,7 +52,7 @@ class RXHashShallow {
 
 inline void RXHashShallow::new_search(const int n_empties) {
 	
-	int stage = 60-n_empties;
+	int stage = 2*(60-n_empties);
 	
 	if(stage>date)
 		date = stage;
