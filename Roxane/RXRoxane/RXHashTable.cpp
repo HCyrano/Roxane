@@ -128,10 +128,9 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
             
             deepest_value.move = move;
             
-		}
-        
-        if(deepest_value.upper == deepest_value.lower)
+		} else if(deepest_value.lower == deepest_value.upper) {
             ++_date;
+        }
 		
 		deepest_value.date = _date;
         		
@@ -174,10 +173,9 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
                 
                 newest_value.move =  move;
 
-			}
-
-            if(newest_value.upper == newest_value.lower)
+			} else if(newest_value.lower == newest_value.upper) {
                 ++_date;
+            }
 
 			newest_value.date = _date;
             
@@ -259,28 +257,41 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 	
 	RXHashValue deepest_value(deepest_packed);
 	
-	const unsigned int _date = date[type_hashtable == HASH_WHITE? WHITE:BLACK];
+	unsigned int _date = date[type_hashtable == HASH_WHITE? WHITE:BLACK];
 
 	
 	/* try to update deepest entry */
 	if (hash_code == deepest_hashcode && selectivity == deepest_value.selectivity  && depth == deepest_value.depth) {
-		
-		if (score > alpha) {
-            deepest_value.move = move;
+
+        if (score > alpha) {
+            deepest_value.move =  move;
             
-            if(score > deepest_value.lower) {
+            if(score > deepest_value.lower)
                 deepest_value.lower =  static_cast<short>(score);
-                deepest_value.upper =  MAX_SCORE;
+
+        } else if(score < deepest_value.upper) {
+            deepest_value.upper = static_cast<short>(score);
+        }
+
+        /* control if lower>upper : Instability */
+        if(deepest_value.lower > deepest_value.upper) {
+
+            if(score>alpha) {
+                deepest_value.lower = static_cast<short>(score);
+                deepest_value.lower = -MAX_SCORE;
+            } else {
+                deepest_value.upper = static_cast<short>(score);
+                deepest_value.upper = MAX_SCORE;
             }
-		} else { //score <= alpha equivalent score < alpha + VALUE_DISC
-            if(score < deepest_value.upper) {
-                deepest_value.lower =  -MAX_SCORE;
-                deepest_value.upper =  static_cast<short>(score);
-            }
-		}
-				
-		deepest_value.date = _date;
-		
+            
+            deepest_value.move =  move;
+
+        } else if(deepest_value.lower == deepest_value.upper) {
+            ++_date;
+        }
+        
+        deepest_value.date = _date;
+						
 		deepest.packed = deepest_value.wide_2_compact();
 		deepest.lock   = hash_code ^ deepest.packed;
 		
@@ -294,28 +305,53 @@ void RXHashTable::update(const unsigned long long hash_code, const t_hash type_h
 		
 		
 		/* else try to update newest entry */
-		if (hash_code == newest_hashcode && selectivity == newest_value.selectivity  && depth == newest_value.depth) {
-			
-			if (score > alpha) {
+        if (hash_code == newest_hashcode && selectivity == newest_value.selectivity  && depth == newest_value.depth) {
+            
+            if (score > alpha) {
                 newest_value.move =  move;
                 
-                if(score > newest_value.lower) {
+                if(score > newest_value.lower)
+                    newest_value.lower =  static_cast<short>(score);
+
+            } else if(score < newest_value.upper) {
+                newest_value.upper = static_cast<short>(score);
+            }
+
+            /* control if lower>upper : Instability */
+            if(newest_value.lower > newest_value.upper) {
+
+                if(score>alpha) {
                     newest_value.lower = static_cast<short>(score);
+                    newest_value.lower = -MAX_SCORE;
+                } else {
+                    newest_value.upper = static_cast<short>(score);
                     newest_value.upper = MAX_SCORE;
                 }
-            } else {
-                if(score < newest_value.upper) {
-                    newest_value.lower = -MAX_SCORE;
-                    newest_value.upper = static_cast<short>(score);
-                }
-			}
+                
+                newest_value.move =  move;
 
-			newest_value.date = _date;
-			
-			newest.packed = newest_value.wide_2_compact();
-			newest.lock   = hash_code ^ newest.packed;
-			
-			
+            } else if(newest_value.lower == newest_value.upper) {
+                ++_date;
+            }
+
+            newest_value.date = _date;
+            
+            //implementation 2025-08-02 (en test)
+            if(newest_value.date > deepest_value.date) {
+                
+                //copy
+                newest.lock   = deepest_lock;
+                newest.packed = deepest_packed;
+                
+                deepest.packed = newest_value.wide_2_compact();
+                deepest.lock   = hash_code ^ deepest.packed;
+
+            } else {
+                
+                newest.packed = newest_value.wide_2_compact();
+                newest.lock   = hash_code ^ newest.packed;
+            }
+
 			/* else try to add to deepest entry */
 		} else if (deepest_hashcode == hash_code ||  deepest_value.date <  _date ||
 													(deepest_value.date == _date && (deepest_value.depth < depth ||
