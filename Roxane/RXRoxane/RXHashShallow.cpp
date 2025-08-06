@@ -47,6 +47,10 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
     
     int _date = date;
     
+    if(alpha < score && score < beta)
+        ++_date; //bonus for exact score
+
+    
     RXHashRecord& deepest = entry.deepest;
     
     const unsigned long long deepest_packed = deepest.packed;
@@ -84,7 +88,8 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
             deepest_value.move = move;
             
         } else if(deepest_value.lower == deepest_value.upper) {
-            ++_date;
+            if(_date == date)
+                ++_date;
         }
         
         deepest_value.date = _date;
@@ -128,8 +133,9 @@ void RXHashShallow::update(const unsigned long long hash_code, const unsigned ch
                 
                 newest_value.move =  move;
                 
-            }else if(newest_value.lower == newest_value.upper) {
-                ++_date;
+            } else if(newest_value.lower == newest_value.upper) {
+                if(_date == date)
+                    ++_date;
             }
             
             newest_value.date = _date;
