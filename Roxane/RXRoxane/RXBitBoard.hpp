@@ -804,70 +804,65 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
 inline int RXBitBoard::get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent) {
     
     
-    unsigned long long filled = discs_player | discs_opponent;
+    const unsigned long long filled = discs_player | discs_opponent;
+    const unsigned long long central_mask = discs_player & 0x007e7e7e7e7e7e00ULL;
     
-    unsigned long long left_right, up_down, diag_a, diag_b;
+    unsigned long long stable = get_stable_edge(discs_player, discs_opponent);
+
+    unsigned long long h, v, d7, d9;
     
-    left_right = filled;
-    left_right &= left_right >> 4;
-    left_right &= left_right >> 2;
-    left_right &= left_right >> 1;
-    left_right &= 0x0101010101010101ULL;
+    h = filled;
+    h &= h >> 4;
+    h &= h >> 2;
+    h &= h >> 1;
+    h &= 0x0101010101010101ULL;
     
     //trick multiplication par 255 (remplit les lignes)
-    left_right = (left_right << 8) - left_right; //*=255
-    left_right |= 0x8181818181818181ULL;
+    h = (h << 8) - h; //*=255
+    h |= 0x8181818181818181ULL;
     
-    up_down = filled;
-    up_down &= (up_down >> 32) | (up_down << 32);
-    up_down &= (up_down >> 16) | (up_down << 16);
-    up_down &= (up_down >>  8) | (up_down <<  8);
+    v = filled;
+    v &= (v >> 32) | (v << 32);
+    v &= (v >> 16) | (v << 16);
+    v &= (v >>  8) | (v <<  8);
     
-    up_down |= 0xFF000000000000FFULL;
+    v |= 0xFF000000000000FFULL;
     
-    diag_a = filled;
-    diag_a &= ((diag_a>>28) & 0x00000000F0F0F0F0ULL) | ((diag_a<<28) & 0x0F0F0F0F00000000ULL) | 0xF0F0F0F00F0F0F0FULL;
-    diag_a &= ((diag_a>>14) & 0x0000FCFCFCFCFCFCULL) | ((diag_a<<14) & 0x3F3F3F3F3F3F0000ULL) | 0xC0C0000000000303ULL;
-    diag_a &= (diag_a>> 7) & (diag_a<< 7);
+    d7 = filled;
+    d7 &= ((d7>>28) & 0x00000000F0F0F0F0ULL) | ((d7<<28) & 0x0F0F0F0F00000000ULL) | 0xF0F0F0F00F0F0F0FULL;
+    d7 &= ((d7>>14) & 0x0000FCFCFCFCFCFCULL) | ((d7<<14) & 0x3F3F3F3F3F3F0000ULL) | 0xC0C0000000000303ULL;
+    d7 &= (d7>> 7) & (d7<< 7);
     
-    diag_a |= 0xFF818181818181FFULL;
+    d7 |= 0xFF818181818181FFULL;
     
-    diag_b = filled;
-    //diag_b &= ((diag_b>>36) & 0x000000000F0F0F0FULL) | ((diag_b<<36) & 0xF0F0F0F000000000ULL) | 0x0F0F0F0FF0F0F0F0ULL;
-    diag_b &= (diag_b>>36) | (diag_b<<36) | 0x0F0F0F0FF0F0F0F0ULL;
-    diag_b &= ((diag_b>>18) & 0x00003F3F3F3F3F3FULL) | ((diag_b<<18) & 0xFCFCFCFCFCFC0000ULL) | 0x030300000000C0C0ULL;
-    diag_b &= (diag_b>> 9) & (diag_b<< 9);
+    d9 = filled;
+    //d9 &= ((d9>>36) & 0x000000000F0F0F0FULL) | ((d9<<36) & 0xF0F0F0F000000000ULL) | 0x0F0F0F0FF0F0F0F0ULL;
+    d9 &= (d9>>36) | (d9<<36) | 0x0F0F0F0FF0F0F0F0ULL;
+    d9 &= ((d9>>18) & 0x00003F3F3F3F3F3FULL) | ((d9<<18) & 0xFCFCFCFCFCFC0000ULL) | 0x030300000000C0C0ULL;
+    d9 &= (d9>> 9) & (d9<< 9);
     
-    diag_b |= 0xFF818181818181FFULL;
-    
-    unsigned long long stable = left_right & up_down & diag_a & diag_b & discs_player;
-    
-    
-    if(stable == 0)
-        return 0;
-    
-    unsigned long long old_stable, dir_1, dir_2, dir_3, dir_4;
-    
-    
-    do {
+    d9 |= 0xFF818181818181FFULL;
         
+    stable |= (h & v & d7 & d9 & central_mask);
+    
+    unsigned long long old_stable = 0;
+    uint64_t stable_h, stable_v, stable_d7, stable_d9;
+    
+    while (stable != old_stable) {
         old_stable = stable;
-        
-        dir_1 = (stable << 1) | (stable >> 1 ) | left_right;
-        dir_2 = (stable << 8) | (stable >> 8 ) | up_down;
-        dir_3 = (stable << 7) | (stable >> 7 ) | diag_a;
-        dir_4 = (stable << 9) | (stable >> 9 ) | diag_b;
-        
-        stable = dir_1 & dir_2 & dir_3 & dir_4 & discs_player;
-        
-        
-    } while(stable != old_stable);
-    
+        stable_h  = ((stable >> 1) | (stable << 1) | h);
+        stable_v  = ((stable >> 8) | (stable << 8) | v);
+        stable_d7 = ((stable >> 7) | (stable << 7) | d7);
+        stable_d9 = ((stable >> 9) | (stable << 9) | d9);
+        stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
+    }
     
     return VALUE_DISC * __builtin_popcountll(stable);
-    
+
     
 }
+
+
 
 
 inline unsigned long long RXBitBoard::hashcode() const {
