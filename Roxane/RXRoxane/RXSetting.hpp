@@ -20,7 +20,7 @@
  #define USE_PROBCUT_ALPHA
  */
 
-#define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
+//#define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
 
 //for record fforum-40-59 setting
 //Matchs avec / sans :
