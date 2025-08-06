@@ -74,11 +74,11 @@ void RXHashTable::reset() {
 	const unsigned long capacity = 1UL<<nBitsTable;
 	
 	for(unsigned long i = 0; i<capacity; i++) {
-		table[i].deepest.packed = 0ULL;
-		table[i].newest.packed = 0ULL;
+		table[i].deepest.packed = 0x0ULL;
+		table[i].newest.packed = 0x0ULL;
 	}
 	
-	date[0] = date[1] = 0;
+	date[BLACK] = date[WHITE] = 0;
 }
 
 

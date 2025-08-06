@@ -54,6 +54,6 @@ static const short UNDEF_SCORE = -std::numeric_limits<short>::max();
 static const short INTERRUPT_SEARCH = 32000;
 static const short MAX_SCORE = 22222; //22222 must diff %VALUE_DISC == 0 (222,22 discs)
 static const int VALUE_DISC = 100;
-static const unsigned int SHARED = 0;
+static const unsigned int SHARED = BLACK;
 
 #endif

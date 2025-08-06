@@ -2924,17 +2924,19 @@ bool RXEngine::EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard,
                 
                 for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
-                
-                EG_PVS_root(sBoard, NO_SELECT, score-VALUE_DISC, score+VALUE_DISC, list);
+ 
+                EG_PVS_root(sBoard, NO_SELECT, score-2*VALUE_DISC, score+2*VALUE_DISC, list);
                 
                 int result = list->next->score;
                 
                 if(result == score)
                     good_pv = EG_check_PV(pv, sBoard, -score);
                 else {
+                    
                     std::cout << "RED ALERT : wrong PV" << std::endl;
                     std::cout << "bad move : " << RXMove::index_to_coord(pos) << std::endl;
-                    std::cout << "score = " << score << " result = " << result << std::endl;
+                    std::cout << "score = " << -score << " result = " << result << std::endl;
+
                     good_pv = false;
                 }
                 

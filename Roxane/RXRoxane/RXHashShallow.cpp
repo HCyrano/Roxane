@@ -32,8 +32,8 @@ void RXHashShallow::reset() {
     
     
     for(std::vector<RXHashEntry>::iterator iter = table.begin(); iter!=table.end(); iter++) {
-        (iter->deepest).packed = 0ULL;
-        (iter->newest).packed = 0ULL;
+        (iter->deepest).packed = 0x0ULL;
+        (iter->newest).packed = 0x0ULL;
     }
     
     date = 0;
