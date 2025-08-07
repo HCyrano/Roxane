@@ -760,7 +760,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                     if (board.n_empties < EG_MEDIUM_TO_SHALLOW) {
                         score = -EG_alphabeta_hash_mobility(threadID, board, pv, -upper, -lower, false);
                     } else {
-                        score = -EG_PVS_hash_mobility(threadID, board, false, -lower - VALUE_DISC, -lower, false);
+                        score = -EG_PVS_hash_mobility(threadID, board, false, -lower-VALUE_DISC, -lower, false);
                         if (lower < score && score < upper)
                             score = -EG_PVS_hash_mobility(threadID, board, pv, -upper, -score, false);
                     }
@@ -1133,11 +1133,11 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                 
                 board.do_move(*move);
                 if (board.n_empties < EG_MEDIUM_HI_TO_LOW) {
-                    score = -EG_PVS_hash_mobility(threadID, board, false, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_PVS_hash_mobility(threadID, board, false, -lower-VALUE_DISC, -lower, false);
                     if (lower < score && score < upper)
                         score = -EG_PVS_hash_mobility(threadID, board, pv, -upper, -score, false);
                 } else {
-                    score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -lower-VALUE_DISC, -lower, false);
                     if (lower < score && score < upper)
                         score = -EG_PVS_ETC_mobility(threadID, sBoard, pv, -upper, -score, false);
                 }
@@ -1207,11 +1207,11 @@ void RXEngine::EG_SP_search_ETC_Mobility(RXSplitPoint* sp, const unsigned int th
         board.do_move(*move);
 
         if (board.n_empties < EG_MEDIUM_HI_TO_LOW) {
-            score = -EG_PVS_hash_mobility(threadID, board, false, -alpha - VALUE_DISC, -alpha, false);
+            score = -EG_PVS_hash_mobility(threadID, board, false, -alpha-VALUE_DISC, -alpha, false);
             if (alpha < score && score < sp->beta)
                 score = -EG_PVS_hash_mobility(threadID, board, sp->pv, -sp->beta, -score, false);
         } else {
-            score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha - VALUE_DISC, -alpha, false);
+            score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha-VALUE_DISC, -alpha, false);
             if (alpha < score && score < sp->beta)
                 score = -EG_PVS_ETC_mobility(threadID, sBoard, sp->pv, -sp->beta, -score, false);
         }
@@ -1722,19 +1722,19 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 sBoard.do_move(*move);
                 if (board.n_empties < EG_DEEP_TO_MEDIUM) {
                     
-                    score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -lower-VALUE_DISC, -lower, false);
                     if (lower < score && score < upper)
                         score = -EG_PVS_ETC_mobility(threadID, sBoard, pv, -upper, -score, false);
                     
                 } else if(selectivity != NO_SELECT) {
                     
-                    score = -EG_NWS_XEndCut(threadID, sBoard, 0, selectivity, child_selective_cutoff, -lower - VALUE_DISC, false);
+                    score = -EG_NWS_XEndCut(threadID, sBoard, 0, selectivity, child_selective_cutoff, -lower-VALUE_DISC, false);
                     if (lower < score && score < upper)
                         score = -EG_PVS_deep(threadID, sBoard, pv, selectivity, child_selective_cutoff, -upper, -lower, false); //-score
                     
                 } else {
                     
-                    score = -EG_PVS_deep(threadID, sBoard, false, NO_SELECT, child_selective_cutoff, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_PVS_deep(threadID, sBoard, false, NO_SELECT, child_selective_cutoff, -lower-VALUE_DISC, -lower, false);
                     if (lower < score && score < upper)
                         score = -EG_PVS_deep(threadID, sBoard, pv, NO_SELECT, child_selective_cutoff, -upper, -score, false);
                     
@@ -1825,21 +1825,21 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
         
         if (board.n_empties < EG_DEEP_TO_MEDIUM) {
             
-            score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha - VALUE_DISC, -alpha, false);
+            score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha-VALUE_DISC, -alpha, false);
             
             if (alpha < score && score < sp->beta)
                 score = -EG_PVS_ETC_mobility(threadID, sBoard, sp->pv, -sp->beta, -score, false);
             
         } else if(sp->selectivity != NO_SELECT) {
             
-            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, child_selective_cutoff, -alpha - VALUE_DISC, false);
+            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, child_selective_cutoff, -alpha-VALUE_DISC, false);
             
             if (alpha < score && score < sp->beta)
                 score = -EG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, child_selective_cutoff, -sp->beta, -sp->alpha, false);
             
         } else {
             
-            score = -EG_PVS_deep(threadID, sBoard, false, NO_SELECT, child_selective_cutoff, -alpha - VALUE_DISC, -alpha, false);
+            score = -EG_PVS_deep(threadID, sBoard, false, NO_SELECT, child_selective_cutoff, -alpha-VALUE_DISC, -alpha, false);
             
             if (alpha < score && score < sp->beta)
                 score = -EG_PVS_deep(threadID, sBoard, sp->pv, NO_SELECT, child_selective_cutoff, -sp->beta, /*sp->selectivity != NO_SELECT? -sp->alpha :*/ -score, false);
@@ -2159,7 +2159,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
             //				std::cout << "Error" << std::endl;
             
             
-            if(activeThreads > 1
+            if(activeThreads > 1 && board.n_empties > MIN_DEPTH_USE_ENDCUT+1 /*verifier pourquoi ?????*/
                && (list->next)->next != NULL && !thread_should_stop(threadID)
                && !abort.load() && idle_thread_exists(threadID)
                && split(sBoard, false, pvDev, board.n_empties, selectivity, selective_cutoff,
@@ -2251,7 +2251,7 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
         const int alpha = sp->alpha; //local copy
         bool child_selective_cutoff = false;
         
-        if(board.n_empties<=MIN_DEPTH_USE_ENDCUT) {
+        if(board.n_empties<MIN_DEPTH_USE_ENDCUT) {
             board.do_move(*move);
             score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha-VALUE_DISC, -alpha, false);
             board.undo_move(*move);
@@ -2412,25 +2412,15 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
                 score = -board.final_score_4(-upper, -lower, false);
             } else {
                 
-                //				//multi_pv PV == true
-                //				if (board.n_empties < EG_MEDIUM_TO_SHALLOW)
-                //					score = -EG_alphabeta_parity(0, board, -lower - VALUE_DISC, -lower, false);
-                //				else if (board.n_empties < EG_MEDIUM_HI_TO_LOW)
-                //					score = -EG_PVS_hash_mobility(0, board, true, -lower - VALUE_DISC, -lower, false);
-                //				else if (board.n_empties < EG_DEEP_TO_MEDIUM)
-                //					score = -EG_PVS_ETC_mobility(0, sBoard, true, -lower - VALUE_DISC, -lower, false); //multi-PV pv == true ????
-                //				else
-                //					score = -EG_PVS_deep(0, sBoard, true, selectivity, child_selective_cutoff, -lower - VALUE_DISC, -lower, false); //multi-PV pv == true ????
-                
                 //simple_pv PV == false
                 if (board.n_empties < EG_MEDIUM_TO_SHALLOW)
-                    score = -EG_alphabeta_parity(0, board, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_alphabeta_parity(0, board, -lower-VALUE_DISC, -lower, false);
                 else if (board.n_empties < EG_MEDIUM_HI_TO_LOW)
-                    score = -EG_PVS_hash_mobility(0, board, false, -lower - VALUE_DISC, -lower, false);
+                    score = -EG_PVS_hash_mobility(0, board, false, -lower-VALUE_DISC, -lower, false);
                 else if (board.n_empties < EG_DEEP_TO_MEDIUM)
-                    score = -EG_PVS_ETC_mobility(0, sBoard, false, -lower - VALUE_DISC, -lower, false); //simple-PV pv == false ????
+                    score = -EG_PVS_ETC_mobility(0, sBoard, false, -lower-VALUE_DISC, -lower, false); //simple-PV pv == false ????
                 else
-                    score = -EG_PVS_deep(0, sBoard, false, selectivity, child_selective_cutoff, -lower - VALUE_DISC, -lower, false); //simple-PV pv == false ????
+                    score = -EG_PVS_deep(0, sBoard, false, selectivity, child_selective_cutoff, -lower-VALUE_DISC, -lower, false); //simple-PV pv == false ????
                 
                 
                 if (!abort.load() && board.n_empties > 4 && lower < score && score < upper) {
@@ -2568,7 +2558,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         sBoard.do_move(*move);
         
         
-        int score = -EG_PVS_deep(threadID, sBoard, false, sp->selectivity, child_selective_cutoff, -alpha - VALUE_DISC, -alpha, false);
+        int score = -EG_PVS_deep(threadID, sBoard, false, sp->selectivity, child_selective_cutoff, -alpha-VALUE_DISC, -alpha, false);
         
         if (!(abort.load() || thread_should_stop(threadID)) && alpha < score && score < sp->beta) {
             

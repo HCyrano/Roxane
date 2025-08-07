@@ -632,8 +632,8 @@ std::ostream& operator<<(std::ostream& os, RXBitBoard& board) {
 			os << "\tNoirs: " << __builtin_popcountll(board.discs[BLACK]) << "\tBlancs: " << __builtin_popcountll(board.discs[WHITE]);
 		if(iLine == 5)
 			os << "\t" << (board.player == WHITE ? "BLANCS" : "NOIRS") << " au trait";
-        if(iLine == 6)
-            os << "\tHashcode " << std::hex << board.hashcode();
+//        if(iLine == 6)
+//            os << "\tHashcode " << std::hex << board.hashcode() << std::dec;
 
 
 		os << std::endl;
@@ -808,8 +808,6 @@ void RXBitBoard::print_Board() {
             std::cout << "\tNoirs: " << __builtin_popcountll(discs[BLACK]) << "\tBlancs: " << __builtin_popcountll(discs[WHITE]);
         if(iLine == 5)
             std::cout << "\t" << (player == WHITE ? "BLANCS" : "NOIRS") << " au trait";
-        if(iLine == 6)
-            std::cout << "\tHash code" << hashcode();
         
         std::cout << std::endl;
     }
