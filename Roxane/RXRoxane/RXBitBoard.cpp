@@ -728,6 +728,14 @@ int RXBitBoard::final_score_1 () const {
 
 #endif
 
+unsigned int RXBitBoard::n_moves() const {
+    
+    const unsigned long long legal_movesBB = get_legal_moves(discs[player], discs[player^1]);
+    return __builtin_popcountll(legal_movesBB);
+    
+}
+
+
 std::string RXBitBoard::cassio_script() const {
 	
 	std::ostringstream buffer;

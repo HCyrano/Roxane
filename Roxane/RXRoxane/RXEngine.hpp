@@ -248,11 +248,6 @@ class RXEngine: public Runnable, public RXHelper {
     
     std::ofstream* log;
     
-    //track BUG final
-    int final_score = UNDEF_SCORE;
-    int final_player = UNDEF_COLOR;
-    
-    
     
     bool probable_timeout(double probable_time_next_level) const;
     int pTime_next_level(RXBitBoard& board, int time_level, int depth = 1, int next_depth = 3) const;
@@ -519,9 +514,6 @@ inline RXBBPatterns& RXEngine::get_board() {
 
 inline bool RXEngine::thread_should_stop(unsigned int threadID) {
     
-    //assert(threadID >= 0 && threadID < activeThreads);
-    
-    
     RXSplitPoint* sp = threads[threadID].splitPoint;
     
     //emptie loop
@@ -529,7 +521,6 @@ inline bool RXEngine::thread_should_stop(unsigned int threadID) {
         sp = sp->parent;
     
     return sp != NULL;
-    
     
 }
 

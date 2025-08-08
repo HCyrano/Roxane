@@ -174,7 +174,8 @@ void generate_flips_##pos(RXMove& move) const \
     
     
     /* bool check_move(const int position, const int color) const; */
-    
+
+    unsigned int n_moves() const;
     void moves_producing(RXMove* start) const;
     
     //    static uint64_t calc_legal(const uint64_t P, const uint64_t O);

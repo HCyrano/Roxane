@@ -1107,9 +1107,12 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                     if(activeThreads > 1  && !abort.load() && board.n_empties>=EG_MEDIUM_HI_TO_LOW
                        && !thread_should_stop(threadID) && idle_thread_exists(threadID)
                        && split(sBoard, pv, 0, board.n_empties, NO_SELECT, selective_cutoff, child_selective_cutoff,
-                                lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_ETC_MOBILITY))
+                                lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_ETC_MOBILITY)) {
                         
+                        child_selective_cutoff = selective_cutoff;
+
                         break;
+                    }
                     
 #endif
                     
@@ -1696,9 +1699,12 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     // Split?
                     if(activeThreads > 1  && !abort.load() && !thread_should_stop(threadID) && idle_thread_exists(threadID)
                        && split(sBoard, pv, 0, board.n_empties, selectivity, selective_cutoff,
-                                lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_PVS))
+                                lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_PVS)) {
+                        
+                        child_selective_cutoff = selective_cutoff;
                         
                         break;
+                    }
                     
                     RXMove* previous_move = list;
                     
@@ -2159,13 +2165,16 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
             //				std::cout << "Error" << std::endl;
             
             
-            if(activeThreads > 1 && board.n_empties > MIN_DEPTH_USE_ENDCUT+1 /*verifier pourquoi ?????*/
+            if(activeThreads > 1
                && (list->next)->next != NULL && !thread_should_stop(threadID)
                && !abort.load() && idle_thread_exists(threadID)
                && split(sBoard, false, pvDev, board.n_empties, selectivity, selective_cutoff,
-                        alpha, (alpha + VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::END_XPROBCUT))
-                
+                        alpha, (alpha + VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::END_XPROBCUT)) {
+             
+                child_selective_cutoff = selective_cutoff;
+
                 break;
+            }
             
             
             if(board.n_empties<MIN_DEPTH_USE_ENDCUT) {
@@ -2395,6 +2404,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
                && split(sBoard, true, 0, board.n_empties, selectivity, selective_cutoff,
                         lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::END_ROOT)) {
                 
+                child_selective_cutoff = selective_cutoff;
                 
                 break;
             }
@@ -2915,6 +2925,8 @@ bool RXEngine::EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard,
                 for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
  
+                //version monogame
+                hTable->reset();
                 EG_PVS_root(sBoard, NO_SELECT, score-2*VALUE_DISC, score+2*VALUE_DISC, list);
                 
                 int result = list->next->score;

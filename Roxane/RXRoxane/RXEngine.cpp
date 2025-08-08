@@ -1343,12 +1343,7 @@ void RXEngine::stop(std::string msg) {
     }
     
     hash_code_search = 0;
-    
-    //track BUG final
-    final_score = UNDEF_SCORE;
-    final_player = UNDEF_COLOR;
-    
-    
+        
 }
 
 
@@ -1808,45 +1803,7 @@ void RXEngine::run() {
             
             EG_driver(search_sBoard, std::min(selectivity, end_selectivity), end_selectivity, list);
         }
-        
-        //track BUG final
-        if(hTable->get(hash_code, type_hashtable, entry)) {
-            
-            if(entry.selectivity == NO_SELECT && entry.depth>= search_sBoard.board.n_empties) {
-                if (final_score != UNDEF_SCORE) {
-                    
-                    int score = UNDEF_SCORE;
-                    if(entry.lower == entry.upper)
-                        score = entry.lower;
-                    else if(entry.upper == MAX_SCORE)
-                        score = entry.lower;
-                    
-                    
-                    if (score != UNDEF_SCORE && (final_player == search_sBoard.board.player ? score:-score) < final_score) {
-                        std::cout << "RED ALERT BUG IN FINAL" << std::endl;
-                        std::cout << "final_score = " << final_score << "player : " << final_player << std::endl;
-                        std::cout << "      score = " << score << "player : " << search_sBoard.board.player << std::endl;
-                        
-                        //exit(1); //for tournamant
-                    }
-                    
-                    
-                    final_score = score;
-                    final_player = search_sBoard.board.player;
-                    
-                } else {
-                    if((entry.lower == entry.upper) || (entry.upper == MAX_SCORE)) {
-                        final_score = entry.lower;
-                        final_player = search_sBoard.board.player;
-                    }
-                }
-            } else {
-                final_score = UNDEF_SCORE;
-                final_player = UNDEF_COLOR;
-            }
-        }
-        
-        
+                
     }
     
     

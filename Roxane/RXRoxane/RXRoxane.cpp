@@ -458,7 +458,16 @@ void RXRoxane::get_move(const std::string& file_name) {
 			std::string line;
 			
 			while(!resume_flag.load() && std::getline(in, line)) {
-							                
+	
+#ifdef EG_CHECK_PV
+                std::stringstream ss;
+                int score = UNDEF_SCORE;
+                                
+                ss << line.substr(line.find(":")+1);
+                
+                ss >> score;
+                score *= VALUE_DISC;
+#endif
 				search.htable->reset();
 				search.main_PV->reset();
 				search.expected_PV->reset();
@@ -476,10 +485,19 @@ void RXRoxane::get_move(const std::string& file_name) {
 				search.bestMove.selectivity = 0;
 				search.bestMove.tElapsed    = 0.0;
 				search.bestMove.nodes	    = 0;
-                
-                engine[search.idEngine]->get_move(search);
-                
-                //engine[search.idEngine]->verif_sBoard(search);
+        
+                if(search.sBoard.board.n_moves() > 1) {
+                    engine[search.idEngine]->get_move(search);
+                                        
+#ifdef EG_CHECK_PV
+                    if(score != (UNDEF_SCORE*VALUE_DISC) && search.bestMove.score != score) {
+                        std::cout << "critical error in solver" << std::endl;
+                        std::cout << search.sBoard.board << std::endl;
+                        std::cout << "resultat attendu : " << score << std::endl;
+                        std::cout << "resultat trouvé  : " << search.bestMove.score << std::endl;
+                    }
+#endif
+                }
                 
 				T += search.bestMove.tElapsed;
 				nodes += search.bestMove.nodes;
