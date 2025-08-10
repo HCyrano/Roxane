@@ -399,24 +399,26 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            sp->selective_cutoff |= child_selective_cutoff;
-            
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
+            if(sp->explored == false) {
+                sp->selective_cutoff |= child_selective_cutoff;
                 
-                if(dependent_time && depth>13)
-                    manager->sendMsg(showBestmove(depth, sp->selectivity, sp->alpha, sp->beta, sp->bestscore, sp->bestmove));
-                
-                if(score > sp->alpha) {
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
                     
-                    if(score >= sp->beta) {
-                        sp->explored = true;
-                    } else {
-                        sp->alpha = score;
+                    if(dependent_time && depth>13)
+                        manager->sendMsg(showBestmove(depth, sp->selectivity, sp->alpha, sp->beta, sp->bestscore, sp->bestmove));
+                    
+                    if(score > sp->alpha) {
+                        
+                        if(score >= sp->beta) {
+                            sp->explored = true;
+                        } else {
+                            sp->alpha = score;
+                        }
+                        
                     }
-                    
                 }
             }
             
@@ -966,19 +968,20 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            
-            sp->selective_cutoff |= child_selective_cutoff;
-            
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
-                if(score > sp->alpha) {
-                    
-                    if(score >= sp->beta) {
-                        sp->explored =true;
-                    } else {
-                        sp->alpha = score;
+            if(sp->explored == false) {
+                sp->selective_cutoff |= child_selective_cutoff;
+                
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
+                    if(score > sp->alpha) {
+                        
+                        if(score >= sp->beta) {
+                            sp->explored =true;
+                        } else {
+                            sp->alpha = score;
+                        }
                     }
                 }
             }
@@ -1575,15 +1578,17 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
             
             //update
             pthread_mutex_lock(&(sp->lock));
-            
-            sp->selective_cutoff |= child_selective_cutoff;
-            
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
-                if(score > sp->alpha) {
-                    sp->explored =true;
+            if(sp->explored == false) {
+                
+                sp->selective_cutoff |= child_selective_cutoff;
+                
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
+                    if(score > sp->alpha) {
+                        sp->explored =true;
+                    }
                 }
             }
             

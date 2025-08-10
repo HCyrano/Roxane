@@ -72,31 +72,27 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-1-19.src"
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-1-19.obf"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.src"
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.obf"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/endgame_24_26_30.script"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.src"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-59.obf"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-59.src"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-60-79.src"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/bug_stability.src"
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-60-79.obf"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

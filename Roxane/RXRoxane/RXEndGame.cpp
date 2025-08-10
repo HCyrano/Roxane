@@ -1232,19 +1232,23 @@ void RXEngine::EG_SP_search_ETC_Mobility(RXSplitPoint* sp, const unsigned int th
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
-                if(score > sp->alpha) {
-                    
-                    if(score >= sp->beta) {
-                        sp->explored =true;
-                    } else {
-                        sp->alpha = score;
+            if(sp->explored == false) {
+                
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
+                    if(score > sp->alpha) {
+                        
+                        if(score >= sp->beta) {
+                            sp->explored =true;
+                        } else {
+                            sp->alpha = score;
+                        }
                     }
                 }
             }
+                
             
             pthread_mutex_unlock(&(sp->lock));
         }
@@ -1865,18 +1869,21 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            sp->selective_cutoff |= child_selective_cutoff;
-            
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
-                if(score > sp->alpha) {
-                    
-                    if(score >= sp->beta) {
-                        sp->explored =true;
-                    } else {
-                        sp->alpha = score;
+            if(sp->explored == false) {
+                
+                sp->selective_cutoff |= child_selective_cutoff;
+                
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
+                    if(score > sp->alpha) {
+                        
+                        if(score >= sp->beta) {
+                            sp->explored = true;
+                        } else {
+                            sp->alpha = score;
+                        }
                     }
                 }
             }
@@ -1889,7 +1896,6 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
     pthread_mutex_lock(&(sp->lock));
     
     sp->sBoard->board.n_nodes += board.n_nodes;
-    
     
     sp->slaves[threadID] = false;
     sp->n_Slaves--;
@@ -2281,15 +2287,17 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
             pthread_mutex_lock(&(sp->lock));
             
             //update SplitPoint
-            
-            sp->selective_cutoff |= child_selective_cutoff;
-            
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
-                if(score > sp->alpha) {
-                    sp->explored = true;
+            if(sp->explored == false) {
+                
+                sp->selective_cutoff |= child_selective_cutoff;
+                
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
+                    if(score > sp->alpha) {
+                        sp->explored = true;
+                    }
                 }
             }
             
@@ -2604,24 +2612,27 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
             //update
             pthread_mutex_lock(&(sp->lock));
             
-            sp->selective_cutoff |= child_selective_cutoff;
-            
-            // New best move?
-            if(score > sp->bestscore) {
-                sp->bestscore = score;
-                sp->bestmove = move->position;
+            if(sp->explored == false) {
                 
-                if(dependent_time && board.n_empties>19)
-                    manager->sendMsg(showBestmove(board.n_empties, sp->selectivity, sp->alpha, sp->beta, sp->bestscore, sp->bestmove));
+                sp->selective_cutoff |= child_selective_cutoff;
                 
-                if(score > sp->alpha) {
+                // New best move?
+                if(score > sp->bestscore) {
+                    sp->bestscore = score;
+                    sp->bestmove = move->position;
                     
-                    if(score >= sp->beta) {
-                        sp->explored = true;
-                    } else {
-                        sp->alpha = score;
+                    if(dependent_time && board.n_empties>19)
+                        manager->sendMsg(showBestmove(board.n_empties, sp->selectivity, sp->alpha, sp->beta, sp->bestscore, sp->bestmove));
+                    
+                    if(score > sp->alpha) {
+                        
+                        if(score >= sp->beta) {
+                            sp->explored = true;
+                        } else {
+                            sp->alpha = score;
+                        }
+                        
                     }
-                    
                 }
             }
             
@@ -2925,9 +2936,9 @@ bool RXEngine::EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard,
                 for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
  
-                //version monogame
+                //version monogame [provoque bug affichage]
                 hTable->reset();
-                EG_PVS_root(sBoard, NO_SELECT, score-2*VALUE_DISC, score+2*VALUE_DISC, list);
+                EG_PVS_root(sBoard, NO_SELECT, score-VALUE_DISC, score+VALUE_DISC, list);
                 
                 int result = list->next->score;
                 
