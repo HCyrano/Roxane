@@ -84,7 +84,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.src"
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.obf"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

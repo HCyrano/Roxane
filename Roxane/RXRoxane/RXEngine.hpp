@@ -170,7 +170,7 @@ class RXEngine: public Runnable, public RXHelper {
     enum t_search {BOOK, MIDGAME, ENDGAME};
     enum probcut_cut {NO_CUT, ALPHA_CUT, BETA_CUT};
     
-    static const int CHECK_TO_LAST_THREE;
+    static const int DEPTH_4;
     
     
     static const int HASHTABLE;

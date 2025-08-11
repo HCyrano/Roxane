@@ -18,7 +18,7 @@
 
 const int RXEngine::MG_SELECT = 1; //72%
 
-const int RXEngine::MIN_DEPTH_USE_PROBCUT = 4; // DO NOT CHANGE
+const int RXEngine::MIN_DEPTH_USE_PROBCUT = DEPTH_4; // DO NOT CHANGE
 
 const int RXEngine::MIN_DEPTH_SPLITPOINT = 7;
 
@@ -390,8 +390,8 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         sBoard.undo_move(*move);
         
-        if(abort.load() || thread_should_stop(threadID))
-            break;
+//        if(abort.load() || thread_should_stop(threadID))
+//            break;
         
         //first without mutex
         if((score > sp->bestscore) || (!sp->selective_cutoff && child_selective_cutoff)) {
@@ -439,8 +439,6 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
 
 
 int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, const int beta, const bool passed) {
-    
-    //assert(alpha>=-MAX_SCORE && beta<=MAX_SCORE);
     
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
@@ -629,14 +627,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, child_selective_cutoff, -upper, -lower, false);
             
             sBoard.undo_move(*list);
-            
-            
-            //interrupt search
-            if(abort.load()  || thread_should_stop(threadID))
-                return INTERRUPT_SEARCH;
-            
-            
-            
+                        
             bestmove = list->position;
             
             if(bestscore > lower)
@@ -785,11 +776,6 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, child_selective_cutoff, -upper, -lower, false);
                 sBoard.undo_move(*move);
                 
-                //interrupt search
-                if(abort.load()  || thread_should_stop(threadID))
-                    return INTERRUPT_SEARCH;
-                
-                
                 
                 if(bestscore>lower)
                     lower = bestscore;
@@ -858,21 +844,12 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 
                 sBoard.undo_move(*move);
                 
-                //interrupt search
-                if(abort.load()  || thread_should_stop(threadID))
-                    return INTERRUPT_SEARCH;
-                
-                
-                
                 if (score>bestscore) {
                     bestmove = move->position;
                     bestscore = score;
                     if (bestscore>lower)
                         lower = bestscore;
                 }
-                
-                //                if ( child_selective_cutoff )
-                //                    selective_cutoff = true;
                 
                 selective_cutoff |= child_selective_cutoff;
                 
@@ -885,8 +862,6 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
-    
-    
     
     if(bestscore>=upper)
         selective_cutoff = child_selective_cutoff;
@@ -958,8 +933,8 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
         sBoard.undo_move(*move);
         
         
-        if(abort.load()  || thread_should_stop(threadID))
-            break;
+//        if(abort.load()  || thread_should_stop(threadID))
+//            break;
         
         //first without mutex
         if((score > sp->bestscore) || (!sp->selective_cutoff && child_selective_cutoff)) {
@@ -1442,12 +1417,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         
         sBoard.undo_move(*move);
         
-        //interrupt search
-        if(abort.load() || thread_should_stop(threadID))
-            return INTERRUPT_SEARCH;
-        
-        
-        
         bestmove = move->position;
         list = list->next;
         
@@ -1482,12 +1451,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             
             sBoard.undo_move(*iter);
             
-            //interrupt search
-            if(abort.load() || thread_should_stop(threadID))
-                return INTERRUPT_SEARCH;
-            
-            
-            
             if (score>bestscore) {
                 bestscore = score;
                 bestmove = iter->position;
@@ -1503,8 +1466,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
-    
-    
     
     if(bestscore>alpha)
         selective_cutoff = child_selective_cutoff;
@@ -1569,8 +1530,8 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         
         sBoard.undo_move(*move);
         
-        if(abort.load()  || thread_should_stop(threadID))
-            break;
+//        if(abort.load()  || thread_should_stop(threadID))
+//            break;
         
         
         //first without mutex

@@ -39,7 +39,7 @@
 //#define SOLVER_DRIVER
 //#define SOLVER_SETTING
 
-#define EG_CHECK_PV
+//#define EG_CHECK_PV
 
 
 #endif

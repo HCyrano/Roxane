@@ -21,7 +21,7 @@
 
 
 
-const int RXEngine::CHECK_TO_LAST_THREE = 4; // DO NOT CHANGE
+const int RXEngine::DEPTH_4 = 4; // DO NOT CHANGE
 
 
 const int RXEngine::HASHTABLE = 0;
@@ -35,7 +35,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //Standart
 const int RXEngine::CONFIDENCE[]   = {60, 72, 84, 91, 95, 98, 100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.1f, 1.35f, 1.7f, 2.2f, 2.8f}; // en test 22/03/2025
+const float RXEngine::PERCENTILE[] = {1.00f, 1.1f, 1.35f, 1.7f, 2.2f, 2.8f};
 const int RXEngine::NO_SELECT = 6;
 #else
 //i386
@@ -191,14 +191,14 @@ void RXEngine::probcut_coefficients() {
             case 11: probcut_data[n_empties][11] = coeff_15 + 10;
             case 10: probcut_data[n_empties][10] = coeff_14 + 10;
                 
-            case  9: probcut_data[n_empties][ 9] = coeff_17 + 21;
-            case  8: probcut_data[n_empties][ 8] = coeff_16 + 21;
-            case  7: probcut_data[n_empties][ 7] = coeff_15 + 21;
-            case  6: probcut_data[n_empties][ 6] = coeff_14 + 21;
+            case  9: probcut_data[n_empties][ 9] = coeff_17 + 35;
+            case  8: probcut_data[n_empties][ 8] = coeff_16 + 35;
+            case  7: probcut_data[n_empties][ 7] = coeff_15 + 35;
+            case  6: probcut_data[n_empties][ 6] = coeff_14 + 35;
                 
-            case  5: probcut_data[n_empties][ 5] = coeff_17 + 50;
-            case  4: probcut_data[n_empties][ 4] = coeff_16 + 50;
-            case  3: probcut_data[n_empties][ 3] = coeff_15 + 50;
+            case  5: probcut_data[n_empties][ 5] = coeff_17 + 70;
+            case  4: probcut_data[n_empties][ 4] = coeff_16 + 70;
+            case  3: probcut_data[n_empties][ 3] = coeff_15 + 70;
             case  2: probcut_data[n_empties][ 2] = MAX_SCORE;
                 
             case  1: probcut_data[n_empties][ 1] = MAX_SCORE;
@@ -448,7 +448,6 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 if(abort.load() || thread_should_stop(threadID))
                     return false;
                 
-                
                 if(bestscore >= upper_probcut) { //beta cut
                     
                     selectif_cutoff=child_selective_cutoff;
@@ -519,7 +518,6 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 //interrupt search
                 if(abort.load() || thread_should_stop(threadID))
                     return false;
-                
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
@@ -685,7 +683,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
             
             //first move
             sBoard.do_move(move);
-            if(depth == CHECK_TO_LAST_THREE)
+            if(depth == DEPTH_4)
                 bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper, -lower, false);
             else
                 bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, false);
@@ -797,7 +795,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                     }
                     
                     sBoard.do_move(*move);
-                    if(depth == CHECK_TO_LAST_THREE)
+                    if(depth == DEPTH_4)
                         bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper, -lower, false);
                     else
                         bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, false);
@@ -836,7 +834,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                     
                     sBoard.do_move(*move);
                     
-                    if(depth == CHECK_TO_LAST_THREE) {
+                    if(depth == DEPTH_4) {
                         score = -alphabeta_last_three_ply(threadID, sBoard, -upper, -lower, false); //change
                     } else {
                         score = -PVS_last_ply(threadID, sBoard, depth-1, -lower-VALUE_DISC, -lower, false); //change
@@ -866,7 +864,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
             bestscore = sBoard.final_score();
         } else {
             board.do_pass();
-            if(depth == CHECK_TO_LAST_THREE)
+            if(depth == DEPTH_4)
                 bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper, -lower, true);
             else
                 bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, true);
