@@ -246,9 +246,9 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                 int lower_probcut = -MAX_SCORE;
                 int upper_probcut =  MAX_SCORE;
                 if(endgame)
-                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-1), (8+(board.n_empties & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-1), board.n_empties, (8+(board.n_empties & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 else
-                    probcut_bounds(board, MG_SELECT, (6 - (depth & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                    probcut_bounds(board, MG_SELECT, depth, (6 - (depth & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 
                 upper_probcut = std::min(static_cast<int>(MAX_SCORE), 2*upper_probcut-alpha); // 2*upper_probcut-alpha == beta + 2*sigma
                 

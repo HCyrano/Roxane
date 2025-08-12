@@ -272,7 +272,7 @@ class RXEngine: public Runnable, public RXHelper {
     
     
     
-    void probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const;
+    void probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const;
     
     void sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
     
@@ -449,10 +449,14 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
-#ifdef PROBCUT_EDAX
+#ifdef PROBCUT_FUNC
 
 inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
+
+    double sigma;
     
+#ifdef PROBCUT_EDAX
+    //EDAX
     static double EVAL_A = -0.10026799;
     static double EVAL_B =  0.31027733;
     static double EVAL_C = -0.57772603;
@@ -460,13 +464,29 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     static double EVAL_b =  1.16492647;
     static double EVAL_c =  5.41716980;
     
-    double sigma = EVAL_A * n_empty + EVAL_B * depth + EVAL_C * probcut_depth;
+    sigma= EVAL_A * board.n_empties + EVAL_B * depth + EVAL_C * probcut_depth;
     sigma = EVAL_a * sigma * sigma + EVAL_b * sigma + EVAL_c;
+#else
+    //EGAROUCID
+    
+    static double probcut_a =  1.1263306169822830;
+    static double probcut_b = -5.9635872689792020;
+    static double probcut_c =  2.7907656975166057;
+    static double probcut_d =  2.2287634992300160;
+    static double probcut_e = -3.2762274195577840;
+    static double probcut_f =  2.9942838391822090;
+    static double probcut_g =  1.8772336326411698;
+    
+    sigma = probcut_a * ((double)board.n_empties / 64.0) + probcut_b * ((double)probcut_depth / 60.0) + probcut_c * ((double)    depth / 60.0);
+    sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
+#endif
+    
+    sigma = (sigma * PERCENTILE[selectivity]) * VALUE_DISC;
     
     double coeff_score = 1.0f+(std::abs(pivot)/(128.0f * VALUE_DISC));
     double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
 
-    double sigma = sigma * PERCENTILE[selectivity]* coeff_score * coeff_pv;
+    sigma = sigma * coeff_score * coeff_pv;
     
     /* validé le 1/01/2025 avec/sans 26w/57d/13l*/
     int error_alpha = static_cast<int> (sigma);

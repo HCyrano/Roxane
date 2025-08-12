@@ -1505,7 +1505,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     
                     int lower_probcut = -MAX_SCORE;
                     int upper_probcut =  MAX_SCORE;
-                    probcut_bounds(board, std::max(EG_HIGH_SELECT, std::min(selectivity-1, NO_SELECT-2)), (8+(board.n_empties & 0x1UL)), 0, (lower+upper)/2, lower_probcut, upper_probcut);
+                    probcut_bounds(board, std::max(EG_HIGH_SELECT, std::min(selectivity-1, NO_SELECT-2)), board.n_empties, (8+(board.n_empties & 0x1UL)), 0, (lower+upper)/2, lower_probcut, upper_probcut);
                     
                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
                         
@@ -1916,7 +1916,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     //param mpc
     int lower_probcut, upper_probcut;
     int probcut_depth = (board.n_empties/4)*2 + (board.n_empties & 0x1UL);
-    probcut_bounds(board, selectivity, board.n_empties, pvDev, alpha, lower_probcut, upper_probcut);
+    probcut_bounds(board, selectivity, board.n_empties, probcut_depth, pvDev, alpha, lower_probcut, upper_probcut);
     
     
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {

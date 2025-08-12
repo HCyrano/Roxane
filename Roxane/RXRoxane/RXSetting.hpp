@@ -41,5 +41,7 @@
 
 //#define EG_CHECK_PV
 
+#define PROBCUT_FUNC
+//#define PROBCUT_EDAX
 
 #endif
