@@ -597,7 +597,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             sBoard.undo_move(*iter);
             
             //interrupt search
-            if(abort || thread_should_stop(threadID))
+            if(abort.load() || thread_should_stop(threadID))
                 return INTERRUPT_SEARCH;
             
             if (iter->score > bestscore) {

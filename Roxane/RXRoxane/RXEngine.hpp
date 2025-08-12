@@ -369,7 +369,6 @@ class RXEngine: public Runnable, public RXHelper {
     
     pthread_mutex_t MP_sync;
     
-    //volatile bool abort;
     std::atomic_bool abort;
     
     void init_threads();
@@ -450,13 +449,48 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
+#ifdef PROBCUT_EDAX
+
+inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
+    
+    static double EVAL_A = -0.10026799;
+    static double EVAL_B =  0.31027733;
+    static double EVAL_C = -0.57772603;
+    static double EVAL_a =  0.07585621;
+    static double EVAL_b =  1.16492647;
+    static double EVAL_c =  5.41716980;
+    
+    double sigma = EVAL_A * n_empty + EVAL_B * depth + EVAL_C * probcut_depth;
+    sigma = EVAL_a * sigma * sigma + EVAL_b * sigma + EVAL_c;
+    
+    double coeff_score = 1.0f+(std::abs(pivot)/(128.0f * VALUE_DISC));
+    double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
+
+    double sigma = sigma * PERCENTILE[selectivity]* coeff_score * coeff_pv;
+    
+    /* validé le 1/01/2025 avec/sans 26w/57d/13l*/
+    int error_alpha = static_cast<int> (sigma);
+    int error_beta  = static_cast<int> ((board.player == root_player? 1.1f:1.0f) * sigma); //1.1f:1.0f
+    
+    //always positif
+    error_alpha = RXBBPatterns::QUANTA * ((error_alpha + RXBBPatterns::QUANTA/2)/RXBBPatterns::QUANTA);
+    error_beta  = RXBBPatterns::QUANTA * ((error_beta  + RXBBPatterns::QUANTA/2)/RXBBPatterns::QUANTA);
+    
+    
+    lower_bound = std::max(-MAX_SCORE, pivot - error_alpha);    //(bug limit 23/10/2008)
+    upper_bound = std::min(+MAX_SCORE, pivot + error_beta );    //(bug limit 23/10/2008)
+
+}
+
+#else
+
 
 inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
     
     double coeff_score = 1.0f+(std::abs(pivot)/(128.0f * VALUE_DISC));
     double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
     
-#ifndef __ARM_NEON
+#ifndef __ARM_ACLE
     
     //version CyranoF more aggressive
     int sigma = static_cast<int> (probcut_data[board.n_empties][depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv);
@@ -485,6 +519,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     
 }
 
+#endif
 
 inline void RXEngine::set_type_search(t_search ts) {
     type_search = ts;
