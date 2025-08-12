@@ -505,7 +505,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
 #else
 
 
-inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
+inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
     
     double coeff_score = 1.0f+(std::abs(pivot)/(128.0f * VALUE_DISC));
     double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
@@ -513,7 +513,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
 #ifndef __ARM_ACLE
     
     //version CyranoF more aggressive
-    int sigma = static_cast<int> (probcut_data[board.n_empties][depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv);
+    int sigma = static_cast<int> (probcut_data[board.n_empties][probcut_depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv);
     sigma = RXBBPatterns::QUANTA * ((sigma + RXBBPatterns::QUANTA/2)/RXBBPatterns::QUANTA);
     
     lower_bound = std::max(-MAX_SCORE, pivot - sigma);    //(bug limit 23/10/2008)
@@ -521,7 +521,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     
 #else
     
-    double sigma = probcut_data[board.n_empties][depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv;
+    double sigma = probcut_data[board.n_empties][probcut_depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv;
     
     /* validé le 1/01/2025 avec/sans 26w/57d/13l*/
     int error_alpha = static_cast<int> (sigma);
