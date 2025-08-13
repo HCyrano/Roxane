@@ -60,6 +60,19 @@ RXBBPatterns& RXBBPatterns::operator=(const RXBBPatterns& src) {
 	return *this;
 }
 
+void RXBBPatterns::reset() {
+    
+    board.reset();
+    
+    pattern->clear();
+    
+    pattern->set_WHITE_D4();
+    pattern->set_BLACK_E4();
+    pattern->set_BLACK_D5();
+    pattern->set_WHITE_E5();
+
+}
+
 void RXBBPatterns::build(const std::string& init) {
 
 	board.build(init);

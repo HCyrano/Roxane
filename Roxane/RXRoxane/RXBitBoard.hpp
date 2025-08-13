@@ -107,6 +107,8 @@ class RXBitBoard {
     
     //public :
     
+    void reset();
+    
     unsigned long long get_n_nodes() const {
         return n_nodes;
     }

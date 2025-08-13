@@ -450,6 +450,44 @@ RXBitBoard::RXBitBoard(): player(BLACK), n_empties(60), n_nodes(0), parity(0xF){
 
 }
 
+void RXBitBoard::reset() {
+    
+    player = BLACK;
+    n_empties = 60;
+    n_nodes = 0;
+    parity = 0xF;
+    
+    //start position
+    discs[BLACK] = 0X000000810000000ULL;
+    discs[WHITE] = 0X000001008000000ULL;
+    
+    /* create emptiesList */
+    RXSquareList* iEmpties = empties_list;      //empties[0]
+    iEmpties->position = NOMOVE;                //sentinel
+    iEmpties->previous = NULL;                  //NULL
+    iEmpties->next = iEmpties + 1;
+    iEmpties = iEmpties->next;
+    
+    const unsigned long long occupied_squares = discs[BLACK] | discs[WHITE];
+    
+    for(int i = 0; i<60; i++) {
+        if(((occupied_squares) & (0x1ULL<<PRESORTED_POSITION[i])) == 0) {
+            iEmpties->position = PRESORTED_POSITION[i];
+            iEmpties->previous = iEmpties - 1;
+            iEmpties->next = iEmpties + 1 ;
+            
+            position_to_empties[PRESORTED_POSITION[i]] = iEmpties;
+            iEmpties = iEmpties->next;
+        }
+    }
+    iEmpties->position = NOMOVE;                //sentinel
+    iEmpties->previous = iEmpties - 1;
+    iEmpties->next = 0;                         //NULL
+    
+
+}
+
+
 RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
 
     if(this != &src) {

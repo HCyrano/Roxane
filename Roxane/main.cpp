@@ -22,6 +22,7 @@
 
 #include "RXEngine.hpp"
 #include "RXTools.hpp"
+#include "RXSetting.hpp"
 
 
 /*******************************************************************/
@@ -82,7 +83,14 @@ int main (int argc, char * const argv[]) {
         
 	RXRoxane roxane(nBitsTable, nThreads);
     
- 
+
+#ifdef TUNE_PROBCUT_MID
+
+    roxane.get_probcut_mid_data();
+    
+    return 0;
+
+#else
 	
 	//warm up
 	if(!file_name.empty())
@@ -125,7 +133,7 @@ int main (int argc, char * const argv[]) {
 		gs.Process();			// receive, parse, and pass on messages
 	}
 	
-
+#endif
     
 //    RXPattern::generate_pattern();
 

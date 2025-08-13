@@ -66,6 +66,8 @@ void update_patterns_WHITE_##pos(RXMove& move) const
     void (RXBBPatterns::*update_patterns[64][2])(RXMove& move) const;
     void init_update_patterns();
     
+    void reset();
+    
     double get_n_nodes() const { return board.get_n_nodes(); }
     int get_n_empties() const { return board.n_empties; }
     

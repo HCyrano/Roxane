@@ -420,6 +420,12 @@ public:
     virtual void idle_loop();
     int get_THREAD_MAX();
     
+#ifdef TUNE_PROBCUT_MID
+
+    void probcut_mid_data(RXHashTable* HT, RXHashTable* PV);
+
+#endif
+    
     
 };
 
@@ -477,7 +483,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     static double probcut_f =  2.9942838391822090;
     static double probcut_g =  1.8772336326411698;
     
-    sigma = probcut_a * ((double)board.n_empties / 64.0) + probcut_b * ((double)probcut_depth / 60.0) + probcut_c * ((double)    depth / 60.0);
+    sigma = probcut_a * ((double)board.n_empties / 64.0) + probcut_b * ((double)probcut_depth / 60.0) + probcut_c * ((double)depth / 60.0);
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
 #endif
     
@@ -520,8 +526,9 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     upper_bound = std::min(+MAX_SCORE, pivot + sigma);    //(bug limit 23/10/2008)
     
 #else
-    
-    double sigma = probcut_data[board.n_empties][probcut_depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv;
+    double sigma = 100;
+    if(probcut_depth>1)
+    sigma = probcut_data[board.n_empties][probcut_depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv;
     
     /* validé le 1/01/2025 avec/sans 26w/57d/13l*/
     int error_alpha = static_cast<int> (sigma);

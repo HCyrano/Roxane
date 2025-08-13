@@ -835,10 +835,18 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     }
                 } else {
                     
+#ifdef TUNE_PROBCUT
+                    
+                    score = -MG_PVS_deep(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower-VALUE_DISC, false);
+                    
+                    if(lower < score && score < upper)
+                        score = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, child_selective_cutoff, -upper, -score, false);
+#else
                     score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower-VALUE_DISC, false);
                     
                     if(lower < score && score < upper)
                         score = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, child_selective_cutoff, -upper, -lower, false);
+#endif
                     
                 }
                 

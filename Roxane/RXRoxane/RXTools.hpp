@@ -91,4 +91,15 @@ static inline int get_system_time() {
 	return static_cast<int>(t.tv_sec*1000 + t.tv_usec/1000); 
 }
 
+static inline int random_bounds(int min, int max)
+{
+    static bool rand_is_seeded = false;
+    if(!rand_is_seeded)
+    {
+        srand(time(NULL));
+        rand_is_seeded = true;
+    }
+    return rand()%(max-min+1) + min;
+}
+
 #endif

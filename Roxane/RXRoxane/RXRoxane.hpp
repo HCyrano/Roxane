@@ -70,7 +70,10 @@ public :
     
     RXEngine* getEngine(const int color) const;
 
-	
+#ifdef TUNE_PROBCUT_MID
+    void get_probcut_mid_data();
+#endif
+
 	//privateProtocol
 	void get_move(const std::string& file_name);
 

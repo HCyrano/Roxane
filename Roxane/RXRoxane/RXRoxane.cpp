@@ -548,6 +548,17 @@ void RXRoxane::get_move(const std::string& file_name) {
 	
 }
 
+#ifdef TUNE_PROBCUT_MID
+void RXRoxane::get_probcut_mid_data() {
+    
+    pthread_mutex_lock(&mutex);
+   
+    engine[SHARED]->probcut_mid_data(hTable, main_PV);
+    
+    pthread_mutex_unlock(&mutex);
+
+}
+#endif
 
 
 void RXRoxane::run() {

@@ -2482,3 +2482,88 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
     return true;
 }
 
+#ifdef TUNE_PROBCUT_MID
+
+void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
+    
+    hTable = HT;
+    hTable_PV = PV;
+    type_hashtable = RXHashTable::HASH_SHARED;
+    
+    open ofstream
+    std::ofstream ofs("probcut_mid.txt");
+    
+    RXBBPatterns sBoard;
+    RXBitBoard& board = sBoard.board;
+
+    for(int n_data = 0; n_data < 10000; ++n_data) {
+        for(int depth = 2; depth <= 15; ++depth) {
+            for (int n_discs = 4; n_discs < 64-5-depth; ++n_discs){
+                sBoard.reset();
+                for( int moveID = 4; moveID < n_discs && board.n_moves()!=0 ; ++moveID) {
+                    unsigned long long legal_movesBB = board.get_legal_moves();
+                    if(legal_movesBB) {
+                        
+                        int ramdon_moveID = random_bounds(1, __builtin_popcountll(legal_movesBB));
+                        int count_bit = 0;
+                        int n_bit = 0;
+                        for(; n_bit < 64; ++n_bit) {
+                            if((legal_movesBB>>n_bit) & 0x1ULL) {
+                                ++count_bit;
+
+                                if(count_bit == ramdon_moveID)
+                                    break;
+                                
+                            }
+                        }
+                        
+                        RXMove* move = threads[0]._move[board.n_empties];
+                        for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
+                            if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
+                                
+                                ((board).*(board.generate_flips[empties->position ]))(*move);
+                                ((sBoard).*(sBoard.update_patterns[empties->position ][board.player]))(*move);
+                                
+                                break;
+                            }
+                        }
+                        
+                        sBoard.do_move(*move);
+                    }
+                    
+                }
+
+                int score_at_shallow_depth, score_at_depth;
+
+                if(board.n_moves()!=0) {
+                    int shallow_depth = random_bounds(1, depth-1);
+                    shallow_depth &= 0xfffffffe;
+                    shallow_depth |= depth & 1;
+                    
+                    if(shallow_depth < 4) {
+                        score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                    } else {
+                        bool selective_cutoff = false;
+                        score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
+                    }
+                    
+                    if(depth < 4) {
+                        score_at_depth = MG_PVS_shallow(0, sBoard, true, depth, -MAX_SCORE, MAX_SCORE, false);
+                    } else {
+                        bool selective_cutoff = false;
+                        score_at_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
+                    }
+                    
+                    std::cout << n_data << " : " << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+                    ofs << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+
+                }
+                
+            }
+        }
+    }
+}
+
+#endif
+
+
