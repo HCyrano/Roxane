@@ -2498,7 +2498,7 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 1000; ++n_data) {
+    for(int n_data = 0; n_data < 800; ++n_data) {
         hTable->reset();
         for(int depth = 2; depth <= 15; ++depth) {
             hTable->reset();
