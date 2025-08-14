@@ -85,67 +85,65 @@ int main (int argc, char * const argv[]) {
     
 
 #ifdef TUNE_PROBCUT_MID
-
+    
     roxane.get_probcut_mid_data();
     
-    return 0;
+#else
     
-#endif
-
+    
 #ifdef TUNE_PROBCUT_END
     
     roxane.get_probcut_end_data();
     
-    return 0;
-
+    
+#else
+    
+    
+    //warm up
+    if(!file_name.empty())
+        roxane.get_move(file_name);
+    
+    if(imposed_opening != "")
+        roxane.imposed_opening(imposed_opening);
+    
+    
+    //	if(mode == "wthor")
+    //		roxane.check_allWTHOR(); //try for robust endgame
+    
+    
+    if(mode == "ggs" && !login.empty() && !password.empty()) {
+        
+        int err;
+        CODKStream gs;
+        
+        //liaison Roxane GGS
+        roxane.connectGGS(&gs);
+        gs.pComputer = &roxane;
+        
+        // Connect(server, port)
+        if ((err = gs.Connect("www.skatgame.net",5000))) {
+            std::cout << "erreur conection" << std::endl;
+            
+            cerr << gs.ErrText(err) << "\n";
+            return err;
+        }
+        
+        // Login(name, password)
+        if ((err = gs.Login(login.c_str(), password.c_str()))) {
+            cerr << gs.ErrText(err) << "\n";
+            gs.Disconnect();
+            return err;
+        }
+        
+        
+        
+        gs.Process();			// receive, parse, and pass on messages
+    }
+    
     
 #endif
+#endif
     
-	
-	//warm up
-	if(!file_name.empty())
-		roxane.get_move(file_name);
-	
-	if(imposed_opening != "")
-		roxane.imposed_opening(imposed_opening);
-	
-	
-//	if(mode == "wthor")
-//		roxane.check_allWTHOR(); //try for robust endgame
-	
-	
-	if(mode == "ggs" && !login.empty() && !password.empty()) {
-
-		int err;
-		CODKStream gs;
-		
-        //liaison Roxane GGS
-		roxane.connectGGS(&gs);
-		gs.pComputer = &roxane;
-		
-		// Connect(server, port)
-		if ((err = gs.Connect("www.skatgame.net",5000))) {
-            std::cout << "erreur conection" << std::endl;
-
-			cerr << gs.ErrText(err) << "\n";
-			return err;
-		}
-		
-		// Login(name, password)
-		if ((err = gs.Login(login.c_str(), password.c_str()))) {
-			cerr << gs.ErrText(err) << "\n";
-			gs.Disconnect();
-			return err;
-		}
-        
-
-        
-		gs.Process();			// receive, parse, and pass on messages
-	}
-	
-    
-//    RXPattern::generate_pattern();
-
-	return 0;
+    return 0;
 }
 
