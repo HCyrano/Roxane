@@ -835,9 +835,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     }
                 } else {
                     
-#ifdef TUNE_PROBCUT
+#ifdef TUNE_PROBCUT_MID
                     
-                    score = -MG_PVS_deep(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower-VALUE_DISC, false);
+                    score = -MG_PVS_deep(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower-VALUE_DISC, -lower, false);
                     
                     if(lower < score && score < upper)
                         score = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, child_selective_cutoff, -upper, -score, false);
@@ -930,12 +930,19 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
                 score = -MG_PVS_shallow(threadID, sBoard, sp->pv, sp->depth-1, -sp->beta, -score, false);
             }
         } else {
+#ifdef TUNE_PROBCUT_MID
+                    
+            score = -MG_PVS_deep(threadID, sBoard, false, sp->selectivity, sp->depth-1, child_selective_cutoff, -alpha-VALUE_DISC, -alpha, false);
             
+            if(alpha < score && score < sp->beta)
+                score = -MG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, sp->depth-1, child_selective_cutoff, -sp->beta, -score, false);
+#else
+
             score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, sp->depth-1, child_selective_cutoff, -alpha-VALUE_DISC, false);
             
             if(alpha < score && score < sp->beta)
                 score = -MG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, sp->depth-1, child_selective_cutoff, -sp->beta, -sp->alpha, false);
-            
+#endif
         }
         
         sBoard.undo_move(*move);
@@ -946,7 +953,6 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
         
         //first without mutex
         if((score > sp->bestscore) || (!sp->selective_cutoff && child_selective_cutoff)) {
-            
             
             //update
             pthread_mutex_lock(&(sp->lock));

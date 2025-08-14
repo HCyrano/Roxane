@@ -31,9 +31,9 @@
       shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      buildConfiguration = "Release"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       enableASanStackUseAfterReturn = "YES"
       disableMainThreadChecker = "YES"
       launchStyle = "0"
@@ -61,11 +61,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 18 -t 1"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-h 20 -t 6"
-            isEnabled = "NO">
+            argument = "-h 23 -t 6"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 24 -t 12"

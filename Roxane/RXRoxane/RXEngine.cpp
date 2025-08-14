@@ -2486,34 +2486,40 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
 
 void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     
+    activeThreads = 6;
+    
     hTable = HT;
     hTable_PV = PV;
     type_hashtable = RXHashTable::HASH_SHARED;
     
-    open ofstream
+    //open ofstream
     std::ofstream ofs("probcut_mid.txt");
     
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
     for(int n_data = 0; n_data < 10000; ++n_data) {
+        hTable->reset();
         for(int depth = 2; depth <= 15; ++depth) {
+            hTable->reset();
             for (int n_discs = 4; n_discs < 64-5-depth; ++n_discs){
-                sBoard.reset();
-                for( int moveID = 4; moveID < n_discs && board.n_moves()!=0 ; ++moveID) {
+                //sBoard.reset();
+                int n_moves = 0;
+                for(; n_moves < n_discs-4 && board.n_moves()!=0 ; ++n_moves) {
                     unsigned long long legal_movesBB = board.get_legal_moves();
                     if(legal_movesBB) {
                         
-                        int ramdon_moveID = random_bounds(1, __builtin_popcountll(legal_movesBB));
-                        int count_bit = 0;
+                        int ramdon_moveID = random_bounds(0, __builtin_popcountll(legal_movesBB)-1);
+                        int count_legal = 0;
                         int n_bit = 0;
                         for(; n_bit < 64; ++n_bit) {
                             if((legal_movesBB>>n_bit) & 0x1ULL) {
-                                ++count_bit;
 
-                                if(count_bit == ramdon_moveID)
+                                if(count_legal == ramdon_moveID)
                                     break;
-                                
+                              
+                                ++count_legal;
+
                             }
                         }
                         
@@ -2536,10 +2542,11 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                 int score_at_shallow_depth, score_at_depth;
 
                 if(board.n_moves()!=0) {
-                    int shallow_depth = random_bounds(1, depth-1);
+                    int shallow_depth = random_bounds(1, depth-2);
                     shallow_depth &= 0xfffffffe;
                     shallow_depth |= depth & 1;
                     
+                    wake_sleeping_threads();
                     if(shallow_depth < 4) {
                         score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
                     } else {
@@ -2547,6 +2554,7 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                         score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                     }
                     
+                    wake_sleeping_threads();
                     if(depth < 4) {
                         score_at_depth = MG_PVS_shallow(0, sBoard, true, depth, -MAX_SCORE, MAX_SCORE, false);
                     } else {
@@ -2554,10 +2562,17 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                         score_at_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                     }
                     
-                    std::cout << n_data << " : " << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+                    //if(depth == 2 && n_moves == 0)
+                        std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
                     ofs << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
 
                 }
+                
+                for(; 0 < n_moves ; --n_moves) {
+                    RXMove* move = threads[0]._move[board.n_empties+1];
+                    sBoard.undo_move(*move);
+                }
+
                 
             }
         }
