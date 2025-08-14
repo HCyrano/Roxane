@@ -426,7 +426,12 @@ public:
 
 #endif
     
-    
+#ifdef TUNE_PROBCUT_END
+
+    void probcut_end_data(RXHashTable* HT, RXHashTable* PV);
+
+#endif
+
 };
 
 inline int RXEngine::get_THREAD_MAX() {

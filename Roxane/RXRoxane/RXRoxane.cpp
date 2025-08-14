@@ -560,6 +560,18 @@ void RXRoxane::get_probcut_mid_data() {
 }
 #endif
 
+#ifdef TUNE_PROBCUT_END
+void RXRoxane::get_probcut_end_data() {
+    
+    pthread_mutex_lock(&mutex);
+   
+    engine[SHARED]->probcut_end_data(hTable, main_PV);
+    
+    pthread_mutex_unlock(&mutex);
+
+}
+#endif
+
 
 void RXRoxane::run() {
 

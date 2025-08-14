@@ -74,6 +74,10 @@ public :
     void get_probcut_mid_data();
 #endif
 
+#ifdef TUNE_PROBCUT_END
+    void get_probcut_end_data();
+#endif
+
 	//privateProtocol
 	void get_move(const std::string& file_name);
 

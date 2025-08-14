@@ -2486,7 +2486,7 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
 
 void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     
-    activeThreads = 6;
+    activeThreads = get_THREAD_MAX();
     
     hTable = HT;
     hTable_PV = PV;
@@ -2539,25 +2539,27 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                     
                 }
 
-                int score_at_shallow_depth, score_at_depth;
 
                 if(board.n_moves()!=0) {
+                    
+                    int score_at_shallow_depth, score_at_depth;
+
                     int shallow_depth = random_bounds(1, depth-2);
                     shallow_depth &= 0xfffffffe;
                     shallow_depth |= depth & 1;
                     
-                    wake_sleeping_threads();
                     if(shallow_depth < 4) {
                         score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
                     } else {
+                        wake_sleeping_threads();
                         bool selective_cutoff = false;
                         score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                     }
                     
-                    wake_sleeping_threads();
                     if(depth < 4) {
                         score_at_depth = MG_PVS_shallow(0, sBoard, true, depth, -MAX_SCORE, MAX_SCORE, false);
                     } else {
+                        wake_sleeping_threads();
                         bool selective_cutoff = false;
                         score_at_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                     }
@@ -2575,6 +2577,118 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
 
                 
             }
+        }
+    }
+}
+
+#endif
+
+#ifdef TUNE_PROBCUT_END
+
+void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
+    
+    activeThreads = get_THREAD_MAX();
+    
+    hTable = HT;
+    hTable_PV = PV;
+    type_hashtable = RXHashTable::HASH_SHARED;
+    
+    //open ofstream
+    std::ofstream ofs("probcut_end.txt");
+    
+    RXBBPatterns sBoard;
+    RXBitBoard& board = sBoard.board;
+
+    for(int n_data = 0; n_data < 10; ++n_data) {
+        hTable->reset();
+        for(int depth = 2; depth <= 25; ++depth) {
+            hTable->reset();
+            int n_moves = 0;
+            for (;n_moves < 64-4-depth && board.n_moves()!=0; ++n_moves){
+                //sBoard.reset();
+                unsigned long long legal_movesBB = board.get_legal_moves();
+                if(legal_movesBB) {
+                    
+                    int ramdon_moveID = random_bounds(0, __builtin_popcountll(legal_movesBB)-1);
+                    int count_legal = 0;
+                    int n_bit = 0;
+                    for(; n_bit < 64; ++n_bit) {
+                        if((legal_movesBB>>n_bit) & 0x1ULL) {
+                            
+                            if(count_legal == ramdon_moveID)
+                                break;
+                            
+                            ++count_legal;
+                            
+                        }
+                    }
+                    
+                    RXMove* move = threads[0]._move[board.n_empties];
+                    for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
+                        if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
+                            
+                            ((board).*(board.generate_flips[empties->position ]))(*move);
+                            ((sBoard).*(sBoard.update_patterns[empties->position ][board.player]))(*move);
+                            
+                            break;
+                        }
+                    }
+                    
+                    sBoard.do_move(*move);
+                }
+                
+            }
+            
+            
+            if(board.n_moves()!=0) {
+                
+                int score_at_shallow_depth, score_at_depth;
+
+                int shallow_depth = random_bounds(1, std::min(15, depth-1));
+                shallow_depth &= 0xfffffffe;
+                shallow_depth |= depth & 1;
+                
+                if(shallow_depth == depth)
+                    shallow_depth -= 2;
+                
+                if(shallow_depth < 4) {
+                    score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                } else {
+                    wake_sleeping_threads();
+                    bool selective_cutoff = false;
+                    score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
+                }
+                
+                if (board.n_empties == 2) {
+                    score_at_depth = board.final_score_2(-MAX_SCORE, MAX_SCORE);
+                } else if (board.n_empties == 3) {
+                    score_at_depth = board.final_score_3(-MAX_SCORE, MAX_SCORE);
+                } else if (board.n_empties == 4) {
+                    score_at_depth = board.final_score_4(-MAX_SCORE, MAX_SCORE, false);
+                } else if (board.n_empties < EG_MEDIUM_TO_SHALLOW) {
+                    score_at_depth = EG_alphabeta_parity(0, board, -MAX_SCORE, MAX_SCORE, false);
+                } else if (board.n_empties < EG_MEDIUM_HI_TO_LOW) {
+                    score_at_depth = EG_PVS_hash_mobility(0, board, true, -MAX_SCORE, MAX_SCORE, false);
+                } else  if (board.n_empties < EG_DEEP_TO_MEDIUM) {
+                    score_at_depth = EG_PVS_ETC_mobility(0, sBoard, true, -MAX_SCORE, MAX_SCORE, false);
+                } else {
+                    wake_sleeping_threads();
+                    bool child_selective_cutoff = false;
+                    score_at_depth = EG_PVS_deep(0, sBoard, true, NO_SELECT, child_selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
+                }
+
+                //if(depth == 2 && n_moves == 0)
+                std::cout << n_data  << " :"  << 64-depth << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+                ofs << 64-depth << " " << shallow_depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+                
+            }
+            
+            for(; 0 < n_moves ; --n_moves) {
+                RXMove* move = threads[0]._move[board.n_empties+1];
+                sBoard.undo_move(*move);
+            }
+            
+            
         }
     }
 }

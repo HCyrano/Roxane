@@ -89,8 +89,18 @@ int main (int argc, char * const argv[]) {
     roxane.get_probcut_mid_data();
     
     return 0;
+    
+#endif
 
-#else
+#ifdef TUNE_PROBCUT_END
+    
+    roxane.get_probcut_end_data();
+    
+    return 0;
+
+    
+#endif
+    
 	
 	//warm up
 	if(!file_name.empty())
@@ -133,7 +143,6 @@ int main (int argc, char * const argv[]) {
 		gs.Process();			// receive, parse, and pass on messages
 	}
 	
-#endif
     
 //    RXPattern::generate_pattern();
 
