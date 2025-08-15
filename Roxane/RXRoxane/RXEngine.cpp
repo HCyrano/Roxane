@@ -2544,9 +2544,12 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                     
                     int score_at_shallow_depth, score_at_depth;
 
-                    int shallow_depth = random_bounds(1, depth-2);
+                    int shallow_depth = random_bounds(1, depth-1);
                     shallow_depth &= 0xfffffffe;
                     shallow_depth |= depth & 1;
+                    
+                    if(shallow_depth == depth)
+                        shallow_depth -=2;
                     
                     if(shallow_depth < 4) {
                         score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
