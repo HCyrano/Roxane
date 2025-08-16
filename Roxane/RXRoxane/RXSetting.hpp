@@ -44,7 +44,6 @@
 #define TUNE_PROBCUT_MID
 //#define TUNE_PROBCUT_END
 
-//#define TUNE_PROBCUT
 //#define PROBCUT_FUNC
 //#define PROBCUT_EDAX
 

@@ -2567,9 +2567,13 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                         score_at_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                     }
                     
+                    int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth)/VALUE_DISC;
+                    
                     //if(depth == 2 && n_moves == 0)
-                        std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
-                    ofs << n_discs << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+                        std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
+                    
+                    if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
+                        ofs << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
 
                 }
                 
@@ -2680,9 +2684,11 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                     score_at_depth = EG_PVS_deep(0, sBoard, true, NO_SELECT, child_selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                 }
 
-                //if(depth == 2 && n_moves == 0)
-                std::cout << n_data  << " :"  << 64-depth << " " << shallow_depth << " " << depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
-                ofs << 64-depth << " " << shallow_depth << " " << (score_at_depth-score_at_shallow_depth)/VALUE_DISC << std::endl;
+                int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth)/VALUE_DISC;
+                
+                std::cout << n_data  << " :"  << 64-depth << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
+                if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
+                    ofs << 64-depth << " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
                 
             }
             

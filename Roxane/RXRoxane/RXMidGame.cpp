@@ -591,7 +591,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if (list->next == NULL) {
         
         if (passed) {
-            bestscore = board.final_score();
+            bestscore = sBoard.final_score();
             alpha = -(upper = +MAX_SCORE);
             bestmove = NOMOVE;
         } else {

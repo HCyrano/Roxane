@@ -473,10 +473,13 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     static double EVAL_C = -0.57772603;
     static double EVAL_a =  0.07585621;
     static double EVAL_b =  1.16492647;
-    static double EVAL_c =  5.41716980;
+    static double EVAL_c =  5.71716980; // + 0,3
     
     sigma= EVAL_A * board.n_empties + EVAL_B * depth + EVAL_C * probcut_depth;
     sigma = EVAL_a * sigma * sigma + EVAL_b * sigma + EVAL_c;
+    
+    sigma = (sigma * PERCENTILE[selectivity]) * VALUE_DISC;
+
 #else
     //EGAROUCID
     
@@ -488,11 +491,13 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     static double probcut_f =  2.9942838391822090;
     static double probcut_g =  1.8772336326411698;
     
-    sigma = probcut_a * ((double)board.n_empties / 64.0) + probcut_b * ((double)probcut_depth / 60.0) + probcut_c * ((double)depth / 60.0);
+    sigma = probcut_a * ((double)(64-board.n_empties) / 64.0) + probcut_b * ((double)probcut_depth / 60.0) + probcut_c * ((double)depth / 60.0);
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
-#endif
     
     sigma = (sigma * PERCENTILE[selectivity]) * VALUE_DISC;
+
+#endif
+    
     
     double coeff_score = 1.0f+(std::abs(pivot)/(128.0f * VALUE_DISC));
     double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
