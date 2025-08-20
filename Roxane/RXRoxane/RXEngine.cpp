@@ -33,14 +33,14 @@ const int RXEngine::GGS_MSG = 5;
 
 // pas de difference significative apres 300 jeux s8r14 1:00:
 #ifdef __ARM_ACLE
-//Standart
-const int RXEngine::CONFIDENCE[]   = {60, 72, 84, 91, 95, 98, 100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.1f, 1.35f, 1.7f, 2.2f, 2.8f};
+//version probcut type poly_3d
+const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
+const float RXEngine::PERCENTILE[] = {1.10f, 1.25f, 1.50f, 1.85f, 2.40f, 3.00f};
 const int RXEngine::NO_SELECT = 6;
 #else
 //i386
-const int RXEngine::CONFIDENCE[]   = {60, 72, 84, 91, 95, 98, 99, 100};
-const float RXEngine::PERCENTILE[] = {0.95f, 1.1f, 1.3f, 1.6f, 2.0f, 2.5f, 3.0f}; // standard
+const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,   95,   98,   99,   100};
+const float RXEngine::PERCENTILE[] = {0.95f, 1.15f, 1.45f, 1.75f, 2.2f, 2.7f, 3.2f}; // standard
 const int RXEngine::NO_SELECT = 7;
 #endif
 
@@ -398,7 +398,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             bool child_selective_cutoff = false;
             
             
-            if(sBoard.get_score(*list1)<-(upper_probcut)) {
+            if(sBoard.get_score(*list1)<-(upper_probcut+sigma)) {
                 
                 sBoard.do_move(*list1);
                 
@@ -469,7 +469,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             bool selectif_cutoff = false;
             bool child_selective_cutoff = false;
             
-            if(sBoard.get_score(*iter)<-(upper_probcut)) {
+            if(sBoard.get_score(*iter)<-(upper_probcut+sigma)) {
                 
                 sBoard.do_move(*iter);
                 
@@ -2499,7 +2499,6 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     RXBitBoard& board = sBoard.board;
 
     for(int n_data = 0; n_data < 800; ++n_data) {
-        hTable->reset();
         for(int depth = 2; depth <= 15; ++depth) {
             hTable->reset();
             for (int n_discs = 4; n_discs < 64-5-depth; ++n_discs){
@@ -2607,7 +2606,6 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
     RXBitBoard& board = sBoard.board;
 
     for(int n_data = 0; n_data < 5000; ++n_data) {
-        hTable->reset();
         for(int depth = 2; depth <= 25; ++depth) {
             hTable->reset();
             int n_moves = 0;
