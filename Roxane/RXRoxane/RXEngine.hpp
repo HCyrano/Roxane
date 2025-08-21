@@ -233,8 +233,6 @@ class RXEngine: public Runnable, public RXHelper {
     int search_depth;
     int search_selectivity;
     
-    static std::vector< std::vector<int> > probcut_data;
-    
     RXRoxane* manager;
     
     pthread_t pthreadMain[1];
@@ -391,10 +389,8 @@ public:
     static const int NO_SELECT;
     static unsigned int confidence_to_selectivity(int c);
     static unsigned int selectivity_to_confidence(int s);
-    
-    static void probcut_coefficients();
-    
-    RXEngine(RXRoxane* _manager, std::string _id, int maxThread = 1);	
+
+    RXEngine(RXRoxane* _manager, std::string _id, int maxThread = 1);
     ~RXEngine();	
     
     RXBBPatterns& get_board();
@@ -460,23 +456,21 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
-#ifdef PROBCUT_FUNC
-
 inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
 
     double sigma;
     
-#ifdef PROBCUT_EDAX
+#ifdef PROBCUT_x2
     //poly_2d
-    static double EVAL_A = -0.10026799;
-    static double EVAL_B =  0.31027733;
-    static double EVAL_C = -0.57772603;
-    static double EVAL_a =  0.07585621;
-    static double EVAL_b =  1.16492647;
-    static double EVAL_c =  5.41716980; // + 0.15;
+    constexpr double probcut_a = 0.0853462218506715;
+    constexpr double probcut_b = 1.3586842929500207;
+    constexpr double probcut_c = -0.3910431797136643;
+    constexpr double probcut_d = 0.01971732496185341;
+    constexpr double probcut_e = -0.48544440900765307;
+    constexpr double probcut_f = 6.413653253950335;
     
-    sigma= EVAL_A * board.n_empties + EVAL_B * depth + EVAL_C * probcut_depth;
-    sigma = EVAL_a * sigma * sigma + EVAL_b * sigma + EVAL_c;
+    sigma= probcut_a * board.n_empties + probcut_b * probcut_depth + probcut_c * depth;
+    sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
     sigma = (sigma * PERCENTILE[selectivity] + 0.5);
     sigma = static_cast<int>(sigma) * VALUE_DISC;
@@ -504,44 +498,6 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
 
 }
 
-#else
-
-
-inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
-    
-    double coeff_score = 1.0f+(std::abs(pivot)/(128.0f * VALUE_DISC));
-    double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
-    
-#ifndef __ARM_ACLE
-    
-    //version CyranoF more aggressive
-    int sigma = static_cast<int> (probcut_data[board.n_empties][probcut_depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv);
-    sigma = RXBBPatterns::QUANTA * ((sigma + RXBBPatterns::QUANTA/2)/RXBBPatterns::QUANTA);
-    
-    lower_bound = std::max(-MAX_SCORE, pivot - sigma);    //(bug limit 23/10/2008)
-    upper_bound = std::min(+MAX_SCORE, pivot + sigma);    //(bug limit 23/10/2008)
-    
-#else
-    
-    double sigma = probcut_data[board.n_empties][probcut_depth] * PERCENTILE[selectivity]* coeff_score * coeff_pv;
-    
-    /* validé le 1/01/2025 avec/sans 26w/57d/13l*/
-    int error_alpha = static_cast<int> (sigma);
-    int error_beta  = static_cast<int> ((board.player == root_player? 1.1f:1.0f) * sigma); //1.1f:1.0f
-    
-    //always positif
-    error_alpha = RXBBPatterns::QUANTA * ((error_alpha + RXBBPatterns::QUANTA/2)/RXBBPatterns::QUANTA);
-    error_beta  = RXBBPatterns::QUANTA * ((error_beta  + RXBBPatterns::QUANTA/2)/RXBBPatterns::QUANTA);
-    
-    
-    lower_bound = std::max(-MAX_SCORE, pivot - error_alpha);	//(bug limit 23/10/2008)
-    upper_bound = std::min(+MAX_SCORE, pivot + error_beta );	//(bug limit 23/10/2008)
-    
-#endif
-    
-}
-
-#endif
 
 inline void RXEngine::set_type_search(t_search ts) {
     type_search = ts;

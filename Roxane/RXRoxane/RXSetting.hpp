@@ -42,9 +42,8 @@
 //#define EG_CHECK_PV
 
 //#define TUNE_PROBCUT_MID
-#define TUNE_PROBCUT_END
+//#define TUNE_PROBCUT_END
 
-//#define PROBCUT_FUNC
-//#define PROBCUT_EDAX
+#define PROBCUT_x2
 
 #endif

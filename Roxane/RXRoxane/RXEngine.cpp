@@ -35,7 +35,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //version probcut type poly_3d
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.10f, 1.25f, 1.50f, 1.85f, 2.40f, 3.00f};
+const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f};
 const int RXEngine::NO_SELECT = 6;
 #else
 //i386
@@ -47,9 +47,6 @@ const int RXEngine::NO_SELECT = 7;
 const int RXEngine::EG_HIGH_SELECT = 0;
 
 const int RXEngine::DEPTH_BOOSTER = 4;
-
-
-std::vector< std::vector<int> >  RXEngine::probcut_data;
 
 extern "C"
 void* init_threadHelper(void* pt)  {
@@ -107,105 +104,6 @@ RXEngine::~RXEngine() {
     
     pthread_mutex_destroy(&mutex);
     pthread_mutex_destroy(&MP_sync);
-    
-}
-
-void RXEngine::probcut_coefficients() {
-    
-    probcut_data.resize(60);
-    
-    for (int n_empties = 59; n_empties>0; n_empties--) {
-        
-        probcut_data[n_empties].resize(n_empties+1);
-        
-        int x = 64 - n_empties;
-        
-        int coeff_14 = static_cast<int>(round(0.1756*x*x - 3.17*x + 311)); //depth 14 probcut_depth 6
-        int coeff_15 = static_cast<int>(round(0.1306*x*x - 2.45*x + 291)); //depth 15 probcut_depth 7
-        int coeff_16 = static_cast<int>(round(0.1867*x*x - 3.69*x + 265)); //depth 16 probcut_depth 8
-        int coeff_17 = static_cast<int>(round(0.1551*x*x - 2.77*x + 243)); //depth 17 probcut_depth 9
-        
-        
-        switch(n_empties) {
-                
-            case 59: probcut_data[n_empties][59] = coeff_15 - 47;
-            case 58: probcut_data[n_empties][58] = coeff_14 - 47;
-                
-            case 57: probcut_data[n_empties][57] = coeff_17 - 46;
-            case 56: probcut_data[n_empties][56] = coeff_16 - 46;
-            case 55: probcut_data[n_empties][55] = coeff_15 - 46;
-            case 54: probcut_data[n_empties][54] = coeff_14 - 46;
-                
-            case 53: probcut_data[n_empties][53] = coeff_17 - 45;
-            case 52: probcut_data[n_empties][52] = coeff_16 - 45;
-            case 51: probcut_data[n_empties][51] = coeff_15 - 45;
-            case 50: probcut_data[n_empties][50] = coeff_14 - 45;
-                
-            case 49: probcut_data[n_empties][49] = coeff_17 - 44;
-            case 48: probcut_data[n_empties][48] = coeff_16 - 44;
-            case 47: probcut_data[n_empties][47] = coeff_15 - 44;
-            case 46: probcut_data[n_empties][46] = coeff_14 - 44;
-                
-            case 45: probcut_data[n_empties][45] = coeff_17 - 42;
-            case 44: probcut_data[n_empties][44] = coeff_16 - 42;
-            case 43: probcut_data[n_empties][43] = coeff_15 - 42;
-            case 42: probcut_data[n_empties][42] = coeff_14 - 42;
-                
-            case 41: probcut_data[n_empties][41] = coeff_17 - 39;
-            case 40: probcut_data[n_empties][40] = coeff_16 - 39;
-            case 39: probcut_data[n_empties][39] = coeff_15 - 39;
-            case 38: probcut_data[n_empties][38] = coeff_14 - 39;
-                
-            case 37: probcut_data[n_empties][37] = coeff_17 - 35;
-            case 36: probcut_data[n_empties][36] = coeff_16 - 35;
-            case 35: probcut_data[n_empties][35] = coeff_15 - 35;
-            case 34: probcut_data[n_empties][34] = coeff_14 - 35;
-                
-            case 33: probcut_data[n_empties][33] = coeff_17 - 30;
-            case 32: probcut_data[n_empties][32] = coeff_16 - 30;
-            case 31: probcut_data[n_empties][31] = coeff_15 - 30;
-            case 30: probcut_data[n_empties][30] = coeff_14 - 30;
-                
-            case 29: probcut_data[n_empties][29] = coeff_17 - 24;
-            case 28: probcut_data[n_empties][28] = coeff_16 - 24;
-            case 27: probcut_data[n_empties][27] = coeff_15 - 24;
-            case 26: probcut_data[n_empties][26] = coeff_14 - 24;
-                
-            case 25: probcut_data[n_empties][25] = coeff_17 - 17;
-            case 24: probcut_data[n_empties][24] = coeff_16 - 17;
-            case 23: probcut_data[n_empties][23] = coeff_15 - 17;
-            case 22: probcut_data[n_empties][22] = coeff_14 - 17;
-                
-            case 21: probcut_data[n_empties][21] = coeff_17 - 9;
-            case 20: probcut_data[n_empties][20] = coeff_16 - 9;
-            case 19: probcut_data[n_empties][19] = coeff_15 - 9;
-            case 18: probcut_data[n_empties][18] = coeff_14 - 9;
-                
-            case 17: probcut_data[n_empties][17] = coeff_17;
-            case 16: probcut_data[n_empties][16] = coeff_16;
-            case 15: probcut_data[n_empties][15] = coeff_15;
-            case 14: probcut_data[n_empties][14] = coeff_14;
-                
-            case 13: probcut_data[n_empties][13] = coeff_17 + 10;
-            case 12: probcut_data[n_empties][12] = coeff_16 + 10;
-            case 11: probcut_data[n_empties][11] = coeff_15 + 10;
-            case 10: probcut_data[n_empties][10] = coeff_14 + 10;
-                
-            case  9: probcut_data[n_empties][ 9] = coeff_17 + 35;
-            case  8: probcut_data[n_empties][ 8] = coeff_16 + 35;
-            case  7: probcut_data[n_empties][ 7] = coeff_15 + 35;
-            case  6: probcut_data[n_empties][ 6] = coeff_14 + 35;
-                
-            case  5: probcut_data[n_empties][ 5] = coeff_17 + 70;
-            case  4: probcut_data[n_empties][ 4] = coeff_16 + 70;
-            case  3: probcut_data[n_empties][ 3] = coeff_15 + 70;
-            case  2: probcut_data[n_empties][ 2] = MAX_SCORE;
-                
-            case  1: probcut_data[n_empties][ 1] = MAX_SCORE;
-            case  0: probcut_data[n_empties][ 0] = MAX_SCORE;
-        }
-        
-    }
     
 }
 
