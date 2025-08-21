@@ -44,6 +44,6 @@
 //#define TUNE_PROBCUT_MID
 //#define TUNE_PROBCUT_END
 
-#define PROBCUT_x2
+//#define PROBCUT_x2 // si non defini use PROBCUT_x3
 
 #endif

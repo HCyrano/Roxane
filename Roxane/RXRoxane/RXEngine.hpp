@@ -461,7 +461,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     double sigma;
     
 #ifdef PROBCUT_x2
-    //poly_2d
+    //polynome 2d
     constexpr double probcut_a = 0.0853462218506715;
     constexpr double probcut_b = 1.3586842929500207;
     constexpr double probcut_c = -0.3910431797136643;
@@ -472,27 +472,23 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     sigma= probcut_a * board.n_empties + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
-    sigma = (sigma * PERCENTILE[selectivity] + 0.5);
-    sigma = static_cast<int>(sigma) * VALUE_DISC;
-
 #else
-    //poly_3d
+    //polynome 3d
+    constexpr double probcut_a = -0.002749027064700516;
+    constexpr double probcut_b = -0.04300618061241617;
+    constexpr double probcut_c = 0.012195041495440519;
+    constexpr double probcut_d = 3.5253211835446012;
+    constexpr double probcut_e = 20.96982757942392;
+    constexpr double probcut_f = 15.391146113611999;
+    constexpr double probcut_g = 6.447007445235017;
     
-    static double probcut_a =  1.1263306169822830 / 64.0;
-    static double probcut_b = -5.9635872689792020 / 60.0;
-    static double probcut_c =  2.7907656975166057 / 60.0;
-    static double probcut_d =  2.2287634992300160;
-    static double probcut_e = -3.2762274195577840;
-    static double probcut_f =  2.9942838391822090;
-    static double probcut_g =  1.8772336326411698;
-    
-    sigma = probcut_a * (double)(64-board.n_empties) + probcut_b * (double)probcut_depth + probcut_c * (double)depth;
+    sigma = probcut_a * board.n_empties + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
-    sigma = ceil(sigma * PERCENTILE[selectivity]) * VALUE_DISC;
-
 #endif
     
+    sigma = std::round(sigma * PERCENTILE[selectivity]) * VALUE_DISC;
+
     lower_bound = std::max(-MAX_SCORE, pivot - static_cast<int>(sigma));    //(bug limit 23/10/2008)
     upper_bound = std::min(+MAX_SCORE, pivot + static_cast<int>(sigma));    //(bug limit 23/10/2008)
 
