@@ -81,7 +81,6 @@ public:
     int pvDev;
     int depth;
     int selectivity;
-    volatile bool selective_cutoff;
     volatile int alpha, beta, bestscore, bestmove;
     
     
@@ -301,12 +300,12 @@ class RXEngine: public Runnable, public RXHelper {
     void MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alpha, const int beta, RXMove* list);
     void MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
     
-    int MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, bool& selective_cutoff, int alpha, const int beta, const bool passed);
+    int MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, int alpha, const int beta, const bool passed);
     void MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID);
     
     int MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int depth, int alpha, const int beta, const bool passed);
     
-    int MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, bool& selective_cutoff, const int alpha, const bool passed);
+    int MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, const int alpha, const bool passed);
     void MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int threadID);
     
     
@@ -332,7 +331,7 @@ class RXEngine: public Runnable, public RXHelper {
     void EG_PVS_root(RXBBPatterns& board, const int selectivity, int alpha, const int beta, RXMove* list);
     void EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
     
-    int	EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, bool& selective_cutoff, int alpha, const int beta, const bool passed);
+    int	EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, int alpha, const int beta, const bool passed);
     void EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID);
     
     int EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, int alpha, const int beta, const bool passed);
@@ -343,7 +342,7 @@ class RXEngine: public Runnable, public RXHelper {
     int EG_alphabeta_hash_parity(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed);
     int EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board, int alpha, int beta, const bool passed);
     
-    int EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, bool& selective_cutoff, const int alpha, const bool passed);
+    int EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int alpha, const bool passed);
     void EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadID);
     
     /*--------------------------------------------     Multithreads part (RXEngine.cpp)    --------------------------------------------*/ 
@@ -379,8 +378,7 @@ class RXEngine: public Runnable, public RXHelper {
     bool thread_should_stop(unsigned int threadID);
     
     bool split(	RXBBPatterns& sBoard, bool pv, int pvDev, 
-               int depth, int selectivity, bool& selective_cutoff,
-               int alpha, int beta, int& bestscore, int& bestmove,
+               int depth, int selectivity, int alpha, int beta, int& bestscore, int& bestmove,
                RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback);
     
     
