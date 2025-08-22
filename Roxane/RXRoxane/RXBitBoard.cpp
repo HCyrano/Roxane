@@ -889,10 +889,6 @@ void RXBitBoard::print_Board(unsigned long long P, unsigned long long O) {
 
 
 
-
-
-
-
 /*
 unsigned long long RXBitBoard::cntbset(unsigned long long n) {
 

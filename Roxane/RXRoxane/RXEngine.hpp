@@ -487,6 +487,12 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     
 #endif
     
+    //a tester
+    //double coeff_score = 1.0f+((std::abs(pivot/VALUE_DISC)-6)/256.0f);
+    double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
+    
+    sigma = sigma * coeff_pv; // * coeff_score*
+    
     sigma = std::round(sigma * PERCENTILE[selectivity]) * VALUE_DISC;
 
     lower_bound = std::max(-MAX_SCORE, pivot - static_cast<int>(sigma));    //(bug limit 23/10/2008)

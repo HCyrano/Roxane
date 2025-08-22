@@ -41,13 +41,6 @@ enum {
 	NOMOVE
 };
 
-///*! flipping directions */
-//enum {
-//	NW = 0, N, NE,  E, SE, S , SW,  W
-//};
-
-
-
 
 /*! maximal score */
 static const short UNDEF_SCORE = -std::numeric_limits<short>::max();

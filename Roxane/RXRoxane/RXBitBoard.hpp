@@ -400,11 +400,6 @@ inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_play
     
     return __builtin_popcountll(stables);
     
-    //    unsigned int P2187 = static_cast<unsigned int>((discs_player >> 48) | (discs_player << 16));    // ror 48
-    //    unsigned int stable = 0x00818100 & P2187;
-    //    stable |= ((((stable * 5) >> 1) & 0x00424200) | (stable << 8) | (stable >> 8)) & P2187;    // 1-8 alias does not matter since corner is stable anyway
-    //    return __builtin_popcount(stable);
-    
 }
 
 

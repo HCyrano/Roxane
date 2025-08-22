@@ -31,20 +31,18 @@ const int RXEngine::SUPERIOR = 3;
 const int RXEngine::INTERRUPT = 4;
 const int RXEngine::GGS_MSG = 5;
 
-// pas de difference significative apres 300 jeux s8r14 1:00:
 #ifdef __ARM_ACLE
-//version probcut type poly_3d
+//M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f};
-const int RXEngine::NO_SELECT = 6;
+const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.10f, 2.70f};
 #else
 //i386
-const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,   95,   98,   99,   100};
-const float RXEngine::PERCENTILE[] = {0.95f, 1.15f, 1.45f, 1.75f, 2.2f, 2.7f, 3.2f}; // standard
-const int RXEngine::NO_SELECT = 7;
+const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
+const float RXEngine::PERCENTILE[] = {0.95f, 1.05f, 1.25f, 1.50f, 1,90f, 2.40f, 2,90f}; // standard
 #endif
 
 const int RXEngine::EG_HIGH_SELECT = 0;
+const int RXEngine::NO_SELECT = std::size(RXEngine::PERCENTILE);
 
 const int RXEngine::DEPTH_BOOSTER = 4;
 
@@ -282,7 +280,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     RXMove* list1 = list;
     
-    int sigma = (upper_probcut - lower_probcut)/2;
+    int half_sigma = (upper_probcut - lower_probcut)/4;
     
     if(hashMove) {
         
@@ -290,13 +288,13 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         
-        if(static_eval>(lower_probcut-sigma)) {
+        if(static_eval>(lower_probcut-half_sigma)) {
             
             bool selectif_cutoff = false;
             bool child_selective_cutoff = false;
             
             
-            if(sBoard.get_score(*list1)<-(upper_probcut+sigma)) {
+            if(sBoard.get_score(*list1)<-(upper_probcut+half_sigma)) {
                 
                 sBoard.do_move(*list1);
                 
@@ -359,7 +357,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     sort_moves(threadID, endgame, sBoard, depth, selectivity, lower_probcut, upper_probcut, list1);
     
-    if(static_eval>(lower_probcut-sigma)) {
+    if(static_eval>(lower_probcut-half_sigma)) {
         
         //beta prob cut
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
@@ -367,7 +365,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             bool selectif_cutoff = false;
             bool child_selective_cutoff = false;
             
-            if(sBoard.get_score(*iter)<-(upper_probcut+sigma)) {
+            if(sBoard.get_score(*iter)<-(upper_probcut+half_sigma)) {
                 
                 sBoard.do_move(*iter);
                 
@@ -431,8 +429,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
 #ifdef USE_PROBCUT_ALPHA
     
-    if(/*(type_search == RXEngine::MIDGAME  || selectivity <= NO_SELECT-3) &&*/ static_eval<upper_probcut) {
-        
+    if(/*(type_search == RXEngine::MIDGAME  || selectivity <= NO_SELECT-3) &&*/ static_eval < upper_probcut+half_sigma) {
         
         bool selectif_cutoff = false;
         bool child_selective_cutoff = false;
@@ -444,7 +441,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
-            if(-sBoard.get_score(*iter) < (lower_probcut - sigma))
+            if(-sBoard.get_score(*iter) <= (lower_probcut - half_sigma))
                 continue;
             
             sBoard.do_move(*iter);
@@ -458,7 +455,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 if(legal_movesBB) {
                     
                     RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
-                    for(RXSquareList* empties = board.empties_list->next; bestscore_1 > -lower_probcut && empties->position != NOMOVE; empties = empties->next)
+                    for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -lower_probcut && empties->position != NOMOVE; empties = empties->next)
                         if(legal_movesBB & 0x1ULL<<empties->position) {
                             ((board).*(board.generate_flips[empties->position]))(lastMove);
                             ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
@@ -489,7 +486,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             } else {
                 iter->score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, child_selective_cutoff, -lower_probcut-VALUE_DISC, false); // pvDev = 1
                 
-                selective_cutoff |= child_selective_cutoff;
+                selectif_cutoff |= child_selective_cutoff;
             }
             
             sBoard.undo_move(*iter);
@@ -503,11 +500,11 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 bestmove = iter->position;
                 bestscore = iter->score;
                 
-                if(bestscore > lower_probcut) { //no cut
+                if(bestscore >= lower_probcut) { //no cut
                     list->sort_bestmove(bestmove);
                     
                     selectif_cutoff = child_selective_cutoff;
-                    hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selective_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
+                    hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
                     return NO_CUT;
                 }
             }
@@ -515,7 +512,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         }
         
         selectif_cutoff = child_selective_cutoff;
-        hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selective_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
+        hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
         return ALPHA_CUT;
         
         
