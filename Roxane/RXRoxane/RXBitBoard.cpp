@@ -415,7 +415,7 @@ int RXBitBoard::count_potential_moves(const unsigned long long p_discs, const un
 
 
 
-RXBitBoard::RXBitBoard(): player(BLACK), n_empties(60), n_nodes(0), parity(0xF){
+RXBitBoard::RXBitBoard(): player(BLACK), n_empty(60), n_nodes(0), parity(0xF){
     
     //start position
     discs[BLACK] = 0X000000810000000ULL;
@@ -453,7 +453,7 @@ RXBitBoard::RXBitBoard(): player(BLACK), n_empties(60), n_nodes(0), parity(0xF){
 void RXBitBoard::reset() {
     
     player = BLACK;
-    n_empties = 60;
+    n_empty = 60;
     n_nodes = 0;
     parity = 0xF;
     
@@ -497,7 +497,7 @@ RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
         
         player = src.player;
                 
-        n_empties = src.n_empties;
+        n_empty = src.n_empty;
         parity = src.parity;
         
 
@@ -526,7 +526,7 @@ RXBitBoard::RXBitBoard(const RXBitBoard& src) {
 	discs[WHITE] = src.discs[WHITE];
 	
 	player = src.player;
-	n_empties = src.n_empties;
+	n_empty = src.n_empty;
     parity = src.parity;
 	n_nodes = src.n_nodes;
 	
@@ -573,7 +573,7 @@ void RXBitBoard::build(const std::string& init) {
     
     discs[BLACK] = discs[WHITE] = 0ULL;
 
-    n_empties = 64;
+    n_empty = 64;
     parity = 0;
     
     player = UNDEF_COLOR;
@@ -586,13 +586,13 @@ void RXBitBoard::build(const std::string& init) {
             case 'x':
             case '*':
                 discs[BLACK] |= 0x1ULL<<i;
-                --n_empties;
+                --n_empty;
                 parity ^=QUADRANT_ID[i];
                 break;
             case 'o':
             case 'w':
                 discs[WHITE] |= 0x1ULL<<i;
-                --n_empties;
+                --n_empty;
                 parity ^=QUADRANT_ID[i];
                 break;
             case '-':
@@ -717,9 +717,9 @@ int RXBitBoard::final_score() const {
         
 	int score = __builtin_popcountll(discs[player]) -__builtin_popcountll(discs[player^1]);
 	if(score<0)
-		score -= n_empties;
+		score -= n_empty;
 	else if(score>0)
-		score += n_empties;
+		score += n_empty;
 		
 	return score*VALUE_DISC;
 }

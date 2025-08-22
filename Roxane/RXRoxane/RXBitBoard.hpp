@@ -99,7 +99,7 @@ class RXBitBoard {
     
     unsigned long long discs[2];
     int player;
-    int n_empties;
+    int n_empty;
     int parity;
     RXSquareList empties_list[62];
     RXSquareList *position_to_empties[64];
@@ -292,7 +292,7 @@ inline void RXBitBoard::do_move(const RXMove& move) {
     player ^=1;
     discs[player] ^= move.flipped;
     
-    --n_empties;
+    --n_empty;
     parity ^= QUADRANT_ID[move.position];
     
     const RXSquareList *remove = position_to_empties[move.position];
@@ -309,7 +309,7 @@ inline void RXBitBoard::undo_move(const RXMove& move) {
     insert->next->previous = insert;
     
     parity ^= QUADRANT_ID[move.position];
-    ++n_empties;
+    ++n_empty;
     
     discs[player] |= move.flipped;
     player ^=1;

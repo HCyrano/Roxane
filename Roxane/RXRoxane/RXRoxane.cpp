@@ -233,7 +233,7 @@ RXEngine* RXRoxane::getEngine(const int color) const {
 //					if(board.isPassed())
 //						board.do_pass();
 //					
-//				} while (!error && !board.isEndGame() && board.n_empties>solved);
+//				} while (!error && !board.isEndGame() && board.n_empty>solved);
 //				
 //				
 //				if (!error && !board.isEndGame()) {
@@ -384,7 +384,7 @@ void RXRoxane::get_move(const string& _idg, COsGame* g) {
 
 	search.sBoard.build(g->pos.board.fromGGS());
 	
-	search.depth       = search.sBoard.board.n_empties;
+	search.depth       = search.sBoard.board.n_empty;
 	search.alpha       = -MAX_SCORE;
 	search.beta        =  MAX_SCORE;
 	search.selectivity = RXEngine::NO_SELECT;
@@ -395,7 +395,7 @@ void RXRoxane::get_move(const string& _idg, COsGame* g) {
 	search.bestMove.tElapsed    = 0.0;
 	search.bestMove.nodes	    = 0;
 	
-	if(GGSClient->IsConnected() && board.n_empties>19) {
+	if(GGSClient->IsConnected() && board.n_empty>19) {
 		sendMsg("--");
 		sendMsg("game " + idg);
 
@@ -474,7 +474,7 @@ void RXRoxane::get_move(const std::string& file_name) {
 
                 
 				search.sBoard.build(line);
-				search.depth       = search.sBoard.board.n_empties;
+				search.depth       = search.sBoard.board.n_empty;
 				search.alpha       = -MAX_SCORE;
 				search.beta        = +MAX_SCORE;
 				search.selectivity = RXEngine::NO_SELECT;
@@ -578,8 +578,8 @@ void RXRoxane::run() {
 	RXSearch s(search); //copy
 	RXBitBoard& board = s.sBoard.board;
 	
-	if(board.hashcode() == hash_opening[60-board.n_empties])
-		s.bestMove.position = move_opening[60-board.n_empties];
+	if(board.hashcode() == hash_opening[60-board.n_empty])
+		s.bestMove.position = move_opening[60-board.n_empty];
 	else
 		engine[s.idEngine]->get_move(s);
 	
@@ -633,8 +633,8 @@ void RXRoxane::imposed_opening(const std::string& line) {
                 ((board).*(board.generate_flips[square]))(move);
                 
 				if(move.flipped) {
-					hash_opening[60-board.n_empties] = board.hashcode();
-					move_opening[60-board.n_empties] = square;
+					hash_opening[60-board.n_empty] = board.hashcode();
+					move_opening[60-board.n_empty] = square;
 					
 					board.do_move(move);
 					if(board.isPassed())

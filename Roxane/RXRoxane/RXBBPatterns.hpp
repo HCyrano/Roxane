@@ -69,7 +69,7 @@ void update_patterns_WHITE_##pos(RXMove& move) const
     void reset();
     
     double get_n_nodes() const { return board.get_n_nodes(); }
-    int get_n_empties() const { return board.n_empties; }
+    int get_n_empty() const { return board.n_empty; }
     
     int final_score() const;
     int get_score() const;
@@ -109,7 +109,7 @@ inline int RXBBPatterns::final_score() const {
 /*
 inline int RXBBPatterns::verif_score() const {
     
-    const int stage = 60-board.n_empties;
+    const int stage = 60-board.n_empty;
     
     const unsigned long long filled = (board.discs[BLACK] | board.discs[WHITE]);
     
@@ -463,7 +463,7 @@ inline int RXBBPatterns::verif_score() const {
 
 inline int RXBBPatterns::get_score() const {
     
-    const int stage = 60-board.n_empties;
+    const int stage = 60-board.n_empty;
     
     const unsigned long long filled = (board.discs[BLACK] | board.discs[WHITE]);
     
@@ -649,7 +649,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     
     const RXPattern* const p = move.pattern;
     
-    const int stage = 61-board.n_empties;
+    const int stage = 61-board.n_empty;
     
     const unsigned long long filled = (board.discs[BLACK] | board.discs[WHITE] | move.square);
     
@@ -838,7 +838,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
 
 inline int RXBBPatterns::get_score() const {
     
-    const int stage = 60-board.n_empties;
+    const int stage = 60-board.n_empty;
     
     int eval;
     const short* value;
@@ -958,7 +958,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     
     const RXPattern* const p = move.pattern;
     
-    const int stage = 61-board.n_empties;
+    const int stage = 61-board.n_empty;
     
     int eval;
     const short* value;
@@ -1075,7 +1075,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
 /*
 inline int RXBBPatterns::verif_score() const {
     
-    const int stage = 60-board.n_empties;
+    const int stage = 60-board.n_empty;
     
     
     int eval;

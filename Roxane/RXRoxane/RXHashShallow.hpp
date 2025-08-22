@@ -46,13 +46,13 @@ class RXHashShallow {
 		
 		void update(const unsigned long long hash_code, const unsigned char depth, const int alpha, const int beta, const int score, const char move);
 			
-	void new_search(const int n_empties);
+	void new_search(const int n_empty);
 
 };
 
-inline void RXHashShallow::new_search(const int n_empties) {
+inline void RXHashShallow::new_search(const int n_empty) {
 	
-	int stage = 2*(60-n_empties);
+	int stage = 2*(60-n_empty);
 	
 	if(stage>date)
 		date = stage;

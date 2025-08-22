@@ -34,7 +34,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.10f, 2.70f};
+const float RXEngine::PERCENTILE[] = {1.05f, 1.18f, 1.35f, 1.70f, 2.10f, 2.70f};
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -142,7 +142,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                 int lower_probcut = -MAX_SCORE;
                 int upper_probcut =  MAX_SCORE;
                 if(endgame)
-                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-1), board.n_empties, (8+(board.n_empties & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-1), board.n_empty, (8+(board.n_empty & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 else
                     probcut_bounds(board, MG_SELECT, depth, (6 - (depth & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 
@@ -189,7 +189,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                             const unsigned long long legal_movesBB = RXBitBoard::get_legal_moves(board.discs[o], board.discs[p]);
                             if(legal_movesBB) {
                                 
-                                RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+                                RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
                                 for(RXSquareList* empties = board.empties_list->next;bestscore < -lower_probcut && empties->position != NOMOVE; empties = empties->next) {
                                     if(legal_movesBB & 0x1ULL<<empties->position) {
                                         ((board).*(board.generate_flips[empties->position]))(lastMove);
@@ -307,7 +307,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     const unsigned long long legal_movesBB = board.get_legal_moves();
                     if(legal_movesBB) {
                         
-                        RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+                        RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
                         for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
                             if(legal_movesBB & 0x1ULL<<empties->position) {
                                 ((board).*(board.generate_flips[empties->position]))(lastMove);
@@ -376,7 +376,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     const unsigned long long legal_movesBB = board.get_legal_moves();
                     if(legal_movesBB) {
                         
-                        RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+                        RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
                         for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
                             if(legal_movesBB & 0x1ULL<<empties->position) {
                                 ((board).*(board.generate_flips[empties->position]))(lastMove);
@@ -454,7 +454,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 const unsigned long long legal_movesBB = board.get_legal_moves();
                 if(legal_movesBB) {
                     
-                    RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+                    RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
                     for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -lower_probcut && empties->position != NOMOVE; empties = empties->next)
                         if(legal_movesBB & 0x1ULL<<empties->position) {
                             ((board).*(board.generate_flips[empties->position]))(lastMove);
@@ -568,7 +568,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
     
     if(bestmove != PASS) {
         
-        RXMove* list = threads[threadID]._move[board.n_empties];
+        RXMove* list = threads[threadID]._move[board.n_empty];
         
         if(bestmove != NOMOVE) {
             
@@ -615,20 +615,20 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                         
                         if (depth == 6) {
                             
-                            // [endgame n_empties >= 30]
+                            // [endgame n_empty >= 30]
                             
                             iter->score = alphabeta_last_two_ply(threadID, sBoard, -MAX_SCORE, +MAX_SCORE, false);
                             
                         } else if(depth == 5) {
                             
-                            // [endgame n_empties >= 28]
+                            // [endgame n_empty >= 28]
                             
                             int bestscore1 = UNDEF_SCORE;
                             
                             const unsigned long long legal_movesBB = board.get_legal_moves();
                             if(legal_movesBB) {
                                 
-                                RXMove& lastMove = threads[threadID]._move[board.n_empties][1];
+                                RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
                                 
                                 for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next)
                                     if(legal_movesBB & 0x1ULL<<empties->position) {
@@ -654,7 +654,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                             iter->score = bestscore1;
                             
                         } else {
-                            // [endgame n_empties >= 26]
+                            // [endgame n_empty >= 26]
                             
                             iter->score = -sBoard.get_score();
                             
@@ -816,7 +816,7 @@ int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns
     
     if (bestmove != PASS) {
         
-        RXMove& move = threads[threadID]._move[board.n_empties][1];
+        RXMove& move = threads[threadID]._move[board.n_empty][1];
         
         //fisrt move
         if(bestmove != NOMOVE) {
@@ -897,8 +897,8 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
     int bestscore = UNDEF_SCORE;
     
     
-    RXMove& move = threads[threadID]._move[board.n_empties][1];
-    RXMove& lastMove = threads[threadID]._move[board.n_empties - 1][1];
+    RXMove& move = threads[threadID]._move[board.n_empty][1];
+    RXMove& lastMove = threads[threadID]._move[board.n_empty - 1][1];
     
     //other moves
     const unsigned long long legal_movesBB = board.get_legal_moves();
@@ -913,7 +913,7 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 board.player ^= 1;
                 board.discs[board.player] ^= move.flipped;
                 
-                --board.n_empties;
+                --board.n_empty;
                 ++board.n_nodes;
                 
                 empties->previous->next = empties->next;
@@ -955,7 +955,7 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 
                 empties->previous->next = empties;
                 
-                ++board.n_empties;
+                ++board.n_empty;
                 
                 board.discs[board.player] |= move.flipped;
                 board.player ^= 1;
@@ -1026,8 +1026,8 @@ std::string RXEngine::showPV(RXBitBoard& board, int depthLine) const {
     if(hTable->get(board, type_hashtable, entry)) {
         
         int depth = static_cast<int>(entry.depth);
-        if(depth>board.n_empties)
-            depth = board.n_empties;
+        if(depth>board.n_empty)
+            depth = board.n_empty;
         
         buffer << " " << depth << "@" << CONFIDENCE[entry.selectivity];
         
@@ -1062,8 +1062,8 @@ std::string RXEngine::showHashmove(const RXBitBoard& board, RXHashValue& entry) 
     std::ostringstream buffer;
     
     int depth = static_cast<int>(entry.depth);
-    if(depth>board.n_empties)
-        depth = board.n_empties;
+    if(depth>board.n_empty)
+        depth = board.n_empty;
     
     buffer << "[" << depth << "@" << CONFIDENCE[entry.selectivity];
     
@@ -1125,9 +1125,9 @@ std::string RXEngine::display(RXBitBoard& board, const int type, const int allow
     
     //unsynchronized acces
     RXHashValue entry;
-    if( hTable->get(board, type_hashtable, entry) && ((entry.depth >= board.n_empties && entry.selectivity >= allowed_display) || (entry.depth < board.n_empties && entry.depth >= allowed_display))) {
+    if( hTable->get(board, type_hashtable, entry) && ((entry.depth >= board.n_empty && entry.selectivity >= allowed_display) || (entry.depth < board.n_empty && entry.depth >= allowed_display))) {
         
-        int depth = (entry.depth >= board.n_empties? board.n_empties : entry.depth);
+        int depth = (entry.depth >= board.n_empty? board.n_empty : entry.depth);
         
         buffer << (type == HASHTABLE? "[":" ");
         buffer <<std::fixed << std::setw(2) << depth ;
@@ -1141,7 +1141,7 @@ std::string RXEngine::display(RXBitBoard& board, const int type, const int allow
         buffer << (type == HASHTABLE? "]|":" |");
         
         //track bug HASH 24/01/2025
-        if(entry.depth < board.n_empties) { //normalize midGame final_score()
+        if(entry.depth < board.n_empty) { //normalize midGame final_score()
             if(score >= (MAX_SCORE-VALUE_DISC)-64*VALUE_DISC)
                 score -= (MAX_SCORE-VALUE_DISC)-64*VALUE_DISC;
             else if (score <= (-MAX_SCORE+VALUE_DISC)+64*VALUE_DISC)
@@ -1328,7 +1328,7 @@ void RXEngine::get_move(RXSearch& s) {
         search_alpha       = std::max(-MAX_SCORE, std::min( MAX_SCORE-1, s.alpha));
         search_beta        = std::min(+MAX_SCORE, std::max(-MAX_SCORE+1, s.beta));
         search_selectivity = std::max(0, std::min(NO_SELECT, s.selectivity));
-        search_depth       = std::max(2, std::min(board.n_empties, s.depth));
+        search_depth       = std::max(2, std::min(board.n_empty, s.depth));
         
         
         hTable = s.htable;
@@ -1369,7 +1369,7 @@ void RXEngine::get_move(RXSearch& s) {
     s.bestMove.tElapsed = get_current_dependentTime()/1000.0;
     
     
-    if(search_sBoard.board.n_empties > 19) {
+    if(search_sBoard.board.n_empty > 19) {
         int speed = 0;
         if(time_search != 0)
             speed = static_cast<int>(s.bestMove.nodes/time_search) ; //*1000)
@@ -1414,13 +1414,13 @@ void RXEngine::get_move(RXSearch& s) {
     //                                  here one thread only
     //************************************************************************************************
     
-    if(!resume_flag.load() && s.search_on_opponent_time == true && board.n_empties>18) {
+    if(!resume_flag.load() && s.search_on_opponent_time == true && board.n_empty>18) {
         
         
         dependent_time = false;
         
         
-        RXMove& move = threads[0]._move[board.n_empties][1];
+        RXMove& move = threads[0]._move[board.n_empty][1];
         
         //play best move
         if(s.bestMove.position == PASS) {
@@ -1453,7 +1453,7 @@ void RXEngine::get_move(RXSearch& s) {
                     if(entry.move == PASS) {
                         search_sBoard.board.do_pass();
                     } else {
-                        RXMove& answer = threads[0]._move[board.n_empties][1];
+                        RXMove& answer = threads[0]._move[board.n_empty][1];
                         ((sBoard.board).*(sBoard.board.generate_flips[entry.move]))(answer);
                         ((sBoard).*(sBoard.update_patterns[answer.position][board.player]))(answer);
                         
@@ -1523,7 +1523,7 @@ void RXEngine::run() {
     board.n_nodes = 0;
     time_nextLevel = 0;
     
-    RXMove* list = threads[0]._move[board.n_empties];
+    RXMove* list = threads[0]._move[board.n_empty];
     board.moves_producing(list);
     
     if(list->next == NULL) {	//PASS
@@ -1580,11 +1580,11 @@ void RXEngine::run() {
             
             *log << display(board, HASHTABLE) << std::endl;
             
-            if(dependent_time && search_sBoard.board.n_empties> 19 && entry.depth>13)
+            if(dependent_time && search_sBoard.board.n_empty> 19 && entry.depth>13)
                 manager->sendMsg(showHashmove(board, entry));
             
             depth = std::max(2, +entry.depth);
-            endgame_flag = (search_sBoard.board.n_empties - depth <= 0 ? true: false);
+            endgame_flag = (search_sBoard.board.n_empty - depth <= 0 ? true: false);
             
             if(endgame_flag) //endgame
                 selectivity = std::min(NO_SELECT, +entry.selectivity);
@@ -1597,7 +1597,7 @@ void RXEngine::run() {
                     if(endgame_flag) //endgame
                         selectivity = std::min(NO_SELECT, selectivity+1);
                     else
-                        depth = std::min(search_sBoard.board.n_empties, depth+2);
+                        depth = std::min(search_sBoard.board.n_empty, depth+2);
                 }
                 
                 
@@ -1610,7 +1610,7 @@ void RXEngine::run() {
                         if(endgame_flag) //endgame
                             selectivity = std::min(NO_SELECT, selectivity+1);
                         else
-                            depth = std::min(search_sBoard.board.n_empties, depth+2);
+                            depth = std::min(search_sBoard.board.n_empty, depth+2);
                     }
                     
                 } else if(entry.lower == -MAX_SCORE) {
@@ -1620,7 +1620,7 @@ void RXEngine::run() {
                         if(endgame_flag) //endgame
                             selectivity = std::min(NO_SELECT, selectivity+1);
                         else
-                            depth = std::min(search_sBoard.board.n_empties, depth+2);
+                            depth = std::min(search_sBoard.board.n_empty, depth+2);
                     } else {
                         //reset search
                         //						std::cout << "hash [-inf;score] reset search" << std::endl;
@@ -1654,29 +1654,29 @@ void RXEngine::run() {
         
         extra_time = 0;
         
-        hTable_shallow->new_search(search_sBoard.board.n_empties);
+        hTable_shallow->new_search(search_sBoard.board.n_empty);
         
-        hTable_PV->new_search(search_sBoard.board.player, search_sBoard.board.n_empties);
-        hTable->new_search(search_sBoard.board.player, search_sBoard.board.n_empties);
+        hTable_PV->new_search(search_sBoard.board.player, search_sBoard.board.n_empty);
+        hTable->new_search(search_sBoard.board.player, search_sBoard.board.n_empty);
         
         hTable->protectPV(search_sBoard.board);
         
         
         int max_depth;
-        if(search_depth <= search_sBoard.board.n_empties-(USE_PV_EXTENSION ? 10: 6)) {
+        if(search_depth <= search_sBoard.board.n_empty-(USE_PV_EXTENSION ? 10: 6)) {
             depth = std::min(depth, search_depth);
             max_depth = search_depth;
         } else {
-            depth = std::min(depth, search_sBoard.board.n_empties);
-            max_depth = search_sBoard.board.n_empties-(USE_PV_EXTENSION ? 10: 6);
+            depth = std::min(depth, search_sBoard.board.n_empty);
+            max_depth = search_sBoard.board.n_empty-(USE_PV_EXTENSION ? 10: 6);
         }
         
         //normalisation de depth
-        if(depth%2 == (search_sBoard.board.n_empties%2 == 1 ? 0 : 1))
+        if(depth%2 == (search_sBoard.board.n_empty%2 == 1 ? 0 : 1))
             ++depth;
         
         //normalisation de max_depth
-        if(max_depth%2 == (search_sBoard.board.n_empties%2 == 1? 0:1))
+        if(max_depth%2 == (search_sBoard.board.n_empty%2 == 1? 0:1))
             ++max_depth;
         
         
@@ -1686,10 +1686,10 @@ void RXEngine::run() {
             //new_search = false;
         }
         
-        if (!abort.load() && search_depth > (search_sBoard.board.n_empties-10)) {
+        if (!abort.load() && search_depth > (search_sBoard.board.n_empty-10)) {
             
             //coherence selectivty et end_selectivity
-            int end_selectivity = search_depth < search_sBoard.board.n_empties? RXEngine::EG_HIGH_SELECT:search_selectivity;
+            int end_selectivity = search_depth < search_sBoard.board.n_empty? RXEngine::EG_HIGH_SELECT:search_selectivity;
             
             //for test
             //end_selectivity =  MG_SELECT;
@@ -1738,7 +1738,7 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
     
     if(get_type_search() == MIDGAME) { //midgame
         
-        if(next_depth > board.n_empties-6) {
+        if(next_depth > board.n_empty-6) {
             //*log << "                  depth " << depth << " to @60" << std::endl;
             
             //Start ENDGAME
@@ -1818,7 +1818,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         15, 15, 15, 15, 15, 15, 15, 15, 15 };
     
     
-    int time_Safety = 1000 * tSafety[board.n_empties];
+    int time_Safety = 1000 * tSafety[board.n_empty];
     *log << "                  time safety : " << time_Safety << std::endl;
     
     
@@ -1833,17 +1833,17 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     
     if(get_type_search() == MIDGAME) {
         
-        int n_empties_before_solved;
+        int n_empty_before_solved;
         
 #ifdef __ARM_ACLE
         //apple ARM
-        n_empties_before_solved = std::max(2, board.n_empties-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
+        n_empty_before_solved = std::max(2, board.n_empty-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
 #else
         //i5 2,7ghz
-        n_empties_before_solved = std::max(2, board.n_empties-24); //i5 2,7ghz solved at 24 empties
+        n_empty_before_solved = std::max(2, board.n_empty-24); //i5 2,7ghz solved at 24 empties
 #endif
         
-        float n_remaining_moves = std::floor((n_empties_before_solved)/2.0);
+        float n_remaining_moves = std::floor((n_empty_before_solved)/2.0);
         
         //Midgame mode
         tMove = static_cast<int>((1+(n_remaining_moves-1)/n_remaining_moves)*(tRemaining-time_Safety) / n_remaining_moves);
@@ -1866,9 +1866,9 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         *log << "                  EG time move : " << tMove << std::endl;
         
         if(new_search) { // new research
-            if(board.n_empties>36) {
+            if(board.n_empty>36) {
                 tMove = 4*tMove/3; //*1,33
-            } else if(board.n_empties>32) {
+            } else if(board.n_empty>32) {
                 tMove = 7*tMove/4; //*1,75
             } else {
                 tMove *= 2; //*2
@@ -1883,7 +1883,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     }
     
     //MIDGAME and ENGDGAME
-    if(!new_search && board.n_empties>34) {
+    if(!new_search && board.n_empty>34) {
         tMove = std::max(3*tMove/4, time_Safety/6); //*0,75
         *log << "                  search continue time move : " << tMove << std::endl;
         
@@ -2417,7 +2417,7 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                             }
                         }
                         
-                        RXMove* move = threads[0]._move[board.n_empties];
+                        RXMove* move = threads[0]._move[board.n_empty];
                         for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
                             if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
                                 
@@ -2472,7 +2472,7 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                 }
                 
                 for(; 0 < n_moves ; --n_moves) {
-                    RXMove* move = threads[0]._move[board.n_empties+1];
+                    RXMove* move = threads[0]._move[board.n_empty+1];
                     sBoard.undo_move(*move);
                 }
 
@@ -2523,7 +2523,7 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                         }
                     }
                     
-                    RXMove* move = threads[0]._move[board.n_empties];
+                    RXMove* move = threads[0]._move[board.n_empty];
                     for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
                         if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
                             
@@ -2559,17 +2559,17 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                     score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, selective_cutoff, -MAX_SCORE, MAX_SCORE, false);
                 }
                 
-                if (board.n_empties == 2) {
+                if (board.n_empty == 2) {
                     score_at_depth = board.final_score_2(-MAX_SCORE, MAX_SCORE);
-                } else if (board.n_empties == 3) {
+                } else if (board.n_empty == 3) {
                     score_at_depth = board.final_score_3(-MAX_SCORE, MAX_SCORE);
-                } else if (board.n_empties == 4) {
+                } else if (board.n_empty == 4) {
                     score_at_depth = board.final_score_4(-MAX_SCORE, MAX_SCORE, false);
-                } else if (board.n_empties < EG_MEDIUM_TO_SHALLOW) {
+                } else if (board.n_empty < EG_MEDIUM_TO_SHALLOW) {
                     score_at_depth = EG_alphabeta_parity(0, board, -MAX_SCORE, MAX_SCORE, false);
-                } else if (board.n_empties < EG_MEDIUM_HI_TO_LOW) {
+                } else if (board.n_empty < EG_MEDIUM_HI_TO_LOW) {
                     score_at_depth = EG_PVS_hash_mobility(0, board, true, -MAX_SCORE, MAX_SCORE, false);
-                } else  if (board.n_empties < EG_DEEP_TO_MEDIUM) {
+                } else  if (board.n_empty < EG_DEEP_TO_MEDIUM) {
                     score_at_depth = EG_PVS_ETC_mobility(0, sBoard, true, -MAX_SCORE, MAX_SCORE, false);
                 } else {
                     wake_sleeping_threads();
@@ -2586,7 +2586,7 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
             }
             
             for(; 0 < n_moves ; --n_moves) {
-                RXMove* move = threads[0]._move[board.n_empties+1];
+                RXMove* move = threads[0]._move[board.n_empty+1];
                 sBoard.undo_move(*move);
             }
             

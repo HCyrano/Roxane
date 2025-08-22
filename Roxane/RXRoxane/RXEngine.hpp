@@ -469,7 +469,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_e = -0.48544440900765307;
     constexpr double probcut_f = 6.413653253950335;
     
-    sigma= probcut_a * board.n_empties + probcut_b * probcut_depth + probcut_c * depth;
+    sigma= probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
 #else
@@ -482,7 +482,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_f = 15.391146113611999;
     constexpr double probcut_g = 6.447007445235017;
     
-    sigma = probcut_a * board.n_empties + probcut_b * probcut_depth + probcut_c * depth;
+    sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
 #endif

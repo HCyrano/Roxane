@@ -165,7 +165,7 @@ class RXHashTable {
     std::string line2String(RXBitBoard& board, const int depth, const t_hash type_hashtable) const;
     void mainVariation(std::vector<unsigned char>& pv, RXBitBoard& board, const t_hash type_hashtable, const int depth) const;
 
-    void new_search(const unsigned int color, const int n_empties);
+    void new_search(const unsigned int color, const int n_empty);
     int get_date(const unsigned int color) { return date[_shared ? 0:color];};
     
     
@@ -186,9 +186,9 @@ inline void RXHashTable::entry_prefetch(const unsigned long long hash_code, cons
 
 
 
-inline void RXHashTable::new_search(const unsigned int color, const int n_empties) {
+inline void RXHashTable::new_search(const unsigned int color, const int n_empty) {
 	
-	int stage = 2*(60-n_empties);
+	int stage = 2*(60-n_empty);
 	
 	if(stage>date[_shared ? 0:color])
 		date[_shared ? 0:color] = stage;
