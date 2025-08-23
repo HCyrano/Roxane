@@ -840,6 +840,16 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
+    
+    if(depth <= MG_DEEP_TO_SHALLOW) {
+        hTable->update(   hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
+        hTable_PV->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
+
+    } else {
+        hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
+        hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
+
+    }
             
     hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
     hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
@@ -1424,9 +1434,15 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    hTable->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
-    if(pvDev < 4)
-        hTable_PV->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
+    if(depth > MIN_DEPTH_USE_PROBCUT) {
+        hTable->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, bestscore, bestmove);
+        if(pvDev < 4)
+            hTable_PV->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, bestscore, bestmove);
+    } else {
+        hTable->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
+        if(pvDev < 4)
+            hTable_PV->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
+    }
     
     return bestscore;
     

@@ -42,7 +42,7 @@
 //#define SOLVER_SETTING
 
 //check pv in endgame at 100%
-#define EG_CHECK_PV
+//#define EG_CHECK_PV
 
 //generate data for probcut
 //#define TUNE_PROBCUT_MID
