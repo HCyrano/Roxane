@@ -840,13 +840,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
-    
-    
-    
-    //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    hTable->update(   hash_code, type_hashtable, MG_SELECT, depth, alpha, upper,  bestscore, bestmove);
-    /*if(pv)*/
-    hTable_PV->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, upper,  bestscore, bestmove);
+            
+    hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
+    hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
     
     return bestscore;
     
@@ -1249,11 +1245,11 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         if(entry.lower >= upper_probcut) {
             return alpha+VALUE_DISC;
         }
-#ifdef USE_PROBCUT_ALPHA
+//#ifdef USE_PROBCUT_ALPHA
         if(entry.upper <= lower_probcut) {
             return alpha;
         }
-#endif
+//#endif
     }
     
     
@@ -1387,7 +1383,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         list = list->next;
                 
         int score;
-        for(RXMove* iter = list->next;!abort.load()  && bestscore<=alpha && iter != NULL; iter = iter->next, list = list->next) {
+        for(RXMove* iter = list->next; !abort.load() && bestscore<=alpha && iter != NULL; iter = iter->next, list = list->next) {
             
             //		//assert(bestscore >= -MAX_SCORE);
             //		if(bestscore<-MAX_SCORE)
@@ -1396,7 +1392,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             // Split?
             if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && iter->next != NULL && !abort.load()
                && idle_thread_exists(threadID) && !thread_should_stop(threadID)
-               && split(sBoard, false, pvDev, depth, selectivity,  alpha, (alpha+VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::MID_XPROBCUT)) {
+               && split(sBoard, false, pvDev, depth, selectivity, alpha, (alpha+VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::MID_XPROBCUT)) {
                 
 
                 break;
@@ -1427,7 +1423,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
-    
     
     hTable->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
     if(pvDev < 4)

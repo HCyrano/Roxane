@@ -487,7 +487,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 
                 if(bestscore >= lower_probcut) { //no cut
                     list->sort_bestmove(bestmove);
-                     hTable->update(board.hashcode(), type_hashtable, selectif_cutoff? selectivity : NO_SELECT, depth, lower_probcut, bestscore, bestmove);
+                     hTable->update(board.hashcode(), type_hashtable, selectivity, depth, lower_probcut, bestscore, bestmove);
                     return NO_CUT;
                 }
             }

@@ -1705,11 +1705,17 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         return INTERRUPT_SEARCH;
     
     
-    
-    //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    hTable->update(   hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
-    /*if(pv)*/
-    hTable_PV->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
+    if(board.n_empty <= EG_DEEP_TO_MEDIUM) {
+        
+        hTable->update(   hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
+        hTable_PV->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
+
+    } else {
+        
+        hTable->update(   hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
+        hTable_PV->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
+        
+    }
     
     return bestscore;
 }
@@ -1884,11 +1890,11 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         if(entry.lower >= upper_probcut) {
             return alpha + VALUE_DISC; //9/02/2025
         }
-#ifdef USE_PROBCUT_ALPHA
+//#ifdef USE_PROBCUT_ALPHA
         if(entry.upper <= lower_probcut) {
             return alpha;
         }
-#endif
+//#endif
         
     }
     
@@ -2095,10 +2101,18 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    
-    hTable->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
-    if(pvDev < 4)
-        hTable_PV->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
+    if(board.n_empty<MIN_DEPTH_USE_ENDCUT) {
+        
+        hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
+        if(pvDev < 4)
+            hTable_PV->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
+
+    } else {
+        
+        hTable->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
+        if(pvDev < 4)
+            hTable_PV->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
+    }
     
     return bestscore;
     
