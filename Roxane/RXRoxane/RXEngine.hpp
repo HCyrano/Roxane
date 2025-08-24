@@ -280,9 +280,7 @@ class RXEngine: public Runnable, public RXHelper {
     
     /*--------------------------------------------     MidGame part (RXMidGame.cpp)    --------------------------------------------*/ 
     
-    
-    static const int MIN_DEPTH_USE_PROBCUT;
-    
+        
     static const int MG_SELECT;
     
     static const int MG_DEEP_TO_SHALLOW;

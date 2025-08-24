@@ -18,8 +18,6 @@
 
 const int RXEngine::MG_SELECT = 1; //72%
 
-const int RXEngine::MIN_DEPTH_USE_PROBCUT = DEPTH_4; // DO NOT CHANGE
-
 const int RXEngine::MIN_DEPTH_SPLITPOINT = 7;
 
 const int RXEngine::MG_DEEP_TO_SHALLOW = 4;
@@ -427,6 +425,10 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
 
 int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, int alpha, const int beta, const bool passed) {
     
+    if(depth <= MG_DEEP_TO_SHALLOW)
+       return MG_PVS_shallow(threadID, sBoard, pv, depth, alpha, beta, passed);
+
+    
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
@@ -575,10 +577,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         } else {
             board.do_pass();
             
-            if(depth <= MG_DEEP_TO_SHALLOW)
-                bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, true);
-            else
-                bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, true);
+            bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, true);
             
             board.do_pass();
             bestmove = PASS;
@@ -598,10 +597,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             sBoard.do_move(*list);
             
-            if(depth <= MG_DEEP_TO_SHALLOW)
-                bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, false);
-            else
-                bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, false);
+            bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, false);
             
             sBoard.undo_move(*list);
                         
@@ -746,10 +742,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 bestmove = move->position;
                 
                 sBoard.do_move(*move);
-                if(depth <= MG_DEEP_TO_SHALLOW)
-                    bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -lower, false);
-                else
-                    bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, false);
+                bestscore = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, false);
                 sBoard.undo_move(*move);
                 
                 
@@ -799,12 +792,6 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 
                 sBoard.do_move(*move);
                 
-                if(depth <= MG_DEEP_TO_SHALLOW) {
-                    score = -MG_PVS_shallow(threadID, sBoard, false, depth-1, -lower-VALUE_DISC, -lower, false);
-                    if(lower < score && score < upper) {
-                        score = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -upper, -score, false);
-                    }
-                } else {
                     
 #ifdef TUNE_PROBCUT_MID
                     
@@ -819,7 +806,6 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         score = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, false);
 #endif
                     
-                }
                 
                 sBoard.undo_move(*move);
                 
@@ -841,15 +827,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    if(depth <= MG_DEEP_TO_SHALLOW) {
-        hTable->update(   hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
-        hTable_PV->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
+    hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
+    hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
 
-    } else {
-        hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
-        hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
-
-    }
     
     return bestscore;
     
@@ -892,14 +872,6 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
         
         sBoard.do_move(*move);
         
-        if(sp->depth <= MG_DEEP_TO_SHALLOW) {
-            
-            score = -MG_PVS_shallow(threadID, sBoard, false, sp->depth-1, -alpha-VALUE_DISC, -alpha, false);
-            
-            if(alpha < score && score < sp->beta) {
-                score = -MG_PVS_shallow(threadID, sBoard, sp->pv, sp->depth-1, -sp->beta, -score, false);
-            }
-        } else {
 #ifdef TUNE_PROBCUT_MID
                     
             score = -MG_PVS_deep(threadID, sBoard, false, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, -alpha, false);
@@ -913,13 +885,9 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
             if(alpha < score && score < sp->beta)
                 score = -MG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, sp->depth-1, -sp->beta, -sp->alpha, false);
 #endif
-        }
         
         sBoard.undo_move(*move);
         
-        
-//        if(abort.load()  || thread_should_stop(threadID))
-//            break;
         
         //first without mutex
         if(score > sp->bestscore) {
@@ -1197,6 +1165,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
 
 /*
  Null Window Search  + XProbCut
+ Keep sorting (more efficient) before switching to alphabeta_last_three_ply method
  */
 int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, const int alpha, const bool passed) {
     
@@ -1345,7 +1314,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             return bestscore;
         } else {
             board.do_pass();
-            if(depth > MIN_DEPTH_USE_PROBCUT) {
+            if(depth > DEPTH_4) {
                 bestscore = -MG_NWS_XProbCut(threadID, sBoard, pvDev, selectivity, depth-1,  -alpha-VALUE_DISC, true);
             } else {
                 bestscore = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, true);
@@ -1378,7 +1347,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         
         sBoard.do_move(*move);
         
-        if(depth > MIN_DEPTH_USE_PROBCUT) {
+        if(depth > DEPTH_4) {
             bestscore = -MG_NWS_XProbCut(threadID, sBoard, pvDev, selectivity, depth-1, -alpha-VALUE_DISC, false);
         } else {
             bestscore = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, false);
@@ -1408,7 +1377,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             
             sBoard.do_move(*iter);
             
-            if(depth > MIN_DEPTH_USE_PROBCUT) {
+            if(depth > DEPTH_4) {
                 score = -MG_NWS_XProbCut(threadID, sBoard, pvDev+1,selectivity, depth-1, -alpha-VALUE_DISC, false);
             } else {
                 score = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, false);
@@ -1431,15 +1400,9 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    if(depth > MIN_DEPTH_USE_PROBCUT) {
-        hTable->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, bestscore, bestmove);
-        if(pvDev < 4)
-            hTable_PV->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, bestscore, bestmove);
-    } else {
-        hTable->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
-        if(pvDev < 4)
-            hTable_PV->update(hash_code, type_hashtable, MG_SELECT, depth, alpha, bestscore, bestmove);
-    }
+    hTable->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);
+    if(pvDev < 4)
+        hTable_PV->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);
     
     return bestscore;
     
@@ -1488,17 +1451,13 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         int score;
         sBoard.do_move(*move);
         
-        if(sp->depth > MIN_DEPTH_USE_PROBCUT) {
+        if(sp->depth > DEPTH_4) {
             score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
         } else {
             score = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, false);
         }
         
         sBoard.undo_move(*move);
-        
-//        if(abort.load()  || thread_should_stop(threadID))
-//            break;
-        
         
         //first without mutex
         if(score > sp->bestscore) {
