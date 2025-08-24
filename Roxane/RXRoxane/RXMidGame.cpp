@@ -428,15 +428,13 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(depth <= MG_DEEP_TO_SHALLOW)
        return MG_PVS_shallow(threadID, sBoard, pv, depth, alpha, beta, passed);
 
-    
+    //time gestion
+    if(dependent_time && get_current_dependentTime() > time_limit())
+        abort.store(true);
+ 
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    //time gestion
-    if(dependent_time && get_current_dependentTime() > time_limit()) {
-        abort.store(true);
-        return INTERRUPT_SEARCH;
-    }
     
     RXBitBoard& board = sBoard.board;
     
@@ -1169,16 +1167,13 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
  */
 int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, const int alpha, const bool passed) {
     
-    //assert(alpha>=-MAX_SCORE);
-    
+    //time gestion
+    if (dependent_time && get_current_dependentTime() > time_limit())
+        abort.store(true);
+ 
     if(abort.load() || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    //time gestion
-    if (dependent_time && get_current_dependentTime() > time_limit()) {
-        abort.store(true);
-        return INTERRUPT_SEARCH;
-    }
     
     
     RXBitBoard& board = sBoard.board;
