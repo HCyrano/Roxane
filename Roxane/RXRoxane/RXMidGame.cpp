@@ -761,7 +761,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     // Split?
                     if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && !abort.load()
                        && !thread_should_stop(threadID) && idle_thread_exists(threadID)
-                       && split(sBoard, pv, 0, depth, selectivity, lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::MID_PVS)) {
+                       && split(sBoard, pv, 1, depth, selectivity, lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::MID_PVS)) {
                         
                         break;
                     }
@@ -798,7 +798,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     if(lower < score && score < upper)
                         score = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -score, false);
 #else
-                    score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -lower-VALUE_DISC, false);
+                    score = -MG_NWS_XProbCut(threadID, sBoard, 1, selectivity, depth-1, -lower-VALUE_DISC, false);
                     
                     if(lower < score && score < upper)
                         score = -MG_PVS_deep(threadID, sBoard, pv, selectivity, depth-1, -upper, -lower, false);
@@ -878,7 +878,7 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
                 score = -MG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, sp->depth-1, -sp->beta, -score, false);
 #else
 
-            score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
+            score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
             
             if(alpha < score && score < sp->beta)
                 score = -MG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, sp->depth-1, -sp->beta, -sp->alpha, false);
@@ -1363,7 +1363,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             // Split?
             if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && iter->next != NULL && !abort.load()
                && idle_thread_exists(threadID) && !thread_should_stop(threadID)
-               && split(sBoard, false, pvDev, depth, selectivity, alpha, (alpha+VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::MID_XPROBCUT)) {
+               && split(sBoard, false, pvDev+1, depth, selectivity, alpha, (alpha+VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::MID_XPROBCUT)) {
                 
 
                 break;
@@ -1447,7 +1447,7 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         sBoard.do_move(*move);
         
         if(sp->depth > DEPTH_4) {
-            score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
+            score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
         } else {
             score = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, false);
         }

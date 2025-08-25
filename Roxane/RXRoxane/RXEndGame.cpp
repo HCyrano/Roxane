@@ -1446,7 +1446,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     
                     // Split?
                     if(activeThreads > 1  && !abort.load() && !thread_should_stop(threadID) && idle_thread_exists(threadID)
-                       && split(sBoard, pv, 0, board.n_empty, selectivity, lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_PVS)) {
+                       && split(sBoard, pv, 1, board.n_empty, selectivity, lower, upper, bestscore, bestmove, list, threadID, RXSplitPoint::END_PVS)) {
                         
                         break;
                     }
@@ -1473,7 +1473,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                 sBoard.do_move(*move);
                 if(selectivity != NO_SELECT) {
                     
-                    score = -EG_NWS_XEndCut(threadID, sBoard, 0, selectivity, -lower-VALUE_DISC, false);
+                    score = -EG_NWS_XEndCut(threadID, sBoard, 1, selectivity, -lower-VALUE_DISC, false); //pvDev == 1
                     if (lower < score && score < upper)
                         score = -EG_PVS_deep(threadID, sBoard, pv, selectivity, -upper, -lower, false); //-score
                     
@@ -1550,7 +1550,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
         
         if(sp->selectivity != NO_SELECT) {
             
-            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, -alpha-VALUE_DISC, false);
+            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev, sp->selectivity, -alpha-VALUE_DISC, false);
             
             if (alpha < score && score < sp->beta)
                 score = -EG_PVS_deep(threadID, sBoard, sp->pv, sp->selectivity, -sp->beta, -sp->alpha, false);
@@ -1612,7 +1612,6 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
  */
 int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int alpha, const bool passed) {
     
-    
     //time gestion
     if(dependent_time && get_current_dependentTime() > time_limit())
         abort.store(true);
@@ -1670,11 +1669,11 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         if(entry.lower >= upper_probcut) {
             return alpha + VALUE_DISC; //9/02/2025
         }
-#ifdef USE_PROBCUT_ALPHA
+//#ifdef USE_PROBCUT_ALPHA
         if(entry.upper <= lower_probcut) {
             return alpha;
         }
-#endif
+//#endif
         
     }
     
@@ -1848,7 +1847,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
             if(activeThreads > 1
                && (list->next)->next != NULL && !thread_should_stop(threadID)
                && !abort.load() && idle_thread_exists(threadID)
-               && split(sBoard, false, pvDev, board.n_empty, selectivity,
+               && split(sBoard, false, pvDev+1, board.n_empty, selectivity,
                         alpha, (alpha + VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::END_XPROBCUT)) {
              
                 break;
@@ -1930,7 +1929,7 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
             board.undo_move(*move);
         } else {
             sBoard.do_move(*move);
-            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev+1, sp->selectivity, -alpha-VALUE_DISC, false);
+            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev, sp->selectivity, -alpha-VALUE_DISC, false);
             sBoard.undo_move(*move);
         }
         

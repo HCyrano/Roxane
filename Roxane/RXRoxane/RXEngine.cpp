@@ -34,7 +34,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.05f, 1.15f, 1.35f, 1.70f, 2.15f, 2.75f};
+const float RXEngine::PERCENTILE[] = {1.05f, 1.15f, 1.35f, 1.70f, 2.20f, 2.82f};
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -474,7 +474,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 iter->score = -alphabeta_last_two_ply(threadID, sBoard, -lower_probcut-VALUE_DISC, -lower_probcut, false);
             } else if(depth == 4) {
                 iter->score = -alphabeta_last_three_ply(threadID, sBoard, -lower_probcut-VALUE_DISC, -lower_probcut, false);
-            } else if(depth <= 6) {
+            } else if(depth <= 7) {
                 iter->score = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+VALUE_DISC, false);
             } else {
                 iter->score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -lower_probcut-VALUE_DISC, false); // pvDev = 1

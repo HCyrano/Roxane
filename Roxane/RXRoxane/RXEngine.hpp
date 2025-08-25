@@ -458,18 +458,32 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     
 #ifdef PROBCUT_x2
     //polynome 2d
+    /*
+    //15/08/2025
     constexpr double probcut_a = 0.0853462218506715;
     constexpr double probcut_b = 1.3586842929500207;
     constexpr double probcut_c = -0.3910431797136643;
     constexpr double probcut_d = 0.01971732496185341;
     constexpr double probcut_e = -0.48544440900765307;
     constexpr double probcut_f = 6.413653253950335;
+    */
+     
+    //25/08/2025
+    constexpr double probcut_a = 0.12424503822784616;
+    constexpr double probcut_b = 1.986190530273881;
+    constexpr double probcut_c = -0.5700566440318999;
+    constexpr double probcut_d = 0.009327071963843428;
+    constexpr double probcut_e = -0.3329738309400455;
+    constexpr double probcut_f = 6.401418799828384;
+
     
     sigma= probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
 #else
     //polynome 3d
+    /*
+    //15/08/2025
     constexpr double probcut_a = -0.002749027064700516;
     constexpr double probcut_b = -0.04300618061241617;
     constexpr double probcut_c = 0.012195041495440519;
@@ -477,7 +491,16 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_e = 20.96982757942392;
     constexpr double probcut_f = 15.391146113611999;
     constexpr double probcut_g = 6.447007445235017;
-    
+    */
+    //25/08/2025
+    constexpr double probcut_a = 0.013382962969983918;
+    constexpr double probcut_b = 0.20963713564454348;
+    constexpr double probcut_c = -0.059094792370455354;
+    constexpr double probcut_d = -0.0366160836057945;
+    constexpr double probcut_e = 0.9034015736377695;
+    constexpr double probcut_f = -3.1695046056262957;
+    constexpr double probcut_g = 6.441231086485406;
+
     sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
