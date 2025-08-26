@@ -34,7 +34,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.05f, 1.15f, 1.35f, 1.70f, 2.20f, 2.82f};
+const float RXEngine::PERCENTILE[] = {1.05f, 1.15f, 1.35f, 1.70f, 2.20f, 2.82f}; //poly 2D 2,84f vs 3D 2,82f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -734,10 +734,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
             bestscore = sBoard.final_score();
         } else {
             board.do_pass();
-            if(depth == DEPTH_4)
-                bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper, -lower, true);
-            else
-                bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, true);
+            bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, true);
             board.do_pass();
             bestmove = PASS;
         }
