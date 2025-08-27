@@ -34,7 +34,8 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.05f, 1.15f, 1.35f, 1.70f, 2.20f, 2.82f}; //poly 2D 2,84f vs 3D 2,82f
+//const float RXEngine::PERCENTILE[] = {1.05f, 1.15f, 1.35f, 1.70f, 2.20f, 2.82f}; //poly 2D 2,84f vs 3D 2,82f
+const float RXEngine::PERCENTILE[] = {1.05f, 1.18f, 1.38f, 1.70f, 2.15f, 2.70f};
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -146,7 +147,10 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                 else
                     probcut_bounds(board, MG_SELECT, depth, (6 - (depth & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
                 
-                upper_probcut = std::min(static_cast<int>(MAX_SCORE), 2*upper_probcut-alpha); // 2*upper_probcut-alpha == beta + 2*sigma
+                int sigma = (upper_probcut-lower_probcut)/2;
+                
+                lower_probcut = std::max(static_cast<int>(-MAX_SCORE), lower_probcut-sigma); // (beta+alpha)/2 - 2*sigma)
+                upper_probcut = std::min(static_cast<int>( MAX_SCORE), upper_probcut+sigma); // (beta+alpha)/2 + 2*sigma)
                 
                 for(; iter != NULL; iter = iter->next) {
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
@@ -280,7 +284,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     RXMove* list1 = list;
     
-    int half_sigma = (upper_probcut - lower_probcut)/4;
+    int half_sigma = (upper_probcut - lower_probcut)/4; // upper_probcut - lower_probcut == 2*sigma (always even)
     
     if(hashMove) {
         
@@ -331,8 +335,10 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
                 } else if(depth == 4) {
                     bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
-                } else if(depth <= 7) { // a tester
+                    /*
+                } else if(depth == 5) { // a tester
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+VALUE_DISC, false);
+                     */
                 } else {
                     bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
                 }
@@ -399,8 +405,10 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
                 } else if(depth == 4) {
                     bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
-                } else if(depth <= 7) { // a tester
+                    /*
+                } else if(depth == 5) { // a tester
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+VALUE_DISC, false);
+                     */
                 } else {
                     bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
                 }
@@ -474,7 +482,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 iter->score = -alphabeta_last_two_ply(threadID, sBoard, -lower_probcut-VALUE_DISC, -lower_probcut, false);
             } else if(depth == 4) {
                 iter->score = -alphabeta_last_three_ply(threadID, sBoard, -lower_probcut-VALUE_DISC, -lower_probcut, false);
-            } else if(depth <= 7) {
+            } else if(depth == 5) {
                 iter->score = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+VALUE_DISC, false);
             } else {
                 iter->score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -lower_probcut-VALUE_DISC, false); // pvDev = 1

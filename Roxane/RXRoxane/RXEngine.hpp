@@ -482,6 +482,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     
 #else
     //polynome 3d
+    
     /*
     //15/08/2025
     constexpr double probcut_a = -0.002749027064700516;
@@ -492,6 +493,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_f = 15.391146113611999;
     constexpr double probcut_g = 6.447007445235017;
     */
+    
     //25/08/2025
     constexpr double probcut_a = 0.013382962969983918;
     constexpr double probcut_b = 0.20963713564454348;

@@ -619,6 +619,11 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         int upper_probcut =  MAX_SCORE;
                         probcut_bounds(board, 3, depth, (4 + depth/4 + depth&0x1UL), 0, (lower+upper)/2, lower_probcut, upper_probcut); //selectivity 3 = 91%
                         
+                        int sigma = (upper_probcut-lower_probcut)/2;
+                        lower_probcut = lower - sigma;
+                        upper_probcut = upper + sigma;
+
+                        
                         if(lower_probcut<= sBoard.get_score()) { // && eval_position<=(beta+upper_probcut*4)) { //alpha 95% / beta 99%
                             
                             //stable position -> sorting on evaluation
@@ -1216,11 +1221,11 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         if(entry.lower >= upper_probcut) {
             return alpha+VALUE_DISC;
         }
-//#ifdef USE_PROBCUT_ALPHA
+#ifdef USE_PROBCUT_ALPHA
         if(entry.upper <= lower_probcut) {
             return alpha;
         }
-//#endif
+#endif
     }
     
     

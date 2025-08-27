@@ -1289,7 +1289,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     int upper_probcut =  MAX_SCORE;
                     probcut_bounds(board, std::max(EG_HIGH_SELECT, std::min(selectivity-1, NO_SELECT-2)), board.n_empty, (8+(board.n_empty & 0x1UL)), 0, (lower+upper)/2, lower_probcut, upper_probcut);
                     
-                    for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
+                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
                         
                         ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                         
@@ -1669,11 +1669,11 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         if(entry.lower >= upper_probcut) {
             return alpha + VALUE_DISC; //9/02/2025
         }
-//#ifdef USE_PROBCUT_ALPHA
+#ifdef USE_PROBCUT_ALPHA
         if(entry.upper <= lower_probcut) {
             return alpha;
         }
-//#endif
+#endif
         
     }
     
