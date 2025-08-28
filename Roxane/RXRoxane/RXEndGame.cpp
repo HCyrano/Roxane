@@ -1662,7 +1662,10 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     int lower_probcut, upper_probcut;
     int probcut_depth = (board.n_empty/4)*2 + (board.n_empty & 0x1UL);
     probcut_bounds(board, selectivity, board.n_empty, probcut_depth, pvDev, alpha, lower_probcut, upper_probcut);
-    
+    /*
+    int probcut_inc = (board.n_empty>=20)*(board.n_empty/10 *2 -2);
+    probcut_depth += probcut_inc;
+     */
     
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {
         

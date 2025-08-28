@@ -1214,7 +1214,10 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     int lower_probcut, upper_probcut;
     int probcut_depth = (depth/4)*2 + (depth & 0x1UL);
     probcut_bounds(board, selectivity, depth, probcut_depth, pvDev, alpha, lower_probcut, upper_probcut);
-    
+    /*
+    int probcut_inc = (depth>=20)*(depth/10*2 -2);
+    probcut_depth += probcut_inc;
+     */
     
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {
         

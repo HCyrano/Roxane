@@ -74,7 +74,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "dev-2025-08-27 13h40";
+    std::string version = "dev-2025-08-28 15h00";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -135,7 +135,7 @@ int main (int argc, char * const argv[]) {
             return err;
         }
         
-        
+        gs.SendMsg("version : " + version);
         
         gs.Process();			// receive, parse, and pass on messages
     }
