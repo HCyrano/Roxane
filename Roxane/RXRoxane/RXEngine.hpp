@@ -469,13 +469,13 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     */
      
     //28/08/2025
-    constexpr double probcut_a = -0.021134597389876417;
-    constexpr double probcut_b = -0.33716938470164864;
-    constexpr double probcut_c = 0.09681794956495735;
-    constexpr double probcut_d = 0.32361284179756883;
-    constexpr double probcut_e = 1.9614615092967105;
-    constexpr double probcut_f = 6.401425910919868;
-    
+    constexpr double probcut_a = -0.10458785548095877;
+    constexpr double probcut_b = -1.932597718675345;
+    constexpr double probcut_c = 0.5889079831092989;
+    constexpr double probcut_d = 0.012319037805475004;
+    constexpr double probcut_e = 0.36145607201107416;
+    constexpr double probcut_f = 6.128868980862796;
+
     sigma= probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
@@ -493,21 +493,21 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_g = 6.447007445235017;
     */
     
-    //28/08/2025
-    constexpr double probcut_a = -0.022658394998924938;
-    constexpr double probcut_b = -0.4745015980561341;
-    constexpr double probcut_c = 0.13401574188231577;
-    constexpr double probcut_d = 0.019626358102854412;
-    constexpr double probcut_e = 0.2771086731045496;
-    constexpr double probcut_f = 1.4478876694323997;
-    constexpr double probcut_g = 6.14418799268602;
-
+    //29/08/2025
+    constexpr double probcut_a = 0.006951685776700512;
+    constexpr double probcut_b = 0.10835419793210593;
+    constexpr double probcut_c = -0.029928226705830206;
+    constexpr double probcut_d = -2.2687433611674637;
+    constexpr double probcut_e = 6.105077274787315;
+    constexpr double probcut_f = -6.705953821092702;
+    constexpr double probcut_g = 6.355713137964322;
+    
     sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
 #endif
     
-    double coeff_pv = std::max(0.80f, (109-3*pvDev)/100.0f);
+    double coeff_pv = std::max(0.85f, (109-3*pvDev)/100.0f);
         
     sigma = std::round(sigma * coeff_pv * PERCENTILE[selectivity]) * VALUE_DISC;
 

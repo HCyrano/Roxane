@@ -1248,7 +1248,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                 ((board).*(board.generate_flips[bestmove]))(*move);
                 ++board.n_nodes;
                 
-                //synchronized acces
 #ifdef USE_ETC
                 
                 if(hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth >= depth-1) {
@@ -1276,7 +1275,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                     
                     move->score = 0;
                     
-                    //synchronized acces
 #ifdef USE_ETC
                     
                     if(hTable->get(board.hashcode_after_move(move), type_hashtable, entry) && entry.depth>=depth-1) {
@@ -1322,7 +1320,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             } else {
                 bestscore = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, true);
             }
-            
             board.do_pass();
             bestmove = PASS;
         }
@@ -1364,16 +1361,11 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         int score;
         for(RXMove* iter = list->next; !abort.load() && bestscore<=alpha && iter != NULL; iter = iter->next, list = list->next) {
             
-            //		//assert(bestscore >= -MAX_SCORE);
-            //		if(bestscore<-MAX_SCORE)
-            //			std::cout << "Error" << std::endl;
-            
             // Split?
             if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && iter->next != NULL && !abort.load()
                && idle_thread_exists(threadID) && !thread_should_stop(threadID)
                && split(sBoard, false, pvDev+1, depth, selectivity, alpha, (alpha+VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::MID_XPROBCUT)) {
                 
-
                 break;
             }
             
@@ -1392,8 +1384,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                 bestscore = score;
                 bestmove = iter->position;
             }
-            
-            
             
         }
     }
@@ -1454,12 +1444,9 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         int score;
         sBoard.do_move(*move);
         
-        if(sp->depth > DEPTH_4) {
-            score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
-        } else {
-            score = -alphabeta_last_three_ply(threadID, sBoard, -alpha-VALUE_DISC, -alpha, false);
-        }
-        
+        // depth>MIN_DEPTH_SPLITPOINT <=> depth > 7
+        score = -MG_NWS_XProbCut(threadID, sBoard, sp->pvDev, sp->selectivity, sp->depth-1, -alpha-VALUE_DISC, false);
+
         sBoard.undo_move(*move);
         
         //first without mutex

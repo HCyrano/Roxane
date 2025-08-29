@@ -1847,9 +1847,8 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
             //				std::cout << "Error" << std::endl;
             
             
-            if(activeThreads > 1
-               && (list->next)->next != NULL && !thread_should_stop(threadID)
-               && !abort.load() && idle_thread_exists(threadID)
+            if(activeThreads > 1 && board.n_empty>=MIN_DEPTH_USE_ENDCUT && (list->next)->next != NULL
+               && !abort.load() && !thread_should_stop(threadID) &&  idle_thread_exists(threadID)
                && split(sBoard, false, pvDev+1, board.n_empty, selectivity,
                         alpha, (alpha + VALUE_DISC), bestscore, bestmove, list, threadID, RXSplitPoint::END_XPROBCUT)) {
              
@@ -1926,15 +1925,9 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
         int score;
         const int alpha = sp->alpha; //local copy
         
-        if(board.n_empty<MIN_DEPTH_USE_ENDCUT) {
-            board.do_move(*move);
-            score = -EG_PVS_ETC_mobility(threadID, sBoard, false, -alpha-VALUE_DISC, -alpha, false);
-            board.undo_move(*move);
-        } else {
-            sBoard.do_move(*move);
-            score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev, sp->selectivity, -alpha-VALUE_DISC, false);
-            sBoard.undo_move(*move);
-        }
+        sBoard.do_move(*move);
+        score = -EG_NWS_XEndCut(threadID, sBoard, sp->pvDev, sp->selectivity, -alpha-VALUE_DISC, false);
+        sBoard.undo_move(*move);
         
         
         //first without mutex
