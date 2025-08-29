@@ -123,7 +123,7 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth
             }
         
         //stop conditions EndGame
-        if(fabs(list->next->score) >= ((MAX_SCORE-1) - 64*VALUE_DISC)) {
+        if(fabs(list->next->score) >= ((MAX_SCORE-VALUE_DISC) - 64*VALUE_DISC)) {
             break;
         }
         

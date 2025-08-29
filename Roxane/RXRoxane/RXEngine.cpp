@@ -1303,8 +1303,8 @@ void RXEngine::get_move(RXSearch& s) {
         
         
         search_client      = s.clientMode;
-        search_alpha       = std::max(-MAX_SCORE, std::min( MAX_SCORE-1, s.alpha));
-        search_beta        = std::min(+MAX_SCORE, std::max(-MAX_SCORE+1, s.beta));
+        search_alpha       = std::max(-MAX_SCORE, std::min( MAX_SCORE-VALUE_DISC, s.alpha));
+        search_beta        = std::min(+MAX_SCORE, std::max(-MAX_SCORE+VALUE_DISC, s.beta));
         search_selectivity = std::max(0, std::min(NO_SELECT, s.selectivity));
         search_depth       = std::max(2, std::min(board.n_empty, s.depth));
         
