@@ -482,18 +482,8 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
 #else
     //polynome 3d
     
-    /*
-    //15/08/2025
-    constexpr double probcut_a = -0.002749027064700516;
-    constexpr double probcut_b = -0.04300618061241617;
-    constexpr double probcut_c = 0.012195041495440519;
-    constexpr double probcut_d = 3.5253211835446012;
-    constexpr double probcut_e = 20.96982757942392;
-    constexpr double probcut_f = 15.391146113611999;
-    constexpr double probcut_g = 6.447007445235017;
-    */
-    
-    //29/08/2025
+/*
+    //29/08/2025 vs old w51 d99 l52 s8r14 2:00
     constexpr double probcut_a = 0.006951685776700512;
     constexpr double probcut_b = 0.10835419793210593;
     constexpr double probcut_c = -0.029928226705830206;
@@ -501,6 +491,16 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_e = 6.105077274787315;
     constexpr double probcut_f = -6.705953821092702;
     constexpr double probcut_g = 6.355713137964322;
+*/
+    //30/08/2025 17h00 vs old W48 d118 l30 s8r14 2:00
+    constexpr double probcut_a = -0.005276195509351943;
+    constexpr double probcut_b = -0.06523227752783285;
+    constexpr double probcut_c = 0.017869951091107956;
+    constexpr double probcut_d = 5.459044715758133;
+    constexpr double probcut_e = 12.372056099913866;
+    constexpr double probcut_f = 10.740820129014457;
+    constexpr double probcut_g = 6.6385384568814185;
+
     
     sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
