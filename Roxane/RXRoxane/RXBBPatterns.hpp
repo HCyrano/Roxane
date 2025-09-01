@@ -22,9 +22,7 @@ class RXBBPatterns {
     
     friend class RXRoxane;
     friend class RXEngine;
-    
-    static const int QUANTA = VALUE_DISC;
-    
+        
     void set_BLACK(const int pos);
     void set_WHITE(const int pos);
     
@@ -99,8 +97,8 @@ inline void RXBBPatterns::undo_move(const RXMove& move) {
 inline int RXBBPatterns::final_score() const {
     int score = board.final_score();
     if(score<0)
-        return (-MAX_SCORE+VALUE_DISC) + (score + 64*VALUE_DISC);
-    return (MAX_SCORE-VALUE_DISC) + (score-64*VALUE_DISC);
+        return (-MAX_SCORE+1) + (score + 64);
+    return (MAX_SCORE-1) + (score-64);
 }
 
 #ifndef NEW_EVAL
@@ -633,15 +631,9 @@ inline int RXBBPatterns::get_score() const {
         
     }
     
-    // theorie des quantas
-    eval >>= 3; 
-//    if(eval < 0)
-//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-//    else
-//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
-    
-    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
-    
+    // arrondi(eval/8)/100
+    return std::round(eval/800.0f);
+
 }
 
 
@@ -819,14 +811,8 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
         
     }
     
-    // theorie des quantas
-    eval >>= 3; 
-//    if(eval <  0)
-//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-//    else
-//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
-    
-    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+    // arrondi(eval/8)/100
+    return std::round(eval/800.0f);
 
 }
 
@@ -942,14 +928,8 @@ inline int RXBBPatterns::get_score() const {
         
     }
     
-    // theorie des quantas
-    eval >>= 3;
-//    if(eval < 0)
-//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-//    else
-//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
-    
-    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+    // arrondi(eval/8)/100
+    return std::round(eval/800.0f);
 
 }
 
@@ -1061,14 +1041,8 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
         
     }
         
-    // theorie des quantas
-    eval >>= 3;
-//    if(eval <  0)
-//        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-//    else
-//        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
-    
-    return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
+    // arrondi(eval/8)/100
+    return std::round(eval/800.0f);
 
 }
 
@@ -1287,13 +1261,9 @@ inline int RXBBPatterns::verif_score() const {
     
     std::cout << "Eval = " << eval << std::endl;
     
-    // theorie des quantas
-    eval >>= 3;
-    if(eval < 0)
-        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-    else
-        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
-    
+ // arrondi(eval/8)/100
+ return std::round(eval/800.0f);
+
     
 }
  */

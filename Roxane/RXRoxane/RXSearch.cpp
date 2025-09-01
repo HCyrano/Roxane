@@ -22,7 +22,7 @@ void RXBestMove::to_COsMoveListItem(COsMoveListItem& mli) {
 		mli.mv.col = 7 - position%8;
 	}
 	
-	mli.dEval = static_cast<double>(score)/VALUE_DISC;
+	mli.dEval = static_cast<double>(score);
 	mli.tElapsed = tElapsed;
 	
 }

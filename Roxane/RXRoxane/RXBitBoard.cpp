@@ -721,7 +721,7 @@ int RXBitBoard::final_score() const {
 	else if(score>0)
 		score += n_empty;
 		
-	return score*VALUE_DISC;
+	return score;
 }
 
 #ifdef __ARM_NEON
@@ -741,7 +741,7 @@ int RXBitBoard::final_score_1 () const {
     else if (score>0)
         ++score;
     
-    return score*VALUE_DISC;
+    return score;
 }
 
 #else
@@ -761,7 +761,7 @@ int RXBitBoard::final_score_1 () const {
 	else if (score>0)
 		++score;
 	
-	return score*VALUE_DISC;
+	return score;
 }
 
 #endif

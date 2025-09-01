@@ -405,7 +405,7 @@ inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_play
 
 inline int RXBitBoard::final_score_2(int alpha, const int beta) const {
     --n_nodes; // removes the duplicate
-    return final_score_2(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC,  empties_list->next->position,  empties_list->next->next->position)*VALUE_DISC;
+    return final_score_2(discs[player], discs[player^1], alpha, beta,  empties_list->next->position,  empties_list->next->next->position);
 }
 
 #ifdef __ARM_NEON
@@ -475,7 +475,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
         stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
     }
     
-    return VALUE_DISC * __builtin_popcountll(stable);
+    return 1 * __builtin_popcountll(stable);
     
 }
 
@@ -855,7 +855,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
         stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
     }
     
-    return VALUE_DISC * __builtin_popcountll(stable);
+    return 1 * __builtin_popcountll(stable);
 
     
 }
@@ -1249,7 +1249,7 @@ inline int RXBitBoard::final_score_3(int alpha, const int beta) const {
     
     --n_nodes; // removes the duplicate
     
-    return final_score_3(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, 0xE4UL, empties3)*VALUE_DISC;
+    return final_score_3(discs[player], discs[player^1], alpha, beta, 0xE4UL, empties3);
 }
 
 //unroll
@@ -1367,11 +1367,11 @@ inline int RXBitBoard::final_score_4(int alpha, int beta, const bool passed) con
     
 #ifdef USE_STABILITY
     
-    int diff_discs = (2*__builtin_popcountll(discs[player]) - 60)*VALUE_DISC;
+    int diff_discs = (2*__builtin_popcountll(discs[player]) - 60);
     
-    if (beta >= 6*VALUE_DISC || (beta >= 0 && (diff_discs <= beta - 6*VALUE_DISC))) {
+    if (beta >= 6|| (beta >= 0 && (diff_discs <= beta - 6))) {
         
-        int stability_bound = 64*VALUE_DISC - 2 * get_stability(player^1);
+        int stability_bound = 64- 2 * get_stability(player^1);
         if ( stability_bound <= alpha )
             return stability_bound; //alpha
         
@@ -1379,9 +1379,9 @@ inline int RXBitBoard::final_score_4(int alpha, int beta, const bool passed) con
             beta = stability_bound;
         
         
-    } else  if (alpha <= -6*VALUE_DISC || (alpha <= 0 && (-diff_discs <= alpha + 6*VALUE_DISC))) {
+    } else  if (alpha <= -6|| (alpha <= 0 && (-diff_discs <= alpha + 6))) {
         
-        int stability_bound = 2 * get_stability(player) - 64*VALUE_DISC;
+        int stability_bound = 2 * get_stability(player) - 64;
         if ( stability_bound >= beta )
             return stability_bound; //beta
         
@@ -1438,7 +1438,7 @@ inline int RXBitBoard::final_score_4(int alpha, int beta, const bool passed) con
     
     
     
-    return final_score_4(discs[player], discs[player^1], alpha/VALUE_DISC, beta/VALUE_DISC, passed, shuf4, empties4)*VALUE_DISC;
+    return final_score_4(discs[player], discs[player^1], alpha, beta, passed, shuf4, empties4);
 }
 
 inline int RXBitBoard::final_score_4(const unsigned long long discs_player, const unsigned long long discs_opponent, int alpha, const int beta, const bool passed, const unsigned int shuf4, const unsigned int empties4) const {

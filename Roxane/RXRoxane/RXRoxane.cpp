@@ -246,7 +246,7 @@ RXEngine* RXRoxane::getEngine(const int color) const {
 //					
 //					score_theorique = 2*score_theorique - 64;
 //					
-//					bPosition.score /= VALUE_DISC;
+//					bPosition.score /= 1;
 //					
 //					if ((bPosition.score) != (board.player == BLACK? score_theorique:-score_theorique)) {
 //						to << "***** RED ALERT *****" << std::endl;
@@ -465,7 +465,7 @@ void RXRoxane::get_move(const std::string& file_name) {
                 ss << line.substr(line.find(":")+1);
                 
                 ss >> score;
-                score *= VALUE_DISC;
+                score *= 1;
 #endif
 				search.htable->reset();
 				search.main_PV->reset();
@@ -489,7 +489,7 @@ void RXRoxane::get_move(const std::string& file_name) {
                     engine[search.idEngine]->get_move(search);
                                         
 #ifdef EG_CHECK_PV
-                    if(score != (UNDEF_SCORE*VALUE_DISC) && search.bestMove.score != score) {
+                    if(score != (UNDEF_SCORE) && search.bestMove.score != score) {
                         std::cout << "critical error in solver" << std::endl;
                         std::cout << search.sBoard.board << std::endl;
                         std::cout << "resultat attendu : " << score << std::endl;
