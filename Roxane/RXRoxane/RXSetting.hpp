@@ -49,6 +49,6 @@
 //#define TUNE_PROBCUT_END
 
 // type of window probcut
-//#define PROBCUT_x2 // undefined use PROBCUT_x3
+#define PROBCUT_x2 // undefined use PROBCUT_x3
 
 #endif

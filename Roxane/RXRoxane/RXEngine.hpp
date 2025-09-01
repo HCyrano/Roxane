@@ -468,13 +468,13 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_f = 6.413653253950335;
     */
      
-    //28/08/2025
-    constexpr double probcut_a = -0.10458785548095877;
-    constexpr double probcut_b = -1.932597718675345;
-    constexpr double probcut_c = 0.5889079831092989;
-    constexpr double probcut_d = 0.012319037805475004;
-    constexpr double probcut_e = 0.36145607201107416;
-    constexpr double probcut_f = 6.128868980862796;
+    //01/09/2025
+    constexpr double probcut_a = -0.08606807878666341;
+    constexpr double probcut_b = -1.0234874117828265;
+    constexpr double probcut_c = 0.34464360518300213;
+    constexpr double probcut_d = 0.029575904757548236;
+    constexpr double probcut_e = 0.5814835222336526;
+    constexpr double probcut_f = 6.111673594083032;
 
     sigma= probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
@@ -493,7 +493,9 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_g = 6.355713137964322;
 */
     
-    //30/08/2025 17h00 vs old W48 d118 l30 s8r14 2:00
+    //30/08/2025 17h00
+    // vs old W48 d118 l30 s8r14 2:00
+    // vs old w78 d161 l67 s8r14 1:00
     constexpr double probcut_a = -0.005276195509351943;
     constexpr double probcut_b = -0.06523227752783285;
     constexpr double probcut_c = 0.017869951091107956;

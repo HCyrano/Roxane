@@ -641,7 +641,7 @@ inline int RXBBPatterns::get_score() const {
 //        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
     
     return QUANTA * ((eval + (eval<0)*(1-QUANTA) + QUANTA/2)/QUANTA);
-
+    
 }
 
 

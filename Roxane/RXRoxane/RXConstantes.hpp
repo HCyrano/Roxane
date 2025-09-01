@@ -45,7 +45,7 @@ enum {
 /*! maximal score */
 static const short UNDEF_SCORE = -std::numeric_limits<short>::max();
 static const short INTERRUPT_SEARCH = 32000;
-static const short MAX_SCORE = 25600; //22222; //22222 must diff %VALUE_DISC == 0 (222,22 discs)
+static const short MAX_SCORE = 12800; //22222; //22222 must diff %VALUE_DISC == 0 (222,22 discs)
 static const int VALUE_DISC = 100;
 static const unsigned int SHARED = BLACK;
 

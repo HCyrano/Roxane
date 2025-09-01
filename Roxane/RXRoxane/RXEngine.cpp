@@ -335,7 +335,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
                 } else if(depth == 4) {
                     bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
-                } else if(depth <= 6) { // a tester
+                } else if(depth <= 7) { // a tester 7
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+VALUE_DISC, false);
                 } else {
                     bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
@@ -403,7 +403,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
                 } else if(depth == 4) {
                     bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+VALUE_DISC, false);
-                } else if(depth <= 6) { // a tester
+                } else if(depth <= 7) { // a tester 7
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+VALUE_DISC, false);
                 } else {
                     bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
