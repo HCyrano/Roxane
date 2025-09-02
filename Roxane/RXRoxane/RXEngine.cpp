@@ -34,7 +34,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.05f, 1.20f, 1.40f, 1.70f, 2.20f, 2.85f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};

@@ -446,13 +446,9 @@ inline int RXBBPatterns::verif_score() const {
     
     std::cout << "Eval = " << eval << std::endl;
     
-    // theorie des quantas
-    eval >>= 3;
-    if(eval < 0)
-        return QUANTA * ((eval+1 -QUANTA/2)/QUANTA);
-    else
-        return QUANTA * ((eval   +QUANTA/2)/QUANTA);
-    
+ // arrondi(eval/8)/100
+ return std::round((eval>>3)/100.0f);
+
     
 }
  */
@@ -632,7 +628,7 @@ inline int RXBBPatterns::get_score() const {
     }
     
     // arrondi(eval/8)/100
-    return std::round(eval/800.0f);
+    return std::round((eval>>3)/100.0f);
 
 }
 
@@ -812,7 +808,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     }
     
     // arrondi(eval/8)/100
-    return std::round(eval/800.0f);
+    return std::round((eval>>3)/100.0f);
 
 }
 
@@ -929,7 +925,7 @@ inline int RXBBPatterns::get_score() const {
     }
     
     // arrondi(eval/8)/100
-    return std::round(eval/800.0f);
+    return std::round((eval>>3)/100.0f);
 
 }
 
@@ -1042,7 +1038,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     }
         
     // arrondi(eval/8)/100
-    return std::round(eval/800.0f);
+    return std::round((eval>>3)/100.0f);
 
 }
 
@@ -1262,7 +1258,7 @@ inline int RXBBPatterns::verif_score() const {
     std::cout << "Eval = " << eval << std::endl;
     
  // arrondi(eval/8)/100
- return std::round(eval/800.0f);
+ return std::round((eval>>3)/100.0f);
 
     
 }

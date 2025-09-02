@@ -483,15 +483,6 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     //polynome 3d
     
 /*
-    //29/08/2025 vs old w51 d99 l52 s8r14 2:00
-    constexpr double probcut_a = 0.006951685776700512;
-    constexpr double probcut_b = 0.10835419793210593;
-    constexpr double probcut_c = -0.029928226705830206;
-    constexpr double probcut_d = -2.2687433611674637;
-    constexpr double probcut_e = 6.105077274787315;
-    constexpr double probcut_f = -6.705953821092702;
-    constexpr double probcut_g = 6.355713137964322;
-*/
     
     //30/08/2025 17h00
     // vs old W48 d118 l30 s8r14 2:00
@@ -503,7 +494,16 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_e = 12.372056099913866;
     constexpr double probcut_f = 10.740820129014457;
     constexpr double probcut_g = 6.6385384568814185;
+*/
     
+    constexpr double probcut_a = -0.04095608986888204;
+    constexpr double probcut_b = -0.31515581983505675;
+    constexpr double probcut_c = 0.11686015466368639;
+    constexpr double probcut_d = 0.07978919361819978;
+    constexpr double probcut_e = 0.4938779828352905;
+    constexpr double probcut_f = 1.7825344115512454;
+    constexpr double probcut_g = 6.138162099031398;
+
     sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
