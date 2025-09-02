@@ -150,8 +150,8 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                 
                 int sigma = (upper_probcut-lower_probcut)/2;
                 
-                lower_probcut = std::max(static_cast<int>(-MAX_SCORE), alpha-2*sigma); // (beta+alpha)/2 - 2*sigma)
-                upper_probcut = std::min(static_cast<int>( MAX_SCORE), beta +2*sigma); // (beta+alpha)/2 + 2*sigma)
+                lower_probcut = std::max(static_cast<int>(-MAX_SCORE), alpha-2*sigma);
+                upper_probcut = std::min(static_cast<int>( MAX_SCORE), beta +2*sigma);
                 
                 
                 for(; iter != NULL; iter = iter->next) {
@@ -278,6 +278,8 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
 
 int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
     
+    static const int DEPTH_7 = 7;
+    
     RXBitBoard& board = sBoard.board;
     
     int static_eval = sBoard.get_score();
@@ -335,7 +337,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
                 } else if(depth == 4) {
                     bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
-                } else if(depth <= 7) { // a tester 7
+                } else if(depth <= DEPTH_7) {
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
                 } else {
                     bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
@@ -349,7 +351,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
-                    hTable->update(board.hashcode(), type_hashtable, selectivity, depth, upper_probcut-1, bestscore, list1->position);
+                    hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, list1->position);
                     return BETA_CUT;
                 }
             }
@@ -403,7 +405,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
                 } else if(depth == 4) {
                     bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
-                } else if(depth <= 7) { // a tester 7
+                } else if(depth <= DEPTH_7) {
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
                 } else {
                     bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
@@ -417,7 +419,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
-                    hTable->update(board.hashcode(), type_hashtable, selectivity, depth, upper_probcut-1, bestscore, iter->position);
+                    hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, iter->position);
                     return BETA_CUT;
                 }
             }
@@ -478,10 +480,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 iter->score = -alphabeta_last_two_ply(threadID, sBoard, -lower_probcut-1, -lower_probcut, false);
             } else if(depth == 4) {
                 iter->score = -alphabeta_last_three_ply(threadID, sBoard, -lower_probcut-1, -lower_probcut, false);
-                /*
-            } else if(depth == 5) {
-                iter->score = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
-                 */
+            } else if(depth <= DEPTH_7) {
+                iter->score = -PVS_last_ply(threadID, sBoard, depth-1, -lower_probcut-1, -lower_probcut, false);
             } else {
                 iter->score = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -lower_probcut-1, false); // pvDev = 1
              }
@@ -499,14 +499,14 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 
                 if(bestscore >= lower_probcut) { //no cut
                     list->sort_bestmove(bestmove);
-                     hTable->update(board.hashcode(), type_hashtable, selectivity, depth, lower_probcut, bestscore, bestmove);
+                    hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
                     return NO_CUT;
                 }
             }
             
         }
         
-        hTable->update(board.hashcode(), type_hashtable, selectivity, depth, lower_probcut, bestscore, bestmove);
+        hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
         return ALPHA_CUT;
         
         
@@ -1087,7 +1087,7 @@ std::string RXEngine::showBestmove(const int depth, const int selectivity, const
     else
         buffer << " == ";
     
-    buffer << std::fixed << std::showpos << std::setprecision(0) << (static_cast<float>(score))/1;
+    buffer << std::fixed << std::showpos << std::setprecision(0) << (static_cast<float>(score));
     
     
     return buffer.str();
