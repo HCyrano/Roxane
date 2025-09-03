@@ -446,7 +446,7 @@ inline int RXBBPatterns::verif_score() const {
     
     std::cout << "Eval = " << eval << std::endl;
     
- // arrondi(eval/8)/100
+ // arrondi(eval/8)/100.0f
  return std::round((eval>>3)/100.0f);
 
     
@@ -627,7 +627,7 @@ inline int RXBBPatterns::get_score() const {
         
     }
     
-    // arrondi(eval/8)/100
+    // arrondi(eval/8)/100.0f
     return std::round((eval>>3)/100.0f);
 
 }
@@ -807,7 +807,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
         
     }
     
-    // arrondi(eval/8)/100
+    // arrondi(eval/8)/100.0f
     return std::round((eval>>3)/100.0f);
 
 }
@@ -924,7 +924,7 @@ inline int RXBBPatterns::get_score() const {
         
     }
     
-    // arrondi(eval/8)/100
+    // arrondi(eval/8)/100.0f
     return std::round((eval>>3)/100.0f);
 
 }
@@ -1037,7 +1037,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
         
     }
         
-    // arrondi(eval/8)/100
+    // arrondi(eval/8)/100.0f
     return std::round((eval>>3)/100.0f);
 
 }
@@ -1257,7 +1257,7 @@ inline int RXBBPatterns::verif_score() const {
     
     std::cout << "Eval = " << eval << std::endl;
     
- // arrondi(eval/8)/100
+ // arrondi(eval/8)/100.0f
  return std::round((eval>>3)/100.0f);
 
     

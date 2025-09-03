@@ -331,25 +331,11 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                 int score;
                 do {
                     
-                    RXMove* previous_move = list;
-                    RXMove* move = previous_move->next;
+                    RXMove* move = list->next;
                     
                     if(move->next != NULL) {
                         
-                        RXMove* previous_iter = move;
-                        for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                            if(iter->score < move->score) {
-                                move = iter;
-                                previous_move = previous_iter;
-                            }
-                        }
-                        
-                        if(previous_move != list) {
-                            //move to front
-                            previous_move->next = move->next;
-                            move->next = list->next;
-                            list->next = move;
-                        }
+                        move = list->pick_next_bestmove();
                     }
                     
                     
@@ -543,23 +529,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                 
                 if(bestmove == NOMOVE) {
                     
-                    RXMove* previous_move = list;
-                    RXMove* move = previous_move->next;
-                    
-                    RXMove* previous_iter = move;
-                    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                        if(iter->score < move->score) {
-                            move = iter;
-                            previous_move = previous_iter;
-                        }
-                    }
-                    
-                    if(previous_move != list) {
-                        //move to front
-                        previous_move->next = move->next;
-                        move->next = list->next;
-                        list->next = move;
-                    }
+                    RXMove* move = list->pick_next_bestmove();
                     
                     board.do_move(*move);
                     bestscore = -EG_PVS_hash_mobility(threadID, board, pv, -upper, -lower, false);
@@ -579,27 +549,8 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                 int score;
                 for(; lower < upper && list->next != NULL; list = list->next) {
                     
-                    RXMove* previous_move = list;
-                    RXMove* move = previous_move->next;
-                    
-                    if(move->next != NULL) {
-                        RXMove* previous_iter = move;
-                        for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                            if(iter->score < move->score) {
-                                move = iter;
-                                previous_move = previous_iter;
-                            }
-                        }
-                        
-                        if(previous_move != list) {
-                            //move to front
-                            previous_move->next = move->next;
-                            move->next = list->next;
-                            list->next = move;
-                        }
-                    }
-                    
-                    
+                    RXMove* move = list->pick_next_bestmove();
+
                     board.do_move(*move);
                     
                     score = -EG_PVS_hash_mobility(threadID, board, false, -lower-1, -lower, false);
@@ -879,24 +830,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                 
                 //find moves with worst answer
                 
-                RXMove* previous_move = list;
-                RXMove* move = previous_move->next;
-                
-                
-                RXMove* previous_iter = move;
-                for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                    if(iter->score < move->score) {
-                        move = iter;
-                        previous_move = previous_iter;
-                    }
-                }
-                
-                if(previous_move != list) {
-                    //move to front
-                    previous_move->next = move->next;
-                    move->next = list->next;
-                    list->next = move;
-                }
+                RXMove* move = list->pick_next_bestmove();
                 
                 board.do_move(*move);
                 bestscore = -EG_PVS_ETC_mobility(threadID, sBoard, pv, -upper, -lower, false);
@@ -933,22 +867,8 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                     
 #endif
                     
-                    RXMove* previous_move = list;
-                    RXMove* previous_iter = move;
-                    
-                    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                        if(iter->score < move->score) {
-                            move = iter;
-                            previous_move = previous_iter;
-                        }
-                    }
-                    
-                    if(previous_move != list) {
-                        //move to front
-                        previous_move->next = move->next;
-                        move->next = list->next;
-                        list->next = move;
-                    }
+                    move = list->pick_next_bestmove();
+
                 }
                 
                 board.do_move(*move);
@@ -1412,23 +1332,8 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             if(bestmove == NOMOVE) {
                 
-                RXMove* previous_move = list;
-                RXMove* move = previous_move->next;
-                
-                RXMove* previous_iter = move;
-                for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                    if(iter->score < move->score) {
-                        move = iter;
-                        previous_move = previous_iter;
-                    }
-                }
-                
-                if(previous_move != list) {
-                    //move to front
-                    previous_move->next = move->next;
-                    move->next = list->next;
-                    list->next = move;
-                }
+                RXMove* move = list->pick_next_bestmove();
+
                 
                 sBoard.do_move(*move);
                 bestscore = -EG_PVS_deep(threadID, sBoard, pv, selectivity, -upper, -lower, false);
@@ -1462,23 +1367,9 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         
                         break;
                     }
-                    
-                    RXMove* previous_move = list;
-                    
-                    RXMove* previous_iter = move;
-                    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                        if(iter->score < move->score) {
-                            move = iter;
-                            previous_move = previous_iter;
-                        }
-                    }
-                    
-                    if(previous_move != list) {
-                        //move to front
-                        previous_move->next = move->next;
-                        move->next = list->next;
-                        list->next = move;
-                    }
+                     
+                    move = list->pick_next_bestmove();
+
                 }
                 
                 

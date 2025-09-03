@@ -658,24 +658,8 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                 
                 
                 if(bestmove == NOMOVE) {
-                    
-                    RXMove* previous_move = list;
-                    RXMove* move = previous_move->next;
-                    
-                    RXMove* previous_iter = move;
-                    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                        if(iter->score < move->score) {
-                            move = iter;
-                            previous_move = previous_iter;
-                        }
-                    }
-                    
-                    if(previous_move != list) {
-                        //move to front
-                        previous_move->next = move->next;
-                        move->next = list->next;
-                        list->next = move;
-                    }
+                                        
+                    RXMove* move = list->pick_next_bestmove();
                     
                     sBoard.do_move(*move);
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, false);
@@ -693,25 +677,8 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                 int score = UNDEF_SCORE;
                 for(; lower < upper && list->next != NULL; list = list->next) {
                     
-                    
-                    RXMove* previous_move = list;
-                    RXMove* move = previous_move->next;
-                    
-                    RXMove* previous_iter = move;
-                    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                        if(iter->score < move->score) {
-                            move = iter;
-                            previous_move = previous_iter;
-                        }
-                    }
-                    
-                    if(previous_move != list) {
-                        //move to front
-                        previous_move->next = move->next;
-                        move->next = list->next;
-                        list->next = move;
-                    }
-                    
+                    RXMove* move = list->pick_next_bestmove();
+
                     sBoard.do_move(*move);
                     
                     score = -PVS_last_ply(threadID, sBoard, depth-1, -lower-1, -lower, false); //change

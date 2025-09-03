@@ -724,24 +724,8 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             if(bestscore == UNDEF_SCORE) { //first move
                 
-                RXMove* previous_move = list;
-                RXMove* move = previous_move->next;
-                
-                RXMove* previous_iter = move;
-                for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                    if(iter->score < move->score) {
-                        move = iter;
-                        previous_move = previous_iter;
-                    }
-                }
-                
-                if(previous_move != list) {
-                    //move to front
-                    previous_move->next = move->next;
-                    move->next = list->next;
-                    list->next = move;
-                }
-                
+                RXMove* move = list->pick_next_bestmove();
+
                 bestmove = move->position;
                 
                 sBoard.do_move(*move);
@@ -759,8 +743,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             int score;
             for(;!abort.load()  && lower < upper && list->next != NULL; list = list->next) {
                 
+
                 RXMove* move = list->next;
-                
+
                 if(move->next != NULL) {	//more 1 move
                     
                     // Split?
@@ -770,26 +755,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         
                         break;
                     }
-                    
-                    
-                    RXMove* previous_move = list;
-                    RXMove* previous_iter = move;
-                    
-                    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                        if(iter->score < move->score) {
-                            move = iter;
-                            previous_move = previous_iter;
-                        }
-                    }
-                    
-                    if(previous_move != list) {
-                        //move to front
-                        previous_move->next = move->next;
-                        move->next = list->next;
-                        list->next = move;
-                    }
-                    
-                    
+                     
+                    move = list->pick_next_bestmove();
+
                 }
                 
                 
@@ -1093,22 +1061,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                     
                     if(move->next != NULL) {    //more 1 move
                         
-                        RXMove* previous_move = list;
-                        
-                        RXMove* previous_iter = move;
-                        for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
-                            if(iter->score < move->score) {
-                                move = iter;
-                                previous_move = previous_iter;
-                            }
-                        }
-                        
-                        if(previous_move != list) {
-                            //move to front
-                            previous_move->next = move->next;
-                            move->next = list->next;
-                            list->next = move;
-                        }
+                        move = list->pick_next_bestmove();
                         
                     }
                     

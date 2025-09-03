@@ -81,6 +81,8 @@ class RXMove {
 				
 		void sort_bestmove(const int bestmove);
 		void sort_by_score();
+    
+        RXMove* pick_next_bestmove();
 
 		//debug
 		friend std::ostream& operator<<(std::ostream& os, RXMove* list);
@@ -117,5 +119,30 @@ inline void RXMove::sort_by_score() {
 		}
 	}		
 }
+
+inline RXMove* RXMove::pick_next_bestmove() {
+    
+    RXMove* previous_move = this;
+    RXMove* move = previous_move->next;
+    
+    RXMove* previous_iter = move;
+    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
+        if(iter->score < move->score) {
+            move = iter;
+            previous_move = previous_iter;
+        }
+    }
+    
+    if(previous_move != this) {
+        //move to front
+        previous_move->next = move->next;
+        move->next = this->next;
+        this->next = move;
+    }
+    
+    return move;
+
+}
+
 
 #endif

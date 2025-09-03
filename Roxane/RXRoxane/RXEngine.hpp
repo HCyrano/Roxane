@@ -509,7 +509,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     
 #endif
     
-    double coeff_pv = std::max(0.85f, (109-3*pvDev)/100.0f);
+    double coeff_pv = std::max(0.90f, (109-3*pvDev)/100.0f);
         
     sigma = std::round(sigma * coeff_pv * PERCENTILE[selectivity]);
 
