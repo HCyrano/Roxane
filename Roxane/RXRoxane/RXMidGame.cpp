@@ -724,7 +724,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             if(bestscore == UNDEF_SCORE) { //first move
                 
-                RXMove* move = list->pick_next_bestmove();
+                RXMove* move = list->pick_next_promisingmove();
 
                 bestmove = move->position;
                 
@@ -756,7 +756,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         break;
                     }
                      
-                    move = list->pick_next_bestmove();
+                    move = list->pick_next_promisingmove();
 
                 }
                 
@@ -1037,21 +1037,14 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                         ((board).*(board.generate_flips[empties->position]))(*move);
                         ((sBoard).*(sBoard.update_patterns[move->position][p]))(*move);
                         
+                        move->score = sBoard.get_score(*move);
+                        
                         ++board.n_nodes;
                         
                         previous = previous->next = move++;
                     }
                 
                 previous->next = NULL;
-                
-                if((list->next)->next != NULL) { //nb moves > 1
-                    
-                    //sort list by evaluation
-                    for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
-                        iter->score = sBoard.get_score(*iter);
-                    }
-                    
-                }
                 
                 
                 int score;
@@ -1061,7 +1054,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                     
                     if(move->next != NULL) {    //more 1 move
                         
-                        move = list->pick_next_bestmove();
+                        move = list->pick_next_promisingmove();
                         
                     }
                     

@@ -34,7 +34,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.16f, 1.35f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -278,7 +278,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
 
 int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
     
-    static const int DEPTH_7 = 7;
+    constexpr int DEPTH_7 = 7;
     
     RXBitBoard& board = sBoard.board;
     
@@ -659,7 +659,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                 
                 if(bestmove == NOMOVE) {
                                         
-                    RXMove* move = list->pick_next_bestmove();
+                    RXMove* move = list->pick_next_promisingmove();
                     
                     sBoard.do_move(*move);
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, false);
@@ -677,7 +677,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                 int score = UNDEF_SCORE;
                 for(; lower < upper && list->next != NULL; list = list->next) {
                     
-                    RXMove* move = list->pick_next_bestmove();
+                    RXMove* move = list->pick_next_promisingmove();
 
                     sBoard.do_move(*move);
                     
