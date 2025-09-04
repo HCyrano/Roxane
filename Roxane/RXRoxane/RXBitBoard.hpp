@@ -17,7 +17,6 @@
 
 #include "RXConstantes.hpp"
 #include "RXMove.hpp"
-#include "RXSquareList.hpp"
 #include "RXTools.hpp"
 #include "RXSetting.hpp"
 
@@ -25,16 +24,21 @@
 #include "arm_neon.h"
 #endif
 
+class RXSquareList {
+
+    friend class RXBitBoard;
+    friend class RXEngine;
+    
+    int position;
+    RXSquareList *previous;
+    RXSquareList *next;
+
+    RXSquareList(): position(NOMOVE), previous(NULL), next(NULL) {};
+
+};
 
 class RXBitBoard {
-    
-    friend class RXRoxane;
-    friend class RXHashTable;
-    friend class RXHashShallow;
-    friend class RXEngine;
-    friend class RXBBPatterns;
-    friend class RXEvaluation;
-    
+        
     private :
     static const unsigned long long hashSquare[64][2];
     
@@ -51,7 +55,6 @@ class RXBitBoard {
     
     public :
     
-    //static const unsigned long long X_TO_BIT[66];
     
 #ifdef __ARM_NEON
     static const unsigned char OUTFLANK_3[];
@@ -1303,9 +1306,7 @@ inline int RXBitBoard::final_score_3(const unsigned long long discs_player, cons
     }
     
     if (bestscore == UNDEF_SCORE) {
-        
-        ++n_nodes; //PASS
-        
+                
         if ((discs_player & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_opponent, discs_player))){
             
             bestscore = -final_score_2(discs_player ^ flipped , discs_opponent ^ (flipped | 0x1ULL<<idSquare1), alpha, beta, idSquare2, idSquare3);

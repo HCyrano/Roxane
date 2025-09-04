@@ -13,12 +13,8 @@
 #include <sstream>
 #include <sys/time.h>
 
-
-
 #include "RXEngine.hpp"
 #include "RXRoxane.hpp"
-
-
 
 
 const int RXEngine::DEPTH_4 = 4; // DO NOT CHANGE
@@ -160,28 +156,28 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                     sBoard.do_move(*iter);
                     
                     int eval_move;
-                    if(depth>(endgame? 17:19)) {
+                    if(depth>(endgame? 17:19)) { //from endgame 36 / midgame 40
                         
                         if((depth & 0x1UL) == 0)
                             eval_move = -PVS_last_ply(threadID, sBoard, 6, -upper_probcut, -lower_probcut, false);
                         else
                             eval_move = -PVS_last_ply(threadID, sBoard, 5, -upper_probcut, -lower_probcut, false);
                         
-                    } else if(depth>(endgame? 11:13)) {
+                    } else if(depth>(endgame? 11:13)) { //from endgame 24 / midgame 28
                         
                         if((depth & 0x1UL) == 0)
                             eval_move = -PVS_last_ply(threadID, sBoard, 4, -upper_probcut, -lower_probcut, false);
                         else
                             eval_move = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                         
-                    } else if(depth>7) {
+                    } else if(depth>7) { //from midgame 16
                         
                         if((depth & 0x1UL) == 0)
                             eval_move = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                         else
                             eval_move = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -lower_probcut, false);
                         
-                    } else {
+                    } else { //from midgame 10
                         
                         if((depth & 0x1UL) == 0) {
                             
@@ -235,18 +231,17 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                     
                     
                     if(endgame) {
+                        
                         int mobility = RXBitBoard::get_mobility(board.discs[o], board.discs[p]);
                         int corner_stability = (board.get_corner_stability(board.discs[p]))/8;
-                        if(depth <= 17 && 11 <depth) {
+                        
+                        if(depth <= 17 && 11 < depth) {
                             mobility = 5*mobility/4;
                             corner_stability = corner_stability/4;
                         } else if(depth <= 11 /*&& 5 < depth*/) {
                             mobility = 3*mobility/2;
                             corner_stability = corner_stability/2;
-                        } /* else if(depth <= 5) {
-                           mobility = 7*mobility/4;
-                           corner_stability = 3*corner_stability/4;
-                           }*/
+                        }
                         
                         iter->score += mobility - corner_stability;
                     }
@@ -526,7 +521,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
 
     RXBitBoard& board = sBoard.board;
     const unsigned long long  hash_code = board.hashcode();
-    hTable_shallow->entry_prefetch(hash_code);
+    //hTable_shallow->entry_prefetch(hash_code);
     
     int bestmove = NOMOVE;
     
@@ -944,7 +939,9 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                 }
                 
             } else {		//PASS
-                bestscore_1 = sBoard.final_score();
+                sBoard.board.do_pass();
+                bestscore_1 = -sBoard.final_score();
+                sBoard.board.do_pass();
             }
             /***************************************************************************************************/
             board.do_pass();

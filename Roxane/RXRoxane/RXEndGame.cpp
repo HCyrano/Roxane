@@ -246,15 +246,13 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
             
             if (upper > entry.upper) {
                 upper = entry.upper;
-                if (upper <= lower) {
+                if (upper <= lower)
                     return upper;
-                }
             }
             if (lower < entry.lower) {
                 lower = entry.lower;
-                if (lower >= upper) {
+                if (lower >= upper)
                     return lower;
-                }
             }
             
             //04/02/2025
@@ -333,10 +331,8 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                     
                     RXMove* move = list->next;
                     
-                    if(move->next != NULL) {
-                        
+                    if(move->next != NULL)
                         move = list->pick_next_promisingmove();
-                    }
                     
                     
                     board.do_move(*move);
@@ -441,15 +437,13 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
             
             if (upper > entry.upper) {
                 upper = entry.upper;
-                if (upper <= lower) {
+                if (upper <= lower)
                     return upper;
-                }
             }
             if (lower < entry.lower) {
                 lower = entry.lower;
-                if (lower >= upper) {
+                if (lower >= upper)
                     return lower;
-                }
             }
             
             //04/02/2025
@@ -866,7 +860,6 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                     }
                     
 #endif
-                    
                     move = list->pick_next_promisingmove();
 
                 }
@@ -1018,19 +1011,15 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             if (upper > entry.upper) {
                 
                 upper = entry.upper;
-                
-                if (upper <= lower) {
+                if (upper <= lower)
                     return upper;
-                }
             }
             
             if (lower < entry.lower) {
                 
                 lower = entry.lower;
-                
-                if (lower >= upper) {
+                if (lower >= upper)
                     return lower;
-                }
             }
             
         }
@@ -1535,13 +1524,11 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         
         if(entry.selectivity >= selectivity && entry.depth>=board.n_empty) {
             
-            if(entry.lower > alpha) {
+            if(entry.lower > alpha)
                  return entry.lower;
-            }
             
-            if(entry.upper <= alpha) {
+            if(entry.upper <= alpha)
                 return  entry.upper;
-            }
             
             bestmove = entry.move;
             
@@ -1774,7 +1761,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     }
     
     
-//    //interrupt search
+    //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     

@@ -463,19 +463,17 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             if(entry.lower > lower) {
                 
                 lower = entry.lower;
-                if(lower >= upper) {
-                                        
+                if(lower >= upper)
                     return lower;
-                }
+                
             }
             
             if(entry.upper < upper) {
                 
                 upper = entry.upper;
-                if(upper <= lower) {
-                                        
+                if(upper <= lower)
                     return  upper;
-                }
+                
             }
             
         }
@@ -938,7 +936,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
             } else {
                 board.do_pass();
                 
-                bestscore = -MG_PVS_shallow(threadID, sBoard, pv, depth-1, -beta, -alpha, true);
+                bestscore = -sBoard.get_score(); //-MG_PVS_shallow(threadID, sBoard, pv, depth-1, -beta, -alpha, true);
                 
                 board.do_pass();
             }
@@ -961,7 +959,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     
     //synchronized acces
     const unsigned long long hash_code = board.hashcode();
-    hTable->entry_prefetch(hash_code, type_hashtable);
+//    hTable->entry_prefetch(hash_code, type_hashtable);
     
     int bestmove = NOMOVE;
     
@@ -976,7 +974,6 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
             if(entry.lower > lower) {
                 
                 lower = entry.lower;
-                
                 if(lower >= upper)
                     return lower;
                 
@@ -985,7 +982,6 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
             if(entry.upper < upper) {
                 
                 upper = entry.upper;
-                
                 if(upper <= lower)
                     return  upper;
                 
@@ -1052,11 +1048,8 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                     
                     RXMove* move = list->next;
                     
-                    if(move->next != NULL) {    //more 1 move
-                        
+                    if(move->next != NULL)    //more 1 move
                         move = list->pick_next_promisingmove();
-                        
-                    }
                     
                     sBoard.do_move(*move);
                     
@@ -1138,15 +1131,11 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         
         if(entry.depth >= depth) {
             
-            if(entry.lower > alpha) {
-                
+            if(entry.lower > alpha)
                 return entry.lower;
-            }
             
-            if(entry.upper <= alpha) {
-                
+            if(entry.upper <= alpha)
                  return  entry.upper;
-            }
             
             
         }

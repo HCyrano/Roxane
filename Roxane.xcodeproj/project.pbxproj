@@ -73,7 +73,6 @@
 		372326F72D1FF69D002CFAF4 /* RXBitBoard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBitBoard.cpp; sourceTree = "<group>"; };
 		372326F82D1FF69D002CFAF4 /* RXConstantes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXConstantes.hpp; sourceTree = "<group>"; };
 		372326F92D1FF69D002CFAF4 /* RXEndGame.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXEndGame.cpp; sourceTree = "<group>"; };
-		372326FA2D1FF69D002CFAF4 /* RXEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXEngine.hpp; sourceTree = "<group>"; };
 		372326FB2D1FF69D002CFAF4 /* RXEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXEngine.cpp; sourceTree = "<group>"; };
 		372326FC2D1FF69D002CFAF4 /* RXEvaluation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXEvaluation.hpp; sourceTree = "<group>"; };
 		372326FD2D1FF69D002CFAF4 /* RXEvaluation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXEvaluation.cpp; sourceTree = "<group>"; };
@@ -90,9 +89,9 @@
 		372327082D1FF69D002CFAF4 /* RXRoxane.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXRoxane.cpp; sourceTree = "<group>"; };
 		372327092D1FF69D002CFAF4 /* RXSearch.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSearch.hpp; sourceTree = "<group>"; };
 		3723270A2D1FF69D002CFAF4 /* RXSearch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXSearch.cpp; sourceTree = "<group>"; };
-		3723270B2D1FF69D002CFAF4 /* RXSquareList.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSquareList.hpp; sourceTree = "<group>"; };
 		3723270C2D1FF69D002CFAF4 /* RXTools.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXTools.hpp; sourceTree = "<group>"; };
 		3723270E2D1FF69D002CFAF4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		3776E2C62E69880500FCE429 /* RXEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXEngine.hpp; sourceTree = "<group>"; };
 		37BF368B2E266CBC0029C7F6 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Roxane; sourceTree = BUILT_PRODUCTS_DIR; };
 		37BF368C2E268CDC0029C7F6 /* RXSetting.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSetting.hpp; sourceTree = "<group>"; };
 		37C2DE1E2D1F0B4100B93DBD /* Roxane.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roxane.profdata; sourceTree = "<group>"; };
@@ -152,7 +151,6 @@
 				3723270C2D1FF69D002CFAF4 /* RXTools.hpp */,
 				372326F82D1FF69D002CFAF4 /* RXConstantes.hpp */,
 				37BF368C2E268CDC0029C7F6 /* RXSetting.hpp */,
-				3723270B2D1FF69D002CFAF4 /* RXSquareList.hpp */,
 				372327062D1FF69D002CFAF4 /* RXPattern.hpp */,
 				372326F42D1FF69D002CFAF4 /* RXBBPatterns.hpp */,
 				372326F52D1FF69D002CFAF4 /* RXBBPatterns.cpp */,
@@ -161,7 +159,7 @@
 				372327072D1FF69D002CFAF4 /* RXRoxane.hpp */,
 				372327082D1FF69D002CFAF4 /* RXRoxane.cpp */,
 				372327022D1FF69D002CFAF4 /* RXHelper.hpp */,
-				372326FA2D1FF69D002CFAF4 /* RXEngine.hpp */,
+				3776E2C62E69880500FCE429 /* RXEngine.hpp */,
 				372326FB2D1FF69D002CFAF4 /* RXEngine.cpp */,
 				372327032D1FF69D002CFAF4 /* RXMidGame.cpp */,
 				372326F92D1FF69D002CFAF4 /* RXEndGame.cpp */,
