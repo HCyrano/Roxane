@@ -25,9 +25,8 @@
 #endif
 
 class RXSquareList {
-
-    friend class RXBitBoard;
-    friend class RXEngine;
+    
+    public :
     
     int position;
     RXSquareList *previous;

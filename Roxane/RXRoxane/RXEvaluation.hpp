@@ -17,12 +17,11 @@
 
 class RXEvaluation {
 	
-	static const unsigned int START = 16;
-	static const unsigned int END = 57;
-
-	friend class RXBBPatterns;
-
 	public :
+    
+    static const unsigned int START = 16;
+    static const unsigned int END = 57;
+
 
     static void load();
     static void new_eval();

@@ -17,9 +17,8 @@
 
 class RXBestMove {
 
-	friend class RXRoxane;
-	friend class RXEngine;
-
+    public :
+    
 	unsigned char position;
 	int depth;
 	int score;
@@ -35,8 +34,7 @@ class RXBestMove {
 
 class RXSearch {
 	
-	friend class RXRoxane;
-	friend class RXEngine;
+    public :
 	
 	enum t_client {kPrivate, kGGSMode};
 	

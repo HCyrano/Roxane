@@ -22,29 +22,21 @@
 
 
 class RXMove {
-
-	friend class RXRoxane; //for test WTHOR
-
-	friend class RXBitBoard;
-	friend class RXBBPatterns;
-	friend class RXEngine;
-	friend class RXEvaluation;
-	
-	char position;
-	unsigned long long square;
-	unsigned long long flipped;
-	int score;
-	char selectivity;
-	char depth;
-	
-	RXMove* next;
-	
-	RXPattern* pattern;
-	RXPattern* undo_pattern;
 	
 	public :
 
-	
+    char position;
+    unsigned long long square;
+    unsigned long long flipped;
+    int score;
+    char selectivity;
+    char depth;
+    
+    RXMove* next;
+    
+    RXPattern* pattern;
+    RXPattern* undo_pattern;
+
 		RXMove() : position(static_cast<char>(NOMOVE)), square(0ULL), flipped(0ULL), score(0), next(NULL), pattern(NULL), undo_pattern(NULL) {
 			pattern = new RXPattern();
 		};
