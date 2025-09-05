@@ -51,10 +51,22 @@ class RXBitBoard {
     
     static void init_hashcodeTable();
     static void edge_stability_init();
+
+    // move functions
+#define func(pos) static unsigned long long do_flips_##pos(const unsigned long long& discs_player, const unsigned long long& discs_opponent); \
+void generate_flips_##pos(RXMove& move) const \
+
+    func(A1); func(B1); func(C1); func(D1); func(E1); func(F1); func(G1); func(H1);
+    func(A2); func(B2); func(C2); func(D2); func(E2); func(F2); func(G2); func(H2);
+    func(A3); func(B3); func(C3); func(D3); func(E3); func(F3); func(G3); func(H3);
+    func(A4); func(B4); func(C4);                      func(F4); func(G4); func(H4);
+    func(A5); func(B5); func(C5);                      func(F5); func(G5); func(H5);
+    func(A6); func(B6); func(C6); func(D6); func(E6); func(F6); func(G6); func(H6);
+    func(A7); func(B7); func(C7); func(D7); func(E7); func(F7); func(G7); func(H7);
+    func(A8); func(B8); func(C8); func(D8); func(E8); func(F8); func(G8); func(H8);
     
-    public :
-    
-    
+#undef func
+        
 #ifdef __ARM_NEON
     static const unsigned char OUTFLANK_3[];
     static const unsigned char OUTFLANK_4[];
@@ -76,18 +88,40 @@ class RXBitBoard {
     static const unsigned char COUNT_G[];
     static const unsigned char COUNT_H[];
     
+#define func(pos) static int count_flips_##pos(const unsigned long long& discs_player)\
+
+    func(A1); func(B1); func(C1); func(D1); func(E1); func(F1); func(G1); func(H1);
+    func(A2); func(B2); func(C2); func(D2); func(E2); func(F2); func(G2); func(H2);
+    func(A3); func(B3); func(C3); func(D3); func(E3); func(F3); func(G3); func(H3);
+    func(A4); func(B4); func(C4);                     func(F4); func(G4); func(H4);
+    func(A5); func(B5); func(C5);                     func(F5); func(G5); func(H5);
+    func(A6); func(B6); func(C6); func(D6); func(E6); func(F6); func(G6); func(H6);
+    func(A7); func(B7); func(C7); func(D7); func(E7); func(F7); func(G7); func(H7);
+    func(A8); func(B8); func(C8); func(D8); func(E8); func(F8); func(G8); func(H8);
+    
+#undef func
+    
+    typedef int (*type_count_flips)(const unsigned long long& discs_player);
+
+
+    // presorted squares
+    static const unsigned long long PRESORTED_POSITION_BITS[];
+
+
+    
 #endif
+
+
+    public :
     
     static void static_init();
-    
+
     
     //neighborhood for each square
     static const unsigned long long NEIGHBOR[];
     
-    // presorted squares
-    static const unsigned long long PRESORTED_POSITION_BITS[];
     static const int PRESORTED_POSITION[];
-    
+
     
     /*! a quadrant id for each square */
     static const unsigned long long QUADRANT_MASK[];
@@ -95,10 +129,7 @@ class RXBitBoard {
     static const int QUADRANT_ID[];
     
     
-    //initialisation hashcodeTable
-    
-    
-    
+    //structure board
     unsigned long long discs[2];
     int player;
     int n_empty;
@@ -129,22 +160,7 @@ class RXBitBoard {
     bool squareIsEmpty(const int position) const;
     bool isPassed();
     bool isEndGame();
-    
-    // move functions
-#define func(pos) static unsigned long long do_flips_##pos(const unsigned long long& discs_player, const unsigned long long& discs_opponent); \
-void generate_flips_##pos(RXMove& move) const \
-
-    func(A1); func(B1); func(C1); func(D1); func(E1); func(F1); func(G1); func(H1);
-    func(A2); func(B2); func(C2); func(D2); func(E2); func(F2); func(G2); func(H2);
-    func(A3); func(B3); func(C3); func(D3); func(E3); func(F3); func(G3); func(H3);
-    func(A4); func(B4); func(C4);					  func(F4); func(G4); func(H4);
-    func(A5); func(B5); func(C5);					  func(F5); func(G5); func(H5);
-    func(A6); func(B6); func(C6); func(D6); func(E6); func(F6); func(G6); func(H6);
-    func(A7); func(B7); func(C7); func(D7); func(E7); func(F7); func(G7); func(H7);
-    func(A8); func(B8); func(C8); func(D8); func(E8); func(F8); func(G8); func(H8);
-    
-#undef func
-    
+        
     typedef unsigned long long  (*type_do_flips)(const unsigned long long& discs_player, const unsigned long long& discs_opponent);
     static type_do_flips const do_flips[];
     void (RXBitBoard::*generate_flips[64])(RXMove& move) const;
@@ -157,21 +173,6 @@ void generate_flips_##pos(RXMove& move) const \
     
 #else
     
-#define func(pos) static int count_flips_##pos(const unsigned long long& discs_player)\
-
-    func(A1); func(B1); func(C1); func(D1); func(E1); func(F1); func(G1); func(H1);
-    func(A2); func(B2); func(C2); func(D2); func(E2); func(F2); func(G2); func(H2);
-    func(A3); func(B3); func(C3); func(D3); func(E3); func(F3); func(G3); func(H3);
-    func(A4); func(B4); func(C4);                     func(F4); func(G4); func(H4);
-    func(A5); func(B5); func(C5);                     func(F5); func(G5); func(H5);
-    func(A6); func(B6); func(C6); func(D6); func(E6); func(F6); func(G6); func(H6);
-    func(A7); func(B7); func(C7); func(D7); func(E7); func(F7); func(G7); func(H7);
-    func(A8); func(B8); func(C8); func(D8); func(E8); func(F8); func(G8); func(H8);
-    
-#undef func
-    
-    
-    typedef int (*type_count_flips)(const unsigned long long& discs_player);
     static type_count_flips const count_flips[];
     
 #endif

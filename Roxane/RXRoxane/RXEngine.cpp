@@ -34,7 +34,7 @@ const float RXEngine::PERCENTILE[] = {1.00f, 1.16f, 1.35f, 1.70f, 2.25f, 2.85f};
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
-const float RXEngine::PERCENTILE[] = {0.95f, 1.05f, 1.25f, 1.50f, 1,90f, 2.40f, 2,90f}; // standard
+const float RXEngine::PERCENTILE[] = {0.95f, 1.05f, 1.25f, 1.50f, 1.90f, 2.40f, 2.90f}; // standard
 #endif
 
 const int RXEngine::EG_HIGH_SELECT = 0;
@@ -654,7 +654,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                 
                 if(bestmove == NOMOVE) {
                                         
-                    RXMove* move = list->pick_next_promisingmove();
+                    RXMove* move = list->pick_next_promising_move();
                     
                     sBoard.do_move(*move);
                     bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, false);
@@ -672,7 +672,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                 int score = UNDEF_SCORE;
                 for(; lower < upper && list->next != NULL; list = list->next) {
                     
-                    RXMove* move = list->pick_next_promisingmove();
+                    RXMove* move = list->pick_next_promising_move();
 
                     sBoard.do_move(*move);
                     
@@ -721,7 +721,7 @@ int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns
     
     RXBitBoard& board = sBoard.board;
     const unsigned long long  hash_code = board.hashcode();
-    hTable_shallow->entry_prefetch(hash_code);
+    //hTable_shallow->entry_prefetch(hash_code);
     
     
     int bestmove = NOMOVE;

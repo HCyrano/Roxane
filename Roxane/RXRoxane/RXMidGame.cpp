@@ -722,7 +722,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             if(bestscore == UNDEF_SCORE) { //first move
                 
-                RXMove* move = list->pick_next_promisingmove();
+                RXMove* move = list->pick_next_promising_move();
 
                 bestmove = move->position;
                 
@@ -754,7 +754,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         break;
                     }
                      
-                    move = list->pick_next_promisingmove();
+                    move = list->pick_next_promising_move();
 
                 }
                 
@@ -1049,7 +1049,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                     RXMove* move = list->next;
                     
                     if(move->next != NULL)    //more 1 move
-                        move = list->pick_next_promisingmove();
+                        move = list->pick_next_promising_move();
                     
                     sBoard.do_move(*move);
                     

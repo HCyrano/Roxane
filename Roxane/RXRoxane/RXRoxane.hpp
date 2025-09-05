@@ -27,7 +27,6 @@ extern "C"
 void* init_process(void* pt);
 
 class CODKStream;
-class CassioProtocol;
 
 class RXRoxane: public Runnable {
 
