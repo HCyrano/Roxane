@@ -129,6 +129,17 @@ void CODKStream::HandleOsTimeout(const CMsgOsTimeout* pmsg){
 
 }
 
+void CODKStream::HandleOsFatalTimeout(const CMsgOsFatalTimeout* pmsg) {
+
+    std::cout  << "fatal-timeout: " << pmsg->idg << " " << pmsg->sLogin  << std::endl;
+
+    COsGame* pgame=PGame(pmsg->idg);
+    if (pgame!=NULL)
+        pComputer->stop_engine(pgame);
+    
+}
+
+
 
   // Example handler from Roxane:
 void CODKStream::HandleOsRequestDelta(const CMsgOsRequestDelta* pmsg) {

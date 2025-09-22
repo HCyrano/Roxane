@@ -25,15 +25,6 @@
 #include "RXSetting.hpp"
 
 
-/*******************************************************************/
-/*           version Fast Solver:            */
-/*      for record fforum-40-59 setting      */
-/*                                           */
-/*   split at EG_PVS_root                    */
-/*   selectivity 84% et 100%                 */
-/*******************************************************************/
-
-
 int main (int argc, char * const argv[]) {
         
 #ifdef __ARM_FEATURE_SVE
@@ -74,7 +65,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "dev-2025-09-05 9h00";
+    std::string version = "dev-2025-09-22 16h05";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;

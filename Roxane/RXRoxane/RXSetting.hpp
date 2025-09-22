@@ -45,7 +45,7 @@
 //#define EG_CHECK_PV
 
 //generate data for probcut
-//#define TUNE_PROBCUT_MID
+#define TUNE_PROBCUT_MID
 //#define TUNE_PROBCUT_END
 
 // type of window probcut

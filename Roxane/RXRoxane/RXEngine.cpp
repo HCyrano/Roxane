@@ -30,7 +30,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.16f, 1.35f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.18f, 1.40f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -2332,8 +2332,8 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 800; ++n_data) {
-        for(int depth = 2; depth <= 15; ++depth) {
+    for(int n_data = 0; n_data < 30; ++n_data) {
+        for(int depth = 19; depth <= 20; ++depth) {
             hTable->reset();
             for (int n_discs = 4; n_discs < 64-5-depth; ++n_discs){
                 //sBoard.reset();
@@ -2437,8 +2437,8 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 5000; ++n_data) {
-        for(int depth = 2; depth <= 25; ++depth) {
+    for(int n_data = 0; n_data < 500; ++n_data) {
+        for(int depth = 26; depth <= 27; ++depth) {
             hTable->reset();
             int n_moves = 0;
             for (;n_moves < 64-4-depth && board.n_moves()!=0; ++n_moves){

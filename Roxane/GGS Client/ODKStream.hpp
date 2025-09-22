@@ -24,7 +24,7 @@ public:
 
     virtual void HandleOsEnd            (const CMsgOsEnd* pmsg);
     virtual void HandleOsTimeout        (const CMsgOsTimeout* pmsg);
-    //virtual void HandleOsFatalTimeout   (const CMsgOsFatalTimeout* pmsg);
+    virtual void HandleOsFatalTimeout   (const CMsgOsFatalTimeout* pmsg);
     virtual void HandleOsRequestDelta   (const CMsgOsRequestDelta* pmsg);
     virtual void HandleOsGameOver       (const CMsgOsMatchDelta* pmsg, const string& idg);
 

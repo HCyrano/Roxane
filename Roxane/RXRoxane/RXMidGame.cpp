@@ -907,8 +907,6 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
         
     } else if(depth == 1) {
         
-        
-        
         unsigned long long legal_movesBB = board.get_legal_moves();
         if(legal_movesBB) {
             
@@ -959,7 +957,6 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     
     //synchronized acces
     const unsigned long long hash_code = board.hashcode();
-//    hTable->entry_prefetch(hash_code, type_hashtable);
     
     int bestmove = NOMOVE;
     
@@ -1137,7 +1134,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
             if(entry.upper <= alpha)
                  return  entry.upper;
             
-            
         }
         
         //if(entry.depth >= depth-2)
@@ -1148,6 +1144,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     //param mpc
     int lower_probcut, upper_probcut;
     int probcut_depth = (depth/4)*2 + (depth & 0x1UL);
+//    int probcut_depth = depth - (depth/4 + ((depth/4)&1));
     probcut_bounds(board, selectivity, depth, probcut_depth, pvDev, alpha, lower_probcut, upper_probcut);
     
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {
@@ -1168,13 +1165,15 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     
     if(bestmove != PASS) {
         
-        if(depth > 8) { //ETC depth 10 bestmove != NOMOVE ||
-            
+//        if(depth > (bestmove == NOMOVE ? 8 : 6)) {
+        //If no entry is found in the transposition table, the next move is also unlikely to be stored.
+        if(bestmove != NOMOVE) {
+
             RXMove* move = list + 1;
             RXMove* previous = list;
             
             //ENHANCED TRANSPOSITION CUTOFF
-            if(bestmove != NOMOVE) {
+//            if(bestmove != NOMOVE) {
                 
                 ((board).*(board.generate_flips[bestmove]))(*move);
                 ++board.n_nodes;
@@ -1191,11 +1190,11 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                 
                 previous = previous->next = move++;
                 
-            }
+//            }
             
             //for all empty square
             unsigned long long legal_movesBB = board.get_legal_moves();
-            if(bestmove != NOMOVE)
+//            if(bestmove != NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
             
             for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next)
@@ -1215,7 +1214,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                         }
                         
                         move->score = ((-entry.lower<=alpha)*5-2);
-                        
                         
                     }
 #endif
