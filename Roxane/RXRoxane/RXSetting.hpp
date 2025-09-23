@@ -45,8 +45,16 @@
 //#define EG_CHECK_PV
 
 //generate data for probcut
-#define TUNE_PROBCUT_MID
+//#define TUNE_PROBCUT_MID
 //#define TUNE_PROBCUT_END
+
+
+//generate cassio-script
+//#define GENERATE_CASSIO_SCRIPT
+
+//generate resultat file
+//#define GENERATE_RES_FILE
+
 
 // type of window probcut
 //#define PROBCUT_x2 // undefined use PROBCUT_x3

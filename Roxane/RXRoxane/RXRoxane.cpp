@@ -425,127 +425,156 @@ void RXRoxane::get_move(const string& _idg, COsGame* g) {
 // solved fforum test
 void RXRoxane::get_move(const std::string& file_name) {
     
-	
-	pthread_mutex_lock(&mutex);
-	
-//	while(true) {
+    
+    pthread_mutex_lock(&mutex);
+    
+    //	while(true) {
+    
+    resume_flag.store(false);
+    
+    double T = 0;
+    unsigned long long nodes = 0;
+    
+    hTable->shared(true);
+    
+    int n_threads = engine[SHARED]->get_THREAD_MAX();
+    
+    search.clientMode = RXSearch::kPrivate;
+    search.idEngine = SHARED;
+    search.nThreads = std::max(1, n_threads);
+    search.htable = hTable;
+    search.main_PV = main_PV;
+    search.expected_PV = expected_PV;
+    search.search_on_opponent_time = false;
+    
+    search.dependent_time = false;
 
-		resume_flag.store(false);
-		
-		double T = 0;
-		unsigned long long nodes = 0;
-		
-		hTable->shared(true);
-		
-		int n_threads = engine[SHARED]->get_THREAD_MAX();
+#ifdef GENERATE_RES_FILE
+    std::string out_file_name = file_name; //copy
+    out_file_name.replace(out_file_name.end()-3, out_file_name.end(), "res"); //change extension
+    
+    std::ofstream ofs(out_file_name.c_str()); //ouverture en ecriture
 
-		search.clientMode = RXSearch::kPrivate;
-		search.idEngine = SHARED;
-		search.nThreads = std::max(1, n_threads);
-		search.htable = hTable;
-		search.main_PV = main_PV;
-		search.expected_PV = expected_PV;
-		search.search_on_opponent_time = false;	
-
-		search.dependent_time = false;	
-
-
-		std::ifstream in(file_name.c_str());
-		if(in) {
-            
-            
-			std::string line;
-			
-			while(!resume_flag.load() && std::getline(in, line)) {
-	
-#ifdef EG_CHECK_PV
-                std::stringstream ss;
-                int score = UNDEF_SCORE;
-                                
-                ss << line.substr(line.find(":")+1);
-                
-                ss >> score;
-                score *= 1;
 #endif
-				search.htable->reset();
-				search.main_PV->reset();
-				search.expected_PV->reset();
-                engine[search.idEngine]->resume(); //hTable_shallow->reset()
-
-                
-				search.sBoard.build(line);
-				search.depth       = search.sBoard.board.n_empty;
-				search.alpha       = -MAX_SCORE;
-				search.beta        = +MAX_SCORE;
-				search.selectivity = RXEngine::NO_SELECT;
-				
-				search.bestMove.position    = NOMOVE;
-				search.bestMove.score       = UNDEF_SCORE;
-				search.bestMove.selectivity = 0;
-				search.bestMove.tElapsed    = 0.0;
-				search.bestMove.nodes	    = 0;
+    
+    std::ifstream in(file_name.c_str());
+    
+    if(in) {
         
-                if(search.sBoard.board.n_moves() > 1) {
-                    engine[search.idEngine]->get_move(search);
-                                        
+        
+        std::string line;
+        
+        while(!resume_flag.load() && std::getline(in, line)) {
+            
 #ifdef EG_CHECK_PV
-                    if(score != (UNDEF_SCORE) && search.bestMove.score != score) {
-                        std::cout << "critical error in solver" << std::endl;
-                        std::cout << search.sBoard.board << std::endl;
-                        std::cout << "resultat attendu : " << score << std::endl;
-                        std::cout << "resultat trouvé  : " << search.bestMove.score << std::endl;
-                    }
+            std::stringstream ss;
+            int score = UNDEF_SCORE;
+            
+            ss << line.substr(line.find(":")+1);
+            
+            ss >> score;
+            score *= 1;
 #endif
-                }
+            search.htable->reset();
+            search.main_PV->reset();
+            search.expected_PV->reset();
+            engine[search.idEngine]->resume(); //hTable_shallow->reset()
+            
+            
+            search.sBoard.build(line);
+            search.depth       = search.sBoard.board.n_empty;
+            search.alpha       = -MAX_SCORE;
+            search.beta        = +MAX_SCORE;
+            search.selectivity = RXEngine::NO_SELECT;
+            
+            search.bestMove.position    = NOMOVE;
+            search.bestMove.score       = UNDEF_SCORE;
+            search.bestMove.selectivity = 0;
+            search.bestMove.tElapsed    = 0.0;
+            search.bestMove.nodes	    = 0;
+            
+            if(search.sBoard.board.n_moves() > 1) {
+                engine[search.idEngine]->get_move(search);
                 
-				T += search.bestMove.tElapsed;
-				nodes += search.bestMove.nodes;
-				
-			}
-					
-			engine[SHARED]->writeLog("---------------------------------------------------------------------------------------------");
-			engine[SHARED]->writeLog("Total time  :     " + toHMS(T));
-			
-			
-			std::ostringstream buffer;
-            
-            std::locale loc(std::locale(),new My_punct);
-            buffer.imbue(loc);
-
-            
-			buffer << "Total nodes : " << std::setw(15) <<  nodes << "\n";
-            
-            int speed = 0;
-            if(T !=0)
-            speed = static_cast<int>((nodes/1000)/T);
-            
-            buffer << "Speed       : " << std::setw(15);
-			if (nodes > 300000) {
-				buffer  << speed << " kN/s";
-            } else {
-                buffer << "N/A";
+#ifdef GENERATE_RES_FILE
+                ofs << line << ":" << std::setw(3) << std::setfill(' ') << search.bestMove.score << std::endl;
+#endif
+                
+#ifdef EG_CHECK_PV
+                if(score != (UNDEF_SCORE) && search.bestMove.score != score) {
+                    std::cout << "critical error in solver" << std::endl;
+                    std::cout << search.sBoard.board << std::endl;
+                    std::cout << "resultat attendu : " << score << std::endl;
+                    std::cout << "resultat trouvé  : " << search.bestMove.score << std::endl;
+                }
+#endif
             }
-			engine[SHARED]->writeLog(buffer.str());
-			
-			engine[SHARED]->writeLog("");
-			
-			in.close();
             
-            cout.imbue(loc);
+            T += search.bestMove.tElapsed;
+            nodes += search.bestMove.nodes;
+            
+        }
+        
+        engine[SHARED]->writeLog("---------------------------------------------------------------------------------------------");
+        engine[SHARED]->writeLog("Total time  :     " + toHMS(T));
+        
+        
+        std::ostringstream buffer;
+        
+        std::locale loc(std::locale(),new My_punct);
+        buffer.imbue(loc);
+        
+        
+        buffer << "Total nodes : " << std::setw(15) <<  nodes << "\n";
+        
+        int speed = 0;
+        if(T !=0)
+            speed = static_cast<int>((nodes/1000)/T);
+        
+        buffer << "Speed       : " << std::setw(15);
+        if (nodes > 300000) {
+            buffer  << speed << " kN/s";
+        } else {
+            buffer << "N/A";
+        }
+        engine[SHARED]->writeLog(buffer.str());
+        
+        engine[SHARED]->writeLog("");
+        
+        in.close();
+        
+        cout.imbue(loc);
+        
+        std::cout << "Total time  : " << toHMS(T) << std::endl;
+        std::cout << "Total nodes : " << nodes << std::endl;
+        if (T>0) {
+            std::cout << "N/s         : " << static_cast<int>(nodes/T) << std::endl;
+        }
+        
+    }
+    
+    //	}
 
-			std::cout << "Total time  : " << toHMS(T) << std::endl;
-			std::cout << "Total nodes : " << nodes << std::endl;
-			if (T>0) {
-				std::cout << "N/s         : " << static_cast<int>(nodes/T) << std::endl;
-			}
-			
-		}
-			
-//	}
-	
-	pthread_mutex_unlock(&mutex);
-	
+#ifdef GENERATE_RES_FILE
+    ofs.close();
+#endif
+
+    pthread_mutex_unlock(&mutex);
+    
 }
+
+#ifdef GENERATE_CASSIO_SCRIPT
+void RXRoxane::generate_cassio_script(int nb_data, int n_discs) {
+    
+    pthread_mutex_lock(&mutex);
+    
+    engine[SHARED]->generate_cassio_script(nb_data, n_discs);
+    
+    pthread_mutex_unlock(&mutex);
+}
+
+#endif
+
 
 #ifdef TUNE_PROBCUT_MID
 void RXRoxane::get_probcut_mid_data() {

@@ -68,6 +68,11 @@ public :
 	virtual void run();
     
     RXEngine* getEngine(const int color) const;
+    
+#ifdef GENERATE_CASSIO_SCRIPT
+    void generate_cassio_script(int nb_data, int n_discs);
+#endif
+
 
 #ifdef TUNE_PROBCUT_MID
     void get_probcut_mid_data();

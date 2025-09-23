@@ -95,6 +95,14 @@
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-60-79.obf"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/cassio_script.scr"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/cassio_script.res"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

@@ -74,6 +74,11 @@ int main (int argc, char * const argv[]) {
         
 	RXRoxane roxane(nBitsTable, nThreads);
     
+#ifdef GENERATE_CASSIO_SCRIPT
+    
+    roxane.generate_cassio_script(1000, 35);
+
+#else
 
 #ifdef TUNE_PROBCUT_MID
     
@@ -134,6 +139,7 @@ int main (int argc, char * const argv[]) {
     }
     
     
+#endif
 #endif
 #endif
     

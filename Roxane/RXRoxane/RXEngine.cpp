@@ -2316,6 +2316,74 @@ bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
     return true;
 }
 
+#ifdef GENERATE_CASSIO_SCRIPT
+
+void RXEngine::generate_cassio_script(int nb_data, int n_discs) {
+    
+    //open ofstream
+    std::ofstream ofs("cassio_script.scr");
+    
+    RXBitBoard board;
+
+    for(int n_data = 0; n_data < nb_data; ++n_data) {
+        int n_moves = 0;
+        for(; n_moves < n_discs-4 && board.n_moves()!=0 ; ++n_moves) {
+            unsigned long long legal_movesBB = board.get_legal_moves();
+            if(legal_movesBB) {
+                
+                int ramdon_moveID = random_bounds(0, __builtin_popcountll(legal_movesBB)-1);
+                int count_legal = 0;
+                int n_bit = 0;
+                for(; n_bit < 64; ++n_bit) {
+                    if((legal_movesBB>>n_bit) & 0x1ULL) {
+
+                        if(count_legal == ramdon_moveID)
+                            break;
+                      
+                        ++count_legal;
+
+                    }
+                }
+                
+                RXMove* move = threads[0]._move[board.n_empty];
+                for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
+                    if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
+                        
+                        ((board).*(board.generate_flips[empties->position ]))(*move);
+                        
+                        break;
+                    }
+                }
+                
+                board.do_move(*move);
+            }
+            
+        }
+        
+        if(board.n_moves()!=0) {
+            std::cout << board.cassio_script() << std::endl;
+            ofs << board.cassio_script() << std::endl;
+
+        }
+        
+        for(; 0 < n_moves ; --n_moves) {
+            RXMove* move = threads[0]._move[board.n_empty+1];
+            board.undo_move(*move);
+        }
+
+
+        
+    }
+    
+    ofs.close();
+
+    
+
+}
+
+#endif
+
+
 #ifdef TUNE_PROBCUT_MID
 
 void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
@@ -2417,6 +2485,8 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
             }
         }
     }
+    
+    ofs.close();
 }
 
 #endif
@@ -2528,6 +2598,8 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
             
         }
     }
+    ofs.close();
+
 }
 
 #endif

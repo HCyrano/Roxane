@@ -789,9 +789,9 @@ std::string RXBitBoard::cassio_script() const {
 	}
 	
 	if (player == BLACK)
-		buffer << "X";
-	else 
-		buffer << "O";
+		buffer << " X";
+	else
+		buffer << " O";
 	
 	return buffer.str();
 }
@@ -886,6 +886,8 @@ void RXBitBoard::print_Board(unsigned long long P, unsigned long long O) {
     
 
 }
+
+
 
 
 
