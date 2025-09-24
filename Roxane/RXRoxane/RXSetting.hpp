@@ -49,9 +49,6 @@
 //#define TUNE_PROBCUT_END
 
 
-//generate cassio-script
-//#define GENERATE_CASSIO_SCRIPT
-
 //generate resultat file
 //#define GENERATE_RES_FILE
 

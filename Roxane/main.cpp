@@ -65,7 +65,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "dev-2025-09-22 16h05";
+    std::string version = "dev-2025-09-24 13h15";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -74,11 +74,6 @@ int main (int argc, char * const argv[]) {
         
 	RXRoxane roxane(nBitsTable, nThreads);
     
-#ifdef GENERATE_CASSIO_SCRIPT
-    
-    roxane.generate_cassio_script(1000, 35);
-
-#else
 
 #ifdef TUNE_PROBCUT_MID
     
@@ -139,7 +134,6 @@ int main (int argc, char * const argv[]) {
     }
     
     
-#endif
 #endif
 #endif
     

@@ -412,12 +412,6 @@ public:
     virtual void idle_loop();
     int get_THREAD_MAX();
 
-#ifdef GENERATE_CASSIO_SCRIPT
-    
-    void generate_cassio_script(int nb_data, int n_discs);
-
-#endif
-
 #ifdef TUNE_PROBCUT_MID
 
     void probcut_mid_data(RXHashTable* HT, RXHashTable* PV);

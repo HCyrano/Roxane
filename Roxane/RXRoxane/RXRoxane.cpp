@@ -563,18 +563,6 @@ void RXRoxane::get_move(const std::string& file_name) {
     
 }
 
-#ifdef GENERATE_CASSIO_SCRIPT
-void RXRoxane::generate_cassio_script(int nb_data, int n_discs) {
-    
-    pthread_mutex_lock(&mutex);
-    
-    engine[SHARED]->generate_cassio_script(nb_data, n_discs);
-    
-    pthread_mutex_unlock(&mutex);
-}
-
-#endif
-
 
 #ifdef TUNE_PROBCUT_MID
 void RXRoxane::get_probcut_mid_data() {
