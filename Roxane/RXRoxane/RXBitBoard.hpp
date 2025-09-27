@@ -216,6 +216,7 @@ void generate_flips_##pos(RXMove& move) const \
     std::string cassio_script() const;
     
     /* DEBUG */
+    bool isValid(const int pos) const ;
     void print_empties_list() const;
     static void print_64bits(unsigned long long n);
     void print_Board();
@@ -288,6 +289,20 @@ inline void RXBitBoard::moves_producing(RXMove* start) const {
     
     previous->next = NULL;
 }
+
+
+inline bool RXBitBoard::isValid(const int pos) const {
+    if( 0 <= pos && pos <64) {
+        std::cout << RXMove::index_to_coord(pos) << "out board" << std::endl;
+        return false;
+    }
+    if((discs[BLACK] | discs[WHITE]) & 0X1ULL<<pos) {
+        std::cout << "square " << RXMove::index_to_coord(pos) << " is occupied" << std::endl;
+            return false;
+    }
+    return true;
+}
+
 
 inline void RXBitBoard::do_move(const RXMove& move) {
     

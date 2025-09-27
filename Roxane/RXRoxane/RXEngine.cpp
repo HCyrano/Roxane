@@ -1779,7 +1779,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         
 #ifdef __ARM_ACLE
         //apple ARM
-        n_empty_before_solved = std::max(2, board.n_empty-26); //M3 Pro solved at 24 empties // 1 minute 26 empties
+        n_empty_before_solved = std::max(2, board.n_empty-(24+static_cast<int>(activeThreads)/4)); //M3 Pro solved at 24 empties // 1 minute 26 empties
 #else
         //i5 2,7ghz
         n_empty_before_solved = std::max(2, board.n_empty-24); //i5 2,7ghz solved at 24 empties
@@ -2333,7 +2333,7 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 30; ++n_data) {
+    for(int n_data = 0; n_data < 20; ++n_data) {
         for(int depth = 19; depth <= 20; ++depth) {
             hTable->reset();
             for (int n_discs = 4; n_discs < 64-5-depth; ++n_discs){
@@ -2531,6 +2531,70 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
             
         }
     }
+    ofs.close();
+
+}
+
+#endif
+
+#ifdef TUNE_PROBCUT_END2
+
+void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, RXHashTable* PV) {
+    
+    activeThreads = get_THREAD_MAX();
+    
+    hTable = HT;
+    hTable_PV = PV;
+    type_hashtable = RXHashTable::HASH_SHARED;
+    
+    //open ofstream
+    std::ofstream ofs("probcut_end2.txt");
+    
+    RXBBPatterns sBoard;
+    RXBitBoard& board = sBoard.board;
+
+    std::ifstream in(file_name.c_str());
+    if(in) {
+        
+        int n_data = 0;
+        std::string line;
+        
+        while(!resume_flag.load() && std::getline(in, line)) {
+            
+            ++n_data;
+            
+            std::stringstream ss;
+            int score_at_depth = UNDEF_SCORE;
+            
+            ss << line.substr(line.find(":")+1);
+            
+            ss >> score_at_depth;
+
+            sBoard.build(line);
+            int n_empties = board.n_empty;
+                                        
+            for(int shallow_depth = n_empties & 1; shallow_depth <= 15; shallow_depth+=2){
+                
+                int score_at_shallow_depth;
+                
+                if(shallow_depth < 4) {
+                    score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                } else {
+                    wake_sleeping_threads();
+                    score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                }
+                
+                int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
+                
+                std::cout << n_data  << " :"  << n_empties << " " << shallow_depth << " " << n_empties << " " << diff_score_depth_score_shallow << std::endl;
+                if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
+                    ofs << n_empties<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
+            }
+            
+            
+        }
+    }
+    in.close();
     ofs.close();
 
 }

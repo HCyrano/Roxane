@@ -101,7 +101,8 @@ int RXEngine::EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board
                     if (movesBB & 0x1ULL<<empties->position) {
                         ((board).*(board.generate_flips[empties->position]))(move);
                         
-                        //  board.do_move(move); optimized 5 empties
+                        // board.do_move(move);
+                        // optimized 5 empties
                         board.discs[board.player] |= (move.flipped | move.square);
                         board.player ^= 1;
                         board.discs[board.player] ^= move.flipped;
@@ -111,9 +112,11 @@ int RXEngine::EG_alphabeta_parity(const unsigned int threadID, RXBitBoard& board
                         empties->previous->next = empties->next;
                         
                         ++board.n_nodes;
+                        
                         score = -board.final_score_4(-beta, -alpha, false);
  
-                        //board.undo_move(move); optimized 5 emptie
+                        // board.undo_move(move);
+                        // optimized 5 empties
                         empties->previous->next = empties;
                         
                         parity ^= board.QUADRANT_ID[move.position];

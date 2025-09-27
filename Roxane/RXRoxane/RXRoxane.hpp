@@ -77,7 +77,11 @@ public :
 #ifdef TUNE_PROBCUT_END
     void get_probcut_end_data();
 #endif
-
+    
+#ifdef TUNE_PROBCUT_END2
+    void get_probcut_end2_data(const std::string& file_name);
+#endif
+    
 	//privateProtocol
 	void get_move(const std::string& file_name);
 

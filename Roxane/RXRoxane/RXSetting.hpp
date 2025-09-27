@@ -47,10 +47,11 @@
 //generate data for probcut
 //#define TUNE_PROBCUT_MID
 //#define TUNE_PROBCUT_END
+//#define TUNE_PROBCUT_END2
 
 
 //generate resultat file
-//#define GENERATE_RES_FILE
+#define GENERATE_RES_FILE
 
 
 // type of window probcut

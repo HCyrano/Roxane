@@ -65,7 +65,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "dev-2025-09-24 13h15";
+    std::string version = "dev-2025-09-27 23h50";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -89,7 +89,14 @@ int main (int argc, char * const argv[]) {
     
 #else
     
+#ifdef TUNE_PROBCUT_END2
     
+    if(!file_name.empty())
+        roxane.get_probcut_end2_data(file_name);
+    
+    
+#else
+
     //warm up
     if(!file_name.empty())
         roxane.get_move(file_name);
@@ -134,6 +141,7 @@ int main (int argc, char * const argv[]) {
     }
     
     
+#endif
 #endif
 #endif
     

@@ -473,8 +473,8 @@ void RXRoxane::get_move(const std::string& file_name) {
             ss << line.substr(line.find(":")+1);
             
             ss >> score;
-            score *= 1;
 #endif
+            
             search.htable->reset();
             search.main_PV->reset();
             search.expected_PV->reset();
@@ -588,6 +588,17 @@ void RXRoxane::get_probcut_end_data() {
 }
 #endif
 
+#ifdef TUNE_PROBCUT_END2
+void RXRoxane::get_probcut_end2_data(const std::string& file_name) {
+    
+    pthread_mutex_lock(&mutex);
+   
+    engine[SHARED]->probcut_end2_data(file_name, hTable, main_PV);
+    
+    pthread_mutex_unlock(&mutex);
+
+}
+#endif
 
 void RXRoxane::run() {
 
