@@ -199,7 +199,7 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alp
     int selectivity = MG_SELECT;
     
     RXMove* iter = list->next;
-    int bestmove = iter->position;
+    unsigned int bestmove = iter->position;
     
     int lower = alpha;
     const int upper = beta;
@@ -438,7 +438,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     RXBitBoard& board = sBoard.board;
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     int lower = alpha;
     int upper = beta;
     
@@ -491,6 +491,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         
         if(hTable->get(hash_code, type_hashtable, entry))
             bestmove = entry.move;
+
     }
     
     
@@ -958,7 +959,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     //synchronized acces
     const unsigned long long hash_code = board.hashcode();
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     
     int upper = beta;
     int lower = alpha;
@@ -1119,7 +1120,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     
     RXBitBoard& board = sBoard.board;
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     
     //synchronized acces
     RXHashValue entry;
@@ -1138,6 +1139,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         
         //if(entry.depth >= depth-2)
         bestmove = entry.move;
+
     }
     
     

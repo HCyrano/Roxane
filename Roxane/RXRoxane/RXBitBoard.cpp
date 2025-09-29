@@ -806,6 +806,22 @@ void RXBitBoard::print_empties_list() const {
 	std::cout << std::endl;
 }
 
+/*
+void RXBitBoard::check_empties_list() const {
+    RXSquareList *empties = empties_list->next;
+    for(int i = 0 ; i < n_empty; ++i) {
+        if(empties->position < 0 || 63 < empties->position) {
+            std::cout << "error empties list" << std::endl;
+            print_Board(discs[player], discs[player^1]);
+            print_empties_list();
+            std::cout << std::endl;
+        }
+        empties = empties->next;
+    }
+}
+ */
+
+
 void RXBitBoard::print_moves_list(RXMove* Moves) const {
     std::cout << "MovesList";
     for(; Moves->position != static_cast<char>(NOMOVE); Moves = Moves->next)

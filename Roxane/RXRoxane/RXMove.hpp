@@ -71,7 +71,7 @@ class RXMove {
 		static std::string index_to_coord(int index);
 		static int coord_to_index(std::string coord);
 				
-		void sort_bestmove(const int bestmove);
+		void sort_bestmove(const unsigned int bestmove);
 		void sort_by_score();
     
         RXMove* pick_next_promising_move();
@@ -81,7 +81,7 @@ class RXMove {
 
 };
 
-inline void RXMove::sort_bestmove(int bestmove) {
+inline void RXMove::sort_bestmove(unsigned int bestmove) {
 
 	RXMove* previous;
 	for(RXMove* iter = (previous = this)->next; iter != NULL; iter = (previous = iter)->next)

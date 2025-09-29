@@ -220,7 +220,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
     int lower = alpha;
     int upper = beta;
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     
     const unsigned long long  hash_code = board.hashcode();
     
@@ -394,11 +394,12 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
 int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& board, const bool pv, int alpha, const int beta, const bool passed)
 {
     
+
     if (board.n_empty < EG_MEDIUM_TO_SHALLOW)
         return EG_alphabeta_hash_mobility(threadID, board, pv, alpha, beta, passed);
 
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     int lower = alpha;
     int upper = beta;
     
@@ -613,7 +614,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
     
     RXBitBoard& board = sBoard.board;
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     int lower = alpha;
     int upper = beta;
     
@@ -995,13 +996,12 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     int lower = alpha;
     int upper = beta;
     
     
     RXBitBoard& board = sBoard.board;
-    
     
     //synchronized acces
     RXHashValue entry;
@@ -1070,6 +1070,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         
         if(hTable->get(hash_code, type_hashtable, entry))
             bestmove = entry.move;
+
     }
     
     
@@ -1516,8 +1517,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
 
     RXBitBoard& board = sBoard.board;
     
-    
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     
     
     //synchronized acces
@@ -1875,7 +1875,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
     
     RXMove* iter = list->next;
     
-    int bestmove = iter->position;
+    unsigned int bestmove = iter->position;
     
     RXBitBoard& board = sBoard.board;
     

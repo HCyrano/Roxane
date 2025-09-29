@@ -264,7 +264,7 @@ class RXEngine: public Runnable, public RXHelper {
     std::string variationPrincipal(RXBitBoard& sBoard, int depth) const;
     std::string showPV(RXBitBoard& board, int depthLine) const;
     std::string showHashmove(const RXBitBoard& board, RXHashValue& entry) const;
-    std::string showBestmove(const int depth, const int selectivity, const int alpha, const int beta, const int score, const int bestmove) const;
+    std::string showBestmove(const int depth, const int selectivity, const int alpha, const int beta, const int score, const unsigned int bestmove) const;
     std::string display(RXBitBoard& board, const int type, const int allowed_display = 0, int score = 0, const int time = 0, const int time_level = 0);
     
     
@@ -376,7 +376,7 @@ class RXEngine: public Runnable, public RXHelper {
     bool thread_should_stop(unsigned int threadID);
     
     bool split(	RXBBPatterns& sBoard, bool pv, int pvDev, 
-               int depth, int selectivity, int alpha, int beta, int& bestscore, int& bestmove,
+               int depth, int selectivity, int alpha, int beta, int& bestscore, unsigned int& bestmove,
                RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback);
     
     

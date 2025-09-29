@@ -428,7 +428,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         list1 = list;
         
-        int bestmove = list1->next->position;
+        unsigned int bestmove = list1->next->position;
         bestscore = UNDEF_SCORE;
         
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
@@ -523,7 +523,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
     const unsigned long long  hash_code = board.hashcode();
     //hTable_shallow->entry_prefetch(hash_code);
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     
     int upper = beta;
     int lower = alpha;
@@ -724,7 +724,7 @@ int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns
     //hTable_shallow->entry_prefetch(hash_code);
     
     
-    int bestmove = NOMOVE;
+    unsigned int bestmove = NOMOVE;
     
     int upper = beta;
     int lower = alpha;
@@ -1033,7 +1033,7 @@ std::string RXEngine::showHashmove(const RXBitBoard& board, RXHashValue& entry) 
     
 }
 
-std::string RXEngine::showBestmove(const int depth, const int selectivity, const int alpha, const int beta, const int score, const int bestmove) const {
+std::string RXEngine::showBestmove(const int depth, const int selectivity, const int alpha, const int beta, const int score, const unsigned int bestmove) const {
     
     std::ostringstream buffer;
     
@@ -2180,7 +2180,7 @@ bool RXEngine::thread_is_available(unsigned int slave, unsigned int master) {
 
 
 bool RXEngine::split(RXBBPatterns& sBoard, bool pv, int pvDev,
-                     int depth, int selectivity, int alpha, int beta, int& bestscore, int& bestmove,
+                     int depth, int selectivity, int alpha, int beta, int& bestscore, unsigned int& bestmove,
                      RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback) {
     
     
