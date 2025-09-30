@@ -86,7 +86,7 @@ class RXHashRecord {
 	
 	public :
 		unsigned long long lock;
-		unsigned long long packed;
+        unsigned long long packed;
 	
 	unsigned char get_move() const {
 		return static_cast<unsigned char>((packed>>32) & 0x00000000000000FFULL);

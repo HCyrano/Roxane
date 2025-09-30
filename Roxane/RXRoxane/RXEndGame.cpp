@@ -259,8 +259,9 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
             }
             
             //04/02/2025
-            bestmove = entry.move;
-            
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
+
         }
     }
     
@@ -360,10 +361,8 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
     //if PASS
     if (bestscore == UNDEF_SCORE) {
         if (passed) {
-            bestscore = board.final_score();
-            alpha = -(upper = +MAX_SCORE);
-            bestmove = NOMOVE;
-        } else {
+            return board.final_score();
+         } else {
             board.do_pass();
             bestscore = -EG_alphabeta_hash_mobility(threadID, board, pv, -upper, -lower, true);
             board.do_pass();
@@ -372,6 +371,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
     }
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
+    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     
     return bestscore;
@@ -451,8 +451,9 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
             }
             
             //04/02/2025
-            bestmove = entry.move;
-            
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
+
         }
     }
     
@@ -571,9 +572,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
     
     if (bestscore == UNDEF_SCORE) {
         if (passed) {
-            bestscore = board.final_score();
-            alpha = -(upper = +MAX_SCORE);
-            bestmove = NOMOVE;
+            return board.final_score();
         } else {
             board.do_pass();
             bestscore = -EG_PVS_hash_mobility(threadID, board, pv, -upper, -lower, true);
@@ -583,6 +582,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
     }
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
+    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     
     return bestscore;
@@ -641,8 +641,9 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
             
         }
         
-        bestmove = entry.move;
-        
+        if(board.isValid_square(entry.move))
+            bestmove = entry.move;
+
     }
     
 #ifdef USE_STABILITY
@@ -771,9 +772,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
     
     if (list->next == NULL) {
         if (passed) {
-            bestscore = board.final_score();
-            alpha = -(upper = +MAX_SCORE);
-            bestmove = NOMOVE;
+            return board.final_score();
         } else {
             board.do_pass();
             bestscore = -EG_PVS_ETC_mobility(threadID, sBoard, pv, -upper, -lower, true);
@@ -889,6 +888,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
         return INTERRUPT_SEARCH;
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
+    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     
     
@@ -1027,8 +1027,9 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
         }
         
-        bestmove = entry.move;
-        
+        if(board.isValid_square(entry.move))
+            bestmove = entry.move;
+
     }
     
 #ifdef USE_STABILITY
@@ -1068,8 +1069,10 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         if(abort.load() || thread_should_stop(threadID))
             return INTERRUPT_SEARCH;
         
-        if(hTable->get(hash_code, type_hashtable, entry))
+        if(hTable->get(hash_code, type_hashtable, entry)) {
             bestmove = entry.move;
+            board.isValid_square(entry.move);
+        }
 
     }
     
@@ -1169,9 +1172,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     if (list->next == NULL) {
         if (passed) {
-            bestscore = board.final_score();
-            alpha = -(upper = +MAX_SCORE);
-            bestmove = NOMOVE;
+            return board.final_score();
         } else {
             board.do_pass();
             bestscore = -EG_PVS_deep(threadID, sBoard, pv, selectivity, -upper, -lower, true);
@@ -1398,6 +1399,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(abort  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
+    board.isValid_square(bestmove);
     hTable->update(   hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     hTable_PV->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
             
@@ -1533,8 +1535,9 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
             if(entry.upper <= alpha)
                 return  entry.upper;
             
-            bestmove = entry.move;
-            
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
+
         }
         
         
@@ -1682,9 +1685,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(list->next == NULL) {
         //PASS
         if(passed) {
-            bestscore = board.final_score();
-            hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, -MAX_SCORE, MAX_SCORE,  bestscore, bestmove);
-            return bestscore;
+            return board.final_score();
         } else {
             board.do_pass();
             bestscore = -EG_NWS_XEndCut(threadID, sBoard, pvDev, selectivity, -alpha-1, true);
@@ -1763,6 +1764,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
+    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, (board.n_empty<MIN_DEPTH_USE_ENDCUT ? NO_SELECT: selectivity), DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
     if(pvDev < 4)
         hTable_PV->update(hash_code, type_hashtable, (board.n_empty<MIN_DEPTH_USE_ENDCUT ? NO_SELECT: selectivity), DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
@@ -2042,7 +2044,7 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
         
         //        *log << "                  [score " << bestscore << " ]" << std::endl;
         
-        
+        board.isValid_square(bestmove);
         hTable->update(sBoard.board.hashcode(), type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
         
         

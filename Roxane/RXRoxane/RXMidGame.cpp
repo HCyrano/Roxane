@@ -311,7 +311,7 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alp
         list->next->depth = depth;
         
         
-        
+        sBoard.board.isValid_square(bestmove);
         hTable->update(sBoard.board.hashcode(), type_hashtable, MG_SELECT, depth, alpha, upper, bestscore, bestmove);
         
         
@@ -478,7 +478,8 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
         }
         
-        bestmove = entry.move;
+        if(board.isValid_square(entry.move))
+            bestmove = entry.move;
     }
     
     // IID
@@ -489,8 +490,10 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         if(abort.load() || thread_should_stop(threadID))
             return INTERRUPT_SEARCH;
         
-        if(hTable->get(hash_code, type_hashtable, entry))
-            bestmove = entry.move;
+        if(hTable->get(hash_code, type_hashtable, entry)){
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
+        }
 
     }
     
@@ -568,9 +571,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if (list->next == NULL) {
         
         if (passed) {
-            bestscore = sBoard.final_score();
-            alpha = -(upper = +MAX_SCORE);
-            bestmove = NOMOVE;
+           return sBoard.final_score();
         } else {
             board.do_pass();
             
@@ -797,6 +798,8 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
+    board.isValid_square(bestmove);
+    
     hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
     hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
 
@@ -931,7 +934,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
         } else {
             
             if(passed) {
-                bestscore = sBoard.final_score();
+                return sBoard.final_score();
             } else {
                 board.do_pass();
                 
@@ -985,8 +988,9 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                 
             }
             //modification 17/03/2025
-            bestmove = entry.move;
-            
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
+
         }
         
     }
@@ -1080,10 +1084,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(bestscore == UNDEF_SCORE) {
         
         if(passed) {
-            alpha = -MAX_SCORE;
-            upper = MAX_SCORE;
-            bestmove = NOMOVE;
-            bestscore = sBoard.final_score();
+            return sBoard.final_score();
         } else {
             board.do_pass();
             
@@ -1096,6 +1097,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     }
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
+    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     
     return bestscore;
@@ -1126,7 +1128,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     RXHashValue entry;
     const unsigned long long hash_code = board.hashcode();
     if(hTable->get(hash_code, type_hashtable, entry)) {
-        
+                
         if(entry.depth >= depth) {
             
             if(entry.lower > alpha)
@@ -1138,7 +1140,9 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         }
         
         //if(entry.depth >= depth-2)
-        bestmove = entry.move;
+        if(board.isValid_square(entry.move))
+            bestmove = entry.move;
+
 
     }
     
@@ -1241,9 +1245,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(list->next == NULL) {
         //PASS
         if(passed) {
-            bestscore = sBoard.final_score();
-            hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, -MAX_SCORE, MAX_SCORE,  bestscore, bestmove);
-            return bestscore;
+            return sBoard.final_score();
         } else {
             board.do_pass();
             if(depth > DEPTH_4) {
@@ -1324,6 +1326,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
+    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);
     if(pvDev < 4)
         hTable_PV->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);

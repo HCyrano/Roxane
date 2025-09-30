@@ -218,6 +218,7 @@ void generate_flips_##pos(RXMove& move) const \
     /* DEBUG */
     void print_empties_list() const;
     //void check_empties_list() const;
+    bool isValid_square(const unsigned int pos) const;
     static void print_64bits(unsigned long long n);
     void print_Board();
     static void print_Board(unsigned long long P, unsigned long long O);

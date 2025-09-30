@@ -30,7 +30,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.18f, 1.40f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.18f, 1.40f, 1.70f, 2.25f, 2.90f}; // vs 1.18f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -345,6 +345,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     return false;
                 
                 if(bestscore >= upper_probcut) { //beta cut
+                    board.isValid_square(list1->position);
                     
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, list1->position);
                     return BETA_CUT;
@@ -413,6 +414,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     return false;
                 
                 if(bestscore >= upper_probcut) { //beta cut
+                    
+                    board.isValid_square(iter->position);
                     
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, iter->position);
                     return BETA_CUT;
@@ -494,6 +497,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 
                 if(bestscore >= lower_probcut) { //no cut
                     list->sort_bestmove(bestmove);
+                    board.isValid_square(bestmove);
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
                     return NO_CUT;
                 }
@@ -501,6 +505,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             
         }
         
+        board.isValid_square(bestmove);
         hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
         return ALPHA_CUT;
         
@@ -546,8 +551,9 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
                     return lower;
             }
             
-            bestmove = entry.move;
-            
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
+
         }
         
     }
@@ -696,10 +702,7 @@ int RXEngine::PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, in
     if(bestscore == UNDEF_SCORE) {
         
         if(passed) {
-            alpha = -MAX_SCORE;
-            upper = MAX_SCORE;
-            bestmove = NOMOVE;
-            bestscore = sBoard.final_score();
+            return sBoard.final_score();
         } else {
             board.do_pass();
             bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper, -lower, true);
@@ -749,7 +752,8 @@ int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns
         
         //}
         
-        bestmove = entry.move;
+        if(board.isValid_square(entry.move))
+            bestmove = entry.move;
     }
     
     int bestscore = UNDEF_SCORE;
@@ -810,10 +814,7 @@ int RXEngine::alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns
     if(bestscore == UNDEF_SCORE) {
         
         if(passed) {
-            alpha = -MAX_SCORE;
-            upper = MAX_SCORE;
-            bestmove = NOMOVE;
-            bestscore = sBoard.final_score();
+            return sBoard.final_score();
         } else {
             board.do_pass();
             bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper, -lower, true);

@@ -488,20 +488,8 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
 #else
     //polynome 3d
     
-/*
-    
-    //30/08/2025 17h00
-    // vs old W48 d118 l30 s8r14 2:00
-    // vs old w78 d161 l67 s8r14 1:00
-    constexpr double probcut_a = -0.005276195509351943;
-    constexpr double probcut_b = -0.06523227752783285;
-    constexpr double probcut_c = 0.017869951091107956;
-    constexpr double probcut_d = 5.459044715758133;
-    constexpr double probcut_e = 12.372056099913866;
-    constexpr double probcut_f = 10.740820129014457;
-    constexpr double probcut_g = 6.6385384568814185;
-*/
-    
+
+    // version tournoi 4/10
     constexpr double probcut_a = -0.014381959995662148;
     constexpr double probcut_b = -0.09882099283301328;
     constexpr double probcut_c = 0.03816042530959542;
@@ -509,7 +497,7 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
     constexpr double probcut_e = 3.5852308959117525;
     constexpr double probcut_f = 5.577830899332952;
     constexpr double probcut_g = 6.2667691065340465;
-    
+
     sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     

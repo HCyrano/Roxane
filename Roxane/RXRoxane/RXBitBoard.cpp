@@ -806,6 +806,93 @@ void RXBitBoard::print_empties_list() const {
 	std::cout << std::endl;
 }
 
+bool RXBitBoard::isValid_square(const unsigned int pos) const {
+    
+    if(pos != PASS) {
+        
+        if(pos < 64) {
+            
+            static const unsigned long long MASK_LEFT  = 0xfefefefefefefefeULL;
+            static const unsigned long long MASK_RIGHT = 0x7f7f7f7f7f7f7f7fULL;
+            
+            const unsigned long long square = 0x1ULL<<pos;
+            
+            const unsigned long long p_discs = discs[player];
+            const unsigned long long o_discs = discs[player^1];
+            
+            
+            if ((p_discs | o_discs) & square) return false; // case occupée
+            
+            
+            unsigned long long x;
+            
+            // ---- Est (→)
+            x = (square << 1) & MASK_LEFT & o_discs;
+            x |= (x << 1) & MASK_LEFT & o_discs;
+            x |= (x << 2) & MASK_LEFT & o_discs;
+            x |= (x << 4) & MASK_LEFT & o_discs;
+            if ((x << 1) & MASK_LEFT & p_discs) return true;
+            
+            // ---- Ouest (←)
+            x = (square >> 1) & MASK_RIGHT & o_discs;
+            x |= (x >> 1) & MASK_RIGHT & o_discs;
+            x |= (x >> 2) & MASK_RIGHT & o_discs;
+            x |= (x >> 4) & MASK_RIGHT & o_discs;
+            if ((x >> 1) & MASK_RIGHT & p_discs) return true;
+            
+            // ---- Nord (↑)
+            x = (square >> 8) & o_discs;
+            x |= (x >> 8) & o_discs;
+            x |= (x >> 16) & o_discs;
+            x |= (x >> 32) & o_discs;
+            if ((x >> 8) & p_discs) return true;
+            
+            // ---- Sud (↓)
+            x = (square << 8) & o_discs;
+            x |= (x << 8) & o_discs;
+            x |= (x << 16) & o_discs;
+            x |= (x << 32) & o_discs;
+            if ((x << 8) & p_discs) return true;
+            
+            // ---- Nord-Est (↗)
+            x = (square >> 7) & MASK_LEFT & o_discs;
+            x |= (x >> 7) & MASK_LEFT & o_discs;
+            x |= (x >> 14) & MASK_LEFT & o_discs;
+            x |= (x >> 28) & MASK_LEFT & o_discs;
+            if ((x >> 7) & MASK_LEFT & p_discs) return true;
+            
+            // ---- Nord-Ouest (↖)
+            x = (square >> 9) & MASK_RIGHT & o_discs;
+            x |= (x >> 9) & MASK_RIGHT & o_discs;
+            x |= (x >> 18) & MASK_RIGHT & o_discs;
+            x |= (x >> 36) & MASK_RIGHT & o_discs;
+            if ((x >> 9) & MASK_RIGHT & p_discs) return true;
+            
+            // ---- Sud-Est (↘)
+            x = (square << 9) & MASK_LEFT & o_discs;
+            x |= (x << 9) & MASK_LEFT & o_discs;
+            x |= (x << 18) & MASK_LEFT & o_discs;
+            x |= (x << 36) & MASK_LEFT & o_discs;
+            if ((x << 9) & MASK_LEFT & p_discs) return true;
+            
+            // ---- Sud-Ouest (↙)
+            x = (square << 7) & MASK_RIGHT & o_discs;
+            x |= (x << 7) & MASK_RIGHT & o_discs;
+            x |= (x << 14) & MASK_RIGHT & o_discs;
+            x |= (x << 28) & MASK_RIGHT & o_discs;
+            if ((x << 7) & MASK_RIGHT & p_discs) return true;
+        }
+        
+    } else {
+        
+        if(get_legal_moves())
+            return false;
+
+    }
+    
+    return false;
+}
+
 /*
 void RXBitBoard::check_empties_list() const {
     RXSquareList *empties = empties_list->next;
