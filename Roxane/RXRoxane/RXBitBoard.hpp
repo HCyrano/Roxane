@@ -187,6 +187,11 @@ void generate_flips_##pos(RXMove& move) const \
     inline unsigned long long get_legal_moves() const;
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
+    bool isValid_square(const unsigned int pos) const;
+    static bool dir_valid_shl(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask);
+    static bool dir_valid_shr(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask);
+
+    
     static int count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs);
     
     
@@ -218,7 +223,6 @@ void generate_flips_##pos(RXMove& move) const \
     /* DEBUG */
     void print_empties_list() const;
     //void check_empties_list() const;
-    bool isValid_square(const unsigned int pos) const;
     static void print_64bits(unsigned long long n);
     void print_Board();
     static void print_Board(unsigned long long P, unsigned long long O);
@@ -1084,7 +1088,9 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
 }
 
 
-inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) const {
+
+
+inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) {
     
     unsigned long long flipped;
     unsigned long long n_player;
@@ -1245,6 +1251,29 @@ inline int RXBitBoard::final_score_2(const unsigned long long discs_player, cons
     return bestscore;
 }
 #endif
+
+inline bool RXBitBoard::dir_valid_shl(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask) {
+    
+    unsigned long long x;
+    
+    x = (square << shift) & mask & o_discs;
+    x |= (x << shift) & mask & o_discs;
+    x |= (x << (2 * shift)) & mask & o_discs;
+    x |= (x << (4 * shift)) & mask & o_discs;
+    return (x << shift) & mask & p_discs;
+}
+
+inline bool RXBitBoard::dir_valid_shr(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask) {
+    
+    unsigned long long x;
+    
+    x = (square >> shift) & mask & o_discs;
+    x |= (x >> shift) & mask & o_discs;
+    x |= (x >> (2 * shift)) & mask & o_discs;
+    x |= (x >> (4 * shift)) & mask & o_discs;
+    return (x >> shift) & mask & p_discs;
+}
+
 
 
 inline int RXBitBoard::final_score_3(int alpha, const int beta) const {

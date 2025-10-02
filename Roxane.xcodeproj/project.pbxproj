@@ -118,7 +118,6 @@
 		371D4D612D1EBFBA0072E829 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				37BF368B2E266CBC0029C7F6 /* Roxane */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,6 +178,7 @@
 				372326FF2D1FF69D002CFAF4 /* RXHashShallow.cpp */,
 				372327042D1FF69D002CFAF4 /* RXMove.hpp */,
 				372327052D1FF69D002CFAF4 /* RXMove.cpp */,
+				37BF368B2E266CBC0029C7F6 /* Roxane */,
 			);
 			path = RXRoxane;
 			sourceTree = "<group>";
