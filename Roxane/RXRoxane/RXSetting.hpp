@@ -14,11 +14,8 @@
 #define NEW_EVAL //-h 18 -t 1 fforum-40-59 -5% midgame-1-10
 #endif
 
-/*
- Matchs avec / sans alpha_cut
- 91/157/49 [297]
- #define USE_PROBCUT_ALPHA
- */
+//Matchs avec / sans alpha_cut 91/157/49 [297]
+//#define USE_PROBCUT_ALPHA
 
 #define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
 
@@ -51,7 +48,7 @@
 
 
 //generate resultat file
-#define GENERATE_RES_FILE
+//#define GENERATE_RES_FILE
 
 
 // type of window probcut

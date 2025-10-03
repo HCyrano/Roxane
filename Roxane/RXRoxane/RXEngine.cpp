@@ -30,7 +30,7 @@ const int RXEngine::GGS_MSG = 5;
 #ifdef __ARM_ACLE
 //M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.18f, 1.40f, 1.70f, 2.25f, 2.85f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.30f, 1.60f, 2.15f, 2.70f}; // vs 1.18f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -138,16 +138,16 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
                 int lower_probcut = -MAX_SCORE;
                 int upper_probcut =  MAX_SCORE;
                 
+                int sigma;
                 
                 if(endgame)
-                    probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-1), board.n_empty, (8+(board.n_empty & 0x1UL)), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                    sigma = probcut_bounds(board, std::max(EG_HIGH_SELECT, selectivity-1), board.n_empty, (8+(board.n_empty & 0x1UL)), 0, alpha, beta, lower_probcut, upper_probcut);
                 else
-                    probcut_bounds(board, MG_SELECT, depth, std::min(depth-2, (6 - (depth & 1))), 0, (alpha+beta)/2, lower_probcut, upper_probcut);
+                    sigma = probcut_bounds(board, MG_SELECT, depth, std::min(depth-2, (6 - (depth & 1))), 0, alpha, beta, lower_probcut, upper_probcut);
                 
-                int sigma = (upper_probcut-lower_probcut)/2;
                 
-                lower_probcut = std::max(static_cast<int>(-MAX_SCORE), alpha-2*sigma);
-                upper_probcut = std::min(static_cast<int>( MAX_SCORE), beta +2*sigma);
+                lower_probcut = std::max(static_cast<int>(-MAX_SCORE), alpha-3*sigma);
+                upper_probcut = std::min(static_cast<int>( MAX_SCORE), beta +3*sigma);
                 
                 
                 for(; iter != NULL; iter = iter->next) {

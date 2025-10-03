@@ -269,7 +269,7 @@ class RXEngine: public Runnable, public RXHelper {
     
     
     
-    void probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth, const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const;
+    int probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth, const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const;
     
     void sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
     
@@ -458,7 +458,7 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
-inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int pivot, int& lower_bound, int& upper_bound) const {
+inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const {
 
     double sigma;
     
@@ -504,12 +504,13 @@ inline void RXEngine::probcut_bounds(const RXBitBoard& board, const int selectiv
 #endif
     
     double coeff_pv = std::max(0.90f, (109-3*pvDev)/100.0f);
-    double coeff_score = 0.95f + std::abs(pivot)/256.0f;
         
-    sigma = std::round(sigma * coeff_pv *  coeff_score * PERCENTILE[selectivity]);
+    int eval_error = std::round(sigma * coeff_pv * PERCENTILE[selectivity]);
 
-    lower_bound = std::max(-MAX_SCORE, pivot - static_cast<int>(sigma));    //(bug limit 23/10/2008)
-    upper_bound = std::min(+MAX_SCORE, pivot + static_cast<int>(sigma));    //(bug limit 23/10/2008)
+    lower_bound = std::max(-MAX_SCORE, alpha - eval_error);    //(bug limit 23/10/2008)
+    upper_bound = std::min(+MAX_SCORE, beta  + eval_error);    //(bug limit 23/10/2008)
+    
+    return sigma;
 
 }
 
