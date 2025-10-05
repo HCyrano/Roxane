@@ -311,7 +311,6 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alp
         list->next->depth = depth;
         
         
-        sBoard.board.isValid_square(bestmove);
         hTable->update(sBoard.board.hashcode(), type_hashtable, MG_SELECT, depth, alpha, upper, bestscore, bestmove);
         
         
@@ -603,7 +602,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             if(bestscore > lower)
                 lower = bestscore;
-            
+                        
         }
         
         if(lower < upper) {
@@ -794,12 +793,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     //interrupt search
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
-    
-    board.isValid_square(bestmove);
-    
+        
     hTable->update(   hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
     hTable_PV->update(hash_code, type_hashtable, selectivity, depth, alpha, upper,  bestscore, bestmove);
-
     
     return bestscore;
     
@@ -1093,8 +1089,8 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
         }
     }
     
+    
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, depth, alpha, upper,  bestscore, bestmove);
     
     return bestscore;
@@ -1322,7 +1318,6 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);
     if(pvDev < 4)
         hTable_PV->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);

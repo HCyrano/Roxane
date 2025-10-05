@@ -371,7 +371,6 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
     }
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     
     return bestscore;
@@ -582,7 +581,6 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
     }
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     
     return bestscore;
@@ -888,7 +886,6 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
         return INTERRUPT_SEARCH;
     
     //en test 21/01/2025 suspision bug (bestscore >= upper mais stocker comme < beta)
-    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, NO_SELECT, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     
     
@@ -1399,7 +1396,6 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(abort  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    board.isValid_square(bestmove);
     hTable->update(   hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
     hTable_PV->update(hash_code, type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
             
@@ -1558,7 +1554,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     int lower_probcut, upper_probcut;
     int probcut_depth = (board.n_empty/4)*2 + (board.n_empty & 0x1UL);
     probcut_bounds(board, selectivity, board.n_empty, probcut_depth, pvDev, alpha, alpha+1, lower_probcut, upper_probcut);
-    
+
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {
         
         if(entry.lower >= upper_probcut) {
@@ -1571,7 +1567,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
 #endif
         
     }
-    
+
     
     RXMove* list = threads[threadID]._move[board.n_empty];
     list->next = NULL;
@@ -1764,7 +1760,6 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    board.isValid_square(bestmove);
     hTable->update(hash_code, type_hashtable, (board.n_empty<MIN_DEPTH_USE_ENDCUT ? NO_SELECT: selectivity), DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
     if(pvDev < 4)
         hTable_PV->update(hash_code, type_hashtable, (board.n_empty<MIN_DEPTH_USE_ENDCUT ? NO_SELECT: selectivity), DEPTH_BOOSTER+board.n_empty, alpha, bestscore, bestmove);
@@ -2044,7 +2039,6 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
         
         //        *log << "                  [score " << bestscore << " ]" << std::endl;
         
-        board.isValid_square(bestmove);
         hTable->update(sBoard.board.hashcode(), type_hashtable, selectivity, DEPTH_BOOSTER+board.n_empty, alpha, upper, bestscore, bestmove);
         
         

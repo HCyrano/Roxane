@@ -283,7 +283,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     RXMove* list1 = list;
     
-    int half_sigma = (upper_probcut - lower_probcut)/4; // upper_probcut - lower_probcut == 2*sigma (always even)
+    int half_sigma = (upper_probcut - lower_probcut-1)/4; // (upper_probcut - lower_probcut-1 ) == 2*sigma (always even)
     
     if(hashMove) {
         
@@ -306,7 +306,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     if(legal_movesBB) {
                         
                         RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
-                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
+                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 <= -upper_probcut && empties->position != NOMOVE; empties = empties->next)
                             if(legal_movesBB & 0x1ULL<<empties->position) {
                                 ((board).*(board.generate_flips[empties->position]))(lastMove);
                                 ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
@@ -345,7 +345,6 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     return false;
                 
                 if(bestscore >= upper_probcut) { //beta cut
-                    board.isValid_square(list1->position);
                     
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, list1->position);
                     return BETA_CUT;
@@ -373,7 +372,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     if(legal_movesBB) {
                         
                         RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
-                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 < -upper_probcut && empties->position != NOMOVE; empties = empties->next)
+                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 <= -upper_probcut && empties->position != NOMOVE; empties = empties->next)
                             if(legal_movesBB & 0x1ULL<<empties->position) {
                                 ((board).*(board.generate_flips[empties->position]))(lastMove);
                                 ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
@@ -415,8 +414,6 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 
                 if(bestscore >= upper_probcut) { //beta cut
                     
-                    board.isValid_square(iter->position);
-                    
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, iter->position);
                     return BETA_CUT;
                 }
@@ -427,7 +424,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
 #ifdef USE_PROBCUT_ALPHA
     
-    if(/*(type_search == RXEngine::MIDGAME  || selectivity <= NO_SELECT-3) &&*/ static_eval < upper_probcut+half_sigma) {
+    if( static_eval < upper_probcut+half_sigma) {
         
         list1 = list;
         
@@ -436,8 +433,10 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
-            if(-sBoard.get_score(*iter) <= (lower_probcut - half_sigma))
+            
+            if(sBoard.get_score(*iter) > -(lower_probcut - half_sigma))
                 continue;
+            
             
             sBoard.do_move(*iter);
             
@@ -495,9 +494,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 bestmove = iter->position;
                 bestscore = iter->score;
                 
-                if(bestscore >= lower_probcut) { //no cut
-                    list->sort_bestmove(bestmove);
-                    board.isValid_square(bestmove);
+                if(bestscore > lower_probcut) { //no cut
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
                     return NO_CUT;
                 }
@@ -505,8 +502,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             
         }
         
-        board.isValid_square(bestmove);
-        hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
+        if(bestscore != UNDEF_SCORE)
+            hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, lower_probcut, bestscore, bestmove);
         return ALPHA_CUT;
         
         
