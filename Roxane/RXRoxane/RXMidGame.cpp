@@ -1163,15 +1163,15 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     
     if(bestmove != PASS) {
         
-//        if(depth > (bestmove == NOMOVE ? 8 : 6)) {
+        if(depth > (bestmove == NOMOVE ? 8 : 6)) {
         //If no entry is found in the transposition table, the next move is also unlikely to be stored.
-        if(bestmove != NOMOVE) {
+        //if(bestmove != NOMOVE) {
 
             RXMove* move = list + 1;
             RXMove* previous = list;
             
             //ENHANCED TRANSPOSITION CUTOFF
-//            if(bestmove != NOMOVE) {
+            if(bestmove != NOMOVE) {
                 
                 ((board).*(board.generate_flips[bestmove]))(*move);
                 ++board.n_nodes;
@@ -1188,11 +1188,11 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                 
                 previous = previous->next = move++;
                 
-//            }
+            }
             
             //for all empty square
             unsigned long long legal_movesBB = board.get_legal_moves();
-//            if(bestmove != NOMOVE)
+            if(bestmove != NOMOVE)
                 legal_movesBB ^= 0x1ULL<<bestmove;
             
             for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next)
