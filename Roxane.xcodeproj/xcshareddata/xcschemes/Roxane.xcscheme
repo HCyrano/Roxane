@@ -81,11 +81,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/endgame_24_26_30.script"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.src"
-            isEnabled = "NO">
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.obf"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-59.src"

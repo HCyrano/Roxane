@@ -105,4 +105,5 @@ commandes/
 # ignorer le dossier bug
 bug/
 
-
+# ignorer le dossier probcut
+probcut/
