@@ -28,7 +28,6 @@ const int RXEngine::INTERRUPT = 4;
 const int RXEngine::GGS_MSG = 5;
 
 #ifdef __ARM_ACLE
-//M3 pro
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,   100}; // 99
 const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.30f, 1.60f, 2.15f, 2.70f}; // vs 1.18f
 #else
@@ -277,13 +276,13 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     RXBitBoard& board = sBoard.board;
     
-    int static_eval = sBoard.get_score();
+//    int static_eval = sBoard.get_score();
     
     int bestscore = UNDEF_SCORE;
     
     RXMove* list1 = list;
     
-    int half_sigma = (upper_probcut - lower_probcut-1)/4; // (upper_probcut - lower_probcut-1 ) == 2*sigma (always even)
+//    int half_sigma = (upper_probcut - lower_probcut-1)/4; // (upper_probcut - lower_probcut-1 ) == 2*sigma (always even)
     
     if(hashMove) {
         
@@ -291,10 +290,9 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         
-        if(static_eval>(lower_probcut-half_sigma)) {
+//       if(static_eval>(lower_probcut-half_sigma)) {
             
-            
-            if(sBoard.get_score(*list1)<-(upper_probcut+half_sigma)) {
+//            if(sBoard.get_score(*list1)<-(upper_probcut+half_sigma)) {
                 
                 sBoard.do_move(*list1);
                 
@@ -349,18 +347,18 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, list1->position);
                     return BETA_CUT;
                 }
-            }
-        }
+//            }
+//       }
     }
     
     sort_moves(threadID, endgame, sBoard, depth, selectivity, lower_probcut, upper_probcut, list1);
     
-    if(static_eval>(lower_probcut-half_sigma)) {
+//    if(static_eval>(lower_probcut-half_sigma)) {
         
         //beta prob cut
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
-             if(sBoard.get_score(*iter)<-(upper_probcut+half_sigma)) {
+//             if(sBoard.get_score(*iter)<-(upper_probcut+half_sigma)) {
                 
                 sBoard.do_move(*iter);
                 
@@ -417,10 +415,10 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                     hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, iter->position);
                     return BETA_CUT;
                 }
-            }
+ //           }
             
         }
-    }
+ //   }
     
 #ifdef USE_PROBCUT_ALPHA
     
