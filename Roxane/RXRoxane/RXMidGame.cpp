@@ -1263,7 +1263,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
 #endif
         
         //interrupt search
-        if(abort.load() || thread_should_stop(threadID))
+        if(type_probcut == INTERRUPT_SEARCH)
             return INTERRUPT_SEARCH;
         
         

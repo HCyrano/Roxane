@@ -220,7 +220,6 @@ class RXEngine: public Runnable, public RXHelper {
     
     
     RXBBPatterns search_sBoard;
-    int root_player;
     unsigned long long hash_code_search;
     
     RXBestMove best_answer;
@@ -510,7 +509,7 @@ inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivi
     lower_bound = std::max(-MAX_SCORE, alpha - eval_error);
     upper_bound = std::min(+MAX_SCORE, beta  + eval_error);
     
-    return sigma;
+    return eval_error;
 
 }
 
