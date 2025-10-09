@@ -267,7 +267,7 @@ class RXEngine: public Runnable, public RXHelper {
     std::string display(RXBitBoard& board, const int type, const int allowed_display = 0, int score = 0, const int time = 0, const int time_level = 0);
     
     
-    
+    inline double sigma(const int n_empty, const int depth, const int probcut_depth) const;
     int probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth, const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const;
     
     void sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
@@ -457,8 +457,8 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
-inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const {
-
+inline double RXEngine::sigma(const int n_empty, const int depth, const int probcut_depth) const {
+    
     double sigma;
     
 #ifdef PROBCUT_x2
@@ -481,7 +481,7 @@ inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivi
     constexpr double probcut_e = 0.5814835222336526;
     constexpr double probcut_f = 6.111673594083032;
 
-    sigma= probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
+    sigma= probcut_a * n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
 #else
@@ -497,14 +497,20 @@ inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivi
     constexpr double probcut_f = 5.577830899332952;
     constexpr double probcut_g = 6.2667691065340465;
 
-    sigma = probcut_a * board.n_empty + probcut_b * probcut_depth + probcut_c * depth;
+    sigma = probcut_a * n_empty + probcut_b * probcut_depth + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
 #endif
+
+    return sigma;
+    
+}
+
+inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int probcut_depth,  const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const {
     
     double coeff_pv = std::max(0.90f, (109-3*pvDev)/100.0f);
         
-    int eval_error = std::round(sigma * coeff_pv * PERCENTILE[selectivity]);
+    int eval_error = std::round(sigma(board.n_empty, depth, probcut_depth) * coeff_pv * PERCENTILE[selectivity]);
     
     lower_bound = std::max(-MAX_SCORE, alpha - eval_error);
     upper_bound = std::min(+MAX_SCORE, beta  + eval_error);

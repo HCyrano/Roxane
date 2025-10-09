@@ -272,7 +272,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
 
 int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int depth, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
     
-    constexpr int DEPTH_7 = 7;
+    constexpr int DEPTH_7 = 5;
     
     RXBitBoard& board = sBoard.board;
     
@@ -281,128 +281,142 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     RXMove* list1 = list;
     
     
-    if(hashMove) {
-        
+    int alpha = ((upper_probcut+lower_probcut)-1)/2;
+    int beta =  alpha+1;
+    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth*2, 1));
+    //int eval_error_1 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth*2, 1));
+
+    int eval_0 = sBoard.get_score();
+    
+    if(hashMove && eval_0 >= (beta - eval_error_0) && upper_probcut < 64) {
+
         list1= list->next ;
         
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         
-        
-        sBoard.do_move(*list1);
-        
-        if(depth == 2) {
+        if (-sBoard.get_score(*list1) >= (beta - eval_error_0)) {
             
-            int bestscore_1 = UNDEF_SCORE;
+            sBoard.do_move(*list1);
             
-            const unsigned long long legal_movesBB = board.get_legal_moves();
-            if(legal_movesBB) {
+            if(depth == 2) {
                 
-                RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
-                for(RXSquareList* empties = board.empties_list->next; bestscore_1 <= -upper_probcut && empties->position != NOMOVE; empties = empties->next)
-                    if(legal_movesBB & 0x1ULL<<empties->position) {
-                        ((board).*(board.generate_flips[empties->position]))(lastMove);
-                        ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                        
-                        ++board.n_nodes;
-                        
-                        int score= -sBoard.get_score(lastMove);
-                        if (score>bestscore_1)
-                            bestscore_1 = score;
-                        
-                    }
+                int bestscore_1 = UNDEF_SCORE;
                 
+                const unsigned long long legal_movesBB = board.get_legal_moves();
+                if(legal_movesBB) {
+                    
+                    RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
+                    for(RXSquareList* empties = board.empties_list->next; bestscore_1 <= -upper_probcut && empties->position != NOMOVE; empties = empties->next)
+                        if(legal_movesBB & 0x1ULL<<empties->position) {
+                            ((board).*(board.generate_flips[empties->position]))(lastMove);
+                            ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
+                            
+                            ++board.n_nodes;
+                            
+                            int score= -sBoard.get_score(lastMove);
+                            if (score>bestscore_1)
+                                bestscore_1 = score;
+                            
+                        }
+                    
+                } else {
+                    //PASS
+                    sBoard.board.do_pass();
+                    bestscore_1 = -sBoard.get_score();
+                    sBoard.board.do_pass();
+                }
+                
+                bestscore = -bestscore_1;
+                
+            } else if(depth == 3) {
+                bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
+            } else if(depth == 4) {
+                bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
+            } else if(depth <= DEPTH_7) {
+                bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
             } else {
-                //PASS
-                sBoard.board.do_pass();
-                bestscore_1 = -sBoard.get_score();
-                sBoard.board.do_pass();
+                bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
             }
             
-            bestscore = -bestscore_1;
+            sBoard.undo_move(*list1);
             
-        } else if(depth == 3) {
-            bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
-        } else if(depth == 4) {
-            bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
-        } else if(depth <= DEPTH_7) {
-            bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
-        } else {
-            bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
-        }
-        
-        sBoard.undo_move(*list1);
-        
-        //interrupt search
-        if(abort.load() || thread_should_stop(threadID))
-            return INTERRUPT_SEARCH;
-        
-        if(bestscore >= upper_probcut) { //beta cut
+            //interrupt search
+            if(abort.load() || thread_should_stop(threadID))
+                return INTERRUPT_SEARCH;
             
-            hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, list1->position);
-            return BETA_CUT;
+            if(bestscore >= upper_probcut) { //beta cut
+                
+                hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, list1->position);
+                return BETA_CUT;
+            }
         }
     }
     
     sort_moves(threadID, endgame, sBoard, depth, selectivity, lower_probcut, upper_probcut, list1);
-    
-    //beta prob cut
-    for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
+
+    if(eval_0 >= (beta - eval_error_0) && upper_probcut < 64) {
         
-        
-        sBoard.do_move(*iter);
-        
-        if(depth == 2) {
+        //beta prob cut
+        for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
-            int bestscore_1 = UNDEF_SCORE;
-            
-            const unsigned long long legal_movesBB = board.get_legal_moves();
-            if(legal_movesBB) {
+            if(-sBoard.get_score(*iter) >= (beta - eval_error_0)) {
                 
-                RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
-                for(RXSquareList* empties = board.empties_list->next; bestscore_1 <= -upper_probcut && empties->position != NOMOVE; empties = empties->next)
-                    if(legal_movesBB & 0x1ULL<<empties->position) {
-                        ((board).*(board.generate_flips[empties->position]))(lastMove);
-                        ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
-                        ++board.n_nodes;
+                sBoard.do_move(*iter);
+                
+                if(depth == 2) {
+                    
+                    int bestscore_1 = UNDEF_SCORE;
+                    
+                    const unsigned long long legal_movesBB = board.get_legal_moves();
+                    if(legal_movesBB) {
                         
+                        RXMove& lastMove = threads[threadID]._move[board.n_empty][1];
+                        for(RXSquareList* empties = board.empties_list->next; bestscore_1 <= -upper_probcut && empties->position != NOMOVE; empties = empties->next)
+                            if(legal_movesBB & 0x1ULL<<empties->position) {
+                                ((board).*(board.generate_flips[empties->position]))(lastMove);
+                                ((sBoard).*(sBoard.update_patterns[empties->position][board.player]))(lastMove);
+                                ++board.n_nodes;
+                                
+                                
+                                int score= -sBoard.get_score(lastMove);
+                                if (score> bestscore_1) {
+                                    bestscore_1 = score;
+                                }
+                                
+                                
+                            }
                         
-                        int score= -sBoard.get_score(lastMove);
-                        if (score> bestscore_1) {
-                            bestscore_1 = score;
-                        }
-                        
-                        
+                    } else {
+                        //PASS
+                        sBoard.board.do_pass();
+                        bestscore_1 = -sBoard.get_score();
+                        sBoard.board.do_pass();
                     }
+                    
+                    bestscore = -bestscore_1;
+                    
+                } else if(depth == 3) {
+                    bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
+                } else if(depth == 4) {
+                    bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
+                } else if(depth <= DEPTH_7) {
+                    bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
+                } else {
+                    bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
+                }
                 
-            } else {
-                //PASS
-                sBoard.board.do_pass();
-                bestscore_1 = -sBoard.get_score();
-                sBoard.board.do_pass();
+                sBoard.undo_move(*iter);
+                
+                //interrupt search
+                if(abort.load() || thread_should_stop(threadID))
+                    return INTERRUPT_SEARCH;
+                
+                if(bestscore >= upper_probcut) { //beta cut
+                    
+                    hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, iter->position);
+                    return BETA_CUT;
+                }
             }
-            
-            bestscore = -bestscore_1;
-            
-        } else if(depth == 3) {
-            bestscore = -alphabeta_last_two_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
-        } else if(depth == 4) {
-            bestscore = -alphabeta_last_three_ply(threadID, sBoard, -upper_probcut, -upper_probcut+1, false);
-        } else if(depth <= DEPTH_7) {
-            bestscore = -PVS_last_ply(threadID, sBoard, depth-1, -upper_probcut, -upper_probcut+1, false);
-        } else {
-            bestscore = -MG_NWS_XProbCut(threadID, sBoard, 0, selectivity, depth-1, -upper_probcut, false); // pvDev = 0
-        }
-        
-        sBoard.undo_move(*iter);
-        
-        //interrupt search
-        if(abort.load() || thread_should_stop(threadID))
-            return INTERRUPT_SEARCH;
-        
-        if(bestscore >= upper_probcut) { //beta cut
-            
-            hTable->update(board.hashcode(), type_hashtable, (depth>DEPTH_7? selectivity:NO_SELECT), depth, upper_probcut-1, bestscore, iter->position);
-            return BETA_CUT;
         }
     }
     
