@@ -1252,7 +1252,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     } else {
         
         //XProbcut
-        int type_probcut = probcut(threadID, false, sBoard, selectivity, probcut_depth, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
+        int type_probcut = probcut(threadID, false, sBoard, selectivity, alpha, depth, probcut_depth, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
         if(type_probcut == BETA_CUT) {
             return alpha + 1;
         }
@@ -1318,9 +1318,9 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     if(abort.load()  || thread_should_stop(threadID))
         return INTERRUPT_SEARCH;
     
-    hTable->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);
+     hTable->update(hash_code, type_hashtable, (depth > DEPTH_4? selectivity : NO_SELECT), depth, alpha, bestscore, bestmove);
     if(pvDev < 4)
-        hTable_PV->update(hash_code, type_hashtable, (depth > DEPTH_4? MG_SELECT : NO_SELECT), depth, alpha, bestscore, bestmove);
+        hTable_PV->update(hash_code, type_hashtable, (depth > DEPTH_4? selectivity : NO_SELECT), depth, alpha, bestscore, bestmove);
     
     return bestscore;
     

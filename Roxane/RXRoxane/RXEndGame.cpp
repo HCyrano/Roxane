@@ -1693,7 +1693,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     } else {
         
         //XProbcut
-        int type_probcut = probcut(threadID, true, sBoard, selectivity, probcut_depth, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
+        int type_probcut = probcut(threadID, true, sBoard, selectivity, alpha, board.n_empty, probcut_depth, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
         if( type_probcut == BETA_CUT) {
             return alpha + 1; //9/02/2025
         }
