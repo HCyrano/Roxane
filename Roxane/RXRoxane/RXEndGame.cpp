@@ -1552,10 +1552,10 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     
     //param mpc
     int lower_probcut, upper_probcut;
-    int probcut_depth = (board.n_empty/4)*2 + (board.n_empty & 0x1UL);
-    probcut_bounds(board, selectivity, board.n_empty, probcut_depth, pvDev, alpha, alpha+1, lower_probcut, upper_probcut);
+    int depth_probcut = (board.n_empty/4)*2 + (board.n_empty & 0x1UL);
+    probcut_bounds(board, selectivity, board.n_empty, depth_probcut, pvDev, alpha, alpha+1, lower_probcut, upper_probcut);
 
-    if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=probcut_depth) {
+    if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=depth_probcut) {
         
         if(entry.lower >= upper_probcut) {
             return alpha + 1; //9/02/2025
@@ -1693,7 +1693,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
     } else {
         
         //XProbcut
-        int type_probcut = probcut(threadID, true, sBoard, selectivity, alpha, board.n_empty, probcut_depth, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
+        int type_probcut = probcut(threadID, true, sBoard, selectivity, alpha, board.n_empty, depth_probcut, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
         if( type_probcut == BETA_CUT) {
             return alpha + 1; //9/02/2025
         }

@@ -282,7 +282,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     
     const int beta =  alpha+1;
-    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth & 1));
+    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth & 0x1UL));
 
     int eval_0 = sBoard.get_score();
     
@@ -362,7 +362,7 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
                 sBoard.do_move(*iter);
                 
                 if(depth_probcut == 2) {
-                    
+
                     int bestscore_1 = UNDEF_SCORE;
                     
                     const unsigned long long legal_movesBB = board.get_legal_moves();
@@ -417,11 +417,11 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             }
         }
     }
-    
+        
 #ifdef USE_PROBCUT_ALPHA
     
     if(eval_0 < (alpha + eval_error_0) && lower_probcut > -64) {
-        
+                
         list1 = list;
         
         unsigned int bestmove = list1->next->position;
@@ -494,6 +494,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
             }
             
         }
+        
+        //bestscore <= lower_probcut
         
         if(bestscore != UNDEF_SCORE)
             hTable->update(board.hashcode(), type_hashtable, (depth_probcut>DEPTH_5? selectivity:NO_SELECT), depth_probcut, lower_probcut, bestscore, bestmove);

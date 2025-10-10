@@ -486,7 +486,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
         stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
     }
     
-    return 1 * __builtin_popcountll(stable);
+    return __builtin_popcountll(stable);
     
 }
 
@@ -866,7 +866,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
         stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
     }
     
-    return 1 * __builtin_popcountll(stable);
+    return __builtin_popcountll(stable);
 
     
 }

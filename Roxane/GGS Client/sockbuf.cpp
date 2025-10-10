@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 
 #include "sockbuf.hpp"
 #include "types.hpp"
@@ -80,14 +81,15 @@ int sockbuf::connect(const string& sServer, int nPort) {
 	sa.sin_addr.s_addr=* reinterpret_cast< unsigned int* > (hostent->h_addr_list[0]);
 
 	// get socket
-	if (!(sock=socket(AF_INET, SOCK_STREAM, protoent->p_proto)))
+    sock=socket(AF_INET, SOCK_STREAM, protoent->p_proto);
+    if(sock == -1)
 		return kErrNoSocket;
 
 
 	// connect
 	if (::connect(sock,(const sockaddr*)&sa,sizeof(sa))) {
         
-		//close(sock);
+		close(sock);
         fplog->close();
 		return kErrCantConnect;
 	}
