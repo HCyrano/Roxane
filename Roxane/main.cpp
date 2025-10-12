@@ -65,7 +65,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "dev-2025-10-10 09h00";
+    std::string version = "dev-2025-12-10 16h45";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
