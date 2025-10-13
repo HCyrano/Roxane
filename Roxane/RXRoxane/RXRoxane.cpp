@@ -600,7 +600,7 @@ void RXRoxane::get_probcut_end2_data(const std::string& file_name) {
 }
 #endif
 
-void RXRoxane::run() {
+void* RXRoxane::run() {
 
 
 	RXSearch s(search); //copy
@@ -624,6 +624,8 @@ void RXRoxane::run() {
 		
 		
 	}
+    
+    return NULL;
 	
 	
 	

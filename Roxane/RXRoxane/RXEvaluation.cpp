@@ -13,30 +13,30 @@
 #include "RXEvaluation.hpp"
 
 
-short* RXEvaluation::DIAG_5[61];
+alignas(64) short* RXEvaluation::DIAG_5[61];
 
-short* RXEvaluation::DIAG_6[61];
+alignas(64) short* RXEvaluation::DIAG_6[61];
 
-short* RXEvaluation::DIAG_7[61];
+alignas(64) short* RXEvaluation::DIAG_7[61];
 
-short* RXEvaluation::DIAG_8[61];
+alignas(64) short* RXEvaluation::DIAG_8[61];
 
-short* RXEvaluation::HV_4[61];
+alignas(64) short* RXEvaluation::HV_4[61];
 
-short* RXEvaluation::HV_3[61];
+alignas(64) short* RXEvaluation::HV_3[61];
 
-short* RXEvaluation::CORNER_11[61];
+alignas(64) short* RXEvaluation::CORNER_11[61];
 
 
 #ifndef NEW_EVAL
 
-short* RXEvaluation::HV_2[61];
+alignas(64) short* RXEvaluation::HV_2[61];
 
-short* RXEvaluation::EDGE_6_4[61];
+alignas(64) short* RXEvaluation::EDGE_6_4[61];
 
-short* RXEvaluation::corner2x5[61];
+salignas(64) hort* RXEvaluation::corner2x5[61];
 
-short* RXEvaluation::EDGE_2XC[61];
+alignas(64) short* RXEvaluation::EDGE_2XC[61];
 
 
 void RXEvaluation::load() {
@@ -137,7 +137,7 @@ void RXEvaluation::load() {
 
 #else
 
-short* RXEvaluation::EDGE[61];
+alignas(64) short* RXEvaluation::EDGE[61];
 
 
 void RXEvaluation::load() {

@@ -819,224 +819,105 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
 inline int RXBBPatterns::get_score() const {
     
     const int stage = 60-board.n_empty;
+    const int color = board.player == BLACK ? 1:-1;
     
-    int eval;
-    const short* value;
-
-    if(board.player == BLACK) {
-
-        value = RXEvaluation::DIAG_5[stage];
-        eval  = value[pattern->diag_5a];
-        eval += value[pattern->diag_5b];
-        eval += value[pattern->diag_5c];
-        eval += value[pattern->diag_5d];
-        
-        value = RXEvaluation::DIAG_6[stage];
-        eval += value[pattern->diag_6a];
-        eval += value[pattern->diag_6b];
-        eval += value[pattern->diag_6c];
-        eval += value[pattern->diag_6d];
-        
-        value = RXEvaluation::DIAG_7[stage];
-        eval += value[pattern->diag_7a];
-        eval += value[pattern->diag_7b];
-        eval += value[pattern->diag_7c];
-        eval += value[pattern->diag_7d];
-        
-        value = RXEvaluation::DIAG_8[stage];
-        eval += value[pattern->diag_8a];
-        eval += value[pattern->diag_8b];
-        
-        value = RXEvaluation::HV_4[stage];
-        eval += value[pattern->hv_4a];
-        eval += value[pattern->hv_4b];
-        eval += value[pattern->hv_4c];
-        eval += value[pattern->hv_4d];
-        
-        value = RXEvaluation::HV_3[stage];
-        eval += value[pattern->hv_3a];
-        eval += value[pattern->hv_3b];
-        eval += value[pattern->hv_3c];
-        eval += value[pattern->hv_3d];
-        
-        value = RXEvaluation::CORNER_11[stage];
-        eval += value[pattern->corner11a];
-        eval += value[pattern->corner11b];
-        eval += value[pattern->corner11c];
-        eval += value[pattern->corner11d];
- 
-        value = RXEvaluation::EDGE[stage];
-        eval += value[pattern->edge_1];
-        eval += value[pattern->edge_2];
-        eval += value[pattern->edge_3];
-        eval += value[pattern->edge_4];
-        
-    } else {
-
-        value = RXEvaluation::DIAG_5[stage];
-        eval  = value[-pattern->diag_5a];
-        eval += value[-pattern->diag_5b];
-        eval += value[-pattern->diag_5c];
-        eval += value[-pattern->diag_5d];
- 
-        value = RXEvaluation::DIAG_6[stage];
-        eval += value[-pattern->diag_6a];
-        eval += value[-pattern->diag_6b];
-        eval += value[-pattern->diag_6c];
-        eval += value[-pattern->diag_6d];
-        
-        value = RXEvaluation::DIAG_7[stage];
-        eval += value[-pattern->diag_7a];
-        eval += value[-pattern->diag_7b];
-        eval += value[-pattern->diag_7c];
-        eval += value[-pattern->diag_7d];
-        
-        value = RXEvaluation::DIAG_8[stage];
-        eval += value[-pattern->diag_8a];
-        eval += value[-pattern->diag_8b];
-        
-        value = RXEvaluation::HV_4[stage];
-        eval += value[-pattern->hv_4a];
-        eval += value[-pattern->hv_4b];
-        eval += value[-pattern->hv_4c];
-        eval += value[-pattern->hv_4d];
-        
-        value = RXEvaluation::HV_3[stage];
-        eval += value[-pattern->hv_3a];
-        eval += value[-pattern->hv_3b];
-        eval += value[-pattern->hv_3c];
-        eval += value[-pattern->hv_3d];
-        
-        value = RXEvaluation::CORNER_11[stage];
-        eval += value[-pattern->corner11a];
-        eval += value[-pattern->corner11b];
-        eval += value[-pattern->corner11c];
-        eval += value[-pattern->corner11d];
-        
-        value = RXEvaluation::EDGE[stage];
-        eval += value[-pattern->edge_1];
-        eval += value[-pattern->edge_2];
-        eval += value[-pattern->edge_3];
-        eval += value[-pattern->edge_4];
-        
-        
-    }
+    int
+    eval  = RXEvaluation::DIAG_5[stage][color*pattern->diag_5a];
+    eval += RXEvaluation::DIAG_5[stage][color*pattern->diag_5b];
+    eval += RXEvaluation::DIAG_5[stage][color*pattern->diag_5c];
+    eval += RXEvaluation::DIAG_5[stage][color*pattern->diag_5d];
+    
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6a];
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6b];
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6c];
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6d];
+    
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7a];
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7b];
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7c];
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7d];
+    
+    eval += RXEvaluation::DIAG_8[stage][color*pattern->diag_8a];
+    eval += RXEvaluation::DIAG_8[stage][color*pattern->diag_8b];
+    
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4a];
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4b];
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4c];
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4d];
+    
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3a];
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3b];
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3c];
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3d];
+    
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11a];
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11b];
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11c];
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11d];
+    
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_1];
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_2];
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_3];
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_4];
     
     // arrondi(eval/8)/100.0f
-    return std::round((eval>>3)/100.0f);
+    //return std::round((eval>>3)/100.0f);
+    //trick
+    return (eval + 400 - (eval>>31 & 800))/800;
 
 }
 
 
 inline int RXBBPatterns::get_score(RXMove& move) const {
     
-    const RXPattern* const p = move.pattern;
+    const RXPattern* const pattern = move.pattern;
     
     const int stage = 61-board.n_empty;
+    const int color = board.player == WHITE ? 1:-1;
     
-    int eval;
-    const short* value;
+    int
+    eval  = RXEvaluation::DIAG_5[stage][color*pattern->diag_5a];
+    eval += RXEvaluation::DIAG_5[stage][color*pattern->diag_5b];
+    eval += RXEvaluation::DIAG_5[stage][color*pattern->diag_5c];
+    eval += RXEvaluation::DIAG_5[stage][color*pattern->diag_5d];
     
-    if(board.player == WHITE) {
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6a];
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6b];
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6c];
+    eval += RXEvaluation::DIAG_6[stage][color*pattern->diag_6d];
+    
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7a];
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7b];
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7c];
+    eval += RXEvaluation::DIAG_7[stage][color*pattern->diag_7d];
+    
+    eval += RXEvaluation::DIAG_8[stage][color*pattern->diag_8a];
+    eval += RXEvaluation::DIAG_8[stage][color*pattern->diag_8b];
+    
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4a];
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4b];
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4c];
+    eval += RXEvaluation::HV_4[stage][color*pattern->hv_4d];
+    
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3a];
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3b];
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3c];
+    eval += RXEvaluation::HV_3[stage][color*pattern->hv_3d];
+    
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11a];
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11b];
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11c];
+    eval += RXEvaluation::CORNER_11[stage][color*pattern->corner11d];
+    
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_1];
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_2];
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_3];
+    eval += RXEvaluation::EDGE[stage][color*pattern->edge_4];
 
-        value = RXEvaluation::DIAG_5[stage];
-        eval  = value[p->diag_5a];
-        eval += value[p->diag_5b];
-        eval += value[p->diag_5c];
-        eval += value[p->diag_5d];
-
-        value = RXEvaluation::DIAG_6[stage];
-        eval += value[p->diag_6a];
-        eval += value[p->diag_6b];
-        eval += value[p->diag_6c];
-        eval += value[p->diag_6d];
-        
-        value = RXEvaluation::DIAG_7[stage];
-        eval += value[p->diag_7a];
-        eval += value[p->diag_7b];
-        eval += value[p->diag_7c];
-        eval += value[p->diag_7d];
-        
-        value = RXEvaluation::DIAG_8[stage];
-        eval += value[p->diag_8a];
-        eval += value[p->diag_8b];
-        
-        value = RXEvaluation::HV_4[stage];
-        eval += value[p->hv_4a];
-        eval += value[p->hv_4b];
-        eval += value[p->hv_4c];
-        eval += value[p->hv_4d];
-        
-        value = RXEvaluation::HV_3[stage];
-        eval += value[p->hv_3a];
-        eval += value[p->hv_3b];
-        eval += value[p->hv_3c];
-        eval += value[p->hv_3d];
-        
-        value = RXEvaluation::CORNER_11[stage];
-        eval += value[p->corner11a];
-        eval += value[p->corner11b];
-        eval += value[p->corner11c];
-        eval += value[p->corner11d];
-        
-        value = RXEvaluation::EDGE[stage];
-        eval += value[p->edge_1];
-        eval += value[p->edge_2];
-        eval += value[p->edge_3];
-        eval += value[p->edge_4];
-        
-    } else {
-
-        value = RXEvaluation::DIAG_5[stage];
-        eval  = value[-p->diag_5a];
-        eval += value[-p->diag_5b];
-        eval += value[-p->diag_5c];
-        eval += value[-p->diag_5d];
-        
-        value = RXEvaluation::DIAG_6[stage];
-        eval += value[-p->diag_6a];
-        eval += value[-p->diag_6b];
-        eval += value[-p->diag_6c];
-        eval += value[-p->diag_6d];
-        
-        value = RXEvaluation::DIAG_7[stage];
-        eval += value[-p->diag_7a];
-        eval += value[-p->diag_7b];
-        eval += value[-p->diag_7c];
-        eval += value[-p->diag_7d];
-        
-        value = RXEvaluation::DIAG_8[stage];
-        eval += value[-p->diag_8a];
-        eval += value[-p->diag_8b];
-        
-        value = RXEvaluation::HV_4[stage];
-        eval += value[-p->hv_4a];
-        eval += value[-p->hv_4b];
-        eval += value[-p->hv_4c];
-        eval += value[-p->hv_4d];
-        
-        value = RXEvaluation::HV_3[stage];
-        eval += value[-p->hv_3a];
-        eval += value[-p->hv_3b];
-        eval += value[-p->hv_3c];
-        eval += value[-p->hv_3d];
-        
-        value = RXEvaluation::CORNER_11[stage];
-        eval += value[-p->corner11a];
-        eval += value[-p->corner11b];
-        eval += value[-p->corner11c];
-        eval += value[-p->corner11d];
-
-        value = RXEvaluation::EDGE[stage];
-        eval += value[-p->edge_1];
-        eval += value[-p->edge_2];
-        eval += value[-p->edge_3];
-        eval += value[-p->edge_4];
-        
-    }
-        
     // arrondi(eval/8)/100.0f
-    return std::round((eval>>3)/100.0f);
+    //return std::round((eval>>3)/100.0f);
+    //trick
+    return (eval + 400 - (eval>>31 & 800))/800;
 
 }
 

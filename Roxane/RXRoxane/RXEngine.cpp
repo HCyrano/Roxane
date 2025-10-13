@@ -1431,7 +1431,7 @@ void RXEngine::get_move(RXSearch& s) {
 }
 
 
-void RXEngine::run() {
+void* RXEngine::run() {
         
     time_search = get_system_time();
     
@@ -1636,6 +1636,8 @@ void RXEngine::run() {
     abort.store(true);
     
     time_search = get_system_time() - time_search;
+    
+    return NULL;
     
 }
 
@@ -1920,12 +1922,14 @@ void RXEngine::stop_threads() {
 // active waiting : infini loop, fast wake up
 // passive waiting : condition wake up
 
-void  RXEngine::idle_loop() {
+void*  RXEngine::idle_loop() {
     idle_loop(idThread, NULL);
+    
+    return NULL;
 }
 
 
-void RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
+void* RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
     
     
     while(true) {
@@ -2042,7 +2046,7 @@ void RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
         
     }
     
-    
+    return NULL;
 }
 
 // wake_sleeping_threads() wakes up all sleeping threads (passive waiting) when it is time

@@ -65,7 +65,7 @@ public :
 	
 	void resume();
 
-	virtual void run();
+	virtual void* run();
     
     RXEngine* getEngine(const int color) const;
     

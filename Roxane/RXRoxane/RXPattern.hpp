@@ -13,7 +13,7 @@
 #include "RXSetting.hpp"
 
 
-class RXPattern {
+class alignas(16) RXPattern {
     
     //    static const int structure_patterns[];
     

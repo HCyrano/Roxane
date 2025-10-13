@@ -367,7 +367,7 @@ class RXEngine: public Runnable, public RXHelper {
     
     void init_threads();
     void stop_threads();
-    void idle_loop(const unsigned int threadID, RXSplitPoint* waitSp);
+    void* idle_loop(const unsigned int threadID, RXSplitPoint* waitSp);
     void wake_sleeping_threads();
     //	void wake_sleeping_thread(unsigned int threadID);
     bool idle_thread_exists(unsigned int master);
@@ -395,7 +395,7 @@ public:
     void get_move(RXSearch& s);
     //    void verif_sBoard(RXSearch& s);
     
-    virtual void run();
+    virtual void* run();
     
     void stop(std::string msg);
     void resume();
@@ -408,7 +408,7 @@ public:
     
     //Multithread part
     
-    virtual void idle_loop();
+    virtual void* idle_loop();
     int get_THREAD_MAX();
 
 #ifdef TUNE_PROBCUT_MID
