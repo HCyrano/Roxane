@@ -1821,9 +1821,9 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     
     
     //security
-    tMove = std::max(1000, tMove);
     tMove = std::min(90*(tRemaining-time_Safety)/100, tMove);
-    
+    tMove = std::max(1000, tMove);
+
     *log << "                  final time move : " << tMove << std::endl;
     
     

@@ -487,7 +487,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 #else
     //polynome 3d
     
-
+/*
     // version tournoi 4/10
     constexpr double probcut_a = -0.014381959995662148;
     constexpr double probcut_b = -0.09882099283301328;
@@ -496,6 +496,16 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 3.5852308959117525;
     constexpr double probcut_f = 5.577830899332952;
     constexpr double probcut_g = 6.2667691065340465;
+ */
+    
+    constexpr double probcut_a = -0.00749519817135077;
+    constexpr double probcut_b = -0.07952368004245616;
+    constexpr double probcut_c = 0.02609140303689122;
+    constexpr double probcut_d = 1.678786468080504;
+    constexpr double probcut_e = 5.632308392385272;
+    constexpr double probcut_f = 7.502235887238186;
+    constexpr double probcut_g = 6.289437759724675;
+
     
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
