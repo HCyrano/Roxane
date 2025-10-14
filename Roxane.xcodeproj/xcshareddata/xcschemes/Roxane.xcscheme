@@ -60,7 +60,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 18 -t 1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 23 -t 6"
@@ -68,7 +68,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 25 -t 12"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-1-19.obf"
@@ -76,7 +76,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.obf"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/endgame_24_26_30.script"
@@ -84,7 +84,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-49.obf"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-40-59.obf"

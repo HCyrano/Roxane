@@ -15,7 +15,7 @@
 #include "RXConstantes.hpp"
 #include "RXPattern.hpp"
 
-class RXEvaluation {
+class alignas(64) RXEvaluation {
 	
 	public :
     
@@ -27,34 +27,32 @@ class RXEvaluation {
     static void new_eval();
 
 	
-	static short* DIAG_5[61];
+    alignas(64) static inline short* DIAG_5[61];
 
-	static short* DIAG_6[61];
+    alignas(64) static inline short* DIAG_6[61];
 	
-	static short* DIAG_7[61];
+    alignas(64) static inline short* DIAG_7[61];
 
-	static short* DIAG_8[61];
+    alignas(64) static inline short* DIAG_8[61];
 	
-	static short* HV_4[61];
+    alignas(64) static inline short* HV_4[61];
 
-	static short* HV_3[61];
+    alignas(64) static inline short* HV_3[61];
     
-    static short* CORNER_11[61];
+    alignas(64) static inline short* CORNER_11[61];
 
     
 #ifndef NEW_EVAL
 
 
-	static short* HV_2[61];
+    alignas(64) static inline short* HV_2[61];
 	
-	static short* EDGE_6_4[61];
+    alignas(64) static inline short* EDGE_6_4[61];
 
-	static short* corner2x5[61];
+    alignas(64) static sinline hort* corner2x5[61];
 	
-	static short* EDGE_2XC[61];
+	salignas(64) tatic inline short* EDGE_2XC[61];
     
-//    static short* EDGE[61];
-
     
     ~RXEvaluation() {
         
@@ -92,7 +90,7 @@ class RXEvaluation {
     
 #else
     
-    static short* EDGE[61];
+    alignas(64) static inline short* EDGE[61];
     
     ~RXEvaluation() {
         

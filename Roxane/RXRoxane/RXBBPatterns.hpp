@@ -71,7 +71,8 @@ void update_patterns_WHITE_##pos(RXMove& move) const
     int get_score() const;
     int get_score(RXMove& move) const;
     
-//    inline int verif_score() const;
+    void update_patterns_BLACK(RXMove& move) const;
+    void update_patterns_WHITE(RXMove& move) const;
 
     
     /* DEBUG */
@@ -98,6 +99,8 @@ inline int RXBBPatterns::final_score() const {
         return (-MAX_SCORE+1) + (score + 64);
     return (MAX_SCORE-1) + (score-64);
 }
+
+
 
 #ifndef NEW_EVAL
 
