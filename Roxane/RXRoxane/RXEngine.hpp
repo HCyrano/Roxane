@@ -486,38 +486,15 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     
 #else
     //polynome 3d
-    
-/*
-    // version tournoi 4/10
-    constexpr double probcut_a = -0.014381959995662148;
-    constexpr double probcut_b = -0.09882099283301328;
-    constexpr double probcut_c = 0.03816042530959542;
-    constexpr double probcut_d = 1.4954349077688547;
-    constexpr double probcut_e = 3.5852308959117525;
-    constexpr double probcut_f = 5.577830899332952;
-    constexpr double probcut_g = 6.2667691065340465;
- */
- 
-    /*
-    constexpr double probcut_a = -0.00449763032682093;
-    constexpr double probcut_b = -0.0536622340071849;
-    constexpr double probcut_c = 0.0172277871203843;
-    constexpr double probcut_d = 5.0139813131203;
-    constexpr double probcut_e = 12.3387565129571;
-    constexpr double probcut_f = 11.1235431900061;
-    constexpr double probcut_g = 6.2422747796531;
-    */
-    
-    constexpr double probcut_a = -0.005253472825717415;
-    constexpr double probcut_b = -0.05995255429822544;
-    constexpr double probcut_c = 0.019435172366603057;
-    constexpr double probcut_d = 3.6337542581105104;
-    constexpr double probcut_e = 9.785702083809356;
-    constexpr double probcut_f = 9.92517257130382;
-    constexpr double probcut_g = 6.2574225380967015;
 
+    constexpr double probcut_a = -0.00851901573285444;
+    constexpr double probcut_b = -0.09935412852060108;
+    constexpr double probcut_c = 0.031905082926492856;
+    constexpr double probcut_d = 0.7501917587309462;
+    constexpr double probcut_e = 3.5882138485889543;
+    constexpr double probcut_f = 6.04101885274816;
+    constexpr double probcut_g = 6.263248599279729;
 
-    
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     

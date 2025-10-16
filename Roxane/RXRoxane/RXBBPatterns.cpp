@@ -97,261 +97,71 @@ void RXBBPatterns::set_BLACK(const int pos) {
 
 	switch(pos) {
 	
-		case A1:
-			p.set_BLACK_A1();
-		break;
+        case A1: p.set_BLACK_A1(); break;
+        case B1: p.set_BLACK_B1(); break;
+        case C1: p.set_BLACK_C1(); break;
+        case D1: p.set_BLACK_D1(); break;
+        case E1: p.set_BLACK_E1(); break;
+        case F1: p.set_BLACK_F1(); break;
+        case G1: p.set_BLACK_G1(); break;
+        case H1: p.set_BLACK_H1(); break;
+        case A2: p.set_BLACK_A2(); break;
+        case B2: p.set_BLACK_B2(); break;
+        case C2: p.set_BLACK_C2(); break;
+        case D2: p.set_BLACK_D2(); break;
+        case E2: p.set_BLACK_E2(); break;
+        case F2: p.set_BLACK_F2(); break;
+        case G2: p.set_BLACK_G2(); break;
+        case H2: p.set_BLACK_H2(); break;
+        case A3: p.set_BLACK_A3(); break;
+        case B3: p.set_BLACK_B3(); break;
+        case C3: p.set_BLACK_C3(); break;
+        case D3: p.set_BLACK_D3(); break;
+        case E3: p.set_BLACK_E3(); break;
+        case F3: p.set_BLACK_F3(); break;
+        case G3: p.set_BLACK_G3(); break;
+        case H3: p.set_BLACK_H3(); break;
+        case A4: p.set_BLACK_A4(); break;
+        case B4: p.set_BLACK_B4(); break;
+        case C4: p.set_BLACK_C4(); break;
+        case D4: p.set_BLACK_D4(); break;
+        case E4: p.set_BLACK_E4(); break;
+        case F4: p.set_BLACK_F4(); break;
+        case G4: p.set_BLACK_G4(); break;
+        case H4: p.set_BLACK_H4(); break;
+        case A5: p.set_BLACK_A5(); break;
+        case B5: p.set_BLACK_B5(); break;
+        case C5: p.set_BLACK_C5(); break;
+        case D5: p.set_BLACK_D5(); break;
+        case E5: p.set_BLACK_E5(); break;
+        case F5: p.set_BLACK_F5(); break;
+        case G5: p.set_BLACK_G5(); break;
+        case H5: p.set_BLACK_H5(); break;
+        case A6: p.set_BLACK_A6(); break;
+        case B6: p.set_BLACK_B6(); break;
+        case C6: p.set_BLACK_C6(); break;
+        case D6: p.set_BLACK_D6(); break;
+        case E6: p.set_BLACK_E6(); break;
+        case F6: p.set_BLACK_F6(); break;
+        case G6: p.set_BLACK_G6(); break;
+        case H6: p.set_BLACK_H6(); break;
+        case A7: p.set_BLACK_A7(); break;
+        case B7: p.set_BLACK_B7(); break;
+        case C7: p.set_BLACK_C7(); break;
+        case D7: p.set_BLACK_D7(); break;
+        case E7: p.set_BLACK_E7(); break;
+        case F7: p.set_BLACK_F7(); break;
+        case G7: p.set_BLACK_G7(); break;
+        case H7: p.set_BLACK_H7(); break;
+        case A8: p.set_BLACK_A8(); break;
+        case B8: p.set_BLACK_B8(); break;
+        case C8: p.set_BLACK_C8(); break;
+        case D8: p.set_BLACK_D8(); break;
+        case E8: p.set_BLACK_E8(); break;
+        case F8: p.set_BLACK_F8(); break;
+        case G8: p.set_BLACK_G8(); break;
+        case H8: p.set_BLACK_H8(); break;
 
-		case B1:
-			p.set_BLACK_B1();
-		break;
-
-		case C1:
-			p.set_BLACK_C1();
-		break;
-
-		case D1:
-			p.set_BLACK_D1();
-		break;
-
-		case E1:
-			p.set_BLACK_E1();
-		break;
-
-		case F1:
-			p.set_BLACK_F1();
-		break;
-
-		case G1:
-			p.set_BLACK_G1();
-		break;
-		
-		case H1:
-			p.set_BLACK_H1();
-		break;
-
-		case A2:
-			p.set_BLACK_A2();
-		break;
-
-		case B2:
-			p.set_BLACK_B2();
-		break;
-
-		case C2:
-			p.set_BLACK_C2();
-		break;
-
-		case D2:
-			p.set_BLACK_D2();
-		break;
-
-		case E2:
-			p.set_BLACK_E2();
-		break;
-
-		case F2:
-			p.set_BLACK_F2();
-		break;
-
-		case G2:
-			p.set_BLACK_G2();
-		break;
-		
-		case H2:
-			p.set_BLACK_H2();
-		break;
-		
-		case A3:
-			p.set_BLACK_A3();
-		break;
-
-		case B3:
-			p.set_BLACK_B3();
-		break;
-
-		case C3:
-			p.set_BLACK_C3();
-		break;
-
-		case D3:
-			p.set_BLACK_D3();
-		break;
-
-		case E3:
-			p.set_BLACK_E3();
-		break;
-
-		case F3:
-			p.set_BLACK_F3();
-		break;
-
-		case G3:
-			p.set_BLACK_G3();
-		break;
-		
-		case H3:
-			p.set_BLACK_H3();
-		break;
-		
-		case A4:
-			p.set_BLACK_A4();
-		break;
-
-		case B4:
-			p.set_BLACK_B4();
-		break;
-
-		case C4:
-			p.set_BLACK_C4();
-		break;
-
-		case D4:
-			p.set_BLACK_D4();
-		break;
-
-		case E4:
-			p.set_BLACK_E4();
-		break;
-
-		case F4:
-			p.set_BLACK_F4();
-		break;
-
-		case G4:
-			p.set_BLACK_G4();
-		break;
-		
-		case H4:
-			p.set_BLACK_H4();
-		break;
-		
-		case A5:
-			p.set_BLACK_A5();
-		break;
-
-		case B5:
-			p.set_BLACK_B5();
-		break;
-
-		case C5:
-			p.set_BLACK_C5();
-		break;
-
-		case D5:
-			p.set_BLACK_D5();
-		break;
-
-		case E5:
-			p.set_BLACK_E5();
-		break;
-
-		case F5:
-			p.set_BLACK_F5();
-		break;
-
-		case G5:
-			p.set_BLACK_G5();
-		break;
-		
-		case H5:
-			p.set_BLACK_H5();
-		break;
-
-		case A6:
-			p.set_BLACK_A6();
-		break;
-
-		case B6:
-			p.set_BLACK_B6();
-		break;
-
-		case C6:
-			p.set_BLACK_C6();
-		break;
-
-		case D6:
-			p.set_BLACK_D6();
-		break;
-
-		case E6:
-			p.set_BLACK_E6();
-		break;
-
-		case F6:
-			p.set_BLACK_F6();
-		break;
-
-		case G6:
-			p.set_BLACK_G6();
-		break;
-		
-		case H6:
-			p.set_BLACK_H6();
-		break;
-
-		case A7:
-			p.set_BLACK_A7();
-		break;
-
-		case B7:
-			p.set_BLACK_B7();
-		break;
-
-		case C7:
-			p.set_BLACK_C7();
-		break;
-
-		case D7:
-			p.set_BLACK_D7();
-		break;
-
-		case E7:
-			p.set_BLACK_E7();
-		break;
-
-		case F7:
-			p.set_BLACK_F7();
-		break;
-
-		case G7:
-			p.set_BLACK_G7();
-		break;
-		
-		case H7:
-			p.set_BLACK_H7();
-		break;
-
-		case A8:
-			p.set_BLACK_A8();
-		break;
-
-		case B8:
-			p.set_BLACK_B8();
-		break;
-
-		case C8:
-			p.set_BLACK_C8();
-		break;
-
-		case D8:
-			p.set_BLACK_D8();
-		break;
-
-		case E8:
-			p.set_BLACK_E8();
-		break;
-
-		case F8:
-			p.set_BLACK_F8();
-		break;
-
-		case G8:
-			p.set_BLACK_G8();
-		break;
-		
-		case H8:
-			p.set_BLACK_H8();
-		break;
 	}
 }
 
@@ -361,261 +171,71 @@ void RXBBPatterns::set_WHITE(const int pos) {
 
 	switch(pos) {
 	
-		case A1:
-			p.set_WHITE_A1();
-		break;
-
-		case B1:
-			p.set_WHITE_B1();
-		break;
-
-		case C1:
-			p.set_WHITE_C1();
-		break;
-
-		case D1:
-			p.set_WHITE_D1();
-		break;
-
-		case E1:
-			p.set_WHITE_E1();
-		break;
-
-		case F1:
-			p.set_WHITE_F1();
-		break;
-
-		case G1:
-			p.set_WHITE_G1();
-		break;
-		
-		case H1:
-			p.set_WHITE_H1();
-		break;
-
-		case A2:
-			p.set_WHITE_A2();
-		break;
-
-		case B2:
-			p.set_WHITE_B2();
-		break;
-
-		case C2:
-			p.set_WHITE_C2();
-		break;
-
-		case D2:
-			p.set_WHITE_D2();
-		break;
-
-		case E2:
-			p.set_WHITE_E2();
-		break;
-
-		case F2:
-			p.set_WHITE_F2();
-		break;
-
-		case G2:
-			p.set_WHITE_G2();
-		break;
-		
-		case H2:
-			p.set_WHITE_H2();
-		break;
-		
-		case A3:
-			p.set_WHITE_A3();
-		break;
-
-		case B3:
-			p.set_WHITE_B3();
-		break;
-
-		case C3:
-			p.set_WHITE_C3();
-		break;
-
-		case D3:
-			p.set_WHITE_D3();
-		break;
-
-		case E3:
-			p.set_WHITE_E3();
-		break;
-
-		case F3:
-			p.set_WHITE_F3();
-		break;
-
-		case G3:
-			p.set_WHITE_G3();
-		break;
-		
-		case H3:
-			p.set_WHITE_H3();
-		break;
-		
-		case A4:
-			p.set_WHITE_A4();
-		break;
-
-		case B4:
-			p.set_WHITE_B4();
-		break;
-
-		case C4:
-			p.set_WHITE_C4();
-		break;
-
-		case D4:
-			p.set_WHITE_D4();
-		break;
-
-		case E4:
-			p.set_WHITE_E4();
-		break;
-
-		case F4:
-			p.set_WHITE_F4();
-		break;
-
-		case G4:
-			p.set_WHITE_G4();
-		break;
-		
-		case H4:
-			p.set_WHITE_H4();
-		break;
-		
-		case A5:
-			p.set_WHITE_A5();
-		break;
-
-		case B5:
-			p.set_WHITE_B5();
-		break;
-
-		case C5:
-			p.set_WHITE_C5();
-		break;
-
-		case D5:
-			p.set_WHITE_D5();
-		break;
-
-		case E5:
-			p.set_WHITE_E5();
-		break;
-
-		case F5:
-			p.set_WHITE_F5();
-		break;
-
-		case G5:
-			p.set_WHITE_G5();
-		break;
-		
-		case H5:
-			p.set_WHITE_H5();
-		break;
-
-		case A6:
-			p.set_WHITE_A6();
-		break;
-
-		case B6:
-			p.set_WHITE_B6();
-		break;
-
-		case C6:
-			p.set_WHITE_C6();
-		break;
-
-		case D6:
-			p.set_WHITE_D6();
-		break;
-
-		case E6:
-			p.set_WHITE_E6();
-		break;
-
-		case F6:
-			p.set_WHITE_F6();
-		break;
-
-		case G6:
-			p.set_WHITE_G6();
-		break;
-		
-		case H6:
-			p.set_WHITE_H6();
-		break;
-
-		case A7:
-			p.set_WHITE_A7();
-		break;
-
-		case B7:
-			p.set_WHITE_B7();
-		break;
-
-		case C7:
-			p.set_WHITE_C7();
-		break;
-
-		case D7:
-			p.set_WHITE_D7();
-		break;
-
-		case E7:
-			p.set_WHITE_E7();
-		break;
-
-		case F7:
-			p.set_WHITE_F7();
-		break;
-
-		case G7:
-			p.set_WHITE_G7();
-		break;
-		
-		case H7:
-			p.set_WHITE_H7();
-		break;
-
-		case A8:
-			p.set_WHITE_A8();
-		break;
-
-		case B8:
-			p.set_WHITE_B8();
-		break;
-
-		case C8:
-			p.set_WHITE_C8();
-		break;
-
-		case D8:
-			p.set_WHITE_D8();
-		break;
-
-		case E8:
-			p.set_WHITE_E8();
-		break;
-
-		case F8:
-			p.set_WHITE_F8();
-		break;
-
-		case G8:
-			p.set_WHITE_G8();
-		break;
-		
-		case H8:
-			p.set_WHITE_H8();
-		break;
+		case A1: p.set_WHITE_A1(); break;
+		case B1: p.set_WHITE_B1(); break;
+		case C1: p.set_WHITE_C1(); break;
+		case D1: p.set_WHITE_D1(); break;
+		case E1: p.set_WHITE_E1(); break;
+		case F1: p.set_WHITE_F1(); break;
+		case G1: p.set_WHITE_G1(); break;
+		case H1: p.set_WHITE_H1(); break;
+		case A2: p.set_WHITE_A2(); break;
+		case B2: p.set_WHITE_B2(); break;
+		case C2: p.set_WHITE_C2(); break;
+		case D2: p.set_WHITE_D2(); break;
+		case E2: p.set_WHITE_E2(); break;
+		case F2: p.set_WHITE_F2(); break;
+		case G2: p.set_WHITE_G2(); break;
+		case H2: p.set_WHITE_H2(); break;
+		case A3: p.set_WHITE_A3(); break;
+		case B3: p.set_WHITE_B3(); break;
+		case C3: p.set_WHITE_C3(); break;
+		case D3: p.set_WHITE_D3(); break;
+		case E3: p.set_WHITE_E3(); break;
+		case F3: p.set_WHITE_F3(); break;
+		case G3: p.set_WHITE_G3(); break;
+		case H3: p.set_WHITE_H3(); break;
+		case A4: p.set_WHITE_A4(); break;
+		case B4: p.set_WHITE_B4(); break;
+		case C4: p.set_WHITE_C4(); break;
+		case D4: p.set_WHITE_D4(); break;
+		case E4: p.set_WHITE_E4(); break;
+		case F4: p.set_WHITE_F4(); break;
+		case G4: p.set_WHITE_G4(); break;
+		case H4: p.set_WHITE_H4(); break;
+		case A5: p.set_WHITE_A5(); break;
+		case B5: p.set_WHITE_B5(); break;
+		case C5: p.set_WHITE_C5(); break;
+		case D5: p.set_WHITE_D5(); break;
+		case E5: p.set_WHITE_E5(); break;
+		case F5: p.set_WHITE_F5(); break;
+		case G5: p.set_WHITE_G5(); break;
+		case H5: p.set_WHITE_H5(); break;
+		case A6: p.set_WHITE_A6(); break;
+		case B6: p.set_WHITE_B6(); break;
+		case C6: p.set_WHITE_C6(); break;
+		case D6: p.set_WHITE_D6(); break;
+		case E6: p.set_WHITE_E6(); break;
+		case F6: p.set_WHITE_F6(); break;
+		case G6: p.set_WHITE_G6(); break;
+		case H6: p.set_WHITE_H6(); break;
+		case A7: p.set_WHITE_A7(); break;
+		case B7: p.set_WHITE_B7(); break;
+		case C7: p.set_WHITE_C7(); break;
+		case D7: p.set_WHITE_D7(); break;
+		case E7: p.set_WHITE_E7(); break;
+		case F7: p.set_WHITE_F7(); break;
+		case G7: p.set_WHITE_G7(); break;
+		case H7: p.set_WHITE_H7(); break;
+		case A8: p.set_WHITE_A8(); break;
+		case B8: p.set_WHITE_B8(); break;
+		case C8: p.set_WHITE_C8(); break;
+		case D8: p.set_WHITE_D8(); break;
+		case E8: p.set_WHITE_E8(); break;
+		case F8: p.set_WHITE_F8(); break;
+		case G8: p.set_WHITE_G8(); break;
+		case H8: p.set_WHITE_H8(); break;
+            
 	}
 }
 
