@@ -282,7 +282,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     
     const int beta =  alpha+1;
-    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth & 0x1UL));
+    int depth2 = std::min(depth-2, 4-depth & 1);
+    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth2 /*depth & 0x1UL*/));
 
     int eval_0 = sBoard.get_score();
     
