@@ -2434,7 +2434,7 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 500; ++n_data) {
+    for(int n_data = 0; n_data < 2500; ++n_data) {
         for(int depth = 26; depth <= 27; ++depth) {
             hTable->reset();
             int n_moves = 0;
@@ -2476,22 +2476,9 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
             
             if(board.n_moves()!=0) {
                 
-                int score_at_shallow_depth, score_at_depth;
-
-                int shallow_depth = random_bounds(1, std::min(15, depth-1));
-                shallow_depth &= 0xfffffffe;
-                shallow_depth |= depth & 1;
+                int score_at_depth;
                 
-                if(shallow_depth == depth)
-                    shallow_depth -= 2;
-                
-                if(shallow_depth < 4) {
-                    score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                } else {
-                    wake_sleeping_threads();
-                    score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                }
-                
+                //resolution de la position
                 if (board.n_empty == 2) {
                     score_at_depth = board.final_score_2(-MAX_SCORE, MAX_SCORE);
                 } else if (board.n_empty == 3) {
@@ -2508,13 +2495,49 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                     wake_sleeping_threads();
                     score_at_depth = EG_PVS_deep(0, sBoard, true, NO_SELECT, -MAX_SCORE, MAX_SCORE, false);
                 }
+                
+                
+                for(int shallow_depth = board.n_empty & 1; shallow_depth <= 15; shallow_depth+=2){
+                    
+                    int score_at_shallow_depth;
+                    
+                    if(shallow_depth < 4) {
+                        score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                    } else {
+                        wake_sleeping_threads();
+                        score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                    }
+                    
+                    int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
+                    
+                    std::cout << n_data  << " :"  << board.n_empty << " " << shallow_depth << " " << board.n_empty << " " << diff_score_depth_score_shallow << std::endl;
+                    if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
+                        ofs << board.n_empty<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
+                }
+
+
+                /*
+                int shallow_depth = random_bounds(1, std::min(15, depth-1));
+                shallow_depth &= 0xfffffffe;
+                shallow_depth |= depth & 1;
+                
+                if(shallow_depth == depth)
+                    shallow_depth -= 2;
+                
+                if(shallow_depth < 4) {
+                    score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                } else {
+                    wake_sleeping_threads();
+                    score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                }
+                
 
                 int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
                 
                 std::cout << n_data  << " :"  << 64-depth << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
                 if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
                     ofs << 64-depth << " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
-                
+                */
             }
             
             for(; 0 < n_moves ; --n_moves) {

@@ -43,7 +43,7 @@
 
 //generate data for probcut
 //#define TUNE_PROBCUT_MID
-//#define TUNE_PROBCUT_END
+#define TUNE_PROBCUT_END
 //#define TUNE_PROBCUT_END2
 
 

@@ -465,8 +465,6 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
 #else
 
 
-/*
-
 
 inline int RXBBPatterns::get_score() const noexcept {
     
@@ -590,10 +588,8 @@ inline int RXBBPatterns::get_score() const noexcept {
      return (eval + 400 - (eval>>31 & 800))/800;
 
  }
- 
-*/
- 
 
+/*
 inline int RXBBPatterns::get_score() const noexcept {
     
     const int stage = 60 - board.n_empty;
@@ -612,34 +608,52 @@ inline int RXBBPatterns::get_score() const noexcept {
     
     
     // ----- DIAG 7 & 8 -----
-    int16x8_t values = {
-        diag7[color*p.diag_7a], diag7[color*p.diag_7b], diag7[color*p.diag_7c], diag7[color*p.diag_7d],
-        diag8[color*p.diag_8a], diag8[color*p.diag_8b],                      0,                      0
-    };
+    int16x8_t values = vdupq_n_s16(0);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7a], values, 0);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7b], values, 1);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7c], values, 2);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7d], values, 3);
+    values = vld1q_lane_s16(&diag8[color*p.diag_8a], values, 4);
+    values = vld1q_lane_s16(&diag8[color*p.diag_8b], values, 5);
+ 
     int32x4_t acc = vpaddlq_s16(values);
-    
+ 
     // ----- DIAG 5 & 6 -----
-    values = {
-        diag5[color*p.diag_5a], diag5[color*p.diag_5b], diag5[color*p.diag_5c], diag5[color*p.diag_5d],
-        diag6[color*p.diag_6a], diag6[color*p.diag_6b], diag6[color*p.diag_6c], diag6[color*p.diag_6d]
-    };
+    values = vld1q_lane_s16(&diag5[color*p.diag_5a], values, 0);
+    values = vld1q_lane_s16(&diag5[color*p.diag_5b], values, 1);
+    values = vld1q_lane_s16(&diag5[color*p.diag_5c], values, 2);
+    values = vld1q_lane_s16(&diag5[color*p.diag_5d], values, 3);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6a], values, 4);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6b], values, 5);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6c], values, 6);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6d], values, 7);
+
     acc = vaddq_s32(acc, vpaddlq_s16(values));
     
-    
     // ----- HV4 & HV3 -----
-    values = {
-        hv3[color*p.hv_3a], hv3[color*p.hv_3b], hv3[color*p.hv_3c], hv3[color*p.hv_3d],
-        hv4[color*p.hv_4a], hv4[color*p.hv_4b], hv4[color*p.hv_4c], hv4[color*p.hv_4d]
-    };
+    values = vld1q_lane_s16(&hv3[color*p.hv_3a], values, 0);
+    values = vld1q_lane_s16(&hv3[color*p.hv_3b], values, 1);
+    values = vld1q_lane_s16(&hv3[color*p.hv_3c], values, 2);
+    values = vld1q_lane_s16(&hv3[color*p.hv_3d], values, 3);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4a], values, 4);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4b], values, 5);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4c], values, 6);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4d], values, 7);
+
     acc = vaddq_s32(acc, vpaddlq_s16(values));
     
     // ----- CORNER & EDGE -----
-    values = {
-        corner[color*p.corner11a], corner[color*p.corner11b], corner[color*p.corner11c], corner[color*p.corner11d],
-        edge[color*p.edge_1], edge[color*p.edge_2], edge[color*p.edge_3], edge[color*p.edge_4]
-    };
+    values = vld1q_lane_s16(&corner[color*p.corner11a], values, 0);
+    values = vld1q_lane_s16(&corner[color*p.corner11b], values, 1);
+    values = vld1q_lane_s16(&corner[color*p.corner11c], values, 2);
+    values = vld1q_lane_s16(&corner[color*p.corner11d], values, 3);
+    values = vld1q_lane_s16(&edge[color*p.edge_1], values, 4);
+    values = vld1q_lane_s16(&edge[color*p.edge_2], values, 5);
+    values = vld1q_lane_s16(&edge[color*p.edge_3], values, 6);
+    values = vld1q_lane_s16(&edge[color*p.edge_4], values, 7);
+
     acc = vaddq_s32(acc, vpaddlq_s16(values));
-    
+
     
     int eval = vaddvq_s32(acc);
     
@@ -665,46 +679,62 @@ inline int RXBBPatterns::get_score(RXMove& move) const noexcept {
     
     
     // ----- DIAG 7 & 8 -----
-    int16x8_t values = {
-        diag7[color*p.diag_7a], diag7[color*p.diag_7b], diag7[color*p.diag_7c], diag7[color*p.diag_7d],
-        diag8[color*p.diag_8a], diag8[color*p.diag_8b],                      0,                      0
-    };
+    int16x8_t values = vdupq_n_s16(0);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7a], values, 0);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7b], values, 1);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7c], values, 2);
+    values = vld1q_lane_s16(&diag7[color*p.diag_7d], values, 3);
+    values = vld1q_lane_s16(&diag8[color*p.diag_8a], values, 4);
+    values = vld1q_lane_s16(&diag8[color*p.diag_8b], values, 5);
+ 
     int32x4_t acc = vpaddlq_s16(values);
-    
+ 
     // ----- DIAG 5 & 6 -----
-    values = {
-        diag5[color*p.diag_5a], diag5[color*p.diag_5b], diag5[color*p.diag_5c], diag5[color*p.diag_5d],
-        diag6[color*p.diag_6a], diag6[color*p.diag_6b], diag6[color*p.diag_6c], diag6[color*p.diag_6d]
-    };
+    values = vld1q_lane_s16(&diag5[color*p.diag_5a], values, 0);
+    values = vld1q_lane_s16(&diag5[color*p.diag_5b], values, 1);
+    values = vld1q_lane_s16(&diag5[color*p.diag_5c], values, 2);
+    values = vld1q_lane_s16(&diag5[color*p.diag_5d], values, 3);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6a], values, 4);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6b], values, 5);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6c], values, 6);
+    values = vld1q_lane_s16(&diag6[color*p.diag_6d], values, 7);
+
     acc = vaddq_s32(acc, vpaddlq_s16(values));
     
-    
     // ----- HV4 & HV3 -----
-    values = {
-        hv3[color*p.hv_3a], hv3[color*p.hv_3b], hv3[color*p.hv_3c], hv3[color*p.hv_3d],
-        hv4[color*p.hv_4a], hv4[color*p.hv_4b], hv4[color*p.hv_4c], hv4[color*p.hv_4d]
-    };
+    values = vld1q_lane_s16(&hv3[color*p.hv_3a], values, 0);
+    values = vld1q_lane_s16(&hv3[color*p.hv_3b], values, 1);
+    values = vld1q_lane_s16(&hv3[color*p.hv_3c], values, 2);
+    values = vld1q_lane_s16(&hv3[color*p.hv_3d], values, 3);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4a], values, 4);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4b], values, 5);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4c], values, 6);
+    values = vld1q_lane_s16(&hv4[color*p.hv_4d], values, 7);
+
     acc = vaddq_s32(acc, vpaddlq_s16(values));
     
     // ----- CORNER & EDGE -----
-    values = {
-        corner[color*p.corner11a], corner[color*p.corner11b], corner[color*p.corner11c], corner[color*p.corner11d],
-        edge[color*p.edge_1], edge[color*p.edge_2], edge[color*p.edge_3], edge[color*p.edge_4]
-    };
+    values = vld1q_lane_s16(&corner[color*p.corner11a], values, 0);
+    values = vld1q_lane_s16(&corner[color*p.corner11b], values, 1);
+    values = vld1q_lane_s16(&corner[color*p.corner11c], values, 2);
+    values = vld1q_lane_s16(&corner[color*p.corner11d], values, 3);
+    values = vld1q_lane_s16(&edge[color*p.edge_1], values, 4);
+    values = vld1q_lane_s16(&edge[color*p.edge_2], values, 5);
+    values = vld1q_lane_s16(&edge[color*p.edge_3], values, 6);
+    values = vld1q_lane_s16(&edge[color*p.edge_4], values, 7);
+
     acc = vaddq_s32(acc, vpaddlq_s16(values));
+
     
     int eval = vaddvq_s32(acc);
     
     // ----- Branchless rounding / normalization -----
     return (eval + 400 - ((eval >> 31) & 800)) / 800;
 }
-
+ */
+ 
 
 #endif
-
-
-
-
 
 
 #endif
