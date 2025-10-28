@@ -486,7 +486,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     
 #else
     //polynome 3d
-
+/*
     constexpr double probcut_a = -0.00851901573285444;
     constexpr double probcut_b = -0.09935412852060108;
     constexpr double probcut_c = 0.031905082926492856;
@@ -494,14 +494,35 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 3.5882138485889543;
     constexpr double probcut_f = 6.04101885274816;
     constexpr double probcut_g = 6.263248599279729;
-
+*/
+    
+    /* le 26/10/2025
+    constexpr double probcut_a = 0.003748491686013455;
+    constexpr double probcut_b = 0.04506671220940865;
+    constexpr double probcut_c = -0.010374411963021744;
+    constexpr double probcut_d = -7.5041027769441255;
+    constexpr double probcut_e = 20.93345097966799;
+    constexpr double probcut_f = -16.96399069934705;
+    constexpr double probcut_g = 7.034390511398317;
+     */
+    
+    //s8r14 3:00 Edmond vs edax
+    //w36 d41 l23 [100games]
+    constexpr double probcut_a = -0.0031935303592646376;
+    constexpr double probcut_b = 0.05969703262122186;
+    constexpr double probcut_c = -0.012910915728310287;
+    constexpr double probcut_d = -7.755641740879443;
+    constexpr double probcut_e = 17.271987338138562;
+    constexpr double probcut_f = -9.347860696908523;
+    constexpr double probcut_g = 5.089423954605218;
+    
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
     
 #endif
 
     //sigma with lower bound at 2,5
-    return std::max(2.5, sigma);
+    return sigma;
     
 }
 

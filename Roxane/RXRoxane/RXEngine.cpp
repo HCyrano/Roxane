@@ -29,7 +29,7 @@ const int RXEngine::GGS_MSG = 5;
 
 #ifdef __ARM_ACLE
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,  100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.40f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.70f}; // vs 1.18f
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -281,9 +281,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     RXMove* list1 = list;
     
     
-    const int beta =  alpha+1;
-    int depth2 = std::min(depth-2, 4-depth & 1);
-    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth2 /*depth & 0x1UL*/));
+    const int beta = alpha+1;
+    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth & 0x1UL));
 
     int eval_0 = sBoard.get_score();
     
@@ -293,8 +292,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         
-        if (-sBoard.get_score(*list1) >= (beta - eval_error_0)) {
-            
+        if (sBoard.get_score(*list1) <= (eval_error_0-alpha)) {
+
             sBoard.do_move(*list1);
             
             if(depth_probcut == 2) {
@@ -358,8 +357,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         //beta prob cut
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
-            if(-sBoard.get_score(*iter) >= (beta - eval_error_0)) {
-                
+            if (sBoard.get_score(*iter) <= (eval_error_0-alpha)) {
+
                 sBoard.do_move(*iter);
                 
                 if(depth_probcut == 2) {
@@ -428,8 +427,8 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         
         for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
             
-//            if(-sBoard.get_score(*iter) < (alpha + eval_error_0))
-//               continue;
+            if(sBoard.get_score(*iter) > (eval_error_0-beta))
+               continue;
                 
                 sBoard.do_move(*iter);
                 
@@ -2326,9 +2325,9 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 500; ++n_data) {
+    for(int n_data = 0; n_data < 200; ++n_data) {
         for(int depth = 16; depth <= 17; ++depth) {
-            hTable->reset();
+            //hTable->reset();
             //start at 8 discs
             for (int n_discs = 8; n_discs < 64-5-depth; ++n_discs){
                 //sBoard.reset();
@@ -2371,20 +2370,6 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                 if(board.n_moves()!=0) {
                     
                     int score_at_shallow_depth, score_at_depth;
-
-                    int shallow_depth = random_bounds(1, depth-1);
-                    shallow_depth &= 0xfffffffeUL;
-                    shallow_depth |= (depth & 1);
-                    
-                    if(shallow_depth == depth)
-                        shallow_depth -=2;
-                    
-                    if(shallow_depth < 4) {
-                        score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                    } else {
-                        wake_sleeping_threads();
-                        score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                    }
                     
                     if(depth < 4) {
                         score_at_depth = MG_PVS_shallow(0, sBoard, true, depth, -MAX_SCORE, MAX_SCORE, false);
@@ -2392,14 +2377,27 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                         wake_sleeping_threads();
                         score_at_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, -MAX_SCORE, MAX_SCORE, false);
                     }
-                    
-                    int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
-                    
-                    //if(depth == 2 && n_moves == 0)
+
+                    hTable->reset();
+
+                    for(int shallow_depth = depth & 1; shallow_depth <= depth-2; shallow_depth+=2){
+                        
+                        if(shallow_depth < 4) {
+                            score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                        } else {
+                            wake_sleeping_threads();
+                            score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                        }
+                        
+                        
+                        int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
+                        
+                        //if(depth == 2 && n_moves == 0)
                         std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
-                    
-                    if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
-                        ofs << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
+                        
+                        if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
+                            ofs << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
+                    }
 
                 }
                 
@@ -2434,8 +2432,8 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 2500; ++n_data) {
-        for(int depth = 26; depth <= 27; ++depth) {
+    for(int n_data = 0; n_data < 400; ++n_data) {
+        for(int depth = 30; depth <= 30; ++depth) {
             hTable->reset();
             int n_moves = 0;
             for (;n_moves < 64-4-depth && board.n_moves()!=0; ++n_moves){
@@ -2510,9 +2508,9 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                     
                     int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
                     
-                    std::cout << n_data  << " :"  << board.n_empty << " " << shallow_depth << " " << board.n_empty << " " << diff_score_depth_score_shallow << std::endl;
+                    std::cout << n_data  << " :"  << 64-board.n_empty << " " << shallow_depth << " " << board.n_empty << " " << diff_score_depth_score_shallow << std::endl;
                     if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
-                        ofs << board.n_empty<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
+                        ofs << 64-board.n_empty<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
                 }
 
 
@@ -2603,9 +2601,9 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
                 
                 int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
                 
-                std::cout << n_data  << " :"  << n_empties << " " << shallow_depth << " " << n_empties << " " << diff_score_depth_score_shallow << std::endl;
+                std::cout << n_data  << " :"  << 64-n_empties << " " << shallow_depth << " " << n_empties << " " << diff_score_depth_score_shallow << std::endl;
                 if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
-                    ofs << n_empties<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
+                    ofs << 64-n_empties<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
             }
             
             
