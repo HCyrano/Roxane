@@ -272,7 +272,7 @@ class RXEngine: public Runnable, public RXHelper {
     
     void sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
     
-    int probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int alpha, const int depth, const int depth_probcut, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove);
+    int probcut(const unsigned int threadID, RXBBPatterns& sBoard, const int selectivity, const int alpha, const int depth, const int depth_probcut, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove);
     int PVS_last_ply(const unsigned int threadID, RXBBPatterns& sBoard, const int depth, int alpha, const int beta, const bool passed);
     int alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed);
     int alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed);
@@ -506,6 +506,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_g = 7.034390511398317;
      */
     
+    
     //s8r14 3:00 Edmond vs edax
     //w36 d41 l23 [100games]
     constexpr double probcut_a = -0.0031935303592646376;
@@ -515,6 +516,18 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 17.271987338138562;
     constexpr double probcut_f = -9.347860696908523;
     constexpr double probcut_g = 5.089423954605218;
+    
+    /*
+    // s8r14 3:00 Edmond vs Rostand
+    //w27 d 66 l37
+    constexpr double probcut_a = -0.0010379521160583595;
+    constexpr double probcut_b = 0.03864157929092302;
+    constexpr double probcut_c = -0.012813733660428612;
+    constexpr double probcut_d = -13.88994753874693;
+    constexpr double probcut_e = 23.77203236686711;
+    constexpr double probcut_f = -12.021232747834466;
+    constexpr double probcut_g = 4.377396934700955;
+    */
     
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;

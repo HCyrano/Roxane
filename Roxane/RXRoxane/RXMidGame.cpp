@@ -1248,7 +1248,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     } else {
         
         //XProbcut
-        int type_probcut = probcut(threadID, false, sBoard, selectivity, alpha, depth, depth_probcut, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
+        int type_probcut = probcut(threadID, sBoard, selectivity, alpha, depth, depth_probcut, lower_probcut, upper_probcut, list, bestmove != NOMOVE);
         if(type_probcut == BETA_CUT) {
             return alpha + 1;
         }

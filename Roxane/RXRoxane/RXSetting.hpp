@@ -15,7 +15,7 @@
 #endif
 
 //Matchs avec / sans alpha_cut 91/157/49 [297]
-#define USE_PROBCUT_ALPHA
+//#define USE_PROBCUT_ALPHA
 
 #define USE_IMPROVE_HELPFUL_MASTER_CONCEPT
 

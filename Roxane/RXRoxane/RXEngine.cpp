@@ -270,7 +270,7 @@ void RXEngine::sort_moves(const unsigned int threadID, const bool endgame, RXBBP
     
 }
 
-int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int selectivity, const int alpha, const int depth, const int depth_probcut, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
+int RXEngine::probcut(const unsigned int threadID, RXBBPatterns& sBoard, const int selectivity, const int alpha, const int depth, const int depth_probcut, const int lower_probcut, const int upper_probcut, RXMove* list, const bool hashMove) {
     
     constexpr int DEPTH_5 = 5;
     
@@ -283,17 +283,17 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
     
     const int beta = alpha+1;
     int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth & 0x1UL));
-
+    
     int eval_0 = sBoard.get_score();
     
-    if(hashMove && eval_0 >= (beta - eval_error_0) && upper_probcut < 64) {
+    if(hashMove) {
 
         list1= list->next ;
         
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         
-        if (sBoard.get_score(*list1) <= (eval_error_0-alpha)) {
-
+        if (upper_probcut < 64 && eval_0 >= (beta - eval_error_0) && sBoard.get_score(*list1) <= (eval_error_0-alpha)) {
+                    
             sBoard.do_move(*list1);
             
             if(depth_probcut == 2) {
@@ -350,10 +350,10 @@ int RXEngine::probcut(const unsigned int threadID, const bool endgame, RXBBPatte
         }
     }
     
-    sort_moves(threadID, endgame, sBoard, depth_probcut, selectivity, lower_probcut, upper_probcut, list1);
+    sort_moves(threadID, board.n_empty == depth, sBoard, depth_probcut, selectivity, lower_probcut, upper_probcut, list1);
 
     if(eval_0 >= (beta - eval_error_0) && upper_probcut < 64) {
-        
+
         //beta prob cut
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
