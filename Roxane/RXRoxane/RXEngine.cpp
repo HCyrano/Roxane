@@ -29,7 +29,10 @@ const int RXEngine::GGS_MSG = 5;
 
 #ifdef __ARM_ACLE
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,  100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.70f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f}; // vs 1.18f
+//const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,  100}; // 99
+//const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.20f, 2.80f}; // vs 1.18f
+
 #else
 //i386
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,   100};
@@ -282,7 +285,7 @@ int RXEngine::probcut(const unsigned int threadID, RXBBPatterns& sBoard, const i
     
     
     const int beta = alpha+1;
-    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, depth & 0x1UL));
+    int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, 0));
     
     int eval_0 = sBoard.get_score();
     

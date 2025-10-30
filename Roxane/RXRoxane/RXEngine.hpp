@@ -486,27 +486,8 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     
 #else
     //polynome 3d
-/*
-    constexpr double probcut_a = -0.00851901573285444;
-    constexpr double probcut_b = -0.09935412852060108;
-    constexpr double probcut_c = 0.031905082926492856;
-    constexpr double probcut_d = 0.7501917587309462;
-    constexpr double probcut_e = 3.5882138485889543;
-    constexpr double probcut_f = 6.04101885274816;
-    constexpr double probcut_g = 6.263248599279729;
-*/
     
-    /* le 26/10/2025
-    constexpr double probcut_a = 0.003748491686013455;
-    constexpr double probcut_b = 0.04506671220940865;
-    constexpr double probcut_c = -0.010374411963021744;
-    constexpr double probcut_d = -7.5041027769441255;
-    constexpr double probcut_e = 20.93345097966799;
-    constexpr double probcut_f = -16.96399069934705;
-    constexpr double probcut_g = 7.034390511398317;
-     */
-    
-    
+    /*
     //s8r14 3:00 Edmond vs edax
     //w36 d41 l23 [100games]
     constexpr double probcut_a = -0.0031935303592646376;
@@ -516,10 +497,13 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 17.271987338138562;
     constexpr double probcut_f = -9.347860696908523;
     constexpr double probcut_g = 5.089423954605218;
+    */
     
     /*
     // s8r14 3:00 Edmond vs Rostand
-    //w27 d 66 l37
+    //w27 d66 l37
+    // s8r14 3:00 Edmond vs edax
+    //w42 d52 l31
     constexpr double probcut_a = -0.0010379521160583595;
     constexpr double probcut_b = 0.03864157929092302;
     constexpr double probcut_c = -0.012813733660428612;
@@ -528,6 +512,15 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_f = -12.021232747834466;
     constexpr double probcut_g = 4.377396934700955;
     */
+    
+    constexpr double probcut_a = -0.0013753693979055702;
+    constexpr double probcut_b = 0.04200019597030063;
+    constexpr double probcut_c = -0.01495786288002629;
+    constexpr double probcut_d = -10.858994802151685;
+    constexpr double probcut_e = 19.203000071481046;
+    constexpr double probcut_f = -9.012959276470896;
+    constexpr double probcut_g = 4.184476898485285;
+    
     
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
@@ -541,7 +534,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 
 inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int depth_probcut,  const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const {
     
-    double coeff_pv = std::max(0.90f, (109-3*pvDev)/100.0f);
+    double coeff_pv = std::max(0.90, (115-3*pvDev)/100.0);
     
     //error evaluation with lower bound at 3
     int eval_error = std::round(sigma(board.n_empty, depth, depth_probcut) * coeff_pv * PERCENTILE[selectivity]);
