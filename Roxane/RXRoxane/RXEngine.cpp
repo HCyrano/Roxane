@@ -2437,7 +2437,6 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
 
     for(int n_data = 0; n_data < 400; ++n_data) {
         for(int depth = 30; depth <= 30; ++depth) {
-            hTable->reset();
             int n_moves = 0;
             for (;n_moves < 64-4-depth && board.n_moves()!=0; ++n_moves){
                 //sBoard.reset();
@@ -2497,7 +2496,8 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                     score_at_depth = EG_PVS_deep(0, sBoard, true, NO_SELECT, -MAX_SCORE, MAX_SCORE, false);
                 }
                 
-                
+                hTable->reset();
+
                 for(int shallow_depth = board.n_empty & 1; shallow_depth <= 15; shallow_depth+=2){
                     
                     int score_at_shallow_depth;

@@ -513,14 +513,26 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_g = 4.377396934700955;
     */
     
-    constexpr double probcut_a = -0.0013753693979055702;
-    constexpr double probcut_b = 0.04200019597030063;
-    constexpr double probcut_c = -0.01495786288002629;
-    constexpr double probcut_d = -10.858994802151685;
-    constexpr double probcut_e = 19.203000071481046;
-    constexpr double probcut_f = -9.012959276470896;
-    constexpr double probcut_g = 4.184476898485285;
+    /*
+    constexpr double probcut_a = 0.00486567818949669;
+    constexpr double probcut_b = -0.1400848207917515;
+    constexpr double probcut_c = 0.10042195290335712;
+    constexpr double probcut_d = -0.13264288568454755;
+    constexpr double probcut_e = 1.3893806261023847;
+    constexpr double probcut_f = 0.9051662066427753;
+    constexpr double probcut_g = 2.720785488008095;
+    */
     
+    constexpr double probcut_a = -0.0017319169860170334;
+    constexpr double probcut_b = 0.046028020390195414;
+    constexpr double probcut_c = -0.02121182792010099;
+    constexpr double probcut_d = -5.248427428319801;
+    constexpr double probcut_e = 10.287391794385476;
+    constexpr double probcut_f = -5.173813504774759;
+    constexpr double probcut_g = 3.3344983118071387;
+
+    
+
     
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
