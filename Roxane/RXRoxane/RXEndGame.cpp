@@ -1067,8 +1067,8 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             return INTERRUPT_SEARCH;
         
         if(hTable->get(hash_code, type_hashtable, entry)) {
-            bestmove = entry.move;
-            board.isValid_square(entry.move);
+            if(board.isValid_square(entry.move))
+                bestmove = entry.move;
         }
 
     }
