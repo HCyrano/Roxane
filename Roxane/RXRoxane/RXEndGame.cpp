@@ -2171,30 +2171,23 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
     
     //utiliser directement "list->next->score" provoque un bug d'affichage 25/03/2025
     int score = list->next->score;
-    int modulo = score % 2;
-    if( modulo != 0) {
-        score -= modulo;
-        if(modulo > 1)
-            score += 2;
-    }
+    score -= score % 2;
     
     score = std::min(64, std::max(-64, score));
     
     
     int s_alpha = search_alpha;
     if(s_alpha<0) {
-        if(s_alpha%2 != 0)
-            s_alpha -= 2+ s_alpha%2;
+        s_alpha += s_alpha%2;
     } else {
         s_alpha -= s_alpha%2;
     }
     
     int s_beta  = search_beta;
-    if(s_beta <0) {
+    if(s_beta<0) {
         s_beta  -= s_beta%2;
     } else {
-        if(s_beta%2 != 0)
-            s_beta  += 2- s_beta%2;
+        s_beta  += s_beta%2;
     }
     
     s_alpha = std::max(-64, s_alpha);
@@ -2229,17 +2222,15 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
         
         //always even window
         if(alpha<0) {
-            if(alpha%2 != 0)
-                alpha -= 2+ alpha%2 ;
+            alpha += alpha%2 ;
         } else {
             alpha -= alpha%2;
         }
         
-        if(beta <0) {
+        if(beta<0) {
             beta  -= beta%2;
         } else {
-            if(beta%2 != 0)
-                beta  += 2- beta%2;
+            beta  += beta%2;
         }
         
         //high score >= 48 skip selectivity stage
@@ -2286,17 +2277,15 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
             
             //search window has always peers limits
             if(alpha<0) {
-                if(alpha%2 != 0)
-                    alpha -= 2+ alpha%2;
+                alpha += alpha%2;
             } else {
                 alpha -= alpha%2;
             }
             
-            if(beta <0) {
+            if(beta<0) {
                 beta  -= beta%2;
             } else {
-                if(beta%2 != 0)
-                    beta  += 2- beta%2;
+                beta  += beta%2;
             }
             
             EG_PVS_root(sBoard, selectivity, alpha, beta, list);
