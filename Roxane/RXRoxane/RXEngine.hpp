@@ -486,10 +486,13 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     
 #else
     //polynome 3d
-    
+
     /*
-    //s8r14 3:00 Edmond vs edax
-    //w36 d41 l23 [100games]
+    // s8r14 3:00 Edmond vs Rostand
+    // w21 d63 l32
+    // s8r14 3:00 Edmond vs edax
+    // w36 d41 l23 [100games]
+    // (119 913 951)
     constexpr double probcut_a = -0.0031935303592646376;
     constexpr double probcut_b = 0.05969703262122186;
     constexpr double probcut_c = -0.012910915728310287;
@@ -499,11 +502,10 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_g = 5.089423954605218;
     */
     
-    /*
     // s8r14 3:00 Edmond vs Rostand
-    //w27 d66 l37
+    // w27 d66 l37
     // s8r14 3:00 Edmond vs edax
-    //w42 d52 l31
+    // w42 d52 l31
     constexpr double probcut_a = -0.0010379521160583595;
     constexpr double probcut_b = 0.03864157929092302;
     constexpr double probcut_c = -0.012813733660428612;
@@ -511,18 +513,12 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 23.77203236686711;
     constexpr double probcut_f = -12.021232747834466;
     constexpr double probcut_g = 4.377396934700955;
-    */
+    
     
     /*
-    constexpr double probcut_a = 0.00486567818949669;
-    constexpr double probcut_b = -0.1400848207917515;
-    constexpr double probcut_c = 0.10042195290335712;
-    constexpr double probcut_d = -0.13264288568454755;
-    constexpr double probcut_e = 1.3893806261023847;
-    constexpr double probcut_f = 0.9051662066427753;
-    constexpr double probcut_g = 2.720785488008095;
-    */
-    
+    //version 3 (113 590 954)
+    //s8r14 3:00 Edmond vs edax
+    //w46 d66 l42
     constexpr double probcut_a = -0.0017319169860170334;
     constexpr double probcut_b = 0.046028020390195414;
     constexpr double probcut_c = -0.02121182792010099;
@@ -530,7 +526,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 10.287391794385476;
     constexpr double probcut_f = -5.173813504774759;
     constexpr double probcut_g = 3.3344983118071387;
-
+    */
     
 
     
