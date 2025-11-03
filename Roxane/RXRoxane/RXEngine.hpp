@@ -502,10 +502,12 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_g = 5.089423954605218;
     */
     
+    /*
     // s8r14 3:00 Edmond vs Rostand
     // w27 d66 l37
     // s8r14 3:00 Edmond vs edax
     // w42 d52 l31
+    // version tournament november 2025
     constexpr double probcut_a = -0.0010379521160583595;
     constexpr double probcut_b = 0.03864157929092302;
     constexpr double probcut_c = -0.012813733660428612;
@@ -513,9 +515,9 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 23.77203236686711;
     constexpr double probcut_f = -12.021232747834466;
     constexpr double probcut_g = 4.377396934700955;
+    */
     
     
-    /*
     //version 3 (113 590 954)
     //s8r14 3:00 Edmond vs edax
     //w46 d66 l42
@@ -526,7 +528,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 10.287391794385476;
     constexpr double probcut_f = -5.173813504774759;
     constexpr double probcut_g = 3.3344983118071387;
-    */
+    
     
 
     

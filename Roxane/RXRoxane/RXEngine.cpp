@@ -2559,6 +2559,8 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
 
 void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, RXHashTable* PV) {
     
+    std::cout << file_name << std::endl;
+    
     activeThreads = get_THREAD_MAX();
     
     hTable = HT;
@@ -2590,6 +2592,8 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
 
             sBoard.build(line);
             int n_empties = board.n_empty;
+            
+            hTable->reset();
                                         
             for(int shallow_depth = n_empties & 1; shallow_depth <= 15; shallow_depth+=2){
                 
@@ -2612,6 +2616,7 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
             
         }
     }
+    
     in.close();
     ofs.close();
 
