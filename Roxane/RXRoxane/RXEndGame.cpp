@@ -8,7 +8,6 @@
  */
 #include <iostream>
 #include <iomanip>
-#include <cmath>
 
 
 #include "RXEngine.hpp"

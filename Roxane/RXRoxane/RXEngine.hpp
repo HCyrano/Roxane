@@ -19,6 +19,7 @@
 #include <locale>
 #include <assert.h>
 #include <atomic>
+#include <cmath>
 
 #include "RXBBPatterns.hpp"
 #include "RXBitBoard.hpp"
@@ -457,30 +458,67 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
+
+
+
+//// --- Modèle principal : probabilité (sigma) ---
+//inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
+//{
+//    
+//    constexpr int mid = 0;
+//    constexpr int end = 1;
+//
+//    
+//    // --- Coefficients appris (issus du script Python) ---
+//    constexpr double probcut_a[] = {-0.00906229, 0.00483133};
+//    constexpr double probcut_b[] = {0.12115910, 0.07975382};
+//    constexpr double probcut_c[] = {-0.12071974, -0.01763140};
+//    constexpr double probcut_d[] = {-0.47638522, -3.58586370};
+//    constexpr double probcut_e[] = {-2.93341676, 9.99659776};
+//    constexpr double probcut_f[] = {-5.44314615, -9.52512272};
+//    constexpr double probcut_g[] = {0.01672187, 6.76910942};
+//
+//    // Transitions progressives entre zones
+//    double s1 = sigmoid(n_empty, 40.0, 0.3);
+//
+//    double w_mid   = s1;
+//    double w_end   = 1.0 - s1;
+//
+//    // Fonction polynomiale par zone
+//    auto sigma = [&](int i) {
+//        double r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
+//        return probcut_d[i] * r * r * r +
+//               probcut_e[i] * r * r +
+//               probcut_f[i] * r +
+//               probcut_g[i];
+//    };
+//
+//    // Combinaison douce
+//    double sig_mid = sigma(mid);
+//    double sig_end = sigma(end);
+//
+//    double res = w_mid * sig_mid + w_end * sig_end;
+//
+//    return res;
+//}
+//
+//
 inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const {
     
     double sigma;
     
 #ifdef PROBCUT_x2
     //polynome 2d
-    /*
-    //15/08/2025
-    constexpr double probcut_a = 0.0853462218506715;
-    constexpr double probcut_b = 1.3586842929500207;
-    constexpr double probcut_c = -0.3910431797136643;
-    constexpr double probcut_d = 0.01971732496185341;
-    constexpr double probcut_e = -0.48544440900765307;
-    constexpr double probcut_f = 6.413653253950335;
-    */
+    
+    //edax coefficients
+    constexpr double probcut_a = -0.10026799;
+    constexpr double probcut_b = 0.31027733;
+    constexpr double probcut_c = -0.57772603;
+    constexpr double probcut_d = 0.07585621;
+    constexpr double probcut_e = 1.16492647;
+    constexpr double probcut_f = 5.9171698;
+    
      
-    //01/09/2025
-    constexpr double probcut_a = -0.08606807878666341;
-    constexpr double probcut_b = -1.0234874117828265;
-    constexpr double probcut_c = 0.34464360518300213;
-    constexpr double probcut_d = 0.029575904757548236;
-    constexpr double probcut_e = 0.5814835222336526;
-    constexpr double probcut_f = 6.111673594083032;
-
     sigma= probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
     sigma = probcut_d * sigma * sigma + probcut_e * sigma + probcut_f;
     
@@ -493,6 +531,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     // s8r14 3:00 Edmond vs edax
     // w36 d41 l23 [100games]
     // (119 913 951)
+    //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
     constexpr double probcut_a = -0.0031935303592646376;
     constexpr double probcut_b = 0.05969703262122186;
     constexpr double probcut_c = -0.012910915728310287;
@@ -502,7 +541,9 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_g = 5.089423954605218;
     */
     
-    /*
+    
+    // version 115 694 019
+    //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
     // s8r14 3:00 Edmond vs Rostand
     // w27 d66 l37
     // s8r14 3:00 Edmond vs edax
@@ -515,10 +556,11 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 23.77203236686711;
     constexpr double probcut_f = -12.021232747834466;
     constexpr double probcut_g = 4.377396934700955;
-    */
     
     
+    /*
     //version 3 (113 590 954)
+    //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
     //s8r14 3:00 Edmond vs edax
     //w46 d66 l42
     constexpr double probcut_a = -0.0017319169860170334;
@@ -528,15 +570,18 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 10.287391794385476;
     constexpr double probcut_f = -5.173813504774759;
     constexpr double probcut_g = 3.3344983118071387;
+    */
     
-    
-
     
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
-    sigma = probcut_d * sigma * sigma * sigma + probcut_e * sigma * sigma + probcut_f * sigma + probcut_g;
+    sigma =   probcut_d * sigma * sigma * sigma
+            + probcut_e * sigma * sigma
+            + probcut_f * sigma
+            + probcut_g;
+
     
 #endif
-
+    
     //sigma with lower bound at 2,5
     return sigma;
     

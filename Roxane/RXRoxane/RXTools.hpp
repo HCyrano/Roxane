@@ -53,4 +53,11 @@ static inline int random_bounds(int min, int max)
     return rand()%(max-min+1) + min;
 }
 
+// --- Sigmoïde lisse pour les transitions ---
+inline double sigmoid(double x, double x0, double k = 0.3)
+{
+    return 1.0 / (1.0 + std::exp(-k * (x - x0)));
+}
+
+
 #endif

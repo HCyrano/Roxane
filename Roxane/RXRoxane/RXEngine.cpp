@@ -7,7 +7,6 @@
  *
  */
 #include <iomanip>
-#include <cmath>
 //#include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -286,6 +285,9 @@ int RXEngine::probcut(const unsigned int threadID, RXBBPatterns& sBoard, const i
     
     const int beta = alpha+1;
     int eval_error_0 = std::round(PERCENTILE[selectivity] * sigma(board.n_empty, depth, 0));
+
+//    bornage probcut type old Roxane
+//    int error = ((upper_probcut-lower_probcut)-1)/2;
     
     int eval_0 = sBoard.get_score();
     
@@ -296,7 +298,8 @@ int RXEngine::probcut(const unsigned int threadID, RXBBPatterns& sBoard, const i
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         
         if (upper_probcut < 64 && eval_0 >= (beta - eval_error_0) && sBoard.get_score(*list1) <= (eval_error_0-alpha)) {
-                    
+//        if (upper_probcut < 64 && eval_0 > lower_probcut - error && sBoard.get_score(*list1) < -upper_probcut) {
+
             sBoard.do_move(*list1);
             
             if(depth_probcut == 2) {
@@ -356,11 +359,14 @@ int RXEngine::probcut(const unsigned int threadID, RXBBPatterns& sBoard, const i
     sort_moves(threadID, board.n_empty == depth, sBoard, depth_probcut, selectivity, lower_probcut, upper_probcut, list1);
 
     if(eval_0 >= (beta - eval_error_0) && upper_probcut < 64) {
+//    if(eval_0 > lower_probcut-error && upper_probcut < 64) {
 
-        //beta prob cut
+            //beta prob cut
         for(RXMove* iter = list1->next; iter != NULL; iter = iter->next) {
             
             if (sBoard.get_score(*iter) <= (eval_error_0-alpha)) {
+//            if (sBoard.get_score(*iter) <-upper_probcut) {
+
 
                 sBoard.do_move(*iter);
                 
@@ -2595,7 +2601,7 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
             
             hTable->reset();
                                         
-            for(int shallow_depth = n_empties & 1; shallow_depth <= 15; shallow_depth+=2){
+            for(int shallow_depth = n_empties & 1; shallow_depth <= 17; shallow_depth+=2){
                 
                 int score_at_shallow_depth;
                 
