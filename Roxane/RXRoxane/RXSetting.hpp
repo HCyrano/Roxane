@@ -53,5 +53,5 @@
 
 // type of window probcut
 //#define PROBCUT_x2 // undefined use PROBCUT_x3
-
+#define SIGMA_2ZONES
 #endif
