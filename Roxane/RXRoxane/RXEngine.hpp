@@ -461,7 +461,7 @@ inline int RXEngine::time_limit() const {
 
 
 
-//// --- Modèle principal : probabilité (sigma) ---
+// --- Modèle principal : probabilité (sigma) ---
 //inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
 //{
 //    
@@ -470,6 +470,10 @@ inline int RXEngine::time_limit() const {
 //
 //    
 //    // --- Coefficients appris (issus du script Python) ---
+//    // version 6: 119 779 393
+//    // const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
+//    // s8r14 2:00 Edmond vs edax
+//    // w88 d121 l68
 //    constexpr double probcut_a[] = {-0.00906229, 0.00483133};
 //    constexpr double probcut_b[] = {0.12115910, 0.07975382};
 //    constexpr double probcut_c[] = {-0.12071974, -0.01763140};
@@ -526,22 +530,6 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     //polynome 3d
 
     /*
-    // s8r14 3:00 Edmond vs Rostand
-    // w21 d63 l32
-    // s8r14 3:00 Edmond vs edax
-    // w36 d41 l23 [100games]
-    // (119 913 951)
-    //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
-    constexpr double probcut_a = -0.0031935303592646376;
-    constexpr double probcut_b = 0.05969703262122186;
-    constexpr double probcut_c = -0.012910915728310287;
-    constexpr double probcut_d = -7.755641740879443;
-    constexpr double probcut_e = 17.271987338138562;
-    constexpr double probcut_f = -9.347860696908523;
-    constexpr double probcut_g = 5.089423954605218;
-    */
-    
-    
     // version 115 694 019
     //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
     // s8r14 3:00 Edmond vs Rostand
@@ -556,13 +544,13 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 23.77203236686711;
     constexpr double probcut_f = -12.021232747834466;
     constexpr double probcut_g = 4.377396934700955;
+    */
     
     
-    /*
     //version 3 (113 590 954)
     //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
-    //s8r14 3:00 Edmond vs edax
-    //w46 d66 l42
+    //s8r14 2:00 Edmond vs edax
+    //w75 d118 l62
     constexpr double probcut_a = -0.0017319169860170334;
     constexpr double probcut_b = 0.046028020390195414;
     constexpr double probcut_c = -0.02121182792010099;
@@ -570,7 +558,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e = 10.287391794385476;
     constexpr double probcut_f = -5.173813504774759;
     constexpr double probcut_g = 3.3344983118071387;
-    */
+    
     
     
     sigma = probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
