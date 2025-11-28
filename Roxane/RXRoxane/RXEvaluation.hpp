@@ -49,7 +49,7 @@ class alignas(64) RXEvaluation {
 	
     alignas(64) static inline short* EDGE_6_4[61];
 
-    alignas(64) static sinline hort* corner2x5[61];
+    alignas(64) static inline short* corner2x5[61];
 	
 	salignas(64) tatic inline short* EDGE_2XC[61];
     

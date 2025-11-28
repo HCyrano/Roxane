@@ -27,7 +27,11 @@ const int RXEngine::MG_MOVING_WINDOW = 4; //4
 // W        D       L
 // 85       293     125
 // 16,9%    58,25%  24,85%
+#ifdef PV_EXTENSION
+const bool RXEngine::USE_PV_EXTENSION = true;
+#else
 const bool RXEngine::USE_PV_EXTENSION = false;
+#endif
 const int RXEngine::PV_EXTENSION_DEPTH = 14;
 const int RXEngine::MIN_DEPTH_USE_PV_EXTENSION = 16;
 
@@ -441,7 +445,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     int upper = beta;
     
     //PV EXTENSION
-    if (USE_PV_EXTENSION && pv && use_pv_ext && (board.n_empty) <= depth_pv_extension) {
+    if (pv && use_pv_ext && board.n_empty <= depth_pv_extension) {
         
         if (board.n_empty <= EG_MEDIUM_HI_TO_LOW)
             return EG_PVS_hash_mobility(threadID, board, true, lower, upper, passed);
@@ -941,7 +945,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     }
     
     //PV EXTENSION
-    if (USE_PV_EXTENSION && pv && use_pv_ext && (board.n_empty- depth) <= depth_pv_extension) {
+    if (pv && use_pv_ext && (board.n_empty - depth) <= depth_pv_extension) {
         
         if (board.n_empty <= EG_MEDIUM_HI_TO_LOW)
             return EG_PVS_hash_mobility(threadID, board, true, alpha, beta, passed);

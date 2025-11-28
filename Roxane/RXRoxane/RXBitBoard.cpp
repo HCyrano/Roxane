@@ -645,7 +645,7 @@ void RXBitBoard::build(const std::string& init) {
     }
     empties_list[61].previous = previous;
     previous->next = &empties_list[61];
-        
+            
     
 }
 

@@ -102,6 +102,10 @@
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/bug_corruption.src"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/pirate.src"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

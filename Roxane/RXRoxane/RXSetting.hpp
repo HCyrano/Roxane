@@ -29,6 +29,10 @@
 //#define USE_SPLIT_AT_ETC_MOBILITY
 
 
+//not efficient
+//#define PV_EXTENSION
+
+
 #define USE_ETC
 
 #define USE_STABILITY
@@ -51,7 +55,8 @@
 //#define GENERATE_RES_FILE
 
 
-// type of window probcut
+// type of coefficients probcut
 //#define PROBCUT_x2 // undefined use PROBCUT_x3
 #define SIGMA_2ZONES
+
 #endif
