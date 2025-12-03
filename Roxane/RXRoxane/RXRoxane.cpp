@@ -599,10 +599,11 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
     
     
     std::string path_in  = dir_name + "/pirate/Pirate_base_negamaxed.txt";
-    std::string path_out = dir_name + "/Roxane/base_01.txt";
+    std::string path_out = dir_name + "/Roxane/base_00.txt";
 
     /* fichier de sortie */
-    std::ofstream ofs(path_out.c_str(), std::ios::app); // Write at the end of the file if it exists; otherwise, create it
+    // Write at the end of the file if it exists and offset_start != 0; otherwise, create it
+    std::ofstream ofs(path_out.c_str(), offset_start == 0 ? std::ios::trunc:std::ios::app);
 
 
     std::ifstream ifs(path_in.c_str());
@@ -619,7 +620,7 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
             if(idx < offset_start)
                 continue;
             
-            if(idx != 0 && idx % 1 == 1000) {
+            if(idx != offset_start && idx % 1000 == 0) {
                 // 2. Enregistrer l'heure de fin
                 auto end_time = std::chrono::high_resolution_clock::now();
                     

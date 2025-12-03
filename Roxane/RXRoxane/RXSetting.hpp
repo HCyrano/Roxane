@@ -15,7 +15,7 @@
 #endif
 
 //login actif / inactif
-#define LOGGING_ON
+//#define LOGGING_ON
 
 //Matchs avec / sans alpha_cut 91/157/49 [297]
 //#define USE_PROBCUT_ALPHA

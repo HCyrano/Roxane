@@ -92,15 +92,15 @@ threads(maxThread, RXThread(maxThread, ACTIVE_SPLITPOINT_MAX)) {
 RXEngine::~RXEngine() {
     
     //order inverted
-    
+#ifdef LOGGING_ON
     // if log is an ofstream and it's open, close it
-    if (auto f = dynamic_cast<std::ofstream*>(log)) {
-        if (f->is_open())
-            f->close();
+    if (logfile) {
+        if (logfile->is_open())
+            logfile->close();
+        delete logfile;
     }
+#endif
 
-    delete log;
-    
     delete hTable_shallow;
     
     stop_threads();
