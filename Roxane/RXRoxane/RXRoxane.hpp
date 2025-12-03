@@ -85,6 +85,8 @@ public :
 	//privateProtocol
 	void get_move(const std::string& file_name);
 
+    void rawdata(const std::string& dir_name, const int offset_start, const int n_games);
+
 
 	//wthorProtocol
 	void check_allWTHOR();

@@ -78,8 +78,13 @@ threads(maxThread, RXThread(maxThread, ACTIVE_SPLITPOINT_MAX)) {
     
     hTable_shallow = new RXHashShallow(19);
     
-    log = new std::ofstream(filename.c_str());
+    logfile = new std::ofstream(filename.c_str());
     
+#ifdef LOGGING_ON
+    log = logfile; // login actif
+#else
+    log = &nullStream; // logging désactivé
+#endif
     
 }
 
@@ -88,9 +93,12 @@ RXEngine::~RXEngine() {
     
     //order inverted
     
-    if (log && log->is_open())
-        log->close();
-    
+    // if log is an ofstream and it's open, close it
+    if (auto f = dynamic_cast<std::ofstream*>(log)) {
+        if (f->is_open())
+            f->close();
+    }
+
     delete log;
     
     delete hTable_shallow;
@@ -1309,7 +1317,7 @@ void RXEngine::get_move(RXSearch& s) {
     s.bestMove = best_answer;
     s.bestMove.tElapsed = get_current_dependentTime()/1000.0;
     
-    
+#ifndef GENERATE_RAWDATA
     if(search_sBoard.board.n_empty > 19) {
         int speed = 0;
         if(time_search != 0)
@@ -1343,7 +1351,7 @@ void RXEngine::get_move(RXSearch& s) {
         manager->sendMsg(buffer.str());
         
     }
-    
+#endif
     
     *log << "I play " << RXMove::index_to_coord(s.bestMove.position) << std::endl;
     *log << "evaluation " << (s.bestMove.score) <<  std::endl;
@@ -1576,12 +1584,7 @@ void* RXEngine::run() {
             
             
         }
-        
-        //        int lower = list->next->score - 8;
-        //        int upper = list->next->score + 8;
-        //
-        //        sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, lower, upper, list1);
-        
+                
         sort_moves(0, endgame_flag, search_sBoard, depth, selectivity, -MAX_SCORE, MAX_SCORE, list1);
         
         //if no hashmove
@@ -1625,10 +1628,10 @@ void* RXEngine::run() {
             //new_search = false;
         }
         
-        if (!abort.load() && search_depth > (search_sBoard.board.n_empty-10)) {
+        if (!abort.load() && search_depth > (search_sBoard.board.n_empty-(USE_PV_EXTENSION ? 10: 6))) {
             
             //coherence selectivty et end_selectivity
-            int end_selectivity = search_depth < search_sBoard.board.n_empty? RXEngine::EG_HIGH_SELECT:search_selectivity;
+            int end_selectivity = search_depth < search_sBoard.board.n_empty? EG_HIGH_SELECT:search_selectivity;
             
             //for test
             //end_selectivity =  MG_SELECT;

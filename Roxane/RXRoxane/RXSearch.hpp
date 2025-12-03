@@ -61,12 +61,13 @@ class RXSearch {
 	
 	//parameters search
 	RXBBPatterns sBoard;
+    
 	int alpha;
 	int beta;
-	int selectivity;
 	
 	int depth;
-	
+    int selectivity;
+
 	//parameters best move
 	RXBestMove bestMove;	
 	

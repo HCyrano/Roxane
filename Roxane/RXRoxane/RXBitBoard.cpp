@@ -913,6 +913,26 @@ void RXBitBoard::print_Board() {
 
 }
 
+std::string RXBitBoard::string_rawdata() {
+    
+    std::string line = "";
+
+    for(int iPosition = A1; iPosition>=H8; --iPosition) {
+        unsigned long long _mask = 0x1ULL<<iPosition;
+        if((discs[player] & _mask) != 0) {
+            line +="X";
+        } else if((discs[player^1] & _mask) !=0) {
+            line += "O";
+        } else {
+            line += "-";
+        }
+        
+    }
+    
+    return line;
+}
+
+
 void RXBitBoard::print_Board(unsigned long long P, unsigned long long O) {
 
     std::cout << "\n  A B C D E F G H " << std::endl;

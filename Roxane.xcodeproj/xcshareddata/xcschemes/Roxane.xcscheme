@@ -71,12 +71,16 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-rawdata 10 10"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-1-19.obf"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.obf"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/endgame_24_26_30.script"
@@ -103,8 +107,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/pirate.src"
-            isEnabled = "NO">
+            argument = "/Users/caussebruno/Documents/developpement/database"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

@@ -33,6 +33,18 @@
 
 #include "RXTools.hpp"
 
+#include <ostream>
+
+struct NullBuffer : public std::streambuf {
+    int overflow(int c) override { return c; }   // ignore tout
+};
+
+struct NullStream : public std::ostream {
+    NullStream() : std::ostream(&nb) {}
+private:
+    NullBuffer nb;
+};
+
 
 
 extern "C"
@@ -243,8 +255,9 @@ class RXEngine: public Runnable, public RXHelper {
     bool use_pv_ext;
     int depth_pv_extension;
     
-    std::ofstream* log;
-    
+    std::ostream* log;
+    std::ofstream* logfile;
+    NullStream nullStream;
     
     bool probable_timeout(double probable_time_next_level) const;
     int pTime_next_level(RXBitBoard& board, int time_level, int depth = 1, int next_depth = 3) const;

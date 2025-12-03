@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <chrono>
 
 #include "RXRoxane.hpp"
 #include "RXEvaluation.hpp"
@@ -562,6 +563,209 @@ void RXRoxane::get_move(const std::string& file_name) {
     pthread_mutex_unlock(&mutex);
     
 }
+
+#ifdef GENERATE_RAWDATA
+
+void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, const int n_games) {
+
+    /* synchronized method */
+    pthread_mutex_lock(&mutex);
+    
+    /* preparation du moteur*/
+    resume_flag.store(false);
+    
+    hTable->shared(true);
+    
+    int n_threads = engine[SHARED]->get_THREAD_MAX();
+    
+    search.clientMode = RXSearch::kPrivate;
+    search.idEngine = SHARED;
+    search.nThreads = std::max(1, n_threads);
+    search.htable = hTable;
+    search.main_PV = main_PV;
+    search.expected_PV = expected_PV;
+    search.search_on_opponent_time = false;
+    
+    search.dependent_time = false;
+    
+    /* initialisation time */
+    // 1. Enregistrer l'heure de début
+    auto start_time = std::chrono::high_resolution_clock::now();
+    auto start_iter = start_time;
+        
+    // Convertir l'heure de début en une représentation lisible (facultatif mais utile)
+    std::time_t start_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::cout << "🚀 Début du calcul à : " << std::put_time(std::localtime(&start_tt), "%H:%M:%S") << std::endl;
+    
+    
+    std::string path_in  = dir_name + "/pirate/Pirate_base_negamaxed.txt";
+    std::string path_out = dir_name + "/Roxane/base_01.txt";
+
+    /* fichier de sortie */
+    std::ofstream ofs(path_out.c_str(), std::ios::app); // Write at the end of the file if it exists; otherwise, create it
+
+
+    std::ifstream ifs(path_in.c_str());
+    
+    if(ifs) {
+
+        std::string line;
+        
+        int idx = -1;
+        int idx_end = offset_start+n_games;
+        
+        while(!resume_flag.load() && ++idx < idx_end && std::getline(ifs, line)) {
+            
+            if(idx < offset_start)
+                continue;
+            
+            if(idx != 0 && idx % 1 == 1000) {
+                // 2. Enregistrer l'heure de fin
+                auto end_time = std::chrono::high_resolution_clock::now();
+                    
+                // 3. Calculer le temps écoulé
+                std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_iter);
+                    
+                // Convertir l'heure de fin en une représentation lisible
+                std::time_t end_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::cout << "                     : " << std::put_time(std::localtime(&end_tt), "%H:%M:%S");
+
+                // 4. Afficher le résultat
+                std::cout << " ✅ Temps total écoulé pour 1000 itérations : "
+                          << duration.count() << " millisecondes" << std::endl;
+                
+                start_iter = end_time;
+            }
+            
+            std::istringstream iss(line);
+            
+            int type_data;
+            
+            iss >> type_data;
+            if(type_data == 2) {
+                
+                //parser la ligne
+                
+                //extraire le score
+                int score;
+                iss >> score;
+                
+                //extraire les 8 lignes du plateau
+                std::string board_txt;
+
+                std::string ligne;
+
+                for (int i = 0; i < 8; i++) {
+                    iss >> ligne;
+                    board_txt += ligne;
+                }
+
+                //extraire la couleur
+                std::string color;
+                iss >> color;
+                board_txt += " " + color;
+                
+                //extraire la liste des coups
+                std::string list_moves;
+                iss >> list_moves;
+                
+                std::vector<std::string> moves_tab;
+                for (size_t i = 0; i < list_moves.size(); i += 2) {
+                    moves_tab.push_back(list_moves.substr(i, 2));
+                }
+
+                search.sBoard.build(board_txt);
+                RXBBPatterns& sBoard = search.sBoard;
+                RXBitBoard& board = sBoard.board;
+                int player = board.player;
+                
+                RXPattern* pattern = sBoard.pattern;
+
+                RXMove move;
+
+                for( int id_move = 0; id_move < moves_tab.size(); ++id_move) {
+                    
+                    
+                    if(20 < board.n_empty) {
+                        
+                        search.alpha       = -MAX_SCORE;
+                        search.beta        = +MAX_SCORE;
+                        if (28 < board.n_empty){
+                            search.depth       = 17;
+                            search.selectivity = 1; //MG_SELECT
+                        } else if(24 < board.n_empty) {
+                            search.depth       = board.n_empty;
+                            search.selectivity = 3; //91%
+                        } else {
+                            search.depth       = board.n_empty;
+                            search.selectivity = 7; //NO_SELECT 100%
+                        }
+                    
+                        
+                        search.bestMove.position    = NOMOVE;
+                        search.bestMove.score       = UNDEF_SCORE;
+                        search.bestMove.selectivity = 0;
+                        search.bestMove.tElapsed    = 0.0;
+                        search.bestMove.nodes       = 0;
+                        
+                        if(search.sBoard.board.n_moves() > 1) {
+
+                            engine[search.idEngine]->get_move(search);
+                            
+                            ofs << board.string_rawdata() << " " << search.bestMove.score << std::endl;
+                        }
+                    } else {
+                        
+                        if(search.sBoard.board.n_moves() > 0)
+                            ofs << board.string_rawdata() << " " << (board.player == player? score:-score) << std::endl;
+                        
+                    }
+                        
+
+
+                    int pos = RXMove::coord_to_index(moves_tab[id_move]);
+                    
+                    if(pos == PASS) {
+                        board.do_pass();
+                    } else {
+                        ((board).*(board.generate_flips[pos]))(move);
+                        ((sBoard).*(sBoard.update_patterns[pos][board.player]))(move);
+                        
+                        sBoard.do_move(move);
+                    }
+
+                    
+                }
+                
+                sBoard.pattern = pattern;
+                 
+
+                //reset hashtables
+                search.htable->reset();
+                search.main_PV->reset();
+                search.expected_PV->reset();
+                engine[search.idEngine]->resume(); //hTable_shallow->reset()
+                
+                
+            }
+        }
+
+        ifs.close();
+
+    }
+    
+    ofs.close();
+
+    // Convertir l'heure de fin en une représentation lisible
+    std::time_t end_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::cout << "🏁 Fin du calcul à   : " << std::put_time(std::localtime(&end_tt), "%H:%M:%S") << std::endl;
+    
+    pthread_mutex_unlock(&mutex);
+
+}
+
+#endif
+
 
 
 #ifdef TUNE_PROBCUT_MID

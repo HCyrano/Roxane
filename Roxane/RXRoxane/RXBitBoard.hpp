@@ -225,6 +225,7 @@ void generate_flips_##pos(RXMove& move) const \
     //void check_empties_list() const;
     static void print_64bits(unsigned long long n);
     void print_Board();
+    std::string string_rawdata();
     static void print_Board(unsigned long long P, unsigned long long O);
     void print_moves_list(RXMove* MovesList) const;
     

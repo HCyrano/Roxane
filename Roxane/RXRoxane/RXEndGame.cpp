@@ -2167,7 +2167,6 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
         
     set_type_search(ENDGAME);
     
-    
     //utiliser directement "list->next->score" provoque un bug d'affichage 25/03/2025
     int score = list->next->score;
     score -= score % 2;
@@ -2236,9 +2235,10 @@ void RXEngine::EG_driver(RXBBPatterns& sBoard, int selectivity, int end_selectiv
         if (selectivity == EG_HIGH_SELECT && abs(alpha) > 48) {
             selectivity = 2;
         } else  if (selectivity != EG_HIGH_SELECT && abs(alpha) > 51) {
-            selectivity = std::min(++selectivity, NO_SELECT);
+            ++selectivity;
             if (abs(alpha) > 59)
                 selectivity = NO_SELECT;
+            selectivity = std::min(selectivity, end_selectivity);
         }
         
         EG_PVS_root(sBoard, selectivity, alpha, beta, list);

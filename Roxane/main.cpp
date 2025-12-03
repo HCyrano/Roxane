@@ -42,7 +42,10 @@ int main (int argc, char * const argv[]) {
 	std::string login, password, file_name, mode, imposed_opening = "";
 	unsigned int nBitsTable = 20;
 	unsigned int nThreads = 1;
-	
+
+    unsigned int offset_start = 0;
+    unsigned int n_games = 1000;
+
 	for(int i = 1; i<argc; i++) {
 		
 		std::string arg(argv[i]);
@@ -58,14 +61,19 @@ int main (int argc, char * const argv[]) {
 		} else if(arg == "-t" && i+1<argc) {
 			std::istringstream iss(argv[++i]);
 			iss >> nThreads;
-		} else if(arg == "-mode" && i+1<argc) {
+        } else if(arg == "-rawdata" && i+2<argc) {
+            std::istringstream iss_offset(argv[++i]);
+            iss_offset >> offset_start;
+            std::istringstream iss_game(argv[++i]);
+            iss_game >> n_games;
+        } else if(arg == "-mode" && i+1<argc) {
 			mode =  argv[++i];
 		} else if(file_name.empty()) {
 			file_name = argv[i];
 		}
 	}
 
-    std::string version = "build-28-11-2025 15h15";
+    std::string version = "build-03-12-2025 13h10";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -97,9 +105,20 @@ int main (int argc, char * const argv[]) {
     
 #else
 
+#ifdef GENERATE_RAWDATA
+
+    //base de donnée
+    if(!file_name.empty())
+        roxane.rawdata(file_name, offset_start, n_games);
+    
+#else
+    
     //warm up
     if(!file_name.empty())
         roxane.get_move(file_name);
+    
+#endif
+     
     
     if(imposed_opening != "")
         roxane.imposed_opening(imposed_opening);
