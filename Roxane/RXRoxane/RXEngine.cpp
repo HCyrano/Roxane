@@ -39,6 +39,7 @@ const float RXEngine::PERCENTILE[] = {0.95f, 1.05f, 1.25f, 1.50f, 1.90f, 2.40f, 
 #endif
 
 const int RXEngine::EG_HIGH_SELECT = 0;
+const int RXEngine::MG_SELECT = 1; //72%
 const int RXEngine::NO_SELECT = std::size(RXEngine::PERCENTILE);
 
 const int RXEngine::DEPTH_BOOSTER = 4;
@@ -1624,7 +1625,7 @@ void* RXEngine::run() {
         
         
         if(depth<=max_depth) {
-            iterative_deepening(search_sBoard, list, depth, max_depth);
+            iterative_deepening(search_sBoard, list, /*NO_SELECT*/ MG_SELECT, depth, max_depth); 
             //new_search = false;
         }
         
@@ -1632,10 +1633,7 @@ void* RXEngine::run() {
             
             //coherence selectivty et end_selectivity
             int end_selectivity = search_depth < search_sBoard.board.n_empty? EG_HIGH_SELECT:search_selectivity;
-            
-            //for test
-            //end_selectivity =  MG_SELECT;
-            
+                        
             EG_driver(search_sBoard, std::min(selectivity, end_selectivity), end_selectivity, list);
         }
                 

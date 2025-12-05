@@ -305,10 +305,10 @@ class RXEngine: public Runnable, public RXHelper {
     
     
     
-    void iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int depth, const int max_depth);
-    void aspiration_search(RXBBPatterns& sBoard, const int depth, RXMove* list);
+    void iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int selectivity, int depth, const int max_depth);
+    void aspiration_search(RXBBPatterns& sBoard, const int selectivity, const int depth, RXMove* list);
     
-    void MG_PVS_root(RXBBPatterns& sBoard, const int depth,  const int alpha, const int beta, RXMove* list);
+    void MG_PVS_root(RXBBPatterns& sBoard, const int selectivity, const int depth,  const int alpha, const int beta, RXMove* list);
     void MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
     
     int MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, const int depth, int alpha, const int beta, const bool passed);
@@ -594,7 +594,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int depth_probcut,  const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const {
     
     double coeff_pv = std::max(0.90, (115-3*pvDev)/100.0);
-    
+        
     //error evaluation with lower bound at 3
     int eval_error = std::round(sigma(board.n_empty, depth, depth_probcut) * coeff_pv * PERCENTILE[selectivity]);
     eval_error = std::max(3, eval_error);

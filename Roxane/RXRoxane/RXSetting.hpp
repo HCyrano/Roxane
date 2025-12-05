@@ -15,7 +15,7 @@
 #endif
 
 //login actif / inactif
-//#define LOGGING_ON
+#define LOGGING_ON
 
 //Matchs avec / sans alpha_cut 91/157/49 [297]
 //#define USE_PROBCUT_ALPHA
@@ -58,7 +58,7 @@
 //#define GENERATE_RES_FILE
 
 //base de donnée
-#define GENERATE_RAWDATA
+//#define GENERATE_RAWDATA
 
 // type of coefficients probcut
 //#define PROBCUT_x2 // undefined use PROBCUT_x3
