@@ -17,6 +17,7 @@
 #include "types.hpp"
 
 #include "ODKStream.hpp"
+#include "IOStdProtocol.hpp"
 #include "RXRoxane.hpp"
 #include "RXBBPatterns.hpp"
 
@@ -73,7 +74,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-05-12-2025 10h35";
+    std::string version = "build-08-12-2025 13h10";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -158,6 +159,16 @@ int main (int argc, char * const argv[]) {
         gs.Process();			// receive, parse, and pass on messages
         
     }
+    
+    if(mode == "IOStd") {
+        
+        IOStdProtocol StdIO(&roxane);
+        roxane.connectIOStd(&StdIO);
+        
+        StdIO.MainLoop();
+        
+    }
+
     
     
 #endif

@@ -69,6 +69,10 @@ void RXRoxane::connectGGS(CODKStream* client) {
 	GGSClient = client;
 }
 
+void RXRoxane::connectIOStd(IOStdProtocol* client) {
+    IOClient = client;
+}
+
 void RXRoxane::stop_engine(COsGame* g) {
     
     int player = g->pos.board.fBlackMove? BLACK : WHITE;    

@@ -59,6 +59,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-mode IOStd"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-h 18 -t 1"
             isEnabled = "YES">
          </CommandLineArgument>

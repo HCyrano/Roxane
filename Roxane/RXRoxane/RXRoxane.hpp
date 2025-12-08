@@ -16,6 +16,8 @@
 #include "OsObjects.hpp"
 #include "ODKStream.hpp"
 
+#include "IOStdProtocol.hpp"
+
 #include "RXConstantes.hpp"
 #include "RXBBPatterns.hpp"
 #include "RXHashTable.hpp"
@@ -27,6 +29,7 @@ extern "C"
 void* init_process(void* pt);
 
 class CODKStream;
+class IOStdProtocol;
 
 class RXRoxane: public Runnable {
 
@@ -49,6 +52,10 @@ class RXRoxane: public Runnable {
 	COsPosition game[2];
 	string idg;
 
+    //interface Std IO
+    IOStdProtocol* IOClient;
+
+    
 	unsigned long long hash_opening[60];
 	char move_opening[60];
 
@@ -102,6 +109,10 @@ public :
 	void get_move(const std::string& _idg, COsGame* game);
 
 	void sendMsg(std::string msg);
+    
+    //IOProtocol
+    void connectIOStd(IOStdProtocol* client);
+
 	
 	
 

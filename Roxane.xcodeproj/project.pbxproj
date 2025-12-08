@@ -32,6 +32,8 @@
 		372327262D1FF69D002CFAF4 /* RXRoxane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372327082D1FF69D002CFAF4 /* RXRoxane.cpp */; };
 		372327272D1FF69D002CFAF4 /* RXSearch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3723270A2D1FF69D002CFAF4 /* RXSearch.cpp */; };
 		372327282D1FF69D002CFAF4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3723270E2D1FF69D002CFAF4 /* main.cpp */; };
+		37A671792EE6F2D200476E87 /* IOStdProtocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37A671782EE6F2D200476E87 /* IOStdProtocol.cpp */; };
+		37DBEB852EE6E4CF009CA900 /* StdInput.c in Sources */ = {isa = PBXBuildFile; fileRef = 37DBEB842EE6E4CF009CA900 /* StdInput.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -92,9 +94,13 @@
 		3723270C2D1FF69D002CFAF4 /* RXTools.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXTools.hpp; sourceTree = "<group>"; };
 		3723270E2D1FF69D002CFAF4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3776E2C62E69880500FCE429 /* RXEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXEngine.hpp; sourceTree = "<group>"; };
-		37BF368B2E266CBC0029C7F6 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Roxane; sourceTree = BUILT_PRODUCTS_DIR; };
+		37A671752EE6E80200476E87 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Roxane; sourceTree = BUILT_PRODUCTS_DIR; };
+		37A671772EE6F2D200476E87 /* IOStdProtocol.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IOStdProtocol.hpp; sourceTree = "<group>"; };
+		37A671782EE6F2D200476E87 /* IOStdProtocol.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IOStdProtocol.cpp; sourceTree = "<group>"; };
 		37BF368C2E268CDC0029C7F6 /* RXSetting.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSetting.hpp; sourceTree = "<group>"; };
 		37C2DE1E2D1F0B4100B93DBD /* Roxane.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roxane.profdata; sourceTree = "<group>"; };
+		37DBEB832EE6E4CF009CA900 /* StdInput.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StdInput.h; sourceTree = "<group>"; };
+		37DBEB842EE6E4CF009CA900 /* StdInput.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = StdInput.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,7 +124,7 @@
 		371D4D612D1EBFBA0072E829 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				37BF368B2E266CBC0029C7F6 /* Roxane */,
+				37A671752EE6E80200476E87 /* Roxane */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -189,6 +195,7 @@
 				372326ED2D1FF69D002CFAF4 /* GGS Client */,
 				3723270D2D1FF69D002CFAF4 /* RXRoxane */,
 				3723270E2D1FF69D002CFAF4 /* main.cpp */,
+				37DBEB862EE6E4D9009CA900 /* Std Client */,
 			);
 			path = Roxane;
 			sourceTree = "<group>";
@@ -199,6 +206,17 @@
 				37C2DE1E2D1F0B4100B93DBD /* Roxane.profdata */,
 			);
 			path = OptimizationProfiles;
+			sourceTree = "<group>";
+		};
+		37DBEB862EE6E4D9009CA900 /* Std Client */ = {
+			isa = PBXGroup;
+			children = (
+				37A671772EE6F2D200476E87 /* IOStdProtocol.hpp */,
+				37A671782EE6F2D200476E87 /* IOStdProtocol.cpp */,
+				37DBEB832EE6E4CF009CA900 /* StdInput.h */,
+				37DBEB842EE6E4CF009CA900 /* StdInput.c */,
+			);
+			path = "Std Client";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -216,7 +234,7 @@
 			);
 			name = Roxane;
 			productName = Roxane;
-			productReference = 37BF368B2E266CBC0029C7F6 /* Roxane */;
+			productReference = 37A671752EE6E80200476E87 /* Roxane */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -256,6 +274,7 @@
 		371D4D5C2D1EBFBA0072E829 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
+				37A671792EE6F2D200476E87 /* IOStdProtocol.cpp in Sources */,
 				372327102D1FF69D002CFAF4 /* GGSMessage.cpp in Sources */,
 				372327112D1FF69D002CFAF4 /* GGSObjects.cpp in Sources */,
 				372327122D1FF69D002CFAF4 /* ggsstream.cpp in Sources */,
@@ -267,6 +286,7 @@
 				372327182D1FF69D002CFAF4 /* RXBBCountFlips_NEON_Edax.cpp in Sources */,
 				372327192D1FF69D002CFAF4 /* RXBBDoFlips.cpp in Sources */,
 				3723271A2D1FF69D002CFAF4 /* RXBBDoFlips_NEON_Edax.cpp in Sources */,
+				37DBEB852EE6E4CF009CA900 /* StdInput.c in Sources */,
 				3723271B2D1FF69D002CFAF4 /* RXBBGenerateFlips.cpp in Sources */,
 				3723271C2D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp in Sources */,
 				3723271D2D1FF69D002CFAF4 /* RXBBPatterns.cpp in Sources */,
