@@ -36,7 +36,7 @@ class RXSearch {
 	
     public :
 	
-	enum t_client {kPrivate, kGGSMode};
+	enum t_client {kPrivate, kGGSMode, kIOStd};
 	
 	//parameters Engine
 	t_client clientMode;

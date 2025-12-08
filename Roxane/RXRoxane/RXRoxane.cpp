@@ -80,6 +80,13 @@ void RXRoxane::stop_engine(COsGame* g) {
     
 }
 
+void RXRoxane::stop_engine() {
+    
+    engine[BLACK]->resume();
+    engine[WHITE]->resume();
+
+}
+
 
 /* unSynchronized method */
 void RXRoxane::resume() {
@@ -568,6 +575,56 @@ void RXRoxane::get_move(const std::string& file_name) {
     
 }
 
+void RXRoxane::get_move(const std::string& position, const int depth, const int selectivity) {
+    
+    pthread_mutex_lock(&mutex);
+
+    resume_flag = false;
+        
+    hTable->shared(true);
+    
+    int n_threads = engine[SHARED]->get_THREAD_MAX();
+
+    search.clientMode = RXSearch::kIOStd;
+    search.idEngine = SHARED;
+    search.nThreads = std::max(1, n_threads);
+    
+    search.htable = hTable;
+    search.main_PV = main_PV;
+    search.expected_PV = expected_PV;
+    
+    search.search_on_opponent_time = false;
+        
+    search.dependent_time = false;
+    
+    search.sBoard.build(position);
+    search.depth       = std::min(search.sBoard.board.n_empty, depth);
+    search.alpha       = -MAX_SCORE;
+    search.beta        = +MAX_SCORE;
+    search.selectivity = RXEngine::confidence_to_selectivity(selectivity);
+
+    search.bestMove.position    = NOMOVE;
+    search.bestMove.score       = UNDEF_SCORE;
+    search.bestMove.selectivity = 0;
+    search.bestMove.tElapsed    = 0.0;
+    search.bestMove.nodes        = 0;
+    
+    
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    
+    
+    if(!resume_flag && pthread_create(process, &attr, init_process, (void*)(this)) != 0) {
+        std::cout << "Echec: Thread main Roxane" << std::endl;
+    }
+    
+    
+    pthread_attr_destroy(&attr);
+            
+    pthread_mutex_unlock(&mutex);
+
+}
 #ifdef GENERATE_RAWDATA
 
 void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, const int n_games) {
@@ -821,18 +878,25 @@ void* RXRoxane::run() {
 		engine[s.idEngine]->get_move(s);
 	
 	
-	if(!resume_flag.load() && s.clientMode == RXSearch::kGGSMode) {
-		
-		COsMoveListItem mli;
-		s.bestMove.to_COsMoveListItem(mli);
-		
-		game[board.player].Update(mli);
-		
-		if(!resume_flag.load() && GGSClient->IsConnected())
-			GGSClient->SendMove(idg, mli);
-		
-		
-	}
+    if(!resume_flag.load()) {
+        
+        if(s.clientMode == RXSearch::kGGSMode) {
+            
+            COsMoveListItem mli;
+            s.bestMove.to_COsMoveListItem(mli);
+            
+            game[board.player].Update(mli);
+            
+            if(!resume_flag.load() && GGSClient->IsConnected())
+                GGSClient->SendMove(idg, mli);
+            
+            
+        } else if(s.clientMode == RXSearch::kIOStd) {
+            
+            IOClient->Print("move " + RXMove::index_to_coord(s.bestMove.position));
+            
+        }
+    }
     
     return NULL;
 	
@@ -895,7 +959,6 @@ void RXRoxane::imposed_opening(const std::string& line) {
 
 void RXRoxane::sendMsg(std::string msg) {
 	
-
 	if(GGSClient != NULL && search.clientMode == RXSearch::kGGSMode && GGSClient->IsConnected())
 		GGSClient->SendMsg(msg);
 	else

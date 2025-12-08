@@ -2,8 +2,8 @@
  *  IOStdProtocol.cpp
  *  Roxane
  *
- *  Created by BrunoCausse on 08/10/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
+ *  Created by BrunoCausse on 08/12/2025.
+ *  Copyright 2025 __MyCompanyName__. All rights reserved.
  *
  */
 
@@ -53,7 +53,7 @@ void IOStdProtocol::MainLoop(void)
 			
 			nargs = ReadParse(line_buffer, args, " ");
 			if (nargs > 0) {
-				if (strstr(args[0], "IOStd-protocol"))
+				if (strstr(args[0], "IOStd"))
 					InterpretCommand(nargs, args);
 				else
 					SyntaxError(nargs, args);
@@ -97,88 +97,33 @@ void IOStdProtocol::InterpretCommand(int nargs, char *args[])
 	}
 	
 	else if (strstr(args[1], "stop")) {
-		//engine->stop();
+		engine->stop_engine();
 	}
 	
 	else if (strstr(args[1], "quit"))  { //engine->free();	// not implemented
-		//engine->stop();
+		engine->stop_engine();
 		running = 0;
-	}
-
-	else if (strstr(args[1], "new-position"))  {
-		; //engine->new_search();
-		Print("ready.\n");
 	}
 
 	else if (strstr(args[1], "empty-hash"))  {
 		engine->resume();
-//		Print("ready.\n");
-	}
-	
-	else if (strstr(args[1], "feed-hash")) {
-		
-		if(nargs == 8) {
-			
-			char *position, *pv = NULL;
-			double alpha, beta;
-			int depth, precision;
-			
-			position  = args[2];
-			alpha     = atof(args[3]);
-			beta      = atof(args[4]);
-			depth     = atoi(args[5]);
-			precision = atoi(args[6]);
-			pv		  = args[7];
-			
-			//engine->feed_hash(position, alpha, beta, depth, precision, pv);
-		}
-	}
-	
-	else if (strstr(args[1], "midgame-search")) {
-
-		if(nargs == 7) {
-			char *position;
-			double alpha, beta;
-			int depth, precision;
-			
-			position  = args[2];
-			alpha     = atof(args[3]);
-			beta      = atof(args[4]);
-			depth     = atoi(args[5]);
-			precision = atoi(args[6]);
-			
-			//engine->midgame_search(position, alpha, beta, depth, precision);
-		}
-	}
-	
-	else if (strstr(args[1], "endgame-search")) {
-		
-		if(nargs == 6) {
-			char *position;
-			int alpha, beta, precision;
-			
-			position  = args[2];
-			alpha     = atoi(args[3]);
-			beta      = atoi(args[4]);
-			precision = atoi(args[5]);
-			
-			//engine->endgame_search(position, alpha, beta, precision);
-		}
-	}
-	
-	else if(strstr(args[1], "get-search-infos")) {
-
-		//engine->get_search_infos();
-		
-	}
-	
-	else if(strstr(args[1], "get-version")) {
-		
-		//engine->get_version();
 		Print("ready.\n");
-		
 	}
-	
+		
+	else if (strstr(args[1], "search")) {
+
+		if(nargs == 5) {
+			char *position;
+			int depth, precision;
+			
+			position  = args[2];
+			depth     = atoi(args[3]);
+			precision = atoi(args[4]);
+			
+			engine->get_move(position, depth, precision);
+		}
+	}
+		
 	else
 		SyntaxError(nargs,args);
 }

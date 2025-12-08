@@ -1319,7 +1319,8 @@ void RXEngine::get_move(RXSearch& s) {
     s.bestMove.tElapsed = get_current_dependentTime()/1000.0;
     
 #ifndef GENERATE_RAWDATA
-    if(search_sBoard.board.n_empty > 19) {
+    
+    if(search_client != RXSearch::kIOStd && search_sBoard.board.n_empty > 19) {
         int speed = 0;
         if(time_search != 0)
             speed = static_cast<int>(s.bestMove.nodes/time_search) ; //*1000)

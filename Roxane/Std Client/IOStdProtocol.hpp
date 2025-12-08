@@ -2,8 +2,8 @@
  *  IOStdProtocol.h
  *  Roxane
  *
- *  Created by BrunoCausse on 08/10/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
+ *  Created by BrunoCausse on 08/12/2025.
+ *  Copyright 2025 __MyCompanyName__. All rights reserved.
  *
  */
 

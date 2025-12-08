@@ -192,10 +192,10 @@
 		3723270F2D1FF69D002CFAF4 /* Roxane */ = {
 			isa = PBXGroup;
 			children = (
+				37DBEB862EE6E4D9009CA900 /* Std Client */,
 				372326ED2D1FF69D002CFAF4 /* GGS Client */,
 				3723270D2D1FF69D002CFAF4 /* RXRoxane */,
 				3723270E2D1FF69D002CFAF4 /* main.cpp */,
-				37DBEB862EE6E4D9009CA900 /* Std Client */,
 			);
 			path = Roxane;
 			sourceTree = "<group>";
