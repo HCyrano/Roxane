@@ -116,8 +116,8 @@ int main (int argc, char * const argv[]) {
     
     //warm up
     if(!file_name.empty())
-        //roxane.get_move(file_name);
-        roxane.board_eval(file_name);
+        roxane.get_move(file_name);
+        //roxane.board_eval(file_name);
 #endif
      
     
