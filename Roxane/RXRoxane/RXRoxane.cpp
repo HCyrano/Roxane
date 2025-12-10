@@ -297,6 +297,40 @@ RXEngine* RXRoxane::getEngine(const int color) const {
 //}
 
 /* synchronized method */
+// evaluate board file
+void RXRoxane::board_eval(const std::string& file_name) {
+    
+    
+    pthread_mutex_lock(&mutex);
+    
+    
+    resume_flag.store(false);
+    
+    
+    std::ifstream in(file_name.c_str());
+    
+    if(in) {
+        
+        
+        std::string line;
+        
+        while(!resume_flag.load() && std::getline(in, line)) {
+                        
+            RXBBPatterns sBoard;
+            sBoard.build(line);
+            
+            std::cout << sBoard << std::endl;
+             
+        }
+        
+        
+    }
+    
+    pthread_mutex_unlock(&mutex);
+    
+}
+
+/* synchronized method */
 void RXRoxane::get_move(const string& _idg, COsGame* g) {
 	
 	pthread_mutex_lock(&mutex);

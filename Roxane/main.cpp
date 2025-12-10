@@ -74,7 +74,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-10-12-2025 13h45";
+    std::string version = "new evaluation";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -116,8 +116,8 @@ int main (int argc, char * const argv[]) {
     
     //warm up
     if(!file_name.empty())
-        roxane.get_move(file_name);
-    
+        //roxane.get_move(file_name);
+        roxane.board_eval(file_name);
 #endif
      
     

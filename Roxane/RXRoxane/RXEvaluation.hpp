@@ -16,114 +16,59 @@
 #include "RXPattern.hpp"
 
 class alignas(64) RXEvaluation {
-	
-	public :
     
-    static const unsigned int START = 16;
-    static const unsigned int END = 57;
-
-
+    public :
+    
     static void load();
-    static void new_eval();
-
-	
-    alignas(64) static inline short* DIAG_5[61];
-
-    alignas(64) static inline short* DIAG_6[61];
-	
-    alignas(64) static inline short* DIAG_7[61];
-
-    alignas(64) static inline short* DIAG_8[61];
-	
-    alignas(64) static inline short* HV_4[61];
-
-    alignas(64) static inline short* HV_3[61];
-    
-    alignas(64) static inline short* CORNER_11[61];
 
     
-#ifndef NEW_EVAL
+    alignas(64) static inline short* eval[60][11];
 
 
-    alignas(64) static inline short* HV_2[61];
-	
-    alignas(64) static inline short* EDGE_6_4[61];
-
-    alignas(64) static inline short* corner2x5[61];
-	
-	salignas(64) tatic inline short* EDGE_2XC[61];
-    
-    
     ~RXEvaluation() {
         
 
-        for(unsigned int iStage = START; iStage<END; iStage++) {
+        for(unsigned int iStage = 0; iStage<60; iStage++) {
             
-            DIAG_5[iStage] -= 121;
-            delete[]    DIAG_5[iStage];
-            DIAG_6[iStage] -= 364;
-            delete[]    DIAG_6[iStage];
-            DIAG_7[iStage] -= 1093;
-            delete[]    DIAG_7[iStage];
-            DIAG_8[iStage] -= 3280;
-            delete[]    DIAG_8[iStage];
+            eval[iStage][0] -= 243/2;
+            delete[] eval[iStage][0];
             
-            HV_4[iStage] -= 3280;
-            delete[]    HV_4[iStage];
-            HV_3[iStage] -= 3280;
-            delete[]    HV_3[iStage];
-            HV_2[iStage] -= 3280;
-            delete[]    HV_2[iStage];
+            eval[iStage][1] -= 729/2;
+            delete[] eval[iStage][1];
             
-            EDGE_6_4[iStage] -= 29524;
-            delete[]    EDGE_6_4[iStage];
-            corner2x5[iStage] -= 29524;
-            delete[]    corner2x5[iStage];
-            CORNER_11[iStage] -= 88573;
-            delete[]    CORNER_11[iStage];
-            EDGE_2XC[iStage] -= 265720;
-            delete[]    EDGE_2XC[iStage];
+            eval[iStage][2] -= 2187/2;
+            delete[] eval[iStage][2];
+            
+            eval[iStage][3] -= 6561/2;
+            delete[] eval[iStage][3];
+
+            eval[iStage][4] -= 59049/2;
+            delete[] eval[iStage][4];
+
+            eval[iStage][5] -= 6561/2;
+            delete[] eval[iStage][5];
+
+            eval[iStage][6] -= 6561/2;
+            delete[] eval[iStage][6];
+
+            eval[iStage][7] -= 6561/2;
+            delete[] eval[iStage][7];
+
+            eval[iStage][8] -= 59049/2;
+            delete[] eval[iStage][8];
+
+            eval[iStage][9] -= 59049/2;
+            delete[] eval[iStage][9];
+
+            eval[iStage][10] -= 177147/2;
+            delete[] eval[iStage][10];
+
         }
         
     };
+    
 
-    
-#else
-    
-    alignas(64) static inline short* EDGE[61];
-    
-    ~RXEvaluation() {
         
-
-        for(unsigned int iStage = START; iStage<END; iStage++) {
-            
-            DIAG_5[iStage] -= 121;
-            delete[]    DIAG_5[iStage];
-            DIAG_6[iStage] -= 364;
-            delete[]    DIAG_6[iStage];
-            DIAG_7[iStage] -= 1093;
-            delete[]    DIAG_7[iStage];
-            DIAG_8[iStage] -= 3280;
-            delete[]    DIAG_8[iStage];
-            
-            HV_4[iStage] -= 3280;
-            delete[]    HV_4[iStage];
-            HV_3[iStage] -= 3280;
-            delete[]    HV_3[iStage];
-            CORNER_11[iStage] -= 88573;
-            delete[]    CORNER_11[iStage];
-            EDGE[iStage] -= 21523360;
-            delete[]    EDGE[iStage];
-        }
-        
-    };
-
-    
-#endif
-
-	
-
-		
 };
 
 
