@@ -14,8 +14,6 @@
 #include "RXRoxane.hpp"
 
 
-
-
 const int RXEngine::MIN_DEPTH_SPLITPOINT = 7;
 
 const int RXEngine::MG_DEEP_TO_SHALLOW = 4;
@@ -134,7 +132,7 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int selec
             break;
         
         
-    } while((depth +=2)<=max_depth);
+    } while((depth +=(search_client == RXSearch::kIOStd ? 1:2)) <= max_depth);
     
 }
 

@@ -1,5 +1,5 @@
 /*
- *  IOStdProtocol.h
+ *  IOStdProtocol.hpp
  *  Roxane
  *
  *  Created by BrunoCausse on 08/12/2025.
@@ -11,28 +11,34 @@
 #define STANDART_PROTOCOL_H
 
 #include "RXRoxane.hpp"
+#include "StdInput.hpp" // Inclure notre nouvelle classe C++
+#include <string>
+#include <vector>
+#include <pthread.h>
 
 class RXRoxane;
 
 class IOStdProtocol {
 	
 	RXRoxane* engine;
+	StdInput input_handler; // Ajouter une instance de notre nouvelle classe StdInput
 	
 	volatile int running;
 	
-	void InterpretCommand(int nargs, char *args[]);
-	void SyntaxError(int nargs, char *args[]);
+	// La signature de l'interpréteur de commandes change pour utiliser std::vector<std::string>
+	void InterpretCommand(const std::vector<std::string>& args);
+	void SyntaxError(const std::vector<std::string>& args);
 	
 	//synchro std::cout
 	mutable pthread_mutex_t IOSync;
 
 public:
 	
-	IOStdProtocol(RXRoxane* engine);
+	// Le constructeur devra initialiser IOSync, si ce n'est pas déjà fait dans le .cpp
+	IOStdProtocol(RXRoxane* engine); 
 	
 	void MainLoop(void);
 	void Print(const std::string msg) const;
-
 
 };
 

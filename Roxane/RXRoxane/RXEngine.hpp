@@ -184,7 +184,6 @@ class RXEngine: public Runnable, public RXHelper {
     
     static const int DEPTH_4;
     
-    
     static const int HASHTABLE;
     static const int INFERIOR;
     static const int EXACT;

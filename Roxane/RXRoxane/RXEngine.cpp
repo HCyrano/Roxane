@@ -1625,9 +1625,18 @@ void* RXEngine::run() {
         
         
         
+        
         if(depth<=max_depth) {
-            iterative_deepening(search_sBoard, list, /*NO_SELECT*/ MG_SELECT, depth, max_depth); 
-            //new_search = false;
+            
+            int MG_selectivity = MG_SELECT;
+            if(search_client == RXSearch::kIOStd && search_depth <= (search_sBoard.board.n_empty-(USE_PV_EXTENSION ? 10: 6))) {
+                //only midgame search
+                MG_selectivity = search_selectivity;
+                max_depth = search_depth;
+            
+            }
+     
+            iterative_deepening(search_sBoard, list, MG_selectivity, depth, max_depth);
         }
         
         if (!abort.load() && search_depth > (search_sBoard.board.n_empty-(USE_PV_EXTENSION ? 10: 6))) {

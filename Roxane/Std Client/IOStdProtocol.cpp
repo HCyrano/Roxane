@@ -8,143 +8,142 @@
  */
 
 #include "IOStdProtocol.hpp"
-
-extern "C" {
-#include "StdInput.h"
-}
-
+#include <iostream>
+#include <sstream>
+#include <cstdlib> // Pour atoi
 
 /*
  *******************************************************************************
- *                                                                             *
- *   Constructeur                                                              *
- *                                                                             *
+ * Constructeur                                                              *
  *******************************************************************************
  */
-
+// Initialise le moteur et le mutex pour la synchronisation
 IOStdProtocol::IOStdProtocol(RXRoxane* e) : engine(e) {
+    // Initialisation du mutex (important en C++ pour l'objet StdInput)
+    pthread_mutex_init(&IOSync, NULL);
 }
 
 /*
  *******************************************************************************
- *                                                                             *
- *   MainLoop() : la boucle principale de notre implementation.                *
- *   On lit l'entree standard ligne par ligne, et si la ligne commence par le  *
- *   mot cle special ENGINE-PROTOCOL, on execute la commande.                  *
- *   Cette implementation prend 0% du temps CPU tant que la ligne ne contient  *
- *   pas de commande.                                                          *
- *                                                                             *
+ * MainLoop() : boucle principale                                            *
  *******************************************************************************
  */
 void IOStdProtocol::MainLoop(void) 
 { 
-	int readstatus, nargs;
-	running = 1;
-	
-	SetReadStream(stdin);
-	
-	while (running) {
-		
-		
-		readstatus = Read(line_buffer);  // blocking read of stdin
-				
-		
-		if (readstatus > 0) {
-			
-			nargs = ReadParse(line_buffer, args, " ");
-			if (nargs > 0) {
-				if (strstr(args[0], "IOStd"))
-					InterpretCommand(nargs, args);
-				else
-					SyntaxError(nargs, args);
-			} else {
-				//ligne vide le moteur tourne?
-                /*
-				if(engine->is_running())
-					Print("ok.\n");
-				else
-					Print("ready.\n");
-				*/
+    // On n'appelle plus SetReadStream(stdin) ici, car StdInput est initialisé 
+    // par défaut dans son constructeur pour utiliser stdin.
+    
+    running = 1;
+
+    while (running) {
+        
+        // 1. Nouvelle méthode C++ : Lecture sans tampon C
+        std::string command_line = input_handler.Read();
                 
-                Print("ready.\n");
- 
-			}
-		} else if (readstatus <0) {
-			break;
-		}
-		
-	}
-	
-	//engine->stop();
-	running = 0;
+        // Read retourne une chaîne vide ("") en cas de EOF ou d'erreur
+        if (command_line.empty()) {
+            // Dans l'ancienne version, readstatus < 0 provoquait un break.
+            // Si la lecture est vide, on peut considérer la fin du flux.
+            if (input_handler.ReadInput() == 0) { // Vérifie si l'EOF est atteint
+                 break;
+            }
+            continue; // Si vide mais pas EOF, on continue
+        }
+        
+        // 2. Nouvelle méthode C++ : Analyse en vector<string>
+        // Le délimiteur " " est conservé
+        std::vector<std::string> args = input_handler.ReadParse(command_line, " ");
+        
+        if (!args.empty()) {
+            
+            // Vérification du mot-clé "IOStd" (args[0])
+            if (args[0] == "IOStd") {
+                InterpretCommand(args);
+            } else {
+                SyntaxError(args);
+            }
+        } else {
+            // Ligne vide
+            Print("ready.\n");
+        }
+    }
+    
+    //engine->stop();
+    running = 0;
 }
-
 
 
 /*
  *******************************************************************************
- *                                                                             *
- *   InterpretCommand() : interpretation d'une commande recue    *
- *   par le moteur sur l'entree standard.                                      *
- *                                                                             *
+ * InterpretCommand() : interpretation d'une commande reçue                  *
  *******************************************************************************
  */
-void IOStdProtocol::InterpretCommand(int nargs, char *args[])
+void IOStdProtocol::InterpretCommand(const std::vector<std::string>& args)
 { 
-	if (strstr(args[1], "init")) {
-		engine->resume(); //engine->init(); // not implemented
-		Print("ready.\n");
-	}
-	
-	else if (strstr(args[1], "stop")) {
-		engine->stop_engine();
-	}
-	
-	else if (strstr(args[1], "quit"))  { //engine->free();	// not implemented
-		engine->stop_engine();
-		running = 0;
-	}
+    // args[0] est "IOStd", la commande réelle est args[1]
+    if (args.size() < 2) {
+        SyntaxError(args);
+        return;
+    }
+    
+    const std::string& command = args[1];
 
-	else if (strstr(args[1], "empty-hash"))  {
-		engine->resume();
-		Print("ready.\n");
-	}
-		
-	else if (strstr(args[1], "search")) {
+    if (command == "init") {
+        engine->resume(); // engine->init(); // not implemented
+        Print("ready.");
+    }
+    
+    else if (command == "stop") {
+        engine->stop_engine();
+    }
+    
+    else if (command == "quit")  { // engine->free();	// not implemented
+        engine->stop_engine();
+        running = 0;
+    }
 
-		if(nargs == 5) {
-			char *position;
-			int depth, precision;
-			
-			position  = args[2];
-			depth     = atoi(args[3]);
-			precision = atoi(args[4]);
-			
-			engine->get_move(position, depth, precision);
-		}
-	}
-		
-	else
-		SyntaxError(nargs,args);
+    else if (command == "empty-hash")  {
+        engine->resume();
+        Print("ready.");
+    }
+        
+    else if (command == "search") {
+        // La commande 'search' nécessite 5 arguments au total (IOStd search pos depth precision)
+        // pos : O--OOOOX-OOOOOOXOOXXOOOXOOXOOOXXOOOOOOXX---OOOOX----O--X-------- X contient un delimitateur ' ' = traitement special
+        if(args.size() == 6) {
+            
+            // Utilisation des chaînes C++
+            const std::string& position  = args[2] + " " + args[3];
+
+            // Conversion en int
+            int depth = std::atoi(args[4].c_str());
+            int precision = std::atoi(args[5].c_str());
+            
+            engine->get_move(position, depth, precision);
+        } else {
+             SyntaxError(args);
+        }
+    }
+        
+    else
+        SyntaxError(args);
 }
 
 /*
  *******************************************************************************
- *                                                                             *
- *   SyntaxError() : aide au debugage, affice les lexemes recus                *
- *   sur la derniere ligne de l'entree standard, en cas d'erreur de syntaxe    *
- *                                                                             *
+ * SyntaxError() : affice les lexemes reçus en cas d'erreur de syntaxe       *
  *******************************************************************************
  */
-
-void IOStdProtocol::SyntaxError(int nargs, char *args[])
-{int i;
+void IOStdProtocol::SyntaxError(const std::vector<std::string>& args)
+{
 	
 	Print("\nSYNTAX ERROR :\n");
-	for (i = 0; i < nargs; i++) {
+    int i = 0;
+	for (const std::string& token : args) { // Utilisation d'une boucle C++11 range-based
 		std::ostringstream line;
-		line  << "Token[" << i << "] = " << args[i];
+		line  << "Token[" << i << "] = " << token << "\n"; // Ajout de \n dans le Print
 		Print(line.str());
+        i++;
 	}
 	Print("\n");
 }
@@ -152,15 +151,20 @@ void IOStdProtocol::SyntaxError(int nargs, char *args[])
 
 /*
  *******************************************************************************
- *                                                                             *
- *   Print() : ecrit sur la sortie standart de facon synchronisée              *
- *                                                                             *
+ * Print() : ecrit sur la sortie standart de facon synchronisée              *
+ * *
  *******************************************************************************
  */
-
+// Conservation de la méthode Print inchangée
 void IOStdProtocol::Print(const std::string msg) const {
     pthread_mutex_lock(&IOSync);
 	std::cout << msg << std::endl;
     pthread_mutex_unlock(&IOSync);
 }
 
+// Assurez-vous d'ajouter le destructeur pour libérer le mutex
+/*
+IOStdProtocol::~IOStdProtocol() {
+    pthread_mutex_destroy(&IOSync);
+}
+*/
