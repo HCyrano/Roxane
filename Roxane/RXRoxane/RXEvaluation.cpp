@@ -116,10 +116,12 @@ void RXEvaluation::load() {
 
 void RXEvaluation::load() {
     
-    //create tables
+    //create tables for xcode environnement
     std::ifstream from("/Users/caussebruno/Documents/developpement/Roxane/build/CoefficientsARM.data", std::ios::binary);
-    //std::ifstream from("../build/CoefficientsARM.data", std::ios::binary);
     
+    //create tables for IOStd environnement
+    //std::ifstream from("./CoefficientsARM.data", std::ios::binary);
+
     if(from) {
         //chargement des donnees & decalage des tables
         for(unsigned int iStage = START; iStage<END; iStage++) {

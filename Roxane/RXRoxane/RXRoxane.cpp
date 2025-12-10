@@ -41,24 +41,16 @@ RXRoxane::RXRoxane(int size_hashtable, int max_thread): GGSClient(NULL) {
     
     max_threads = max_thread;
     
- /*
-    // a partir du path absolu de l'executable
-    std::filesystem::path path_release = std::filesystem::current_path();
-    std::cout << path_release.string() << std::endl;
-    std::filesystem::path path_build = path_release.parent_path();
-    // creation des paths des fichiers log
-    std::string filename_log_0 = path_build.string() + "/build/log/engine_0.txt";
-    std::string filename_log_1 = path_build.string() + "/build/log/engine_1.txt";
-    
-    //initialisations
-    engine[BLACK] = new RXEngine(this, filename_log_0, max_thread);
-    engine[WHITE] = new RXEngine(this, filename_log_1, max_thread);
-*/
-    
-
+/*
     //initialisations
 	engine[BLACK] = new RXEngine(this, "../build/log/engine_0.txt", max_thread);
     engine[WHITE] = new RXEngine(this, "../build/log/engine_1.txt", max_thread);
+*/
+    
+
+    //initialisations pour IOStd
+    engine[BLACK] = new RXEngine(this, "./log/engine_0.txt", max_thread);
+    engine[WHITE] = new RXEngine(this, "./log/engine_1.txt", max_thread);
 
     
 	hTable = new RXHashTable(size_hashtable);
