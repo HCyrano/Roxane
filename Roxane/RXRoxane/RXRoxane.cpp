@@ -668,6 +668,7 @@ void RXRoxane::get_move(const std::string& position, const int depth, const int 
     pthread_mutex_unlock(&mutex);
 
 }
+
 #ifdef GENERATE_RAWDATA
 
 void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, const int n_games) {

@@ -82,6 +82,15 @@ void RXEvaluation::load() {
         }
     }
     from.close();
+
+    /*
+    // debug
+    std::cout << "eval[40][5][-208] = " << eval[40][5][-208] << std::endl;
+    std::cout << "eval[40][5][208] = " << eval[40][5][208] << std::endl;
+    std::cout << "eval[40][5][-1872] = " << eval[40][5][-1872] << std::endl;
+    std::cout << "eval[40][5][1872] = " << eval[40][5][1872] << std::endl;
+     */
+
     
 };
 

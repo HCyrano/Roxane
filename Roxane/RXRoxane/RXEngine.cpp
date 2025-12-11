@@ -1632,10 +1632,11 @@ void* RXEngine::run() {
             if(search_client == RXSearch::kIOStd && search_depth <= (search_sBoard.board.n_empty-(USE_PV_EXTENSION ? 10: 6))) {
                 //only midgame search
                 MG_selectivity = search_selectivity;
+                depth = std::min(depth, search_depth);
                 max_depth = search_depth;
             
             }
-     
+                 
             iterative_deepening(search_sBoard, list, MG_selectivity, depth, max_depth);
         }
         
