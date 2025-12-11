@@ -163,8 +163,8 @@ void IOStdProtocol::Print(const std::string msg) const {
 }
 
 // Assurez-vous d'ajouter le destructeur pour libérer le mutex
-/*
+
 IOStdProtocol::~IOStdProtocol() {
     pthread_mutex_destroy(&IOSync);
 }
-*/
+

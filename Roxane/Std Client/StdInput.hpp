@@ -3,7 +3,7 @@
  *
  *  Input/output routines for the engine and the IOStd protocol.
  *
- *  Created by Bruno Causse on 10/12/25.
+ *  Created by Bruno Causse on 10/12/25. (base Stephane Nicolet)
  *
  *  Most of the code below in taken from Robert Hyatt's chess
  *  program "crafty" (thanks). See http://www.craftychess.com/
@@ -38,17 +38,14 @@ public:
     void ReadClear();
     int ReadInput();
 
-	// Nouvelle fonction C++ (recommandée)
+	// Nouvelle version C++
 	std::string Read();
-
-    // On pourrait utiliser std::string pour buffer et std::vector<std::string> pour args
-    // int ReadParse(char *buffer, char *args[], const char *delims); 
     
-    // Une version plus C++ pour ReadParse pourrait être :
+    // Une version plus C++ pour ReadParse :
     std::vector<std::string> ReadParse(const std::string& input, const std::string& delims);
 
 private:
-    // Membres de la classe remplaçant les variables globales
+    // Membres de la classe
     FILE *input_stream_ = stdin;
     char cmd_buffer_[BUFFER_SIZE];
     char line_buffer_[BUFFER_SIZE];
