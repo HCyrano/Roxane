@@ -35,7 +35,8 @@ class IOStdProtocol {
 public:
 	
 	// Le constructeur devra initialiser IOSync, si ce n'est pas déjà fait dans le .cpp
-	IOStdProtocol(RXRoxane* engine); 
+	IOStdProtocol(RXRoxane* engine);
+    ~IOStdProtocol();
 	
 	void MainLoop(void);
 	void Print(const std::string msg) const;
