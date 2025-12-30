@@ -302,7 +302,7 @@ int RXEngine::probcut(const unsigned int threadID, RXBBPatterns& sBoard, const i
     
     if(hashMove) {
 
-        list1= list->next ;
+        list1= list1->next ;
         
         ((sBoard).*(sBoard.update_patterns[list1->position][board.player]))(*list1);
         

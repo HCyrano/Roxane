@@ -95,6 +95,7 @@ public :
 
     
     void rawdata(const std::string& dir_name, const int offset_start, const int n_games);
+    void check_stage(const unsigned int stage, const int offset_start, const int n_games);
 
 
 	//wthorProtocol

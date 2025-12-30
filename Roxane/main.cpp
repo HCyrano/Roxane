@@ -44,6 +44,7 @@ int main (int argc, char * const argv[]) {
 	unsigned int nBitsTable = 20;
 	unsigned int nThreads = 1;
 
+    unsigned int stage = 0;
     unsigned int offset_start = 0;
     unsigned int n_games = 1000;
 
@@ -67,6 +68,13 @@ int main (int argc, char * const argv[]) {
             iss_offset >> offset_start;
             std::istringstream iss_game(argv[++i]);
             iss_game >> n_games;
+        } else if(arg == "-checkdata" && i+3<argc) {
+            std::istringstream iss_stage(argv[++i]);
+            iss_stage >> stage;
+            std::istringstream iss_offset(argv[++i]);
+            iss_offset >> offset_start;
+            std::istringstream iss_game(argv[++i]);
+            iss_game >> n_games;
         } else if(arg == "-mode" && i+1<argc) {
 			mode =  argv[++i];
 		} else if(file_name.empty()) {
@@ -74,7 +82,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-12-12-2025 15h45";
+    std::string version = "build-12-30-2025 11h30";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -107,10 +115,12 @@ int main (int argc, char * const argv[]) {
 #else
 
 #ifdef GENERATE_RAWDATA
-
+/*
     //base de donnée
     if(!file_name.empty())
         roxane.rawdata(file_name, offset_start, n_games);
+*/
+    roxane.check_stage(stage, offset_start, n_games);
     
 #else
     

@@ -678,6 +678,8 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
 
     std::ifstream ifs(path_in.c_str());
     
+    int error_at_20 = 0;
+    
     if(ifs) {
 
         std::string line;
@@ -702,10 +704,15 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
                 std::cout << "                     : " << std::put_time(std::localtime(&end_tt), "%H:%M:%S");
 
                 // 4. Afficher le résultat
-                std::cout << " ✅ Temps total écoulé pour 1000 itérations : "
+                std::cout << " ✅ Temps total écoulé pour 1 000 itérations : "
                           << duration.count() << " millisecondes" << std::endl;
                 
+                std::cout << "                     : nombre d'erreurs at 20 n_empty : " << error_at_20 << std::endl;
+                
                 start_iter = end_time;
+                
+                if(idx % 10000 == 0)
+                    std::cout << std::endl;
             }
             
             std::istringstream iss(line);
@@ -757,7 +764,7 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
                 for( int id_move = 0; id_move < moves_tab.size(); ++id_move) {
                     
                     
-                    if(20 < board.n_empty) {
+                    if(18 < board.n_empty) {
                         
                         search.alpha       = -MAX_SCORE;
                         search.beta        = +MAX_SCORE;
@@ -783,8 +790,16 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
 
                             engine[search.idEngine]->get_move(search);
                             
+//                            if(board.n_empty == 17){
+//                                if(search.bestMove.score != (board.player == player? score:-score)) {
+//                                    std::cout << board.string_rawdata() << " X; score : " << search.bestMove.score << " score attendu : " << (board.player == player? score:-score) << std::endl;
+//                                    error_at_17++;
+//                                }
+//                            }
+                            
                             ofs << board.string_rawdata() << " " << search.bestMove.score << std::endl;
                         }
+                        
                     } else {
                         
                         if(search.sBoard.board.n_moves() > 0)
@@ -834,6 +849,178 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
     pthread_mutex_unlock(&mutex);
 
 }
+
+void RXRoxane::check_stage(const unsigned int stage, const int offset_start, const int n_games) {
+    
+    std::cout << "check stage" << std::endl;
+    
+    /* synchronized method */
+    pthread_mutex_lock(&mutex);
+    
+    /* preparation du moteur*/
+    resume_flag.store(false);
+    
+    hTable->shared(true);
+    
+    int n_threads = engine[SHARED]->get_THREAD_MAX();
+    
+    search.clientMode = RXSearch::kPrivate;
+    search.idEngine = SHARED;
+    search.nThreads = std::max(1, n_threads);
+    search.htable = hTable;
+    search.main_PV = main_PV;
+    search.expected_PV = expected_PV;
+    search.search_on_opponent_time = false;
+    
+    search.dependent_time = false;
+    
+    /* initialisation time */
+    // 1. Enregistrer l'heure de début
+    auto start_time = std::chrono::high_resolution_clock::now();
+    auto start_iter = start_time;
+        
+    // Convertir l'heure de début en une représentation lisible (facultatif mais utile)
+    std::time_t start_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::cout << "🚀 Début du calcul à : " << std::put_time(std::localtime(&start_tt), "%H:%M:%S") << std::endl;
+    
+    
+    std::string dir_str = "/Users/caussebruno/Documents/developpement/database/Roxane";
+    
+    std::ostringstream oss;
+    oss << std::setw(2) << std::setfill('0') << stage;
+
+    std::string file_name_in = dir_str + "/dedups/dedup_" + oss.str() + ".txt";
+    std::cout <<"file_name_in : " << file_name_in << std::endl;
+    
+    std::string file_name_out = dir_str + "/dedups/dedup_" + oss.str() + "_0.txt";
+    std::cout <<"file_name_out : " << file_name_out << std::endl;
+
+    
+    /* fichier de sortie */
+    // Write at the end of the file if it exists and offset_start != 0; otherwise, create it
+    std::ofstream ofs(file_name_out.c_str(), offset_start == 0 ? std::ios::trunc : std::ios::app);
+    
+    int n_errors = 0;
+            
+    if(ofs) {
+
+        std::ifstream in(file_name_in.c_str());
+
+        if(in) {
+            
+            std::string line;
+            
+            int idx = -1;
+            int idx_end = offset_start+n_games;
+
+            while(!resume_flag.load() && ++idx < idx_end && std::getline(in, line)) {
+                
+                if(idx < offset_start)
+                    continue;
+                
+                if(idx != offset_start && idx % 10000 == 0) {
+                    // 2. Enregistrer l'heure de fin
+                    auto end_time = std::chrono::high_resolution_clock::now();
+                        
+                    // 3. Calculer le temps écoulé
+                    std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_iter);
+                        
+                    // Convertir l'heure de fin en une représentation lisible
+                    std::time_t end_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                    std::cout << "                     : " << std::put_time(std::localtime(&end_tt), "%H:%M:%S");
+
+                    // 4. Afficher le résultat
+                    std::cout << " ✅ Temps écoulé pour 10 000 itérations : "
+                              << duration.count() << " millisecondes" << std::endl;
+                    
+                    std::cout << "                     : nombre d'erreurs : " << n_errors << std::endl;
+                    
+                    start_iter = end_time;
+                    
+                    if(idx % 100000 == 0)
+                        std::cout << std::endl;
+                }
+
+                
+                std::stringstream ss;
+                int score;
+                ss << line.substr(line.find(" ")+1);
+                ss >> score;
+                
+                std::string othellier = line.substr(0, 65) + 'X';
+                
+                //std::cout << othellier << std::endl;
+                
+                search.sBoard.build(othellier);
+                RXBBPatterns& sBoard = search.sBoard;
+                RXBitBoard& board = sBoard.board;
+                
+                if(idx%50 == 0) {
+                    //reset hashtables
+                    search.htable->reset();
+                    search.main_PV->reset();
+                    search.expected_PV->reset();
+                    engine[search.idEngine]->resume(); //hTable_shallow->reset()
+                }
+
+                search.alpha       = -MAX_SCORE;
+                search.beta        = +MAX_SCORE;
+                if (28 < board.n_empty){
+                    search.depth       = 17;
+                    search.selectivity = 1; //MG_SELECT
+                } else if(24 < board.n_empty) {
+                    search.depth       = board.n_empty;
+                    search.selectivity = 3; //91%
+                } else {
+                    search.depth       = board.n_empty;
+                    search.selectivity = 7; //NO_SELECT 100%
+                }
+                
+                
+                search.bestMove.position    = NOMOVE;
+                search.bestMove.score       = UNDEF_SCORE;
+                search.bestMove.selectivity = 0;
+                search.bestMove.tElapsed    = 0.0;
+                search.bestMove.nodes       = 0;
+                
+                if(search.sBoard.board.n_moves() > 1) {
+                    
+                    engine[search.idEngine]->get_move(search);
+                    
+                    if(search.bestMove.score != score) {
+                        std::cout << board.string_rawdata() << " X; score : " << search.bestMove.score << " score attendu : " << score << std::endl;
+                        n_errors++;
+                    }
+                    
+                    ofs << board.string_rawdata() << " " << search.bestMove.score << std::endl;
+                    
+                } else {
+                    
+                    //Simple recopie
+                    ofs << board.string_rawdata() << " " << score << std::endl;
+
+                }
+            }
+                    
+
+            
+            in.close();
+        }
+
+        ofs.close();
+    }
+ 
+    // Convertir l'heure de fin en une représentation lisible
+    std::time_t end_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::cout << "🏁 Fin du calcul à   : " << std::put_time(std::localtime(&end_tt), "%H:%M:%S") << std::endl;
+    std::cout << "                     : nombre d'erreurs total : " << n_errors << std::endl;
+
+    
+    pthread_mutex_unlock(&mutex);
+
+
+}
+
 
 #endif
 
