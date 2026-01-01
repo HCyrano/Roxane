@@ -453,24 +453,21 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     const unsigned long long hash_code = board.hashcode();
     if(hTable->get(hash_code, type_hashtable, entry)) {
         
-        if(!pv && entry.selectivity >= selectivity && entry.depth >= depth) {
+        if(entry.selectivity >= selectivity && entry.depth >= depth) {
             
-            if(entry.lower > lower) {
-                
-                lower = entry.lower;
-                if(lower >= upper)
-                    return lower;
-                
-            }
-            
-            if(entry.upper < upper) {
-                
+            if (upper > entry.upper) {
                 upper = entry.upper;
-                if(upper <= lower)
-                    return  upper;
-                
+                if (upper <= lower) {
+                    return upper;
+                }
             }
-            
+            if (!pv && lower < entry.lower) {
+                lower = entry.lower;
+                if (lower >= upper) {
+                    return lower;
+                }
+            }
+
         }
         
         if(board.isValid_square(entry.move))
@@ -958,26 +955,23 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     int lower = alpha;
         
     RXHashValue entry;
-    if(!pv && hTable->get(hash_code, type_hashtable, entry)) {
+    if(hTable->get(hash_code, type_hashtable, entry)) {
         
         if(entry.selectivity == NO_SELECT && entry.depth >= depth) {
             
-            if(entry.lower > lower) {
-                
-                lower = entry.lower;
-                if(lower >= upper)
-                    return lower;
-                
-            }
-            
-            if(entry.upper < upper) {
-                
+            if (upper > entry.upper) {
                 upper = entry.upper;
-                if(upper <= lower)
-                    return  upper;
-                
+                if (upper <= lower) {
+                    return upper;
+                }
             }
-            
+            if (!pv && lower < entry.lower) {
+                lower = entry.lower;
+                if (lower >= upper) {
+                    return lower;
+                }
+            }
+ 
             //modification 17/03/2025
             if(board.isValid_square(entry.move))
                 bestmove = entry.move;

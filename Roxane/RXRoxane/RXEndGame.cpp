@@ -242,7 +242,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
     
     
     RXHashValue entry;
-    if(!pv && hTable->get(hash_code, type_hashtable, entry)) {
+    if(hTable->get(hash_code, type_hashtable, entry)) {
         
         if(entry.selectivity == NO_SELECT && entry.depth >= board.n_empty) { //
             
@@ -251,7 +251,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                 if (upper <= lower)
                     return upper;
             }
-            if (lower < entry.lower) {
+            if (!pv && lower < entry.lower) {
                 lower = entry.lower;
                 if (lower >= upper)
                     return lower;
@@ -432,7 +432,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
     
     
     RXHashValue entry;
-    if(!pv && hTable->get(hash_code, type_hashtable, entry)) {
+    if(hTable->get(hash_code, type_hashtable, entry)) {
         
         if(entry.selectivity == NO_SELECT && entry.depth >= board.n_empty) { //
             
@@ -442,7 +442,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                 if (upper <= lower)
                     return upper;
             }
-            if (lower < entry.lower) {
+            if (!pv && lower < entry.lower) {
                 lower = entry.lower;
                 if (lower >= upper)
                     return lower;
@@ -621,7 +621,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
     RXHashValue entry;
     if(hTable->get(hash_code, type_hashtable, entry)) {
         
-        if(!pv && entry.selectivity == NO_SELECT && entry.depth >= board.n_empty) {
+        if(entry.selectivity == NO_SELECT && entry.depth >= board.n_empty) {
             
             if (upper > entry.upper) {
                 upper = entry.upper;
@@ -629,7 +629,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                     return upper;
                 }
             }
-            if (lower < entry.lower) {
+            if (!pv && lower < entry.lower) {
                 lower = entry.lower;
                 if (lower >= upper) {
                     return lower;
@@ -1005,7 +1005,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     if(hTable->get(hash_code, type_hashtable, entry)) {
         
         
-        if(!pv &&  entry.selectivity >= selectivity && entry.depth >= board.n_empty) {
+        if(entry.selectivity >= selectivity && entry.depth >= board.n_empty) {
             
             if (upper > entry.upper) {
                 
@@ -1014,7 +1014,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     return upper;
             }
             
-            if (lower < entry.lower) {
+            if (!pv && lower < entry.lower) {
                 
                 lower = entry.lower;
                 if (lower >= upper)
