@@ -453,7 +453,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     const unsigned long long hash_code = board.hashcode();
     if(hTable->get(hash_code, type_hashtable, entry)) {
         
-        if(entry.selectivity >= selectivity && entry.depth >= depth) {
+        if(!pv && entry.selectivity >= selectivity && entry.depth >= depth) {
             
             if (upper > entry.upper) {
                 upper = entry.upper;
@@ -461,7 +461,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     return upper;
                 }
             }
-            if (!pv && lower < entry.lower) {
+            if (lower < entry.lower) {
                 lower = entry.lower;
                 if (lower >= upper) {
                     return lower;
@@ -955,7 +955,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     int lower = alpha;
         
     RXHashValue entry;
-    if(hTable->get(hash_code, type_hashtable, entry)) {
+    if(!pv && hTable->get(hash_code, type_hashtable, entry)) {
         
         if(entry.selectivity == NO_SELECT && entry.depth >= depth) {
             
@@ -965,7 +965,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                     return upper;
                 }
             }
-            if (!pv && lower < entry.lower) {
+            if (lower < entry.lower) {
                 lower = entry.lower;
                 if (lower >= upper) {
                     return lower;
