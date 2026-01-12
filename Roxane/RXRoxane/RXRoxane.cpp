@@ -658,6 +658,8 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
     
     search.dependent_time = false;
     
+    std::cout << "raw to data" << std::endl;
+    
     /* initialisation time */
     // 1. Enregistrer l'heure de début
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -668,7 +670,7 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
     std::cout << "🚀 Début du calcul à : " << std::put_time(std::localtime(&start_tt), "%H:%M:%S") << std::endl;
     
     
-    std::string path_in  = dir_name + "/pirate/Pirate_base_negamaxed.txt";
+    std::string path_in  = dir_name + "/Roxane/games_01.txt";
     std::string path_out = dir_name + "/Roxane/base_00.txt";
 
     /* fichier de sortie */
@@ -677,11 +679,9 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
 
 
     std::ifstream ifs(path_in.c_str());
-    
-    int error_at_20 = 0;
-    
+        
     if(ifs) {
-
+        
         std::string line;
         
         int idx = -1;
@@ -706,9 +706,7 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
                 // 4. Afficher le résultat
                 std::cout << " ✅ Temps total écoulé pour 1 000 itérations : "
                           << duration.count() << " millisecondes" << std::endl;
-                
-                std::cout << "                     : nombre d'erreurs at 20 n_empty : " << error_at_20 << std::endl;
-                
+                                
                 start_iter = end_time;
                 
                 if(idx % 10000 == 0)
@@ -717,137 +715,117 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
             
             std::istringstream iss(line);
             
-            int type_data;
+            //parser la ligne
             
-            iss >> type_data;
-            if(type_data == 2) {
+            //extraire le score
+            int score;
+            iss >> score;
+            
+            //extraire le plateau
+            std::string board_txt;
+            iss >> board_txt;
+            
+            //extraire la couleur
+            std::string color;
+            iss >> color;
+            board_txt += " " + color;
+            
+            //extraire la liste des coups
+            std::string list_moves;
+            iss >> list_moves;
+            
+            std::vector<std::string> moves_tab;
+            for (size_t i = 0; i < list_moves.size(); i += 2) {
+                moves_tab.push_back(list_moves.substr(i, 2));
+            }
+            
+            search.sBoard.build(board_txt);
+            RXBBPatterns& sBoard = search.sBoard;
+            RXBitBoard& board = sBoard.board;
+            int player = board.player;
+            
+            RXPattern* pattern = sBoard.pattern;
+            
+            RXMove move;
+            
+            for( int id_move = 0; id_move < moves_tab.size(); ++id_move) {
                 
-                //parser la ligne
-                
-                //extraire le score
-                int score;
-                iss >> score;
-                
-                //extraire les 8 lignes du plateau
-                std::string board_txt;
-
-                std::string ligne;
-
-                for (int i = 0; i < 8; i++) {
-                    iss >> ligne;
-                    board_txt += ligne;
-                }
-
-                //extraire la couleur
-                std::string color;
-                iss >> color;
-                board_txt += " " + color;
-                
-                //extraire la liste des coups
-                std::string list_moves;
-                iss >> list_moves;
-                
-                std::vector<std::string> moves_tab;
-                for (size_t i = 0; i < list_moves.size(); i += 2) {
-                    moves_tab.push_back(list_moves.substr(i, 2));
-                }
-
-                search.sBoard.build(board_txt);
-                RXBBPatterns& sBoard = search.sBoard;
-                RXBitBoard& board = sBoard.board;
-                int player = board.player;
-                
-                RXPattern* pattern = sBoard.pattern;
-
-                RXMove move;
-
-                for( int id_move = 0; id_move < moves_tab.size(); ++id_move) {
+                if(14 < board.n_empty) {
                     
-                    
-                    if(18 < board.n_empty) {
-                        
-                        search.alpha       = -MAX_SCORE;
-                        search.beta        = +MAX_SCORE;
-                        if (28 < board.n_empty){
-                            search.depth       = 17;
-                            search.selectivity = 1; //MG_SELECT
-                        } else if(24 < board.n_empty) {
-                            search.depth       = board.n_empty;
-                            search.selectivity = 3; //91%
-                        } else {
-                            search.depth       = board.n_empty;
-                            search.selectivity = 7; //NO_SELECT 100%
-                        }
-                    
-                        
-                        search.bestMove.position    = NOMOVE;
-                        search.bestMove.score       = UNDEF_SCORE;
-                        search.bestMove.selectivity = 0;
-                        search.bestMove.tElapsed    = 0.0;
-                        search.bestMove.nodes       = 0;
-                        
-                        if(search.sBoard.board.n_moves() > 1) {
-
-                            engine[search.idEngine]->get_move(search);
-                            
-//                            if(board.n_empty == 17){
-//                                if(search.bestMove.score != (board.player == player? score:-score)) {
-//                                    std::cout << board.string_rawdata() << " X; score : " << search.bestMove.score << " score attendu : " << (board.player == player? score:-score) << std::endl;
-//                                    error_at_17++;
-//                                }
-//                            }
-                            
-                            ofs << board.string_rawdata() << " " << search.bestMove.score << std::endl;
-                        }
-                        
+                    search.alpha       = -MAX_SCORE;
+                    search.beta        = +MAX_SCORE;
+                    if (28 < board.n_empty){
+                        search.depth       = 17;
+                        search.selectivity = 1; //MG_SELECT
+                    } else if(24 < board.n_empty) {
+                        search.depth       = board.n_empty;
+                        search.selectivity = 3; //91%
                     } else {
-                        
-                        if(search.sBoard.board.n_moves() > 0)
-                            ofs << board.string_rawdata() << " " << (board.player == player? score:-score) << std::endl;
-                        
+                        search.depth       = board.n_empty;
+                        search.selectivity = 7; //NO_SELECT 100%
                     }
-                        
-
-
-                    int pos = RXMove::coord_to_index(moves_tab[id_move]);
                     
-                    if(pos == PASS) {
-                        board.do_pass();
-                    } else {
-                        ((board).*(board.generate_flips[pos]))(move);
-                        ((sBoard).*(sBoard.update_patterns[pos][board.player]))(move);
+                    
+                    search.bestMove.position    = NOMOVE;
+                    search.bestMove.score       = UNDEF_SCORE;
+                    search.bestMove.selectivity = 0;
+                    search.bestMove.tElapsed    = 0.0;
+                    search.bestMove.nodes       = 0;
+                    
+                    if(search.sBoard.board.n_moves() > 1) {
                         
-                        sBoard.do_move(move);
+                        engine[search.idEngine]->get_move(search);
+                                                
+                        ofs << board.string_rawdata() << " " << search.bestMove.score << std::endl;
                     }
-
+                    
+                } else {
+                    
+                    if(search.sBoard.board.n_moves() > 0)
+                        ofs << board.string_rawdata() << " " << (board.player == player? score:-score) << std::endl;
                     
                 }
                 
-                sBoard.pattern = pattern;
-                 
-
-                //reset hashtables
-                search.htable->reset();
-                search.main_PV->reset();
-                search.expected_PV->reset();
-                engine[search.idEngine]->resume(); //hTable_shallow->reset()
+                
+                
+                int pos = RXMove::coord_to_index(moves_tab[id_move]);
+                
+                if(pos == PASS) {
+                    board.do_pass();
+                } else {
+                    ((board).*(board.generate_flips[pos]))(move);
+                    ((sBoard).*(sBoard.update_patterns[pos][board.player]))(move);
+                    
+                    sBoard.do_move(move);
+                }
                 
                 
             }
+            
+            sBoard.pattern = pattern;
+            
+            
+            //reset hashtables
+            search.htable->reset();
+            search.main_PV->reset();
+            search.expected_PV->reset();
+            engine[search.idEngine]->resume(); //hTable_shallow->reset()
+            
+            
         }
-
+        
         ifs.close();
-
+        
     }
     
     ofs.close();
-
+    
     // Convertir l'heure de fin en une représentation lisible
     std::time_t end_tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::cout << "🏁 Fin du calcul à   : " << std::put_time(std::localtime(&end_tt), "%H:%M:%S") << std::endl;
     
     pthread_mutex_unlock(&mutex);
-
+    
 }
 
 void RXRoxane::check_stage(const unsigned int stage, const int offset_start, const int n_games) {

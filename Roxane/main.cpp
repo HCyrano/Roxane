@@ -82,7 +82,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-01-01-2026 18h10";
+    std::string version = "build-12-01-2026 13h50";
     
 	std::cout << "Version Roxane " << version << std::endl;
 	std::cout << "Number of threads: " << nThreads << std::endl;
@@ -115,12 +115,12 @@ int main (int argc, char * const argv[]) {
 #else
 
 #ifdef GENERATE_RAWDATA
-/*
+
     //base de donnée
     if(!file_name.empty())
         roxane.rawdata(file_name, offset_start, n_games);
-*/
-    roxane.check_stage(stage, offset_start, n_games);
+
+//    roxane.check_stage(stage, offset_start, n_games);
     
 #else
     

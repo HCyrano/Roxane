@@ -239,20 +239,6 @@ void generate_flips_##pos(RXMove& move) const \
     
 };
 
-/*
- * Set all bits below the sole outflank bit if outfrank != 0
- */
-/*
-#if __has_builtin(__builtin_subcll)
-static inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
-    unsigned long long flipmask, cy;
-    flipmask = __builtin_subcll(outflank, 1, 0, &cy);
-    return __builtin_addcll(flipmask, 0, cy, &cy);
-}
-#else
-#define OutflankToFlipmask(outflank)    ((outflank) - (unsigned int) ((outflank) != 0))
-#endif
-*/
 
 //Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
 //This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
@@ -268,22 +254,10 @@ static inline unsigned long long OutflankToFlipmask(unsigned long long outflank)
 // in case continuous from MSB
 #define    outflank_right_H(O)    (0x80000000u >> __builtin_clz(~(O)))
 
-/* unnecessary on apple-M
-#ifdef __clang__    // poor optimization for vbicq(const,x) (ndk-r15)
-#define not_O_in_mask(mask,O)    vandq_u64((mask), vdupq_n_u64(~(O)))
-#else
-#define not_O_in_mask(mask,O)    vbicq_u64((mask), vdupq_n_u64(O))
-#endif
-*/
-
 #define not_O_in_mask(mask,O)    vbicq_u64((mask), vdupq_n_u64(O))
 
 //rotl8
-#if __has_builtin(__builtin_rotateleft8)
 #define rotl8(x,y)    __builtin_rotateleft8((x),(y))
-#elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)) && (defined(__x86_64__) || defined(__i386__))
-#define rotl8(x,y)    __builtin_ia32_rolqi((x),(y))
-#endif
 
 #define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
 #define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
