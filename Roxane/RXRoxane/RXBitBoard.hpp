@@ -260,18 +260,10 @@ static inline unsigned long long OutflankToFlipmask(unsigned long long outflank)
 #define    outflank_right_H(O)    (0x80000000u >> __builtin_clz(~(O)))
 
 
-#ifdef __clang__    // poor optimization for vbicq(const,x) (ndk-r15)
-#define not_O_in_mask(mask,O)    vandq_u64((mask), vdupq_n_u64(~(O)))
-#else
 #define not_O_in_mask(mask,O)    vbicq_u64((mask), vdupq_n_u64(O))
-#endif
 
 //rotl8
-#if __has_builtin(__builtin_rotateleft8)
 #define rotl8(x,y)    __builtin_rotateleft8((x),(y))
-#elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)) && (defined(__x86_64__) || defined(__i386__))
-#define rotl8(x,y)    __builtin_ia32_rolqi((x),(y))
-#endif
 
 #define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
 #define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
