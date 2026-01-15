@@ -178,44 +178,61 @@ inline int RXBBPatterns::get_score() const {
 
     //2 bords5 + X
     value = RXEvaluation::eval[stage][9];
-    eval += value[color*pattern->patt[34]];
-    eval += value[color*pattern->patt[35]];
-    eval += value[color*pattern->patt[36]];
-    eval += value[color*pattern->patt[37]];
+    value_b = RXEvaluation::eval[stage][10];
+    if(filled & 0x8040000000000000ULL)    //A1 B2
+        eval += value[color*pattern->patt[34]];
+    else
+        eval += value_b[color*pattern->patt[38]];
+                        
+    if(filled & 0x0102000000000000ULL) //H1 G2
+        eval += value[color*pattern->patt[35]];
+    else
+        eval += value_b[color*pattern->patt[39]];
+                        
+    if(filled & 0x0000000000000201ULL)    //G7 H8
+        eval += value[color*pattern->patt[36]];
+    else
+        eval += value_b[color*pattern->patt[40]];
+                        
+    if(filled & 0x0000000000004080ULL)    //B7 A8
+        eval += value[color*pattern->patt[37]];
+    else
+        eval += value_b[color*pattern->patt[41]];
+
 
     //corner 2*5
-    value = RXEvaluation::eval[stage][10];
-    eval += value[color*pattern->patt[38]];
-    eval += value[color*pattern->patt[39]];
-    eval += value[color*pattern->patt[40]];
-    eval += value[color*pattern->patt[41]];
+    value = RXEvaluation::eval[stage][11];
     eval += value[color*pattern->patt[42]];
     eval += value[color*pattern->patt[43]];
     eval += value[color*pattern->patt[44]];
     eval += value[color*pattern->patt[45]];
+    eval += value[color*pattern->patt[46]];
+    eval += value[color*pattern->patt[47]];
+    eval += value[color*pattern->patt[48]];
+    eval += value[color*pattern->patt[49]];
 
-    //corner 4/3/2/1 or corner 2*(3+2)
-    value = RXEvaluation::eval[stage][11];
-    value_b = RXEvaluation::eval[stage][12];
+    //corner 4/3/3/1 or corner ALT
+    value = RXEvaluation::eval[stage][12];
+    value_b = RXEvaluation::eval[stage][13];
     if(filled & 0x8040000000000000ULL)    //A1 B2
-        eval += value[color*pattern->patt[46]];
+        eval += value[color*pattern->patt[50]];
     else
-        eval += value_b[color*pattern->patt[50]];
+        eval += value_b[color*pattern->patt[54]];
                         
     if(filled & 0x0102000000000000ULL) //H1 G2
-        eval += value[color*pattern->patt[47]];
+        eval += value[color*pattern->patt[51]];
     else
-        eval += value_b[color*pattern->patt[51]];
+        eval += value_b[color*pattern->patt[55]];
                         
     if(filled & 0x0000000000000201ULL)    //G7 H8
-        eval += value[color*pattern->patt[48]];
+        eval += value[color*pattern->patt[52]];
     else
-        eval += value_b[color*pattern->patt[52]];
+        eval += value_b[color*pattern->patt[56]];
                         
     if(filled & 0x0000000000004080ULL)    //B7 A8
-        eval += value[color*pattern->patt[49]];
+        eval += value[color*pattern->patt[53]];
     else
-        eval += value_b[color*pattern->patt[53]];
+        eval += value_b[color*pattern->patt[57]];
 
     if(eval>0) eval += 128; else eval -= 128;
     eval /= 256;
@@ -307,51 +324,66 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
 
     //2 bords5 + X
     value = RXEvaluation::eval[stage][9];
-    eval += value[color*p->patt[34]];
-    eval += value[color*p->patt[35]];
-    eval += value[color*p->patt[36]];
-    eval += value[color*p->patt[37]];
+    value_b = RXEvaluation::eval[stage][10];
+    if(filled & 0x8040000000000000ULL)    //A1 B2
+        eval += value[color*p->patt[34]];
+    else
+        eval += value_b[color*p->patt[38]];
+                        
+    if(filled & 0x0102000000000000ULL) //H1 G2
+        eval += value[color*p->patt[35]];
+    else
+        eval += value_b[color*p->patt[39]];
+                        
+    if(filled & 0x0000000000000201ULL)    //G7 H8
+        eval += value[color*p->patt[36]];
+    else
+        eval += value_b[color*p->patt[40]];
+                        
+    if(filled & 0x0000000000004080ULL)    //B7 A8
+        eval += value[color*p->patt[37]];
+    else
+        eval += value_b[color*p->patt[41]];
+
 
     //corner 2*5
-    value = RXEvaluation::eval[stage][10];
-    eval += value[color*p->patt[38]];
-    eval += value[color*p->patt[39]];
-    eval += value[color*p->patt[40]];
-    eval += value[color*p->patt[41]];
+    value = RXEvaluation::eval[stage][11];
     eval += value[color*p->patt[42]];
     eval += value[color*p->patt[43]];
     eval += value[color*p->patt[44]];
     eval += value[color*p->patt[45]];
+    eval += value[color*p->patt[46]];
+    eval += value[color*p->patt[47]];
+    eval += value[color*p->patt[48]];
+    eval += value[color*p->patt[49]];
 
-    //corner 4/3/2/1 or corner 2*(3+2)
-    value = RXEvaluation::eval[stage][11];
-    value_b = RXEvaluation::eval[stage][12];
+    //corner 4/3/3/1 or corner ALT
+    value = RXEvaluation::eval[stage][12];
+    value_b = RXEvaluation::eval[stage][13];
     if(filled & 0x8040000000000000ULL)    //A1 B2
-        eval += value[color*p->patt[46]];
+        eval += value[color*p->patt[50]];
     else
-        eval += value_b[color*p->patt[50]];
+        eval += value_b[color*p->patt[54]];
                         
     if(filled & 0x0102000000000000ULL) //H1 G2
-        eval += value[color*p->patt[47]];
+        eval += value[color*p->patt[51]];
     else
-        eval += value_b[color*p->patt[51]];
+        eval += value_b[color*p->patt[55]];
                         
     if(filled & 0x0000000000000201ULL)    //G7 H8
-        eval += value[color*p->patt[48]];
+        eval += value[color*p->patt[52]];
     else
-        eval += value_b[color*p->patt[52]];
+        eval += value_b[color*p->patt[56]];
                         
     if(filled & 0x0000000000004080ULL)    //B7 A8
-        eval += value[color*p->patt[49]];
+        eval += value[color*p->patt[53]];
     else
-        eval += value_b[color*p->patt[53]];
-    
-    
+        eval += value_b[color*p->patt[57]];
+
     if(eval>0) eval += 128; else eval -= 128;
     eval /= 256;
-
-    return eval;
-
+    
+   return eval;
 }
 
 
