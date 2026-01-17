@@ -239,18 +239,12 @@ void generate_flips_##pos(RXMove& move) const \
     
 };
 
-/*
- * Set all bits below the sole outflank bit if outfrank != 0
- */
-#if __has_builtin(__builtin_subcll)
+//Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
+//This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
+//Set all bits below the sole outflank bit if outfrank != 0
 static inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
-    unsigned long long flipmask, cy;
-    flipmask = __builtin_subcll(outflank, 1, 0, &cy);
-    return __builtin_addcll(flipmask, 0, cy, &cy);
+    return outflank ? (outflank - 1) : 0;
 }
-#else
-#define OutflankToFlipmask(outflank)    ((outflank) - (unsigned int) ((outflank) != 0))
-#endif
 
 // Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
 // or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).

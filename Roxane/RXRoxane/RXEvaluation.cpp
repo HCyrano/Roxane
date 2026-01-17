@@ -16,11 +16,10 @@ void RXEvaluation::load() {
     
     //create tables
     
-    std::ifstream from("/Users/caussebruno/Documents/developpement/Roxane/build/weight_v2.bin", std::ios::binary);
+    std::ifstream from("/Users/caussebruno/Documents/developpement/Evaluation/weight_v2.bin", std::ios::binary);
     if(from) {
         
-        std::cout << "chargement evaluation" << std::endl;
-        
+        std::cout << "charge eval" << std::endl;
         //chargement des donnees & decalage des tables
         for(unsigned int iStage = 0; iStage<60; iStage++) {
             
@@ -49,7 +48,7 @@ void RXEvaluation::load() {
             from.read(reinterpret_cast<char*> (eval[iStage][4]), sizeof(short)*59049);
             eval[iStage][4] += 59049/2;
 
-            //edge ALT 6+4 id_patt = 5
+            //edge 6+4 id_patt = 5
             eval[iStage][5] = new short[59049];
             from.read(reinterpret_cast<char*> (eval[iStage][5]), sizeof(short)*59049);
             eval[iStage][5] += 59049/2;
@@ -69,46 +68,42 @@ void RXEvaluation::load() {
             from.read(reinterpret_cast<char*> (eval[iStage][8]), sizeof(short)*6561);
             eval[iStage][8] += 6561/2;
             
-            //corner 2*edge5 + X id_patt = 9
+            //corner 2 bord 5 + X id_patt = 9
             eval[iStage][9] = new short[59049];
             from.read(reinterpret_cast<char*> (eval[iStage][9]), sizeof(short)*59049);
             eval[iStage][9] += 59049/2;
             
-            //corner ALT 2*edge5 + X id_patt = 10
+            //corner ALT 2 bord 5 + X id_patt = 10
             eval[iStage][10] = new short[59049];
             from.read(reinterpret_cast<char*> (eval[iStage][10]), sizeof(short)*59049);
             eval[iStage][10] += 59049/2;
             
-            //corner 5/5 id_patt = 11
+            //corner 2*5 id_patt = 11
             eval[iStage][11] = new short[59049];
             from.read(reinterpret_cast<char*> (eval[iStage][11]), sizeof(short)*59049);
             eval[iStage][11] += 59049/2;
 
-            //corner 4/3/3/1 id_patt = 12
-            eval[iStage][12] = new short[177147];
-            from.read(reinterpret_cast<char*> (eval[iStage][12]), sizeof(short)*177147);
-            eval[iStage][12] += 177147/2;
+            //hyper diag id_patt = 12
+            eval[iStage][11] = new short[59049];
+            from.read(reinterpret_cast<char*> (eval[iStage][12]), sizeof(short)*59049);
+            eval[iStage][12] += 59049/2;
 
-            //corner ALT 4/3/3/1 id_patt = 13
+            //corner 4/3/3/1 id_patt = 11
             eval[iStage][13] = new short[177147];
             from.read(reinterpret_cast<char*> (eval[iStage][13]), sizeof(short)*177147);
             eval[iStage][13] += 177147/2;
 
+            //corner ALT 4/3/3/1 id_patt = 11
+            eval[iStage][14] = new short[177147];
+            from.read(reinterpret_cast<char*> (eval[iStage][14]), sizeof(short)*177147);
+            eval[iStage][14] += 177147/2;
+
         }
-        
     } else {
         std::cout << "erreur chargement eval" << std::endl;
     }
 
     from.close();
-
-    /*
-    // debug
-    std::cout << "eval[40][5][-208] = " << eval[40][5][-208] << std::endl;
-    std::cout << "eval[40][5][208] = " << eval[40][5][208] << std::endl;
-    std::cout << "eval[40][5][-1872] = " << eval[40][5][-1872] << std::endl;
-    std::cout << "eval[40][5][1872] = " << eval[40][5][1872] << std::endl;
-     */
 
     
 };
