@@ -22,7 +22,7 @@ class alignas(64) RXEvaluation {
     static void load();
 
     
-    alignas(64) static inline short* eval[60][15];
+    alignas(64) static inline short* eval[60][16];
 
 
     ~RXEvaluation() {
@@ -74,6 +74,9 @@ class alignas(64) RXEvaluation {
 
             eval[iStage][14] -= 177147/2;
             delete[] eval[iStage][14];
+
+            eval[iStage][15] -= 59049/2;
+            delete[] eval[iStage][15];
 
         }
 
