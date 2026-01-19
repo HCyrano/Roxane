@@ -42,10 +42,10 @@ class alignas(64) RXEvaluation {
             eval[iStage][3] -= 6561/2;
             delete[] eval[iStage][3];
 
-            eval[iStage][4] -= 59049/2;
+            eval[iStage][4] -= 4782969/2;
             delete[] eval[iStage][4];
 
-            eval[iStage][5] -= 59049/2;
+            eval[iStage][5] -= 6561/2;
             delete[] eval[iStage][5];
 
             eval[iStage][6] -= 6561/2;
@@ -54,7 +54,7 @@ class alignas(64) RXEvaluation {
             eval[iStage][7] -= 6561/2;
             delete[] eval[iStage][7];
 
-            eval[iStage][8] -= 6561/2;
+            eval[iStage][8] -= 531441/2;
             delete[] eval[iStage][8];
 
             eval[iStage][9] -= 59049/2;
@@ -63,20 +63,11 @@ class alignas(64) RXEvaluation {
             eval[iStage][10] -= 59049/2;
             delete[] eval[iStage][10];
 
-            eval[iStage][11] -= 59049/2;
+            eval[iStage][11] -= 1594323/2;
             delete[] eval[iStage][11];
 
             eval[iStage][12] -= 59049/2;
             delete[] eval[iStage][12];
-
-            eval[iStage][13] -= 177147/2;
-            delete[] eval[iStage][13];
-
-            eval[iStage][14] -= 177147/2;
-            delete[] eval[iStage][14];
-
-            eval[iStage][15] -= 59049/2;
-            delete[] eval[iStage][15];
 
         }
 
