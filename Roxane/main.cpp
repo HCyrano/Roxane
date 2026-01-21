@@ -20,6 +20,7 @@
 #include "IOStdProtocol.hpp"
 #include "RXRoxane.hpp"
 #include "RXBBPatterns.hpp"
+#include "RXEvaluation.hpp"
 
 #include "RXEngine.hpp"
 #include "RXTools.hpp"
@@ -74,9 +75,12 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-2026-01-20 10h45";
-    
+    std::string version = "build-2026-01-21 11h00";
+    std::string vers_eval = RXEvaluation::get_version();
+
 	std::cout << "Version Roxane " << version << std::endl;
+    std::cout << "Version Evaluation " << vers_eval << std::endl;
+
 	std::cout << "Number of threads: " << nThreads << std::endl;
 	std::cout << "Size hashTable: 2^" << nBitsTable << std::endl;
     std::cout << file_name << std::endl;
@@ -154,6 +158,7 @@ int main (int argc, char * const argv[]) {
         }
         
         gs.SendMsg("version : " + version);
+        gs.SendMsg("evaluation : " + vers_eval);
 
 
         gs.Process();			// receive, parse, and pass on messages

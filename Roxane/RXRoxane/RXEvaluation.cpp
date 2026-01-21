@@ -19,7 +19,6 @@ void RXEvaluation::load() {
     std::ifstream from("/Users/caussebruno/Documents/developpement/Roxane/build/eval_v5.bin", std::ios::binary);
     if(from) {
         
-        std::cout << "charge eval" << std::endl;
         //chargement des donnees & decalage des tables
         for(unsigned int iStage = 0; iStage<60; iStage++) {
             

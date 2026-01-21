@@ -20,6 +20,9 @@ class alignas(64) RXEvaluation {
     public :
     
     static void load();
+    static std::string get_version() {
+            return "E 2026-01-20";
+        }
 
     
     alignas(64) static inline short* eval[60][16];
