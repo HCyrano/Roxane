@@ -186,6 +186,9 @@ void generate_flips_##pos(RXMove& move) const \
     //    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
     inline unsigned long long get_legal_moves() const;
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
+    inline uint64x2_t count_legal_moves_all_player(const unsigned long long p, const unsigned long long o);
+    void print_count_legal_moves_all_palyer();
+
     
     bool isValid_square(const unsigned int pos) const;
     static bool dir_valid_shl(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask);
@@ -1544,6 +1547,87 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
     }
     
     return bestscore;
+}
+
+
+/**
+ * Calcule les coups légaux pour les deux joueurs simultanément.
+ * Lane 0 : Coups légaux pour p_discs
+ * Lane 1 : Coups légaux pour o_discs
+ */
+template<int Shift, bool IsHorizontal>
+inline uint64x2_t propagate_kogge_stone(const uint64x2_t p_vec, const uint64x2_t o_vec, const uint64x2_t mask_inner) {
+    // Sélection du masque de bord
+    uint64x2_t mask = IsHorizontal ? mask_inner : vdupq_n_u64(0xFFFFFFFFFFFFFFFFULL);
+    
+    // On définit les propagateurs (les pièces adverses où on peut "glisser")
+    uint64x2_t prop = vandq_u64(o_vec, mask);
+    
+    // Premier saut (générateur)
+    uint64x2_t g;
+    if constexpr (Shift > 0) g = vandq_u64(vshlq_n_u64(p_vec, Shift), prop);
+    else                    g = vandq_u64(vshrq_n_u64(p_vec, -Shift), prop);
+
+    // Étape Kogge-Stone : Saut de 1, puis 2, puis 4 cases
+    // On utilise constexpr pour que le compilateur élimine les branches mortes
+    if constexpr (Shift > 0) {
+        // Saut de 1
+        g = vorrq_u64(g, vandq_u64(vshlq_n_u64(g, Shift), prop));
+        // Saut de 2
+        uint64x2_t prop2 = vandq_u64(prop, vshlq_n_u64(prop, Shift));
+        g = vorrq_u64(g, vandq_u64(vshlq_n_u64(g, 2 * Shift), prop2));
+        // Saut de 4
+        uint64x2_t prop4 = vandq_u64(prop2, vshlq_n_u64(prop2, 2 * Shift));
+        g = vorrq_u64(g, vandq_u64(vshlq_n_u64(g, 4 * Shift), prop4));
+        
+        return vshlq_n_u64(g, Shift);
+    } else {
+        constexpr int S = -Shift;
+        // Saut de 1
+        g = vorrq_u64(g, vandq_u64(vshrq_n_u64(g, S), prop));
+        // Saut de 2
+        uint64x2_t prop2 = vandq_u64(prop, vshrq_n_u64(prop, S));
+        g = vorrq_u64(g, vandq_u64(vshrq_n_u64(g, 2 * S), prop2));
+        // Saut de 4
+        uint64x2_t prop4 = vandq_u64(prop2, vshrq_n_u64(prop2, 2 * S));
+        g = vorrq_u64(g, vandq_u64(vshrq_n_u64(g, 4 * S), prop4));
+        
+        return vshrq_n_u64(g, S);
+    }
+}
+
+inline uint64x2_t RXBitBoard::count_legal_moves_all_player(const unsigned long long p, const unsigned long long o) {
+    // Préparation des registres 128 bits
+    // Lane 0: P vs O | Lane 1: O vs P
+    uint64x2_t p_vec = {p, o};
+    uint64x2_t o_vec = {o, p};
+    
+    uint64x2_t mask_inner = vdupq_n_u64(0x7E7E7E7E7E7E7E7EULL);
+    uint64x2_t legals = vdupq_n_u64(0);
+    
+    // Calcul des 8 directions en Kogge-Stone
+    legals = vorrq_u64(legals, propagate_kogge_stone< 8, false>(p_vec, o_vec, mask_inner)); // N
+    legals = vorrq_u64(legals, propagate_kogge_stone<-8, false>(p_vec, o_vec, mask_inner)); // S
+    legals = vorrq_u64(legals, propagate_kogge_stone< 1, true >(p_vec, o_vec, mask_inner)); // E
+    legals = vorrq_u64(legals, propagate_kogge_stone<-1, true >(p_vec, o_vec, mask_inner)); // W
+    legals = vorrq_u64(legals, propagate_kogge_stone< 7, true >(p_vec, o_vec, mask_inner)); // NE
+    legals = vorrq_u64(legals, propagate_kogge_stone<-7, true >(p_vec, o_vec, mask_inner)); // SW
+    legals = vorrq_u64(legals, propagate_kogge_stone< 9, true >(p_vec, o_vec, mask_inner)); // NW
+    legals = vorrq_u64(legals, propagate_kogge_stone<-9, true >(p_vec, o_vec, mask_inner)); // SE
+    
+    // Nettoyage final : le coup doit arriver sur une case vide
+    uint64x2_t occupied = vdupq_n_u64(p | o);
+    legals = vbicq_u64(legals, occupied);
+    
+    // --- POPCOUNT NEON ---
+    // 1. Compte les bits par octets
+    uint8x16_t cnt8 = vcntq_u8(vreinterpretq_u8_u64(legals));
+    // 2. Sommes horizontales successives (8->16, 16->32, 32->64)
+    uint16x8_t sum16 = vpaddlq_u8(cnt8);
+    uint32x4_t sum32 = vpaddlq_u16(sum16);
+    uint64x2_t mobility = vpaddlq_u32(sum32);
+    
+    return mobility;
 }
 
 

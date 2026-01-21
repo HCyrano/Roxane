@@ -910,7 +910,6 @@ void RXBitBoard::print_Board() {
     }
     std::cout << "  A B C D E F G H \n" << std::endl;
     
-
 }
 
 std::string RXBitBoard::string_rawdata() {
@@ -955,14 +954,21 @@ void RXBitBoard::print_Board(unsigned long long P, unsigned long long O) {
     }
     std::cout << "  A B C D E F G H \n" << std::endl;
     
+    
+
+}
+
+/*
+void RXBitBoard::print_count_legal_moves_all_palyer() {
+    
+    uint64x2_t counts = count_legal_moves_all_player(discs[player], discs[player^1]);
+    
+    std::cout << "nombre de coups legaux pour le player  : " << vgetq_lane_u64(counts, 0) << std::endl;
+    std::cout << "nombre de coups legaux pour l'opponent : " << vgetq_lane_u64(counts, 1) << std::endl;
 
 }
 
 
-
-
-
-/*
 unsigned long long RXBitBoard::cntbset(unsigned long long n) {
 
 	unsigned long long mobility;
