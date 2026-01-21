@@ -24,7 +24,9 @@ class alignas(64) RXEvaluation {
 
 
     static void load();
-    static void new_eval();
+    static std::string get_version() {
+        return "A 2005";
+    };
 
 	
     alignas(64) static inline short* DIAG_5[61];
