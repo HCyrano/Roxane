@@ -670,8 +670,8 @@ void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, cons
     std::cout << "🚀 Début du calcul à : " << std::put_time(std::localtime(&start_tt), "%H:%M:%S") << std::endl;
     
     
-    std::string path_in  = dir_name + "/Roxane/games_01.txt";
-    std::string path_out = dir_name + "/Roxane/base_00.txt";
+    std::string path_in  = dir_name + "/Roxane/games/games_01.txt";
+    std::string path_out = dir_name + "/Roxane/bases/base_00.txt";
 
     /* fichier de sortie */
     // Write at the end of the file if it exists and offset_start != 0; otherwise, create it
