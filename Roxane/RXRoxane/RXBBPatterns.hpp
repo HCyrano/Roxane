@@ -98,9 +98,7 @@ inline int RXBBPatterns::final_score() const {
 }
 
 inline int RXBBPatterns::get_score() const {
-    
-    unsigned long long filled = board.discs[BLACK] | board.discs[WHITE];
-        
+            
     const int* __restrict const p = pattern->patt;
     
     const int stage = 60-board.n_empty;
@@ -115,13 +113,9 @@ inline int RXBBPatterns::get_score() const {
     const short* __restrict const hyp_dg   = tab_eval[4];
     const short* __restrict const edge1    = tab_eval[5];
     const short* __restrict const edge2    = tab_eval[6];
-    const short* __restrict const edge3    = tab_eval[7];
-    const short* __restrict const edge4    = tab_eval[8];
-    const short* __restrict const hv2      = tab_eval[9];
-    const short* __restrict const hv3      = tab_eval[10];
-    const short* __restrict const hv4      = tab_eval[11];
-    const short* __restrict const corner1  = tab_eval[12];
-    const short* __restrict const corner2  = tab_eval[13];
+    const short* __restrict const hv3      = tab_eval[7];
+    const short* __restrict const hv4      = tab_eval[8];
+    const short* __restrict const corner   = tab_eval[9];
 
     int eval;
 
@@ -153,72 +147,35 @@ inline int RXBBPatterns::get_score() const {
     eval += hyp_dg[color*p[16]];
     eval += hyp_dg[color*p[17]];
 
-    //edge+2X or edde 6+4
-    if(filled & 0x8142000000000000ULL)
-        eval += edge1[color*p[18]];
-    else
-        eval += edge2[color*p[22]];
-
-    if(filled & 0x0102000000000201ULL)
-        eval += edge1[color*p[19]];
-    else
-        eval += edge2[color*p[23]];
-
-    if(filled & 0x0000000000004281ULL)
-        eval += edge1[color*p[20]];
-    else
-        eval += edge2[color*p[24]];
-
-    if(filled & 0x8040000000004080ULL)
-        eval += edge1[color*p[21]];
-    else
-        eval += edge2[color*p[25]];
+    //edge 8+8
+    eval += edge1[color*p[18]];
+    eval += edge1[color*p[19]];
+    eval += edge1[color*p[20]];
+    eval += edge1[color*p[21]];
 
     //edge 4/2/4
-    eval += edge3[color*p[26]];
-    eval += edge3[color*p[27]];
-    eval += edge3[color*p[28]];
-    eval += edge3[color*p[29]];
+    eval += edge2[color*p[22]];
+    eval += edge2[color*p[23]];
+    eval += edge2[color*p[24]];
+    eval += edge2[color*p[25]];
 
-    //edge 2*(3/2)
-    eval += edge4[color*p[30]];
-    eval += edge4[color*p[31]];
-    eval += edge4[color*p[32]];
-    eval += edge4[color*p[33]];
-
-    //hv 2
-    eval += hv2[color*p[34]];
-    eval += hv2[color*p[35]];
-    eval += hv2[color*p[36]];
-    eval += hv2[color*p[37]];
-    
     //hv 3
-    eval += hv3[color*p[38]];
-    eval += hv3[color*p[39]];
-    eval += hv3[color*p[40]];
-    eval += hv3[color*p[41]];
+    eval += hv3[color*p[26]];
+    eval += hv3[color*p[27]];
+    eval += hv3[color*p[28]];
+    eval += hv3[color*p[29]];
 
     //hv 4
-    eval += hv4[color*p[42]];
-    eval += hv4[color*p[43]];
-    eval += hv4[color*p[44]];
-    eval += hv4[color*p[45]];
+    eval += hv4[color*p[30]];
+    eval += hv4[color*p[31]];
+    eval += hv4[color*p[32]];
+    eval += hv4[color*p[33]];
 
     //corner 4/3/3/1
-    eval += corner1[color*p[46]];
-    eval += corner1[color*p[47]];
-    eval += corner1[color*p[48]];
-    eval += corner1[color*p[49]];
-
-    //corner 2*5
-    eval += corner2[color*p[50]];
-    eval += corner2[color*p[51]];
-    eval += corner2[color*p[52]];
-    eval += corner2[color*p[53]];
-    eval += corner2[color*p[54]];
-    eval += corner2[color*p[55]];
-    eval += corner2[color*p[56]];
-    eval += corner2[color*p[57]];
+    eval += corner[color*p[34]];
+    eval += corner[color*p[35]];
+    eval += corner[color*p[36]];
+    eval += corner[color*p[37]];
 
     if(eval>0) eval += 128; else eval -= 128;
     eval /= 256;
@@ -229,7 +186,6 @@ inline int RXBBPatterns::get_score() const {
 
 inline int RXBBPatterns::get_score(RXMove& move) const {
     
-    unsigned long long filled = board.discs[BLACK] | board.discs[WHITE] | move.square;
 
     const int* __restrict const p = move.pattern->patt;
     
@@ -245,13 +201,9 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     const short* __restrict const hyp_dg   = tab_eval[4];
     const short* __restrict const edge1    = tab_eval[5];
     const short* __restrict const edge2    = tab_eval[6];
-    const short* __restrict const edge3    = tab_eval[7];
-    const short* __restrict const edge4    = tab_eval[8];
-    const short* __restrict const hv2      = tab_eval[9];
-    const short* __restrict const hv3      = tab_eval[10];
-    const short* __restrict const hv4      = tab_eval[11];
-    const short* __restrict const corner1  = tab_eval[12];
-    const short* __restrict const corner2  = tab_eval[13];
+    const short* __restrict const hv3      = tab_eval[7];
+    const short* __restrict const hv4      = tab_eval[8];
+    const short* __restrict const corner   = tab_eval[9];
 
     int eval;
 
@@ -283,72 +235,35 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     eval += hyp_dg[color*p[16]];
     eval += hyp_dg[color*p[17]];
 
-    //edge+2X or edde 6+4
-    if(filled & 0x8142000000000000ULL)
-        eval += edge1[color*p[18]];
-    else
-        eval += edge2[color*p[22]];
-
-    if(filled & 0x0102000000000201ULL)
-        eval += edge1[color*p[19]];
-    else
-        eval += edge2[color*p[23]];
-
-    if(filled & 0x0000000000004281ULL)
-        eval += edge1[color*p[20]];
-    else
-        eval += edge2[color*p[24]];
-
-    if(filled & 0x8040000000004080ULL)
-        eval += edge1[color*p[21]];
-    else
-        eval += edge2[color*p[25]];
+    //edge 8+8
+    eval += edge1[color*p[18]];
+    eval += edge1[color*p[19]];
+    eval += edge1[color*p[20]];
+    eval += edge1[color*p[21]];
 
     //edge 4/2/4
-    eval += edge3[color*p[26]];
-    eval += edge3[color*p[27]];
-    eval += edge3[color*p[28]];
-    eval += edge3[color*p[29]];
+    eval += edge2[color*p[22]];
+    eval += edge2[color*p[23]];
+    eval += edge2[color*p[24]];
+    eval += edge2[color*p[25]];
 
-    //edge 2*(3/2)
-    eval += edge4[color*p[30]];
-    eval += edge4[color*p[31]];
-    eval += edge4[color*p[32]];
-    eval += edge4[color*p[33]];
-
-    //hv 2
-    eval += hv2[color*p[34]];
-    eval += hv2[color*p[35]];
-    eval += hv2[color*p[36]];
-    eval += hv2[color*p[37]];
-    
     //hv 3
-    eval += hv3[color*p[38]];
-    eval += hv3[color*p[39]];
-    eval += hv3[color*p[40]];
-    eval += hv3[color*p[41]];
+    eval += hv3[color*p[26]];
+    eval += hv3[color*p[27]];
+    eval += hv3[color*p[28]];
+    eval += hv3[color*p[29]];
 
     //hv 4
-    eval += hv4[color*p[42]];
-    eval += hv4[color*p[43]];
-    eval += hv4[color*p[44]];
-    eval += hv4[color*p[45]];
+    eval += hv4[color*p[30]];
+    eval += hv4[color*p[31]];
+    eval += hv4[color*p[32]];
+    eval += hv4[color*p[33]];
 
     //corner 4/3/3/1
-    eval += corner1[color*p[46]];
-    eval += corner1[color*p[47]];
-    eval += corner1[color*p[48]];
-    eval += corner1[color*p[49]];
-
-    //corner 2*5
-    eval += corner2[color*p[50]];
-    eval += corner2[color*p[51]];
-    eval += corner2[color*p[52]];
-    eval += corner2[color*p[53]];
-    eval += corner2[color*p[54]];
-    eval += corner2[color*p[55]];
-    eval += corner2[color*p[56]];
-    eval += corner2[color*p[57]];
+    eval += corner[color*p[34]];
+    eval += corner[color*p[35]];
+    eval += corner[color*p[36]];
+    eval += corner[color*p[37]];
 
     if(eval>0) eval += 128; else eval -= 128;
     eval /= 256;

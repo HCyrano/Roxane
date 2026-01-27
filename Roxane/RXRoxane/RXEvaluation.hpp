@@ -21,11 +21,11 @@ class alignas(64) RXEvaluation {
     
     static void load();
     static std::string get_version() {
-            return "E1 2026-01-20";
+            return "F1 2026-01-27";
         }
 
     
-    alignas(64) static inline short* eval[60][14];
+    alignas(64) static inline short* eval[60][10];
 
 
     ~RXEvaluation() {
@@ -48,32 +48,20 @@ class alignas(64) RXEvaluation {
             eval[iStage][4] -= 59049/2;
             delete[] eval[iStage][4];
             
-            eval[iStage][5] -= 59049/2;
+            eval[iStage][5] -= 43046721/2;
             delete[] eval[iStage][5];
             
             eval[iStage][6] -= 59049/2;
             delete[] eval[iStage][6];
             
-            eval[iStage][7] -= 59049/2;
+            eval[iStage][7] -= 6561/2;
             delete[] eval[iStage][7];
-            
-            eval[iStage][8] -= 59049/2;
+
+            eval[iStage][8] -= 6561/2;
             delete[] eval[iStage][8];
 
-            eval[iStage][9] -= 6561/2;
+            eval[iStage][9] -= 177147/2;
             delete[] eval[iStage][9];
-
-            eval[iStage][10] -= 6561/2;
-            delete[] eval[iStage][10];
-
-            eval[iStage][11] -= 6561/2;
-            delete[] eval[iStage][11];
-
-            eval[iStage][12] -= 177147/2;
-            delete[] eval[iStage][12];
-
-            eval[iStage][13] -= 59049/2;
-            delete[] eval[iStage][13];
 
         }
 
