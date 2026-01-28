@@ -42,20 +42,20 @@ void RXEvaluation::load() {
             from.read(reinterpret_cast<char*> (eval[iStage][3]), sizeof(short)*6561);
             eval[iStage][3] += 6561/2;
             
-            //hyper diag id_patt = 4
-            eval[iStage][4] = new short[59049];
-            from.read(reinterpret_cast<char*> (eval[iStage][4]), sizeof(short)*59049);
-            eval[iStage][4] += 59049/2;
+            //edge+2XC
+            eval[iStage][4] = new short[4782969];
+            from.read(reinterpret_cast<char*> (eval[iStage][4]), sizeof(short)*4782969);
+            eval[iStage][4] += 4782969/2;
 
-            //edge+8+8 id_patt = 5
-            eval[iStage][5] = new short[43046721];
-            from.read(reinterpret_cast<char*> (eval[iStage][5]), sizeof(short)*43046721);
-            eval[iStage][5] += 43046721/2;
+            //edge 6+4 id_patt = 5
+            eval[iStage][5] = new short[59049];
+            from.read(reinterpret_cast<char*> (eval[iStage][5]), sizeof(short)*59049);
+            eval[iStage][5] += 59049/2;
 
-            //edge 4/2/4id_patt = 6
-            eval[iStage][6] = new short[59049];
-            from.read(reinterpret_cast<char*> (eval[iStage][6]), sizeof(short)*59049);
-            eval[iStage][6] += 59049/2;
+            //hv2 patt = 6
+            eval[iStage][6] = new short[6561];
+            from.read(reinterpret_cast<char*> (eval[iStage][6]), sizeof(short)*6561);
+            eval[iStage][6] += 6561/2;
 
             //hv_3 id_patt = 7
             eval[iStage][7] = new short[6561];
@@ -71,6 +71,11 @@ void RXEvaluation::load() {
             eval[iStage][9] = new short[177147];
             from.read(reinterpret_cast<char*> (eval[iStage][9]), sizeof(short)*177147);
             eval[iStage][9] += 177147/2;
+            
+            // corner2*5 id_patt = 10
+            eval[iStage][10] = new short[59049];
+            from.read(reinterpret_cast<char*> (eval[iStage][10]), sizeof(short)*59049);
+            eval[iStage][10] += 59049/2;
             
 
         }

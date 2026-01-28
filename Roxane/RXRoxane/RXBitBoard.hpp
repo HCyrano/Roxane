@@ -247,6 +247,7 @@ void generate_flips_##pos(RXMove& move) const \
 //Set all bits below the sole outflank bit if outfrank != 0
 static inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
     return outflank ? (outflank - 1) : 0;
+//    return -(long long)outflank >> 63 & (outflank - 1);
 }
 
 // Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
