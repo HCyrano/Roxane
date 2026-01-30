@@ -106,7 +106,11 @@ inline int RXBBPatterns::get_score() const {
     const unsigned long long mask2 = filled & 0x0000000000004281ULL;
     const unsigned long long mask3 = filled & 0x8040000000004080ULL;
 
-            
+    const unsigned long long mask4 = filled & 0x8040000000000000ULL;
+    const unsigned long long mask5 = filled & 0x0102000000000000ULL;
+    const unsigned long long mask6 = filled & 0x0000000000000201ULL;
+    const unsigned long long mask7 = filled & 0x0000000000004080ULL;
+
     const int* __restrict const p = pattern->patt;
     
     const int stage = 60-board.n_empty;
@@ -118,15 +122,21 @@ inline int RXBBPatterns::get_score() const {
     const short* __restrict const diag6    = tab_eval[1];
     const short* __restrict const diag7    = tab_eval[2];
     const short* __restrict const diag8    = tab_eval[3];
+    
     const short* __restrict const edge1    = tab_eval[4];
     const short* __restrict const edge2    = tab_eval[5];
     const short* __restrict const edge3    = tab_eval[6];
     const short* __restrict const edge4    = tab_eval[7];
-    const short* __restrict const hv2      = tab_eval[8];
-    const short* __restrict const hv3      = tab_eval[9];
-    const short* __restrict const hv4      = tab_eval[10];
-    const short* __restrict const corner1  = tab_eval[11];
-    const short* __restrict const corner2  = tab_eval[12];
+    const short* __restrict const edge5    = tab_eval[8];
+
+    const short* __restrict const hv2      = tab_eval[9];
+    const short* __restrict const hv3      = tab_eval[10];
+    const short* __restrict const hv4      = tab_eval[11];
+    
+    const short* __restrict const corner1  = tab_eval[12];
+    const short* __restrict const corner2  = tab_eval[13];
+    const short* __restrict const corner3  = tab_eval[14];
+    const short* __restrict const corner4  = tab_eval[15];
 
     int eval;
 
@@ -175,39 +185,55 @@ inline int RXBBPatterns::get_score() const {
     eval += edge4[color*p[28]];
     eval += edge4[color*p[29]];
 
+    //edge 2*5
+    eval += edge5[color*p[30]];
+    eval += edge5[color*p[31]];
+    eval += edge5[color*p[32]];
+    eval += edge5[color*p[33]];
+    eval += edge5[color*p[34]];
+    eval += edge5[color*p[35]];
+    eval += edge5[color*p[36]];
+    eval += edge5[color*p[37]];
+
     //hv 2
-    eval += hv2[color*p[30]];
-    eval += hv2[color*p[31]];
-    eval += hv2[color*p[32]];
-    eval += hv2[color*p[33]];
+    eval += hv2[color*p[38]];
+    eval += hv2[color*p[39]];
+    eval += hv2[color*p[40]];
+    eval += hv2[color*p[41]];
 
     //hv 3
-    eval += hv3[color*p[34]];
-    eval += hv3[color*p[35]];
-    eval += hv3[color*p[36]];
-    eval += hv3[color*p[37]];
+    eval += hv3[color*p[42]];
+    eval += hv3[color*p[43]];
+    eval += hv3[color*p[44]];
+    eval += hv3[color*p[45]];
 
     //hv 4
-    eval += hv4[color*p[38]];
-    eval += hv4[color*p[39]];
-    eval += hv4[color*p[40]];
-    eval += hv4[color*p[41]];
+    eval += hv4[color*p[46]];
+    eval += hv4[color*p[47]];
+    eval += hv4[color*p[48]];
+    eval += hv4[color*p[49]];
 
-    //corner 4/3/3/1
-    eval += corner1[color*p[42]];
-    eval += corner1[color*p[43]];
-    eval += corner1[color*p[44]];
-    eval += corner1[color*p[45]];
+    const short* __restrict const table4 = mask4 ? corner1 : corner2;
+    const short* __restrict const table5 = mask5 ? corner1 : corner2;
+    const short* __restrict const table6 = mask6 ? corner1 : corner2;
+    const short* __restrict const table7 = mask7 ? corner1 : corner2;
 
-    //corner 2*5
-    eval += corner2[color*p[46]];
-    eval += corner2[color*p[47]];
-    eval += corner2[color*p[48]];
-    eval += corner2[color*p[49]];
-    eval += corner2[color*p[50]];
-    eval += corner2[color*p[51]];
-    eval += corner2[color*p[52]];
-    eval += corner2[color*p[53]];
+    //corner 2 bords +X
+    eval += table4[color*p[mask4 ? 50 : 54]];
+    eval += table5[color*p[mask5 ? 51 : 55]];
+    eval += table6[color*p[mask6 ? 52 : 56]];
+    eval += table7[color*p[mask7 ? 53 : 57]];
+
+    const short* __restrict const table8 = mask4 ? corner3 : corner4;
+    const short* __restrict const table9 = mask5 ? corner3 : corner4;
+    const short* __restrict const tableA = mask6 ? corner3 : corner4;
+    const short* __restrict const tableB = mask7 ? corner3 : corner4;
+
+    //corner 2 bords +X
+    eval += table8[color*p[mask4 ? 58 : 62]];
+    eval += table9[color*p[mask5 ? 59 : 63]];
+    eval += tableA[color*p[mask6 ? 60 : 64]];
+    eval += tableB[color*p[mask7 ? 61 : 65]];
 
     if(eval>0) eval += 128; else eval -= 128;
     eval /= 256;
@@ -225,6 +251,10 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     const unsigned long long mask2 = filled & 0x0000000000004281ULL;
     const unsigned long long mask3 = filled & 0x8040000000004080ULL;
 
+    const unsigned long long mask4 = filled & 0x8040000000000000ULL;
+    const unsigned long long mask5 = filled & 0x0102000000000000ULL;
+    const unsigned long long mask6 = filled & 0x0000000000000201ULL;
+    const unsigned long long mask7 = filled & 0x0000000000004080ULL;
 
     const int* __restrict const p = move.pattern->patt;
     
@@ -237,15 +267,21 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     const short* __restrict const diag6    = tab_eval[1];
     const short* __restrict const diag7    = tab_eval[2];
     const short* __restrict const diag8    = tab_eval[3];
+    
     const short* __restrict const edge1    = tab_eval[4];
     const short* __restrict const edge2    = tab_eval[5];
     const short* __restrict const edge3    = tab_eval[6];
     const short* __restrict const edge4    = tab_eval[7];
-    const short* __restrict const hv2      = tab_eval[8];
-    const short* __restrict const hv3      = tab_eval[9];
-    const short* __restrict const hv4      = tab_eval[10];
-    const short* __restrict const corner1  = tab_eval[11];
-    const short* __restrict const corner2  = tab_eval[12];
+    const short* __restrict const edge5    = tab_eval[8];
+
+    const short* __restrict const hv2      = tab_eval[9];
+    const short* __restrict const hv3      = tab_eval[10];
+    const short* __restrict const hv4      = tab_eval[11];
+    
+    const short* __restrict const corner1  = tab_eval[12];
+    const short* __restrict const corner2  = tab_eval[13];
+    const short* __restrict const corner3  = tab_eval[14];
+    const short* __restrict const corner4  = tab_eval[15];
 
     int eval;
 
@@ -271,7 +307,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     eval += diag8[color*p[12]];
     eval += diag8[color*p[13]];
     
-    
+
     const short* __restrict const table0 = mask0 ? edge1 : edge2;
     const short* __restrict const table1 = mask1 ? edge1 : edge2;
     const short* __restrict const table2 = mask2 ? edge1 : edge2;
@@ -294,40 +330,56 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     eval += edge4[color*p[28]];
     eval += edge4[color*p[29]];
 
+    //edge 2*5
+    eval += edge5[color*p[30]];
+    eval += edge5[color*p[31]];
+    eval += edge5[color*p[32]];
+    eval += edge5[color*p[33]];
+    eval += edge5[color*p[34]];
+    eval += edge5[color*p[35]];
+    eval += edge5[color*p[36]];
+    eval += edge5[color*p[37]];
+
     //hv 2
-    eval += hv2[color*p[30]];
-    eval += hv2[color*p[31]];
-    eval += hv2[color*p[32]];
-    eval += hv2[color*p[33]];
+    eval += hv2[color*p[38]];
+    eval += hv2[color*p[39]];
+    eval += hv2[color*p[40]];
+    eval += hv2[color*p[41]];
 
     //hv 3
-    eval += hv3[color*p[34]];
-    eval += hv3[color*p[35]];
-    eval += hv3[color*p[36]];
-    eval += hv3[color*p[37]];
+    eval += hv3[color*p[42]];
+    eval += hv3[color*p[43]];
+    eval += hv3[color*p[44]];
+    eval += hv3[color*p[45]];
 
     //hv 4
-    eval += hv4[color*p[38]];
-    eval += hv4[color*p[39]];
-    eval += hv4[color*p[40]];
-    eval += hv4[color*p[41]];
+    eval += hv4[color*p[46]];
+    eval += hv4[color*p[47]];
+    eval += hv4[color*p[48]];
+    eval += hv4[color*p[49]];
 
-    //corner 4/3/3/1
-    eval += corner1[color*p[42]];
-    eval += corner1[color*p[43]];
-    eval += corner1[color*p[44]];
-    eval += corner1[color*p[45]];
+    const short* __restrict const table4 = mask4 ? corner1 : corner2;
+    const short* __restrict const table5 = mask5 ? corner1 : corner2;
+    const short* __restrict const table6 = mask6 ? corner1 : corner2;
+    const short* __restrict const table7 = mask7 ? corner1 : corner2;
 
-    //corner 2*5
-    eval += corner2[color*p[46]];
-    eval += corner2[color*p[47]];
-    eval += corner2[color*p[48]];
-    eval += corner2[color*p[49]];
-    eval += corner2[color*p[50]];
-    eval += corner2[color*p[51]];
-    eval += corner2[color*p[52]];
-    eval += corner2[color*p[53]];
+    //corner 2 bords +X
+    eval += table4[color*p[mask4 ? 50 : 54]];
+    eval += table5[color*p[mask5 ? 51 : 55]];
+    eval += table6[color*p[mask6 ? 52 : 56]];
+    eval += table7[color*p[mask7 ? 53 : 57]];
 
+    const short* __restrict const table8 = mask4 ? corner3 : corner4;
+    const short* __restrict const table9 = mask5 ? corner3 : corner4;
+    const short* __restrict const tableA = mask6 ? corner3 : corner4;
+    const short* __restrict const tableB = mask7 ? corner3 : corner4;
+
+    //corner 2 bords +X
+    eval += table8[color*p[mask4 ? 58 : 62]];
+    eval += table9[color*p[mask5 ? 59 : 63]];
+    eval += tableA[color*p[mask6 ? 60 : 64]];
+    eval += tableB[color*p[mask7 ? 61 : 65]];
+    
     if(eval>0) eval += 128; else eval -= 128;
     eval /= 256;
     
