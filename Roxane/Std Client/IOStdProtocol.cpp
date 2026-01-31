@@ -107,7 +107,7 @@ void IOStdProtocol::InterpretCommand(const std::vector<std::string>& args)
         Print("ready.");
     }
         
-    else if (command == "search") {
+    else if (command == "search-fixed-depth") {
         // La commande 'search' nécessite 5 arguments au total (IOStd search pos depth precision)
         // pos : O--OOOOX-OOOOOOXOOXXOOOXOOXOOOXXOOOOOOXX---OOOOX----O--X-------- X contient un delimitateur ' ' = traitement special
         if(args.size() == 6) {
@@ -119,12 +119,29 @@ void IOStdProtocol::InterpretCommand(const std::vector<std::string>& args)
             int depth = std::atoi(args[4].c_str());
             int precision = std::atoi(args[5].c_str());
             
-            engine->get_move(position, depth, precision);
+            engine->get_move_fixed_depth(position, depth, precision);
         } else {
              SyntaxError(args);
         }
     }
-        
+ 
+    else if (command == "search-limited-time") {
+        // La commande 'search' nécessite 5 arguments au total (IOStd search pos depth precision)
+        // pos : O--OOOOX-OOOOOOXOOXXOOOXOOXOOOXXOOOOOOXX---OOOOX----O--X-------- X contient un delimitateur ' ' = traitement special
+        if(args.size() == 5) {
+            
+            // Utilisation des chaînes C++
+            const std::string& position  = args[2] + " " + args[3];
+
+            // Conversion en int
+            int time_remaining = std::atoi(args[4].c_str());
+            
+            engine->get_move_time_limited(position, time_remaining);
+        } else {
+             SyntaxError(args);
+        }
+    }
+
     else
         SyntaxError(args);
 }

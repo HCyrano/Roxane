@@ -56,7 +56,6 @@ class RXSearch {
 	//parameters times
 	bool dependent_time;
 
-	int tMatch;
 	int tRemaining;
 	
 	//parameters search

@@ -1235,7 +1235,6 @@ void RXEngine::get_move(RXSearch& s) {
     
     activeThreads = std::min<unsigned int>(std::max<unsigned int>(1, s.nThreads), THREAD_MAX);
     
-    time_match = s.tMatch;
     time_remaining = s.tRemaining;
     
     

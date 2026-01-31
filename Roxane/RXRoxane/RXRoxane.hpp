@@ -116,7 +116,8 @@ public :
     //IOProtocol
     void connectIOStd(IOStdProtocol* client);
 
-    void get_move(const std::string& position, const int depth, const int selectivity);
+    void get_move_fixed_depth(const std::string& position, const int depth, const int selectivity);
+    void get_move_time_limited(const std::string& position, const int time_remaining);
 
 	
 
