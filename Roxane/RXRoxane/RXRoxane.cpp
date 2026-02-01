@@ -394,7 +394,6 @@ void RXRoxane::get_move(const string& _idg, COsGame* g) {
 	
 	search.dependent_time = true;	
     
-	search.tMatch         = static_cast<int>( g->posStart.cks[player^1].tCurrent*1000);
 	search.tRemaining     = static_cast<int>(game[player].cks[player^1].tCurrent*1000);
     
     //debug
@@ -584,7 +583,7 @@ void RXRoxane::get_move(const std::string& file_name) {
     
 }
 
-void RXRoxane::get_move(const std::string& position, const int depth, const int selectivity) {
+void RXRoxane::get_move_fixed_depth(const std::string& position, const int depth, const int selectivity) {
     
     pthread_mutex_lock(&mutex);
 
@@ -634,6 +633,59 @@ void RXRoxane::get_move(const std::string& position, const int depth, const int 
     pthread_mutex_unlock(&mutex);
 
 }
+
+void RXRoxane::get_move_limited_time(const std::string& position, const int time_remaining) {
+    
+    pthread_mutex_lock(&mutex);
+
+    resume_flag = false;
+        
+    hTable->shared(true);
+    
+    int n_threads = engine[SHARED]->get_THREAD_MAX();
+
+    search.clientMode = RXSearch::kIOStd;
+    search.idEngine = SHARED;
+    search.nThreads = std::max(1, n_threads);
+    
+    search.htable = hTable;
+    search.main_PV = main_PV;
+    search.expected_PV = expected_PV;
+    
+    search.search_on_opponent_time = false;
+        
+    search.dependent_time = true;
+    search.tRemaining     = time_remaining;
+
+    search.sBoard.build(position);
+    search.depth       = search.sBoard.board.n_empty;
+    search.alpha       = -MAX_SCORE;
+    search.beta        = +MAX_SCORE;
+    search.selectivity = RXEngine::NO_SELECT;
+
+    search.bestMove.position    = NOMOVE;
+    search.bestMove.score       = UNDEF_SCORE;
+    search.bestMove.selectivity = 0;
+    search.bestMove.tElapsed    = 0.0;
+    search.bestMove.nodes        = 0;
+    
+    
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    
+    
+    if(!resume_flag && pthread_create(process, &attr, init_process, (void*)(this)) != 0) {
+        std::cout << "Echec: Thread main Roxane" << std::endl;
+    }
+    
+    
+    pthread_attr_destroy(&attr);
+            
+    pthread_mutex_unlock(&mutex);
+
+}
+
 #ifdef GENERATE_RAWDATA
 
 void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, const int n_games) {

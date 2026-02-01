@@ -196,7 +196,6 @@ class RXEngine: public Runnable, public RXHelper {
     static const int DEPTH_BOOSTER;
     
     //time manager part
-    volatile int time_match;
     volatile int time_remaining;
     
     volatile int time_start;
