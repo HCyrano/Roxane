@@ -132,7 +132,7 @@ void RXEngine::iterative_deepening(RXBBPatterns& sBoard, RXMove* list, int selec
             break;
         
         
-    } while((depth +=(search_client == RXSearch::kIOStd ? 1:2)) <= max_depth);
+    } while((depth +=((search_client == RXSearch::kIOStd && !dependent_time) ? 1:2)) <= max_depth);
     
 }
 
