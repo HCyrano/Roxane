@@ -21,39 +21,59 @@ class alignas(64) RXEvaluation {
     
     static void load();
     static std::string get_version() {
-            return "I 2026-01-30";
+            return "J 2026-02-03";
         }
 
     
-    alignas(64) static inline short* eval[60][7];
+    alignas(64) static inline short* eval[60][14];
 
 
     ~RXEvaluation() {
         
 
         for(unsigned int iStage = 0; iStage<60; iStage++) {
-                        
-            eval[iStage][0] -= 729/2;
+ 
             delete[] eval[iStage][0];
-            
-            eval[iStage][1] -= 2187/2;
+
             delete[] eval[iStage][1];
 
-            eval[iStage][2] -= 6561/2;
+            eval[iStage][2] -= 243/2;
             delete[] eval[iStage][2];
             
-            eval[iStage][3] -= 43046721/2;
+            eval[iStage][3] -= 729/2;
             delete[] eval[iStage][3];
 
-            eval[iStage][4] -= 6561/2;
+            eval[iStage][4] -= 2187/2;
             delete[] eval[iStage][4];
             
             eval[iStage][5] -= 6561/2;
             delete[] eval[iStage][5];
-            
-            eval[iStage][6] -= 14348907/2;
+
+            eval[iStage][6] -= 59049/2;
             delete[] eval[iStage][6];
-                        
+            
+            eval[iStage][7] -= 59049/2;
+            delete[] eval[iStage][7];
+            
+            eval[iStage][8] -= 59049/2;
+            delete[] eval[iStage][8];
+            
+            eval[iStage][9] -= 59049/2;
+            delete[] eval[iStage][9];
+            
+            eval[iStage][10] -= 6561/2;
+            delete[] eval[iStage][10];
+
+            eval[iStage][11] -= 6561/2;
+            delete[] eval[iStage][11];
+
+            eval[iStage][12] -= 6561/2;
+            delete[] eval[iStage][12];
+
+            eval[iStage][13] -= 177147/2;
+            delete[] eval[iStage][13];
+
+
         }
 
     };
@@ -61,7 +81,6 @@ class alignas(64) RXEvaluation {
 
         
 };
-
 
 
 
