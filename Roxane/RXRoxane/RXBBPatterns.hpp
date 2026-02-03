@@ -215,9 +215,10 @@ inline int RXBBPatterns::get_score() const {
     eval += corner[color*p[48]];
     eval += corner[color*p[49]];
 
-    if(eval>0) eval += 128; else eval -= 128;
-    eval /= 256;
-    
+    //tranlation finale :
+    eval += 128 + ((eval >> 31) & -256); // Ajoute 128 ou -128
+    eval >>= 8; // Division par 256
+
    return eval;
 
 }
@@ -343,9 +344,10 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     eval += corner[color*p[48]];
     eval += corner[color*p[49]];
 
-    if(eval>0) eval += 128; else eval -= 128;
-    eval /= 256;
-    
+    //tranlation finale :
+    eval += 128 + ((eval >> 31) & -256); // Ajoute 128 ou -128
+    eval >>= 8; // Division par 256
+
    return eval;
 }
 
