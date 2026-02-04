@@ -2344,78 +2344,76 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
+    
+    unsigned int depth_max = 16;
+    int scores[depth_max+1];
 
-    for(int n_data = 0; n_data < 200; ++n_data) {
-        for(int depth = 16; depth <= 17; ++depth) {
-            //hTable->reset();
-            //start at 8 discs
-            for (int n_discs = 8; n_discs < 64-5-depth; ++n_discs){
-                //sBoard.reset();
-                int n_moves = 0;
-                for(; n_moves < n_discs-4 && board.n_moves()!=0 ; ++n_moves) {
-                    unsigned long long legal_movesBB = board.get_legal_moves();
-                    if(legal_movesBB) {
-                                            
-                        unsigned long long legal_move = RXMove::random_pick_bit_in_legalmoves(legal_movesBB);
-                                            
-                        RXMove* move = threads[0]._move[board.n_empty];
-                        for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
-                            if((legal_movesBB & 0x1ULL<<empties->position) & legal_move) {
-                                  
-                                ((board).*(board.generate_flips[empties->position ]))(*move);
-                                ((sBoard).*(sBoard.update_patterns[empties->position ][board.player]))(*move);
-                                                    
-                                break;
-                            }
-                        }
-                                            
-                        sBoard.do_move(*move);
-                    }
-
-                }
-
-
-                if(board.n_moves()!=0) {
+    for(int n_data = 0; n_data < 2500; ++n_data) {
+        //start at 8 discs
+        for (int n_discs = 8; n_discs < 64-5-depth_max; ++n_discs){
+            int n_moves = 0;
+            for(; n_moves < n_discs-4 && board.n_moves()!=0 ; ++n_moves) {
+                unsigned long long legal_movesBB = board.get_legal_moves();
+                if(legal_movesBB) {
                     
-                    int score_at_shallow_depth, score_at_depth;
+                    unsigned long long legal_move = RXMove::random_pick_bit_in_legalmoves(legal_movesBB);
                     
-                    if(depth < 4) {
-                        score_at_depth = MG_PVS_shallow(0, sBoard, true, depth, -MAX_SCORE, MAX_SCORE, false);
-                    } else {
-                        wake_sleeping_threads();
-                        score_at_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, -MAX_SCORE, MAX_SCORE, false);
-                    }
-
-                    hTable->reset();
-
-                    for(int shallow_depth = depth & 1; shallow_depth <= depth-2; shallow_depth+=2){
-                        
-                        if(shallow_depth < 4) {
-                            score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                        } else {
-                            wake_sleeping_threads();
-                            score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
+                    RXMove* move = threads[0]._move[board.n_empty];
+                    for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
+                        if((legal_movesBB & 0x1ULL<<empties->position) & legal_move) {
+                            
+                            ((board).*(board.generate_flips[empties->position ]))(*move);
+                            ((sBoard).*(sBoard.update_patterns[empties->position ][board.player]))(*move);
+                            
+                            break;
                         }
-                        
-                        
-                        int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
-                        
-                        //if(depth == 2 && n_moves == 0)
-                        std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
-                        
-                        if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
-                            ofs << n_discs << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
                     }
-
+                    
+                    sBoard.do_move(*move);
                 }
-                
-                for(; 0 < n_moves ; --n_moves) {
-                    RXMove* move = threads[0]._move[board.n_empty+1];
-                    sBoard.undo_move(*move);
-                }
-
                 
             }
+            
+            
+            if(board.n_moves()!=0) {
+                                
+                hTable->reset();
+                
+                for(int depth = board.n_empty & 1; depth <= depth_max; depth+=2){
+                    
+                    int score;
+                    if(depth < 4) {
+                        score = MG_PVS_shallow(0, sBoard, true, depth, -MAX_SCORE, MAX_SCORE, false);
+                    } else {
+                        wake_sleeping_threads();
+                        score = MG_PVS_deep(0, sBoard, true, NO_SELECT, depth, -MAX_SCORE, MAX_SCORE, false);
+                    }
+                    
+                    scores[depth] = score;
+                }
+                    
+                for(int depth = 2 + (board.n_empty & 1); depth <= depth_max; depth+=2){
+                    for(int shallow_depth = depth & 1; shallow_depth <= depth-2; shallow_depth+=2){
+                        
+                        int diff_score = scores[depth] - scores[shallow_depth];
+                        
+                        //if(depth == 2 && n_moves == 0)
+                        std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << diff_score << std::endl;
+                        
+                        if(-64 <= diff_score && diff_score <= 64)
+                            ofs << n_discs << " " << shallow_depth << " " << depth << " " << diff_score << std::endl;
+                    }
+                }
+                
+            }
+            
+            // reset position
+            for(; 0 < n_moves ; --n_moves) {
+                RXMove* move = threads[0]._move[board.n_empty+1];
+                sBoard.undo_move(*move);
+            }
+            
+            
         }
     }
     

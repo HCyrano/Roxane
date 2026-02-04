@@ -153,11 +153,11 @@ inline int RXBBPatterns::get_score() const {
     eval += diag8[color*p[12]];
     eval += diag8[color*p[13]];
     
-    //edge 8+6
-    eval += edge[color * p[14]];
-    eval += edge[color * p[15]];
-    eval += edge[color * p[16]];
-    eval += edge[color * p[17]];
+    //edge 8+8
+    eval += edge[color*p[14]];
+    eval += edge[color*p[15]];
+    eval += edge[color*p[16]];
+    eval += edge[color*p[17]];
     
     //hv 3
     eval += hv3[color*p[18]];
@@ -243,11 +243,11 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     eval += diag8[color*p[12]];
     eval += diag8[color*p[13]];
     
-    //edge 8+6
-    eval += edge[color * p[14]];
-    eval += edge[color * p[15]];
-    eval += edge[color * p[16]];
-    eval += edge[color * p[17]];
+    //edge 8+8
+    eval += edge[color*p[14]];
+    eval += edge[color*p[15]];
+    eval += edge[color*p[16]];
+    eval += edge[color*p[17]];
     
     //hv 3
     eval += hv3[color*p[18]];
