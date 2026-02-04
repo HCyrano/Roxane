@@ -987,8 +987,8 @@ void* RXRoxane::run() {
             
         } else if(s.clientMode == RXSearch::kIOStd) {
             
-            IOClient->Print("move " + RXMove::index_to_coord(s.bestMove.position));
-            
+            IOClient->Print("move " + RXMove::index_to_coord(s.bestMove.position) + " " + std::to_string(s.bestMove.score));
+
         }
     }
     

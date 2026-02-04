@@ -70,6 +70,7 @@ class RXMove {
 		//static void index_to_COsMove(int index, COsMove& move);
 		static std::string index_to_coord(int index);
 		static int coord_to_index(std::string coord);
+        static unsigned long long random_pick_bit_in_legalmoves(const unsigned long long legal_moves);
 				
 		void sort_bestmove(const unsigned int bestmove);
 		void sort_by_score();

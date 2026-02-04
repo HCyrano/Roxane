@@ -649,6 +649,9 @@ void RXBitBoard::build(const std::string& init) {
     
 }
 
+
+
+
 std::ostream& operator<<(std::ostream& os, RXBitBoard& board) {
 
 	os << "\n  A B C D E F G H " << std::endl;

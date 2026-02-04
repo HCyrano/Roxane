@@ -2356,23 +2356,11 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                     unsigned long long legal_movesBB = board.get_legal_moves();
                     if(legal_movesBB) {
                         
-                        int ramdon_moveID = random_bounds(0, __builtin_popcountll(legal_movesBB)-1);
-                        int count_legal = 0;
-                        int n_bit = 0;
-                        for(; n_bit < 64; ++n_bit) {
-                            if((legal_movesBB>>n_bit) & 0x1ULL) {
-
-                                if(count_legal == ramdon_moveID)
-                                    break;
-                              
-                                ++count_legal;
-
-                            }
-                        }
+                        unsigned long long legal_move = RXMove::random_pick_bit_in_legalmoves(legal_movesBB);
                         
                         RXMove* move = threads[0]._move[board.n_empty];
                         for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
-                            if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
+                            if((legal_movesBB & 0x1ULL<<empties->position) & legal_move) {
                                 
                                 ((board).*(board.generate_flips[empties->position ]))(*move);
                                 ((sBoard).*(sBoard.update_patterns[empties->position ][board.player]))(*move);
@@ -2460,23 +2448,11 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                 unsigned long long legal_movesBB = board.get_legal_moves();
                 if(legal_movesBB) {
                     
-                    int ramdon_moveID = random_bounds(0, __builtin_popcountll(legal_movesBB)-1);
-                    int count_legal = 0;
-                    int n_bit = 0;
-                    for(; n_bit < 64; ++n_bit) {
-                        if((legal_movesBB>>n_bit) & 0x1ULL) {
-                            
-                            if(count_legal == ramdon_moveID)
-                                break;
-                            
-                            ++count_legal;
-                            
-                        }
-                    }
+                    unsigned long long legal_move = RXMove::random_pick_bit_in_legalmoves(legal_movesBB);
                     
                     RXMove* move = threads[0]._move[board.n_empty];
                     for(RXSquareList* empties = board.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
-                        if((legal_movesBB & 0x1ULL<<empties->position) & 0x1ULL<<n_bit) {
+                        if((legal_movesBB & 0x1ULL<<empties->position) & legal_move) {
                             
                             ((board).*(board.generate_flips[empties->position ]))(*move);
                             ((sBoard).*(sBoard.update_patterns[empties->position ][board.player]))(*move);
