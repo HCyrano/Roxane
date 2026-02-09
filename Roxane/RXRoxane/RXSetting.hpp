@@ -62,6 +62,8 @@
 
 // type of coefficients probcut
 //#define PROBCUT_x2 // undefined use PROBCUT_x3
-#define SIGMA_2ZONES
+//#define SIGMA_1ZONE
+//#define SIGMA_2ZONES
+#define SIGMA_3ZONES
 
 #endif

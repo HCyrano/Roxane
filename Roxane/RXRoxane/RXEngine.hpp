@@ -469,6 +469,79 @@ inline int RXEngine::time_limit() const {
     return time;
 }
 
+#ifdef SIGMA_3ZONES
+
+
+inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
+{
+    
+    constexpr int early = 0;
+    constexpr int mid   = 1;
+    constexpr int end   = 2;
+
+    /*
+    //probcut v9.1
+    constexpr double probcut_a[] = {0.01847439, 0.01526573, -0.03228577};
+    constexpr double probcut_b[] = {0.04122566, 0.18956524, -0.12901053};
+    constexpr double probcut_c[] = {-0.05329757, -0.01414157, 0.04863825};
+    constexpr double probcut_d[] = {-5.19077117, -0.30474307, 0.89155022};
+    constexpr double probcut_e[] = {-23.11465666, 2.60313924, 5.97602383};
+    constexpr double probcut_f[] = {-20.40095982, -7.51215899, 13.82573282};
+    constexpr double probcut_g[] = {3.26522036, 9.23004198, 12.56095491};
+
+    // Transitions progressives entre zones
+    double s1 = sigmoid(n_empty, 18, 0.3); // base 40.0, 0,3
+    double s2 = sigmoid(n_empty, 42, 0.3); // base 40.0, 0,3
+
+    double w_early = 1.0 - s1;
+    double w_end   = s2;
+    double w_mid   = 1.0 - w_early - w_end;
+    */
+
+    constexpr double probcut_a[] = {0.29736871, 0.09169649, 0.41091810};
+    constexpr double probcut_b[] = {-0.15243659, -0.08251643, -0.44106809};
+    constexpr double probcut_c[] = {0.36970516, 0.08281715, -0.00975311};
+    constexpr double probcut_d[] = {0.01847852, 1.44446884, 0.06738396};
+    constexpr double probcut_e[] = {-1.10292167, -15.87003934, -0.77841377};
+    constexpr double probcut_f[] = {21.26408154, 57.60294113, 2.90508020};
+    constexpr double probcut_g[] = {-130.30442704, -69.06822646, 8.92764751};
+
+    //Cloches gaussiennes
+    // Formule : exp( - (w - mean)^2 / (2 * chevauchement^2) ) ici 50/20/10 donc 20 pour un chevauchement on prend 12*2 = 24
+    double teta = 2 * std::pow(12, 2);
+    double w_early_raw = std::exp(-std::pow(n_empty - 50, 2) / teta);
+    double w_mid_raw   = std::exp(-std::pow(n_empty - 30, 2) / teta);
+    double w_end_raw   = std::exp(-std::pow(n_empty - 10, 2) / teta);
+
+        // Normalisation
+    double total = w_early_raw + w_mid_raw + w_end_raw;
+        
+    double w_early = w_early_raw / total;
+    double w_mid   = w_mid_raw / total;
+    double w_end   = w_end_raw / total;
+    
+    // Fonction polynomiale par zone
+    auto sigma = [&](int i) {
+        double r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
+        return probcut_d[i] * r * r * r +
+               probcut_e[i] * r * r +
+               probcut_f[i] * r +
+               probcut_g[i];
+    };
+
+    // Combinaison douce
+    double sig_early = sigma(early);
+    double sig_mid   = sigma(mid);
+    double sig_end   = sigma(end);
+
+    double res = w_early*sig_early + w_mid * sig_mid + w_end * sig_end;
+
+    return std::max(2.7, res);
+}
+
+#endif
+
+
 
 #ifdef SIGMA_2ZONES
 
@@ -485,6 +558,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     // const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
     // s8r14 2:00 Edmond vs edax
     // w88 d121 l68
+    /*
     constexpr double probcut_a[] = {-0.00906229, 0.00483133};
     constexpr double probcut_b[] = {0.12115910, 0.07975382};
     constexpr double probcut_c[] = {-0.12071974, -0.01763140};
@@ -492,9 +566,20 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     constexpr double probcut_e[] = {-2.93341676, 9.99659776};
     constexpr double probcut_f[] = {-5.44314615, -9.52512272};
     constexpr double probcut_g[] = {0.01672187, 6.76910942};
+    */
+    
+    //probcut v9.1
+    constexpr double probcut_a[] = {0.21497775, 0.00738301};
+    constexpr double probcut_b[] = {2.77883844, 0.07297002};
+    constexpr double probcut_c[] = {-0.89648633, -0.01412426};
+    constexpr double probcut_d[] = {-0.00016011, -4.83205149};
+    constexpr double probcut_e[] = {0.01197217, 15.37476478};
+    constexpr double probcut_f[] = {-0.34131886, -15.79339521};
+    constexpr double probcut_g[] = {6.12897090, 8.46698928}; // {+1.0, +0.5}
 
+    
     // Transitions progressives entre zones
-    double s1 = sigmoid(n_empty, 40.0, 0.3);
+    double s1 = sigmoid(n_empty, 35.0, 0.3); // base 40.0, 0,3
 
     double w_mid   = s1;
     double w_end   = 1.0 - s1;
@@ -514,10 +599,13 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 
     double res = w_mid * sig_mid + w_end * sig_end;
 
-    return res;
+    return std::max(2.7, res);
 }
 
-#else
+#endif
+
+#ifdef SIGMA_1ZONE
+
 
 inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const {
     
@@ -583,8 +671,8 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 #endif
     
     //sigma with lower bound at 2,5
-    return sigma;
-    
+    return std::max(2.7, sigma);
+
 }
 
 #endif
@@ -595,7 +683,6 @@ inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivi
         
     //error evaluation with lower bound at 3
     int eval_error = std::round(sigma(board.n_empty, depth, depth_probcut) * coeff_pv * PERCENTILE[selectivity]);
-    eval_error = std::max(3, eval_error);
     
     lower_bound = std::max(-MAX_SCORE, alpha - eval_error);
     upper_bound = std::min(+MAX_SCORE, beta  + eval_error);

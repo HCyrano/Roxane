@@ -28,7 +28,7 @@ const int RXEngine::GGS_MSG = 5;
 
 #ifdef __ARM_ACLE
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,  100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.40f, 1.80f, 2.25f, 2.80f, 3.60f}; // vs 1.18f
 //const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,  100}; // 99
 //const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.20f, 2.80f}; // vs 1.18f
 
@@ -2345,10 +2345,14 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
     
-    unsigned int depth_max = 16;
+    unsigned int depth_max = 22;
     int scores[depth_max+1];
 
-    for(int n_data = 0; n_data < 2500; ++n_data) {
+    for(int n_data = 0; n_data < 1000; ++n_data) {
+        
+        if(n_data % 100 == 0)
+            std::cout << n_data << std::endl;
+        
         //start at 8 discs
         for (int n_discs = 8; n_discs < 64-5-depth_max; ++n_discs){
             int n_moves = 0;
@@ -2398,7 +2402,7 @@ void RXEngine::probcut_mid_data(RXHashTable* HT, RXHashTable* PV) {
                         int diff_score = scores[depth] - scores[shallow_depth];
                         
                         //if(depth == 2 && n_moves == 0)
-                        std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << diff_score << std::endl;
+                        //std::cout << n_data  << " :"  << n_discs << " " << shallow_depth << " " << depth << " " << diff_score << std::endl;
                         
                         if(-64 <= diff_score && diff_score <= 64)
                             ofs << n_discs << " " << shallow_depth << " " << depth << " " << diff_score << std::endl;
@@ -2438,8 +2442,12 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
 
-    for(int n_data = 0; n_data < 400; ++n_data) {
-        for(int depth = 30; depth <= 30; ++depth) {
+    for(int n_data = 0; n_data < 1000; ++n_data) {
+        
+        if(n_data % 100 == 0)
+            std::cout << n_data << std::endl;
+
+        for(int n_empty = 2; n_empty <= 27; ++n_empty) {
             int n_moves = 0;
             for (;n_moves < 64-4-depth && board.n_moves()!=0; ++n_moves){
                 //sBoard.reset();
@@ -2466,7 +2474,7 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
             
             
             if(board.n_moves()!=0) {
-                
+                                
                 int score_at_depth;
                 
                 //resolution de la position
@@ -2489,7 +2497,7 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                 
                 hTable->reset();
 
-                for(int shallow_depth = board.n_empty & 1; shallow_depth <= 15; shallow_depth+=2){
+                for(int shallow_depth = board.n_empty & 1; shallow_depth <= board.n_empty-2; shallow_depth+=2){
                     
                     int score_at_shallow_depth;
                     
@@ -2502,34 +2510,12 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
                     
                     int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
                     
-                    std::cout << n_data  << " :"  << 64-board.n_empty << " " << shallow_depth << " " << board.n_empty << " " << diff_score_depth_score_shallow << std::endl;
+                    //std::cout << n_data  << " :"  << 64-board.n_empty << " " << shallow_depth << " " << board.n_empty << " " << diff_score_depth_score_shallow << std::endl;
+                    
                     if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
                         ofs << 64-board.n_empty<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
                 }
 
-
-                /*
-                int shallow_depth = random_bounds(1, std::min(15, depth-1));
-                shallow_depth &= 0xfffffffe;
-                shallow_depth |= depth & 1;
-                
-                if(shallow_depth == depth)
-                    shallow_depth -= 2;
-                
-                if(shallow_depth < 4) {
-                    score_at_shallow_depth = MG_PVS_shallow(0, sBoard, true, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                } else {
-                    wake_sleeping_threads();
-                    score_at_shallow_depth = MG_PVS_deep(0, sBoard, true, NO_SELECT, shallow_depth, -MAX_SCORE, MAX_SCORE, false);
-                }
-                
-
-                int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
-                
-                std::cout << n_data  << " :"  << 64-depth << " " << shallow_depth << " " << depth << " " << diff_score_depth_score_shallow << std::endl;
-                if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
-                    ofs << 64-depth << " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
-                */
             }
             
             for(; 0 < n_moves ; --n_moves) {
@@ -2549,9 +2535,7 @@ void RXEngine::probcut_end_data(RXHashTable* HT, RXHashTable* PV) {
 #ifdef TUNE_PROBCUT_END2
 
 void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, RXHashTable* PV) {
-    
-    std::cout << file_name << std::endl;
-    
+        
     activeThreads = get_THREAD_MAX();
     
     hTable = HT;
@@ -2559,7 +2543,7 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
     type_hashtable = RXHashTable::HASH_SHARED;
     
     //open ofstream
-    std::ofstream ofs("probcut_end2.txt");
+    std::ofstream ofs("probcut_end_ext.txt");
     
     RXBBPatterns sBoard;
     RXBitBoard& board = sBoard.board;
@@ -2574,6 +2558,9 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
             
             ++n_data;
             
+            if(n_data % 100 == 0)
+                std::cout << n_data << std::endl;
+
             std::stringstream ss;
             int score_at_depth = UNDEF_SCORE;
             
@@ -2599,7 +2586,8 @@ void RXEngine::probcut_end2_data(const std::string& file_name, RXHashTable* HT, 
                 
                 int diff_score_depth_score_shallow = (score_at_depth - score_at_shallow_depth);
                 
-                std::cout << n_data  << " :"  << 64-n_empties << " " << shallow_depth << " " << n_empties << " " << diff_score_depth_score_shallow << std::endl;
+                //std::cout << n_data  << " :"  << 64-n_empties << " " << shallow_depth << " " << n_empties << " " << diff_score_depth_score_shallow << std::endl;
+                
                 if(-64 <= diff_score_depth_score_shallow && diff_score_depth_score_shallow <= 64)
                     ofs << 64-n_empties<< " " << shallow_depth << " " << diff_score_depth_score_shallow << std::endl;
             }

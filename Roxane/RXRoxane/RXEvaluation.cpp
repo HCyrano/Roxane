@@ -65,7 +65,7 @@ void RXEvaluation::load() {
             from.read(reinterpret_cast<char*> (eval[iStage][8]), sizeof(short)*6561);
             eval[iStage][8] += 6561/2;
             
-            // corner 4/3/3/1 id_patt = 13
+            // corner 4/3/3/1 id_patt = 9
             eval[iStage][9] = new short[177147];
             from.read(reinterpret_cast<char*> (eval[iStage][9]), sizeof(short)*177147);
             eval[iStage][9] += 177147/2;
