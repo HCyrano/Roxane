@@ -28,7 +28,7 @@ const int RXEngine::GGS_MSG = 5;
 
 #ifdef __ARM_ACLE
 const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,    99,  100}; // 99
-const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.40f, 1.80f, 2.25f, 2.80f, 3.60f}; // vs 1.18f
+const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.40f, 1.80f, 2.25f, 2.80f, 3.70f}; // vs 1.18f
 //const int RXEngine::CONFIDENCE[]   = {  60,    72,    84,    91,    95,    98,  100}; // 99
 //const float RXEngine::PERCENTILE[] = {1.00f, 1.15f, 1.35f, 1.70f, 2.20f, 2.80f}; // vs 1.18f
 
@@ -43,6 +43,7 @@ const int RXEngine::MG_SELECT = 1; //72%
 const int RXEngine::NO_SELECT = std::size(RXEngine::PERCENTILE);
 
 const int RXEngine::DEPTH_BOOSTER = 4;
+
 
 extern "C"
 void* init_threadHelper(void* pt)  {

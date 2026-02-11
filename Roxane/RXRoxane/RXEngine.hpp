@@ -279,7 +279,7 @@ class RXEngine: public Runnable, public RXHelper {
     std::string display(RXBitBoard& board, const int type, const int allowed_display = 0, int score = 0, const int time = 0, const int time_level = 0);
     
     
-    inline double sigma(const int n_empty, const int depth, const int depth_probcut) const;
+    inline float sigma(const int n_empty, const int depth, const int depth_probcut) const;
     int probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int depth_probcut, const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const;
     
     void sort_moves(const unsigned int threadID, const bool endgame, RXBBPatterns& sBoard, const int depth, const int selectivity, const int alpha, const int beta, RXMove* list);
@@ -389,7 +389,36 @@ class RXEngine: public Runnable, public RXHelper {
     bool split(	RXBBPatterns& sBoard, bool pv, int pvDev, 
                int depth, int selectivity, int alpha, int beta, int& bestscore, unsigned int& bestmove,
                RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback);
+   
+    // Table de lookup statique (partagée par toutes les instances)
+    struct alignas(64) WeightLUT {
+        static constexpr int MAX_EMPTY = 60;
+        std::array<float, MAX_EMPTY> early;
+        std::array<float, MAX_EMPTY> mid;
+        std::array<float, MAX_EMPTY> end;
+        
+        // Constructeur pour initialiser la table
+        WeightLUT() {
+            constexpr double inv_teta = 1.0 / 288.0;
+            for (int n = 0; n < MAX_EMPTY; ++n) {
+                double w_early_raw = std::exp(-((n - 50) * (n - 50)) * inv_teta);
+                double w_mid_raw   = std::exp(-((n - 30) * (n - 30)) * inv_teta);
+                double w_end_raw   = std::exp(-((n - 10) * (n - 10)) * inv_teta);
+                
+                // Normalisation
+                double total = w_early_raw + w_mid_raw + w_end_raw;
+                    
+                early[n] = static_cast<float>(w_early_raw / total);
+                mid[n]   = static_cast<float>(w_mid_raw / total);
+                end[n]   = static_cast<float>(w_end_raw / total);
+
+            }
+        }
+    };
     
+    // Instance statique unique de la table
+    static inline const WeightLUT s_weight_lut;
+
     
 public:
     
@@ -443,6 +472,8 @@ public:
 
 };
 
+
+
 inline int RXEngine::get_THREAD_MAX() {
     return THREAD_MAX;
 }
@@ -472,71 +503,132 @@ inline int RXEngine::time_limit() const {
 #ifdef SIGMA_3ZONES
 
 
-inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
-{
-    
+//inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
+//{
+//    
+//    constexpr int early = 0;
+//    constexpr int mid   = 1;
+//    constexpr int end   = 2;
+//
+//    
+//    constexpr float probcut_a[] = {0.29736871, 0.09169649, 0.41091810};
+//    constexpr float probcut_b[] = {-0.15243659, -0.08251643, -0.44106809};
+//    constexpr float probcut_c[] = {0.36970516, 0.08281715, -0.00975311};
+//    constexpr float probcut_d[] = {0.01847852, 1.44446884, 0.06738396};
+//    constexpr float probcut_e[] = {-1.10292167, -15.87003934, -0.77841377};
+//    constexpr float probcut_f[] = {21.26408154, 57.60294113, 2.90508020};
+//    constexpr float probcut_g[] = {-130.30442704, -69.06822646, 8.92764751};
+//
+//    
+//    //Cloches gaussiennes
+//    
+//    /*
+//    // Formule : exp( - (w - mean)^2 / (2 * teta^2))
+//    //les zones 50/30/10 donc une distance de 20 entre les centres des zones
+//    //on prend 12 = teta ce qui provoque un chevauchement de zones
+//    static const double inv_teta = 1.0/288.0; //2 * std::pow(12, 2);
+//     
+//     float w_early_raw = std::exp(-((n_empty - 50)*(n_empty - 50)) * inv_teta);
+//     float w_mid_raw   = std::exp(-((n_empty - 30)*(n_empty - 30)) * inv_teta);
+//     float w_end_raw   = std::exp(-((n_empty - 10)*(n_empty - 10)) * inv_teta);
+//    
+//     // Normalisation
+//     float total = w_early_raw + w_mid_raw + w_end_raw;
+//     
+//     float w_early = w_early_raw / total;
+//     float w_mid   = w_mid_raw / total;
+//     float w_end   = w_end_raw / total;
+//     */
+//    
+//
+//    
+//    //table lookup
+//    float w_early = s_weight_lut.early[n_empty];
+//    float w_mid   = s_weight_lut.mid[n_empty];
+//    float w_end   = s_weight_lut.end[n_empty];
+//    
+//    
+//    // Fonction polynomiale par zone
+//    auto sigma = [&](int i) {
+//        float r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
+//        return probcut_d[i] * r * r * r +
+//               probcut_e[i] * r * r +
+//               probcut_f[i] * r +
+//               probcut_g[i];
+//    };
+//
+//    // Combinaison douce
+//    float sig_early = sigma(early);
+//    float sig_mid   = sigma(mid);
+//    float sig_end   = sigma(end);
+//
+//    float res = w_early*sig_early + w_mid * sig_mid + w_end * sig_end;
+//
+//    return std::max(2.7f, res);
+// 
+//}
+
+
+inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const {
+    // Indices des zones
     constexpr int early = 0;
     constexpr int mid   = 1;
     constexpr int end   = 2;
-
-    /*
-    //probcut v9.1
-    constexpr double probcut_a[] = {0.01847439, 0.01526573, -0.03228577};
-    constexpr double probcut_b[] = {0.04122566, 0.18956524, -0.12901053};
-    constexpr double probcut_c[] = {-0.05329757, -0.01414157, 0.04863825};
-    constexpr double probcut_d[] = {-5.19077117, -0.30474307, 0.89155022};
-    constexpr double probcut_e[] = {-23.11465666, 2.60313924, 5.97602383};
-    constexpr double probcut_f[] = {-20.40095982, -7.51215899, 13.82573282};
-    constexpr double probcut_g[] = {3.26522036, 9.23004198, 12.56095491};
-
-    // Transitions progressives entre zones
-    double s1 = sigmoid(n_empty, 18, 0.3); // base 40.0, 0,3
-    double s2 = sigmoid(n_empty, 42, 0.3); // base 40.0, 0,3
-
-    double w_early = 1.0 - s1;
-    double w_end   = s2;
-    double w_mid   = 1.0 - w_early - w_end;
-    */
-
-    constexpr double probcut_a[] = {0.29736871, 0.09169649, 0.41091810};
-    constexpr double probcut_b[] = {-0.15243659, -0.08251643, -0.44106809};
-    constexpr double probcut_c[] = {0.36970516, 0.08281715, -0.00975311};
-    constexpr double probcut_d[] = {0.01847852, 1.44446884, 0.06738396};
-    constexpr double probcut_e[] = {-1.10292167, -15.87003934, -0.77841377};
-    constexpr double probcut_f[] = {21.26408154, 57.60294113, 2.90508020};
-    constexpr double probcut_g[] = {-130.30442704, -69.06822646, 8.92764751};
-
-    //Cloches gaussiennes
-    // Formule : exp( - (w - mean)^2 / (2 * chevauchement^2) ) ici 50/20/10 donc 20 pour un chevauchement on prend 12*2 = 24
-    double teta = 2 * std::pow(12, 2);
-    double w_early_raw = std::exp(-std::pow(n_empty - 50, 2) / teta);
-    double w_mid_raw   = std::exp(-std::pow(n_empty - 30, 2) / teta);
-    double w_end_raw   = std::exp(-std::pow(n_empty - 10, 2) / teta);
-
-        // Normalisation
-    double total = w_early_raw + w_mid_raw + w_end_raw;
-        
-    double w_early = w_early_raw / total;
-    double w_mid   = w_mid_raw / total;
-    double w_end   = w_end_raw / total;
     
-    // Fonction polynomiale par zone
-    auto sigma = [&](int i) {
-        double r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
-        return probcut_d[i] * r * r * r +
-               probcut_e[i] * r * r +
-               probcut_f[i] * r +
-               probcut_g[i];
-    };
+    alignas(16) constexpr float probcut_a[] = {0.29736871, 0.09169649, 0.41091810, 0.0f};
+    alignas(16) constexpr float probcut_b[] = {-0.15243659, -0.08251643, -0.44106809, 0.0f};
+    alignas(16) constexpr float probcut_c[] = {0.36970516, 0.08281715, -0.00975311, 0.0f};
+    alignas(16) constexpr float probcut_d[] = {0.01847852, 1.44446884, 0.06738396, 0.0f};
+    alignas(16) constexpr float probcut_e[] = {-1.10292167, -15.87003934, -0.77841377, 0.0f};
+    alignas(16) constexpr float probcut_f[] = {21.26408154, 57.60294113, 2.90508020, 0.0f};
+    alignas(16) constexpr float probcut_g[] = {-130.30442704, -69.06822646, 8.92764751, 0.0f};
 
-    // Combinaison douce
-    double sig_early = sigma(early);
-    double sig_mid   = sigma(mid);
-    double sig_end   = sigma(end);
-
-    double res = w_early*sig_early + w_mid * sig_mid + w_end * sig_end;
-
-    return std::max(2.7, res);
+    
+    // Récupérer les poids depuis la LUT
+    float w_early = s_weight_lut.early[n_empty];
+    float w_mid   = s_weight_lut.mid[n_empty];
+    float w_end   = s_weight_lut.end[n_empty];
+    
+    // ==================== VERSION NEON ====================
+    // Charger les valeurs communes (dupliquées sur 4 lanes)
+    float32x4_t n_empty_v = vdupq_n_f32(static_cast<float>(n_empty));
+    float32x4_t depth_probcut_v = vdupq_n_f32(static_cast<float>(depth_probcut));
+    float32x4_t depth_v = vdupq_n_f32(static_cast<float>(depth));
+    
+    // Charger les coefficients pour les 3 zones en parallèle
+    float32x4_t a_vec = vld1q_f32(probcut_a); // [a_early, a_mid, a_end, 0]
+    float32x4_t b_vec = vld1q_f32(probcut_b);
+    float32x4_t c_vec = vld1q_f32(probcut_c);
+    float32x4_t d_vec = vld1q_f32(probcut_d);
+    float32x4_t e_vec = vld1q_f32(probcut_e);
+    float32x4_t f_vec = vld1q_f32(probcut_f);
+    float32x4_t g_vec = vld1q_f32(probcut_g);
+    
+    // Calculer r = a*n_empty + b*depth_probcut + c*depth (pour les 3 zones)
+    float32x4_t r = vmulq_f32(a_vec, n_empty_v);
+    r = vmlaq_f32(r, b_vec, depth_probcut_v);  // r += b * depth_probcut
+    r = vmlaq_f32(r, c_vec, depth_v);          // r += c * depth
+    
+    // Calculer r² et r³
+    float32x4_t r2 = vmulq_f32(r, r);
+    float32x4_t r3 = vmulq_f32(r2, r);
+    
+    // Calculer sigma = d*r³ + e*r² + f*r + g (polynôme degré 3)
+    float32x4_t sigma = vmulq_f32(d_vec, r3);
+    sigma = vmlaq_f32(sigma, e_vec, r2);
+    sigma = vmlaq_f32(sigma, f_vec, r);
+    sigma = vaddq_f32(sigma, g_vec);
+    
+    // Extraire les 3 résultats
+    alignas(16) float results[4];
+    vst1q_f32(results, sigma);
+    
+    // Combinaison pondérée finale
+    float res = results[early] * w_early +
+                results[mid] * w_mid +
+                results[end] * w_end;
+    
+    return std::max(2.7f, res);
 }
 
 #endif
@@ -546,7 +638,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 #ifdef SIGMA_2ZONES
 
 // --- Modèle principal : probabilité (sigma) ---
-inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
+inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
 {
     
     constexpr int mid = 0;
@@ -569,24 +661,24 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     */
     
     //probcut v9.1
-    constexpr double probcut_a[] = {0.21497775, 0.00738301};
-    constexpr double probcut_b[] = {2.77883844, 0.07297002};
-    constexpr double probcut_c[] = {-0.89648633, -0.01412426};
-    constexpr double probcut_d[] = {-0.00016011, -4.83205149};
-    constexpr double probcut_e[] = {0.01197217, 15.37476478};
-    constexpr double probcut_f[] = {-0.34131886, -15.79339521};
-    constexpr double probcut_g[] = {6.12897090, 8.46698928}; // {+1.0, +0.5}
+    constexpr float probcut_a[] = {0.21497775, 0.00738301};
+    constexpr float probcut_b[] = {2.77883844, 0.07297002};
+    constexpr float probcut_c[] = {-0.89648633, -0.01412426};
+    constexpr float probcut_d[] = {-0.00016011, -4.83205149};
+    constexpr float probcut_e[] = {0.01197217, 15.37476478};
+    constexpr float probcut_f[] = {-0.34131886, -15.79339521};
+    constexpr float probcut_g[] = {6.12897090, 8.46698928}; // {+1.0, +0.5}
 
     
     // Transitions progressives entre zones
-    double s1 = sigmoid(n_empty, 35.0, 0.3); // base 40.0, 0,3
+    float s1 = sigmoid(n_empty, 35.0, 0.3); // base 40.0, 0,3
 
-    double w_mid   = s1;
-    double w_end   = 1.0 - s1;
+    float w_mid   = s1;
+    float w_end   = 1.0 - s1;
 
     // Fonction polynomiale par zone
     auto sigma = [&](int i) {
-        double r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
+        float r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
         return probcut_d[i] * r * r * r +
                probcut_e[i] * r * r +
                probcut_f[i] * r +
@@ -594,33 +686,35 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     };
 
     // Combinaison douce
-    double sig_mid = sigma(mid);
-    double sig_end = sigma(end);
+    float sig_mid = sigma(mid);
+    float sig_end = sigma(end);
 
-    double res = w_mid * sig_mid + w_end * sig_end;
+    float res = w_mid * sig_mid + w_end * sig_end;
 
-    return std::max(2.7, res);
+    return std::max(2.7f, res);
 }
+
+
 
 #endif
 
 #ifdef SIGMA_1ZONE
 
 
-inline double RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const {
+inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const {
     
-    double sigma;
+    float sigma;
     
 #ifdef PROBCUT_x2
     //polynome 2d
     
     //edax coefficients
-    constexpr double probcut_a = -0.10026799;
-    constexpr double probcut_b = 0.31027733;
-    constexpr double probcut_c = -0.57772603;
-    constexpr double probcut_d = 0.07585621;
-    constexpr double probcut_e = 1.16492647;
-    constexpr double probcut_f = 5.9171698;
+    constexpr float probcut_a = -0.10026799;
+    constexpr float probcut_b = 0.31027733;
+    constexpr float probcut_c = -0.57772603;
+    constexpr float probcut_d = 0.07585621;
+    constexpr float probcut_e = 1.16492647;
+    constexpr float probcut_f = 5.9171698;
     
      
     sigma= probcut_a * n_empty + probcut_b * depth_probcut + probcut_c * depth;
@@ -651,13 +745,13 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     //const float RXEngine::PERCENTILE[] = {1.00f, 1.10f, 1.35f, 1.70f, 2.20f, 2.80f, 3.60f};
     //s8r14 2:00 Edmond vs edax
     //w75 d118 l62
-    constexpr double probcut_a = -0.0017319169860170334;
-    constexpr double probcut_b = 0.046028020390195414;
-    constexpr double probcut_c = -0.02121182792010099;
-    constexpr double probcut_d = -5.248427428319801;
-    constexpr double probcut_e = 10.287391794385476;
-    constexpr double probcut_f = -5.173813504774759;
-    constexpr double probcut_g = 3.3344983118071387;
+    constexpr float probcut_a = -0.0017319169860170334;
+    constexpr float probcut_b = 0.046028020390195414;
+    constexpr float probcut_c = -0.02121182792010099;
+    constexpr float probcut_d = -5.248427428319801;
+    constexpr float probcut_e = 10.287391794385476;
+    constexpr float probcut_f = -5.173813504774759;
+    constexpr float probcut_g = 3.3344983118071387;
     
     
     
@@ -670,8 +764,8 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
     
 #endif
     
-    //sigma with lower bound at 2,5
-    return std::max(2.7, sigma);
+    //sigma with lower bound at 2,7
+    return std::max(2.7f, sigma);
 
 }
 
@@ -679,7 +773,7 @@ inline double RXEngine::sigma(const int n_empty, const int depth, const int dept
 
 inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivity, const int depth, const int depth_probcut,  const int pvDev, const int alpha, const int beta, int& lower_bound, int& upper_bound) const {
     
-    double coeff_pv = std::max(0.90, (115-3*pvDev)/100.0);
+    float coeff_pv = std::max(0.90f, (115-3*pvDev)/100.0f);
         
     //error evaluation with lower bound at 3
     int eval_error = std::round(sigma(board.n_empty, depth, depth_probcut) * coeff_pv * PERCENTILE[selectivity]);
