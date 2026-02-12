@@ -502,72 +502,7 @@ inline int RXEngine::time_limit() const {
 
 #ifdef SIGMA_3ZONES
 
-
-//inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
-//{
-//    
-//    constexpr int early = 0;
-//    constexpr int mid   = 1;
-//    constexpr int end   = 2;
-//
-//    
-//    constexpr float probcut_a[] = {0.29736871, 0.09169649, 0.41091810};
-//    constexpr float probcut_b[] = {-0.15243659, -0.08251643, -0.44106809};
-//    constexpr float probcut_c[] = {0.36970516, 0.08281715, -0.00975311};
-//    constexpr float probcut_d[] = {0.01847852, 1.44446884, 0.06738396};
-//    constexpr float probcut_e[] = {-1.10292167, -15.87003934, -0.77841377};
-//    constexpr float probcut_f[] = {21.26408154, 57.60294113, 2.90508020};
-//    constexpr float probcut_g[] = {-130.30442704, -69.06822646, 8.92764751};
-//
-//    
-//    //Cloches gaussiennes
-//    
-//    /*
-//    // Formule : exp( - (w - mean)^2 / (2 * teta^2))
-//    //les zones 50/30/10 donc une distance de 20 entre les centres des zones
-//    //on prend 12 = teta ce qui provoque un chevauchement de zones
-//    static const double inv_teta = 1.0/288.0; //2 * std::pow(12, 2);
-//     
-//     float w_early_raw = std::exp(-((n_empty - 50)*(n_empty - 50)) * inv_teta);
-//     float w_mid_raw   = std::exp(-((n_empty - 30)*(n_empty - 30)) * inv_teta);
-//     float w_end_raw   = std::exp(-((n_empty - 10)*(n_empty - 10)) * inv_teta);
-//    
-//     // Normalisation
-//     float total = w_early_raw + w_mid_raw + w_end_raw;
-//     
-//     float w_early = w_early_raw / total;
-//     float w_mid   = w_mid_raw / total;
-//     float w_end   = w_end_raw / total;
-//     */
-//    
-//
-//    
-//    //table lookup
-//    float w_early = s_weight_lut.early[n_empty];
-//    float w_mid   = s_weight_lut.mid[n_empty];
-//    float w_end   = s_weight_lut.end[n_empty];
-//    
-//    
-//    // Fonction polynomiale par zone
-//    auto sigma = [&](int i) {
-//        float r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
-//        return probcut_d[i] * r * r * r +
-//               probcut_e[i] * r * r +
-//               probcut_f[i] * r +
-//               probcut_g[i];
-//    };
-//
-//    // Combinaison douce
-//    float sig_early = sigma(early);
-//    float sig_mid   = sigma(mid);
-//    float sig_end   = sigma(end);
-//
-//    float res = w_early*sig_early + w_mid * sig_mid + w_end * sig_end;
-//
-//    return std::max(2.7f, res);
-// 
-//}
-
+#ifdef __ARM_NEON
 
 inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const {
     // Indices des zones
@@ -630,6 +565,77 @@ inline float RXEngine::sigma(const int n_empty, const int depth, const int depth
     
     return std::max(2.7f, res);
 }
+
+
+#else
+
+inline float RXEngine::sigma(const int n_empty, const int depth, const int depth_probcut) const
+{
+
+    constexpr int early = 0;
+    constexpr int mid   = 1;
+    constexpr int end   = 2;
+
+
+    constexpr float probcut_a[] = {0.29736871, 0.09169649, 0.41091810};
+    constexpr float probcut_b[] = {-0.15243659, -0.08251643, -0.44106809};
+    constexpr float probcut_c[] = {0.36970516, 0.08281715, -0.00975311};
+    constexpr float probcut_d[] = {0.01847852, 1.44446884, 0.06738396};
+    constexpr float probcut_e[] = {-1.10292167, -15.87003934, -0.77841377};
+    constexpr float probcut_f[] = {21.26408154, 57.60294113, 2.90508020};
+    constexpr float probcut_g[] = {-130.30442704, -69.06822646, 8.92764751};
+
+
+    //Cloches gaussiennes
+
+    /*
+    // Formule : exp( - (w - mean)^2 / (2 * teta^2))
+    //les zones 50/30/10 donc une distance de 20 entre les centres des zones
+    //on prend 12 = teta ce qui provoque un chevauchement de zones
+    static const double inv_teta = 1.0/288.0; //2 * std::pow(12, 2);
+
+     float w_early_raw = std::exp(-((n_empty - 50)*(n_empty - 50)) * inv_teta);
+     float w_mid_raw   = std::exp(-((n_empty - 30)*(n_empty - 30)) * inv_teta);
+     float w_end_raw   = std::exp(-((n_empty - 10)*(n_empty - 10)) * inv_teta);
+
+     // Normalisation
+     float total = w_early_raw + w_mid_raw + w_end_raw;
+
+     float w_early = w_early_raw / total;
+     float w_mid   = w_mid_raw / total;
+     float w_end   = w_end_raw / total;
+     */
+
+
+
+    //table lookup
+    float w_early = s_weight_lut.early[n_empty];
+    float w_mid   = s_weight_lut.mid[n_empty];
+    float w_end   = s_weight_lut.end[n_empty];
+
+
+    // Fonction polynomiale par zone
+    auto sigma = [&](int i) {
+        float r = probcut_a[i] * n_empty + probcut_b[i] * depth_probcut + probcut_c[i] * depth;
+        return probcut_d[i] * r * r * r +
+               probcut_e[i] * r * r +
+               probcut_f[i] * r +
+               probcut_g[i];
+    };
+
+    // Combinaison douce
+    float sig_early = sigma(early);
+    float sig_mid   = sigma(mid);
+    float sig_end   = sigma(end);
+
+    float res = w_early*sig_early + w_mid * sig_mid + w_end * sig_end;
+
+    return std::max(2.7f, res);
+
+}
+
+
+#endif
 
 #endif
 

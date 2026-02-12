@@ -566,74 +566,59 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
 
 
 
-//interleave version :more speed ? NO
-inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs, const unsigned long long o_discs ) {
+#define KOGGE_STONE_STEP(flip, shift, mask) \
+    flip = vorrq_u64(flip, vandq_u64(vshlq_u64(flip, shift), mask))
+
+inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs, const unsigned long long o_discs) {
+    constexpr int64x2_t S_H  = { -1,  1}, S2_H  = { -2,  2}, S4_H  = { -4,  4};
+    constexpr int64x2_t S_V  = { -8,  8}, S2_V  = {-16, 16}, S4_V  = {-32, 32};
+    constexpr int64x2_t S_D7 = { -7,  7}, S2_D7 = {-14, 14}, S4_D7 = {-28, 28};
+    constexpr int64x2_t S_D9 = { -9,  9}, S2_D9 = {-18, 18}, S4_D9 = {-36, 36};
     
-    //vector directions
-    static const int64x2_t shift[] = {
-        { -1,  1},     //id 0
-        { -8,  8},     //id 1
-        { -7,  7},     //id 2
-        { -9,  9}};    //id 3
+    const uint64x2_t P = vdupq_n_u64(p_discs);
+    const uint64x2_t O = vdupq_n_u64(o_discs);
+    const uint64x2_t O_inner = vdupq_n_u64(o_discs & 0x7E7E7E7E7E7E7E7EULL);
     
+    uint64x2_t fH  = vandq_u64(vshlq_u64(P, S_H),  O_inner);
+    uint64x2_t fV  = vandq_u64(vshlq_u64(P, S_V),  O);
+    uint64x2_t fD7 = vandq_u64(vshlq_u64(P, S_D7), O_inner);
+    uint64x2_t fD9 = vandq_u64(vshlq_u64(P, S_D9), O_inner);
     
+    const uint64x2_t aH  = vandq_u64(O_inner, vshlq_u64(O_inner, S_H));
+    const uint64x2_t aV  = vandq_u64(O, vshlq_u64(O, S_V));
+    const uint64x2_t aD7 = vandq_u64(O_inner, vshlq_u64(O_inner, S_D7));
+    const uint64x2_t aD9 = vandq_u64(O_inner, vshlq_u64(O_inner, S_D9));
     
-    const uint64x2_t pp_discs = vdupq_n_u64(p_discs);
-    const uint64x2_t oo_discs = vdupq_n_u64(o_discs);
+    const uint64x2_t a2H  = vandq_u64(aH,  vshlq_u64(aH,  S2_H));
+    const uint64x2_t a2V  = vandq_u64(aV,  vshlq_u64(aV,  S2_V));
+    const uint64x2_t a2D7 = vandq_u64(aD7, vshlq_u64(aD7, S2_D7));
+    const uint64x2_t a2D9 = vandq_u64(aD9, vshlq_u64(aD9, S2_D9));
     
-    const uint64x2_t inner_oo_discs = vdupq_n_u64(o_discs & 0x7E7E7E7E7E7E7E7EULL);
+    KOGGE_STONE_STEP(fH,  S_H,  O_inner);
+    KOGGE_STONE_STEP(fV,  S_V,  O);
+    KOGGE_STONE_STEP(fD7, S_D7, O_inner);
+    KOGGE_STONE_STEP(fD9, S_D9, O_inner);
     
-    uint64x2_t
-    flip_h = vandq_u64(vshlq_u64(pp_discs, shift[0]), inner_oo_discs);
-    uint64x2_t
-    flip_d7 = vandq_u64(vshlq_u64(pp_discs, shift[2]), inner_oo_discs);
-    uint64x2_t
-    flip_d9 = vandq_u64(vshlq_u64(pp_discs, shift[3]), inner_oo_discs);
-    uint64x2_t
-    flip_v = vandq_u64(vshlq_u64(pp_discs, shift[1]), oo_discs);
+    KOGGE_STONE_STEP(fH,  S2_H,  aH);
+    KOGGE_STONE_STEP(fV,  S2_V,  aV);
+    KOGGE_STONE_STEP(fD7, S2_D7, aD7);
+    KOGGE_STONE_STEP(fD9, S2_D9, aD9);
     
+    KOGGE_STONE_STEP(fH,  S4_H,  a2H);
+    KOGGE_STONE_STEP(fV,  S4_V,  a2V);
+    KOGGE_STONE_STEP(fD7, S4_D7, a2D7);
+    KOGGE_STONE_STEP(fD9, S4_D9, a2D9);
     
-    flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift[0]), inner_oo_discs));
-    flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift[2]), inner_oo_discs));
-    flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift[3]), inner_oo_discs));
-    flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift[1]), oo_discs));
+    const uint64x2_t legals = vorrq_u64(
+        vorrq_u64(vshlq_u64(fH, S_H), vshlq_u64(fV, S_V)),
+        vorrq_u64(vshlq_u64(fD7, S_D7), vshlq_u64(fD9, S_D9))
+    );
     
-    
-    uint64x2_t
-    adjacent_h = vandq_u64(inner_oo_discs, vshlq_u64(inner_oo_discs, shift[0]));
-    uint64x2_t
-    adjacent_d7 = vandq_u64(inner_oo_discs, vshlq_u64(inner_oo_discs, shift[2]));
-    uint64x2_t
-    adjacent_d9 = vandq_u64(inner_oo_discs, vshlq_u64(inner_oo_discs, shift[3]));
-    uint64x2_t
-    adjacent_v = vandq_u64(oo_discs, vshlq_u64(oo_discs, shift[1]));
-    
-    uint64x2_t shift4 = vaddq_u64(shift[0],shift[0]);
-    flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift4), adjacent_h));
-    
-    uint64x2_t shift5 = vaddq_u64(shift[1],shift[1]);
-    flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift5), adjacent_v));
-    
-    uint64x2_t shift6 = vaddq_u64(shift[2],shift[2]);
-    flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift6), adjacent_d7));
-    
-    uint64x2_t shift7 = vaddq_u64(shift[3],shift[3]);
-    flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift7), adjacent_d9));
-    
-    flip_h = vorrq_u64(flip_h, vandq_u64(vshlq_u64(flip_h, shift4), adjacent_h));
-    flip_v = vorrq_u64(flip_v, vandq_u64(vshlq_u64(flip_v, shift5), adjacent_v));
-    flip_d7 = vorrq_u64(flip_d7, vandq_u64(vshlq_u64(flip_d7, shift6), adjacent_d7));
-    flip_d9 = vorrq_u64(flip_d9, vandq_u64(vshlq_u64(flip_d9, shift7), adjacent_d9));
-    
-    uint64x2_t legals = vorrq_u64(vshlq_u64(flip_d9, shift[3]), vorrq_u64(vshlq_u64(flip_d7, shift[2]), vorrq_u64(vshlq_u64(flip_h, shift[0]), vshlq_u64(flip_v, shift[1]))));
-    
-    
-    return ((vgetq_lane_u64(legals, 0) | vgetq_lane_u64(legals, 1)) & ~(p_discs | o_discs));
-    
+    uint64x2_t result = vorrq_u64(legals, vextq_u64(legals, legals, 1));
+    return (vgetq_lane_u64(result, 0) & ~(p_discs | o_discs));
 }
 
-
-
+#undef KOGGE_STONE_STEP
 
 //unroll
 inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) const {
@@ -1556,42 +1541,52 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
  * Lane 0 : Coups légaux pour p_discs
  * Lane 1 : Coups légaux pour o_discs
  */
+
 template<int Shift, bool IsHorizontal>
 inline uint64x2_t propagate_kogge_stone(const uint64x2_t p_vec, const uint64x2_t o_vec, const uint64x2_t mask_inner) {
-    // Sélection du masque de bord
-    uint64x2_t mask = IsHorizontal ? mask_inner : vdupq_n_u64(0xFFFFFFFFFFFFFFFFULL);
+    constexpr int S = (Shift > 0) ? Shift : -Shift;
     
-    // On définit les propagateurs (les pièces adverses où on peut "glisser")
-    uint64x2_t prop = vandq_u64(o_vec, mask);
+    // Masque : le M4 fusionne très bien les opérations constantes
+    const uint64x2_t mask = IsHorizontal ? mask_inner : vdupq_n_u64(0xFFFFFFFFFFFFFFFFULL);
+    const uint64x2_t prop = vandq_u64(o_vec, mask);
     
-    // Premier saut (générateur)
-    uint64x2_t g;
-    if constexpr (Shift > 0) g = vandq_u64(vshlq_n_u64(p_vec, Shift), prop);
-    else                    g = vandq_u64(vshrq_n_u64(p_vec, -Shift), prop);
-
-    // Étape Kogge-Stone : Saut de 1, puis 2, puis 4 cases
-    // On utilise constexpr pour que le compilateur élimine les branches mortes
     if constexpr (Shift > 0) {
-        // Saut de 1
-        g = vorrq_u64(g, vandq_u64(vshlq_n_u64(g, Shift), prop));
-        // Saut de 2
-        uint64x2_t prop2 = vandq_u64(prop, vshlq_n_u64(prop, Shift));
-        g = vorrq_u64(g, vandq_u64(vshlq_n_u64(g, 2 * Shift), prop2));
-        // Saut de 4
-        uint64x2_t prop4 = vandq_u64(prop2, vshlq_n_u64(prop2, 2 * Shift));
-        g = vorrq_u64(g, vandq_u64(vshlq_n_u64(g, 4 * Shift), prop4));
+        // Initialisation
+        uint64x2_t g = vandq_u64(vshlq_n_u64(p_vec, S), prop);
         
-        return vshlq_n_u64(g, Shift);
+        // CLEF : Calculer TOUS les prop shifts en parallèle (4 ops/cycle)
+        const uint64x2_t g1 = vshlq_n_u64(g, S);
+        const uint64x2_t prop1 = vshlq_n_u64(prop, S);
+        const uint64x2_t prop2 = vandq_u64(prop, prop1);
+        const uint64x2_t prop2_shift = vshlq_n_u64(prop2, 2*S);
+        
+        // Puis les accumulations (dépendances)
+        g = vorrq_u64(g, vandq_u64(g1, prop));
+        
+        const uint64x2_t g2 = vshlq_n_u64(g, 2*S);
+        const uint64x2_t prop4 = vandq_u64(prop2, prop2_shift);
+        g = vorrq_u64(g, vandq_u64(g2, prop2));
+        
+        const uint64x2_t g4 = vshlq_n_u64(g, 4*S);
+        g = vorrq_u64(g, vandq_u64(g4, prop4));
+        
+        return vshlq_n_u64(g, S);
     } else {
-        constexpr int S = -Shift;
-        // Saut de 1
-        g = vorrq_u64(g, vandq_u64(vshrq_n_u64(g, S), prop));
-        // Saut de 2
-        uint64x2_t prop2 = vandq_u64(prop, vshrq_n_u64(prop, S));
-        g = vorrq_u64(g, vandq_u64(vshrq_n_u64(g, 2 * S), prop2));
-        // Saut de 4
-        uint64x2_t prop4 = vandq_u64(prop2, vshrq_n_u64(prop2, 2 * S));
-        g = vorrq_u64(g, vandq_u64(vshrq_n_u64(g, 4 * S), prop4));
+        uint64x2_t g = vandq_u64(vshrq_n_u64(p_vec, S), prop);
+        
+        const uint64x2_t g1 = vshrq_n_u64(g, S);
+        const uint64x2_t prop1 = vshrq_n_u64(prop, S);
+        const uint64x2_t prop2 = vandq_u64(prop, prop1);
+        const uint64x2_t prop2_shift = vshrq_n_u64(prop2, 2*S);
+        
+        g = vorrq_u64(g, vandq_u64(g1, prop));
+        
+        const uint64x2_t g2 = vshrq_n_u64(g, 2*S);
+        const uint64x2_t prop4 = vandq_u64(prop2, prop2_shift);
+        g = vorrq_u64(g, vandq_u64(g2, prop2));
+        
+        const uint64x2_t g4 = vshrq_n_u64(g, 4*S);
+        g = vorrq_u64(g, vandq_u64(g4, prop4));
         
         return vshrq_n_u64(g, S);
     }
