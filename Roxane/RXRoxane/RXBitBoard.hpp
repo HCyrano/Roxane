@@ -186,8 +186,8 @@ void generate_flips_##pos(RXMove& move) const \
     //    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
     inline unsigned long long get_legal_moves() const;
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
-    inline uint64x2_t count_legal_moves_all_player() const;
-    static inline uint64x2_t count_legal_moves_all_player(const unsigned long long p, const unsigned long long o);
+    inline uint64x2_t dual_count_legal_moves() const;
+    static inline uint64x2_t dual_count_legal_moves(const unsigned long long p, const unsigned long long o);
 
     
     bool isValid_square(const unsigned int pos) const;
@@ -196,6 +196,8 @@ void generate_flips_##pos(RXMove& move) const \
 
     
     static int count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs);
+    static void dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, unsigned int &p_pmob, unsigned int &o_pmob);
+
     
     
     static inline int get_mobility(const unsigned long long discs_player, const unsigned long long discs_opponent);
@@ -1592,12 +1594,12 @@ inline uint64x2_t propagate_kogge_stone(const uint64x2_t p_vec, const uint64x2_t
     }
 }
 
-inline uint64x2_t RXBitBoard::count_legal_moves_all_player() const {
-    return count_legal_moves_all_player(discs[player], discs[player^1]);
+inline uint64x2_t RXBitBoard::dual_count_legal_moves() const {
+    return dual_count_legal_moves(discs[player], discs[player^1]);
 }
 
 
-inline uint64x2_t RXBitBoard::count_legal_moves_all_player(const unsigned long long p, const unsigned long long o) {
+inline uint64x2_t RXBitBoard::dual_count_legal_moves(const unsigned long long p, const unsigned long long o) {
     // Préparation des registres 128 bits
     // Lane 0: P vs O | Lane 1: O vs P
     uint64x2_t p_vec = {p, o};

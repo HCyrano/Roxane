@@ -118,7 +118,7 @@ inline int RXBBPatterns::get_score() const {
     const short* __restrict const corner   = tab_eval[9];
     
     //mobility
-    uint64x2_t mobilities = board.count_legal_moves_all_player();
+    uint64x2_t mobilities = board.dual_count_legal_moves();
     int mob_player   = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 0)));
     int mob_opponent = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 1)));
     
@@ -209,7 +209,7 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     const unsigned long long discs_player   = board.discs[board.player^1] ^ move.flipped;
     const unsigned long long discs_opponent = (board.discs[board.player] | move.flipped) | move.square;
     
-    uint64x2_t mobilities = RXBitBoard::count_legal_moves_all_player(discs_player, discs_opponent);
+    uint64x2_t mobilities = RXBitBoard::dual_count_legal_moves(discs_player, discs_opponent);
     int mob_player   = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 0)));
     int mob_opponent = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 1)));
         

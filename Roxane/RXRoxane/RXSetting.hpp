@@ -61,8 +61,10 @@
 //#define GENERATE_RAWDATA
 
 // type of coefficients probcut
-//#define PROBCUT_x2 // undefined use PROBCUT_x3
 //#define SIGMA_1ZONE
+#ifdef SIGMA_1ZONE
+#define PROBCUT_x2 // undefined use PROBCUT_x3
+#endif
 //#define SIGMA_2ZONES
 #define SIGMA_3ZONES
 

@@ -275,7 +275,7 @@ void RXBitBoard::init_hashcodeTable() {
     }
 }
 
-//init edge stability table
+//init edge stability table (edax)
 
 int RXBitBoard::find_edge_stable(const int old_P, const int old_O, int stable) {
     int P, O, x, y;
@@ -383,6 +383,35 @@ int RXBitBoard::count_potential_moves(const unsigned long long p_discs, const un
 
 }
 
+void RXBitBoard::dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, unsigned int &p_pmob, unsigned int &o_pmob) {
+    uint64x2_t opp_pair = {o_discs, p_discs};
+    uint64x2_t occupied = vdupq_n_u64(p_discs | o_discs);
+    
+    // Masques
+    uint64x2_t m_lr = vdupq_n_u64(0x7E7E7E7E7E7E7E7EULL);
+    uint64x2_t m_tb = vdupq_n_u64(0x00FFFFFFFFFFFF00ULL);
+    uint64x2_t m_dg = vdupq_n_u64(0x007E7E7E7E7E7E00ULL);
+
+    // Calcul des zones intérieures
+    uint64x2_t in_lr = vandq_u64(opp_pair, m_lr);
+    uint64x2_t in_tb = vandq_u64(opp_pair, m_tb);
+    uint64x2_t in_dg = vandq_u64(opp_pair, m_dg);
+
+    // Shifts et Or (On accumule les potentiels)
+    uint64x2_t pot = vorrq_u64(vshlq_n_u64(in_lr, 1), vshrq_n_u64(in_lr, 1));
+    pot = vorrq_u64(pot, vorrq_u64(vshlq_n_u64(in_tb, 8), vshrq_n_u64(in_tb, 8)));
+    pot = vorrq_u64(pot, vorrq_u64(vshlq_n_u64(in_dg, 7), vshrq_n_u64(in_dg, 7)));
+    pot = vorrq_u64(pot, vorrq_u64(vshlq_n_u64(in_dg, 9), vshrq_n_u64(in_dg, 9)));
+
+    // Utilisation de BIC (Bit Clear) pour remplacer AND NOT
+    // vbicq_u64 n'existe pas non plus, on utilise vbicq_u8
+    uint8x16_t final_pot_v = vbicq_u8(vreinterpretq_u8_u64(pot), vreinterpretq_u8_u64(occupied));
+    uint64x2_t final_pot = vreinterpretq_u64_u8(final_pot_v);
+
+    // Extraction et Popcount
+    p_pmob = __builtin_popcountll(vgetq_lane_u64(final_pot, 0));
+    o_pmob = __builtin_popcountll(vgetq_lane_u64(final_pot, 1));
+}
 
 #else
 
