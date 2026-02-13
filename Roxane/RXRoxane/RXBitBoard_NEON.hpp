@@ -5,7 +5,6 @@
 //  Created by Causse Bruno on 13/02/2026.
 //
 
-#include "arm_neon.h"
 
 // Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
 // or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).
