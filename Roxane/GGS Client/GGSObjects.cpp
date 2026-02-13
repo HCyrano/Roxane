@@ -5,14 +5,13 @@
 
 #include "GGSObjects.hpp"
 #include <sstream>
-using namespace std;
 
-void CGGSAlias::In(istream& is) {
-	is >> sAlias >> ws;
+void CGGSAlias::In(std::istream& is) {
+	is >> sAlias >> std::ws;
 	getline(is, sExpansion);
 }
 
-void CGGSWhoUser::In(istream& is) {
+void CGGSWhoUser::In(std::istream& is) {
 /*
 	string sLine;
 	getline(is, sLine);

@@ -10,11 +10,10 @@
 
 #include <iostream>
 #include <unistd.h>
-using namespace std;
 
 //affiche le message dans la console
 void CODKStream::HandleGGS(const CMsg* pmsg) {
-	cout << pmsg->sRawText << "\n";
+    std::cout << pmsg->sRawText << "\n";
 }
 
 void CODKStream::HandleGGSLogin() {
@@ -24,7 +23,7 @@ void CODKStream::HandleGGSLogin() {
 }
 
 void CODKStream::HandleGGSTell(const CMsgGGSTell* pmsg) {
-	cout << pmsg->sFrom << " " << pmsg->sText << "\n";
+    std::cout << pmsg->sFrom << " " << pmsg->sText << "\n";
 	
     //join
 	/**********************************************************************/
@@ -49,7 +48,7 @@ void CODKStream::HandleGGSTell(const CMsgGGSTell* pmsg) {
 }
 
 void CODKStream::HandleGGSUnknown(const CMsgGGSUnknown* pmsg) {
-	cout << "Unknown GGS message: \n";
+    std::cout << "Unknown GGS message: \n";
 	HandleGGS(pmsg);
 }
 
@@ -174,7 +173,7 @@ void CODKStream::HandleOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
 
 
 
-void CODKStream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg,const string& idg) {
+void CODKStream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg,const std::string& idg) {
         if (pmsg->match.IsPlaying(GetLogin()))
 			pComputer->resume();
 		BaseOsGameOver(idg);
@@ -182,7 +181,7 @@ void CODKStream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg,const string& idg
 
 
 void CODKStream::HandleOsUnknown(const CMsgOsUnknown* pmsg) {
-	cout << "Unknown /os message: ";
+    std::cout << "Unknown /os message: ";
 	HandleOs(pmsg);
 }
 
@@ -192,7 +191,7 @@ void CODKStream::HandleOsUpdate(const CMsgOsUpdate* pmsg) {
 }
 
 // helper function for join and update messages
-void CODKStream::GetMoveIfNeeded(const string& idg) {
+void CODKStream::GetMoveIfNeeded(const std::string& idg) {
         
 	COsGame* pgame=PGame(idg);
 	if (pgame!=NULL) {
@@ -216,13 +215,13 @@ void CODKStream::GetMoveIfNeeded(const string& idg) {
 		_ASSERT(0);
 }
 
-void CODKStream::SendMove(const string& idg, COsMoveListItem& mli) {
+void CODKStream::SendMove(const std::string& idg, COsMoveListItem& mli) {
 	(*this) << "tell /os play " << idg << " " << mli << "\n";
 	flush();
 
 }
 
-void CODKStream::SendMsg(const string& msg) {
+void CODKStream::SendMsg(const std::string& msg) {
 
 	if(IsConnected()) {
 		(*this) << "tell ." << GetLogin() << " " << msg << std::endl;

@@ -13,9 +13,8 @@
 #include <thread>
 
 
-using namespace std;
 
-ggsstream::ggsstream() : iostream(NULL) {
+ggsstream::ggsstream() : std::iostream(NULL) {
 	fLoggedIn=fConnected=fHasOs=false;
 	psockbuf=NULL;
 }
@@ -44,7 +43,7 @@ void ggsstream::DisableAutoReconnect() {
     fAutoReconnect = false;
 }
 
-int ggsstream::Connect(const string& sServer, int nPort) {
+int ggsstream::Connect(const std::string& sServer, int nPort) {
     if(IsConnected()) {
         _ASSERT(0);
         return kErrConnected;
@@ -128,13 +127,13 @@ bool ggsstream::TryReconnect() {
 
 // Appelé AVANT chaque tentative de reconnexion
 void ggsstream::OnReconnecting(int attempt, int maxAttempts) {
-    cout << "[RECONNECT] Attempting reconnection "
-         << attempt << "/" << maxAttempts << "..." << endl;
+    std::cout << "[RECONNECT] Attempting reconnection "
+         << attempt << "/" << maxAttempts << "..." << std::endl;
 }
 
 // Appelé quand la reconnexion RÉUSSIT
 void ggsstream::OnReconnected() {
-    cout << "[RECONNECT] Successfully reconnected to " << sLastServer << endl;
+    std::cout << "[RECONNECT] Successfully reconnected to " << sLastServer << std::endl;
     
     // Vous pouvez ajouter des actions ici :
     // - Renvoyer des commandes au serveur
@@ -149,8 +148,8 @@ void ggsstream::OnReconnected() {
 
 // Appelé quand TOUS les retries ont échoué
 void ggsstream::OnReconnectFailed() {
-    cerr << "[RECONNECT] Failed to reconnect after " << nMaxRetries
-         << " attempts." << endl;
+    std::cerr << "[RECONNECT] Failed to reconnect after " << nMaxRetries
+         << " attempts." << std::endl;
     
     // Vous pouvez ajouter des actions ici :
     // - Logger l'erreur
@@ -167,7 +166,7 @@ void ggsstream::ForceDisconnect() {
     fConnected = false;
     
     // Optionnel : mettre le flag EOF pour que while(get(c)) sorte
-    setstate(ios::eofbit);
+    setstate(std::ios::eofbit);
 }
 
 
@@ -177,7 +176,7 @@ int ggsstream::Disconnect() {
 		return kErrNotConnected;
 	}
     
-	setstate(ios::eofbit);
+	setstate(std::ios::eofbit);
     
 	if (psockbuf) {
 		psockbuf->disconnect();
@@ -187,7 +186,7 @@ int ggsstream::Disconnect() {
 
     // Utiliser clear() après init(NULL) permet de repartir sur une base propre
     init(NULL);
-    clear(ios::eofbit); // On garde l'état EOF pour indiquer la déconnexion
+    clear(std::ios::eofbit); // On garde l'état EOF pour indiquer la déconnexion
 	return 0;
 }
 
@@ -268,6 +267,7 @@ int ggsstream::Logout() {
 
 
 int ggsstream::await(const char* sAwait) {
+    
     if (!sAwait || !*sAwait) return kErrInvalidArg;
     
     const size_t awaitLen = strlen(sAwait);
@@ -307,23 +307,24 @@ int ggsstream::await(const char* sAwait) {
     
 }
 
-const string& ggsstream::GetLogin() const {
+const std::string& ggsstream::GetLogin() const {
 	return sLogin;
 }
 
-const string& ggsstream::GetPassword() const {
+const std::string& ggsstream::GetPassword() const {
     return sPassword;
 }
 
 
 // process incoming data from GGS. 'is' is a socket connection.
-//	strip bells and '|' at the beginning of lines. Once we have an
-//	entire message(terminated by "READY" on its own line), call Parse()
+// strip bells and '|' at the beginning of lines. Once we have an
+// entire message(terminated by "READY" on its own line), call Parse()
 void ggsstream::Process() {
+    
     bool keepRunning = true;
 
     while (keepRunning) {
-        string sLine;
+        std::string sLine;
         sLine.reserve(256);
         static bool fHasCR = false;
         char c;
@@ -361,7 +362,7 @@ void ggsstream::Process() {
             if (TryReconnect()) {
                 // Reconnexion réussie : la boucle "while(keepRunning)"
                 // recommence et entre à nouveau dans "while(get(c))"
-                cout << "[DEBUG] Re-entering main loop after successful reconnect." << endl;
+                std::cout << "[DEBUG] Re-entering main loop after successful reconnect." << std::endl;
             } else {
                 // Échec total après toutes les tentatives
                 keepRunning = false;
@@ -372,49 +373,8 @@ void ggsstream::Process() {
         }
     }
 }
-/*
-void ggsstream::Process() {
-    string sLine;
-    sLine.reserve(256);
-    static bool fHasCR = false;
-    char c;
 
-    while (get(c)) {
-        switch(c) {
-        case '\a':
-            break;
-        case '\r':
-            ProcessLine(sLine);
-            break;
-        case '\n':
-            if (!fHasCR)
-                ProcessLine(sLine);
-            break;
-        default:
-            sLine.push_back(c);
-        }
-        fHasCR = (c=='\r');
-    }
-    
-    // Déconnexion détectée
-    bool wasLoggedIn = fLoggedIn;
-    
-    CMsg* pmsg = new CMsgGGSDisconnect;
-    if(pmsg) {
-        pmsg->pgs = this;
-        Post(pmsg);
-    }
-    
-    // Tenter reconnexion automatique si activée
-    if (fAutoReconnect && wasLoggedIn) {
-        if (TryReconnect()) {
-            // Reconnecté avec succès, relancer Process()
-            Process();
-        }
-    }
-}
-*/
-void ggsstream::ProcessLine(string& sLine){
+void ggsstream::ProcessLine(std::string& sLine){
     
     if (sLine=="READY")
         ProcessMessage();
@@ -448,7 +408,7 @@ void ggsstream::ProcessLine(string& sLine){
 //	Post() routine
 
 void ggsstream::ProcessMessage() {
-	istringstream is(sMsg.c_str());
+    std::istringstream is(sMsg.c_str());
 	CMsg *pmsg;
 
 	pmsg=GetMsgType(is);
@@ -468,11 +428,11 @@ void ggsstream::Post(CMsg* pmsg) {
 	delete pmsg;
 }
 
-CMsg* ggsstream::GetMsgType(istream& is) {
-	string sFrom;
+CMsg* ggsstream::GetMsgType(std::istream& is) {
+    std::string sFrom;
 	CMsg *pmsg;
 
-	is >> sFrom >> ws;
+	is >> sFrom >> std::ws;
 
 	if (sFrom.empty())
 		pmsg=NULL;
@@ -494,11 +454,11 @@ CMsg* ggsstream::GetMsgType(istream& is) {
 	return pmsg;
 }
 
-CMsg* ggsstream::GetMsgTypeOs(istream& is) {
+CMsg* ggsstream::GetMsgTypeOs(std::istream& is) {
 	CMsg* pmsg=NULL;
 
-	string sMsgType;
-	is >> sMsgType >> ws;
+    std::string sMsgType;
+	is >> sMsgType >> std::ws;
 
 	if (sMsgType[0]=='.')
 		pmsg=new CMsgOsComment(sMsgType);
@@ -543,7 +503,7 @@ CMsg* ggsstream::GetMsgTypeOs(istream& is) {
 	else if (sMsgType=="update")
 		pmsg=new CMsgOsUpdate;
 	else if (sMsgType=="watch") {
-		is >> ws;
+		is >> std::ws;
 		char c=is.peek();
 		if (c=='+' || c=='-')
 			pmsg=new CMsgOsErr;
@@ -554,7 +514,7 @@ CMsg* ggsstream::GetMsgTypeOs(istream& is) {
 		pmsg=new CMsgOsWho;
 	else if (sMsgType=="+" || sMsgType=="-") {
 		bool fPlus= sMsgType=="+";
-		is >> ws;
+		is >> std::ws;
 		if (is.peek()=='.')
 			pmsg=new CMsgOsRequestDelta(fPlus);
 		else {
@@ -562,7 +522,7 @@ CMsg* ggsstream::GetMsgTypeOs(istream& is) {
 			if (sMsgType=="match")
 				pmsg=new CMsgOsMatchDelta(fPlus);
 			else {
-				string sLogin=sMsgType;
+                std::string sLogin=sMsgType;
 				is >> sMsgType;
 				if (sMsgType=="watch") {
 					pmsg=new CMsgOsWatchDelta(fPlus, sLogin);
@@ -581,10 +541,10 @@ CMsg* ggsstream::GetMsgTypeOs(istream& is) {
 	return pmsg;
 }
 
-CMsg* ggsstream::GetMsgTypeGGS(istream& is) {
+CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
 	CMsg* pmsg=NULL;
 
-	string sMsgType;
+    std::string sMsgType;
 	is >> sMsgType;
 
 	if (sMsgType=="alias")
@@ -622,8 +582,6 @@ const char* ggsstream::ErrText(int err) {
         return "Out of memory";
     case kErrInvalidArg:
         return "Invalid argument";
-    case kErrBufferOverflow:
-        return "Buffer overflow";
     default:
         return "(No text available for this error)";
     }
@@ -679,7 +637,7 @@ void ggsstream::BaseOsEnd(const CMsgOsEnd* pmsg) {
 	}
 }
 
-void ggsstream::BaseOsGameOver(const string& idg) {
+void ggsstream::BaseOsGameOver(const std::string& idg) {
 	idToGame.erase(idg);
 }
 
@@ -708,14 +666,14 @@ void ggsstream::BaseOsLogout() {
 
 void ggsstream::BaseOsMatch(const CMsgOsMatch* pmsg) {
 	idToMatch.clear();
-	vector<COsMatch>::const_iterator i;
+    std::vector<COsMatch>::const_iterator i;
 	
 	for (i=pmsg->matches.begin(); i!=pmsg->matches.end(); i++)
 		idToMatch[i->idm]=*i;
 }
 
 // helper function for BaseOsMatchDelta
-void ggsstream::EndGame(const CMsgOsMatchDelta* pmsg, const string& idg) {
+void ggsstream::EndGame(const CMsgOsMatchDelta* pmsg, const std::string& idg) {
 	COsGame* pgame=PGame(idg);
 	if (pgame) {
 		// synch games with normal termination should have
@@ -731,7 +689,7 @@ void ggsstream::EndGame(const CMsgOsMatchDelta* pmsg, const string& idg) {
 }
 
 void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
-	map<string,COsMatch>::iterator i=idToMatch.find(pmsg->match.idm);
+    std::map<std::string,COsMatch>::iterator i=idToMatch.find(pmsg->match.idm);
 	if (pmsg->fPlus) {
 		_ASSERT(i==idToMatch.end());
 		idToMatch[pmsg->match.idm]=pmsg->match;
@@ -753,7 +711,7 @@ void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
 
 // delete the request if we have it. We might not, e.g. if we've just logged in
 void ggsstream::BaseOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
-	map<string,COsRequest>::iterator i=idToRequest.find(pmsg->idr);
+    std::map<std::string,COsRequest>::iterator i=idToRequest.find(pmsg->idr);
 	if (pmsg->fPlus) {
 		_ASSERT(i==idToRequest.end());
 		idToRequest[pmsg->idr]=pmsg->request;
@@ -767,7 +725,7 @@ void ggsstream::BaseOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
 void ggsstream::BaseOsUpdate(const CMsgOsUpdate* pmsg) {
 	// update the game if it exists. Due to lag, we might still
 	//	be getting updates for games we've stopped watching
-	map<string,COsGame>::iterator i=idToGame.find(pmsg->idg);
+    std::map<std::string,COsGame>::iterator i=idToGame.find(pmsg->idg);
 	if (i!=idToGame.end())
 		idToGame[pmsg->idg].Update(pmsg->mli);
 }
@@ -777,7 +735,7 @@ void ggsstream::BaseOsUpdate(const CMsgOsUpdate* pmsg) {
 ///////////////////////////////////////
 
 void ggsstream::HandleGGS(const CMsg* pmsg) {
-	cout << pmsg->sRawText << "\n";
+	std::cout << pmsg->sRawText << std::endl;
 }
 
 void ggsstream::HandleGGSAlias(const CMsgGGSAlias* pmsg) {
@@ -858,7 +816,7 @@ void ggsstream::HandleOsFinger(const CMsgOsFinger* pmsg) {
 	HandleOs(pmsg);
 }
 
-void ggsstream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg, const string& idg) {
+void ggsstream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg, const std::string& idg) {
 	BaseOsGameOver(idg);
     HandleOs(pmsg);
 }
@@ -949,8 +907,8 @@ void ggsstream::HandleOsWho(const CMsgOsWho* pmsg) {
     HandleOs(pmsg);
 }
 
-COsGame* ggsstream::PGame(const string& idg) {
-	map<string, COsGame>::iterator i;
+COsGame* ggsstream::PGame(const std::string& idg) {
+    std::map<std::string, COsGame>::iterator i;
 
 	i = idToGame.find(idg);
 	if (i==idToGame.end())

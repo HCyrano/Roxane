@@ -1,18 +1,19 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
+#include <cassert>
+
 #include "types.hpp"
 
 #include "OsMessage.hpp"
 #include "ggsstream.hpp"
 #include <sstream>
 
-using namespace std;
 
 ///////////////////////////////////
 // CMsgOs
 ///////////////////////////////////
-
+/*
 COsGame* CMsgOs::PGame(const string& idg) const {
 	map<string,COsGame>& idToGame = pgs->idToGame;
 	if (idToGame.find(idg)==idToGame.end())
@@ -20,7 +21,16 @@ COsGame* CMsgOs::PGame(const string& idg) const {
 	else
 		return &(idToGame[idg]);
 }
-
+*/
+COsGame* CMsgOs::PGame(const std::string& idg) const {
+    const std::map<std::string,COsGame>& idToGame = pgs->idToGame;
+    auto it = idToGame.find(idg);
+    if (it == idToGame.end())
+        return NULL;
+    else
+        return const_cast<COsGame*>(&(it->second));
+}
+/*
 COsMatch* CMsgOs::PMatch(const string& idm) const {
 	map<string,COsMatch>& idToMatch = pgs->idToMatch;
 	if (idToMatch.find(idm)==idToMatch.end())
@@ -28,7 +38,16 @@ COsMatch* CMsgOs::PMatch(const string& idm) const {
 	else
 		return &(idToMatch[idm]);
 }
-
+*/
+COsMatch* CMsgOs::PMatch(const std::string& idm) const {
+    const std::map<std::string,COsMatch>& idToMatch = pgs->idToMatch;
+    auto it = idToMatch.find(idm);
+    if (it == idToMatch.end())
+        return NULL;
+    else
+        return const_cast<COsMatch*>(&(it->second));
+}
+/*
 COsRequest* CMsgOs::PRequest(const string& idr) const {
 	map<string,COsRequest>& idToRequest = pgs->idToRequest;
 	if (idToRequest.find(idr)==idToRequest.end())
@@ -36,18 +55,27 @@ COsRequest* CMsgOs::PRequest(const string& idr) const {
 	else
 		return &(idToRequest[idr]);
 }
+*/
+COsRequest* CMsgOs::PRequest(const std::string& idr) const {
+    const std::map<std::string,COsRequest>& idToRequest = pgs->idToRequest;
+    auto it = idToRequest.find(idr);
+    if (it == idToRequest.end())
+        return NULL;
+    else
+        return const_cast<COsRequest*>(&(it->second));
+}
 
 ///////////////////////////////////
 // CMsgOsAbortRequest
 ///////////////////////////////////
 
-void CMsgOsAbortRequest::In(istream& is) {
-	string sDummy;
+void CMsgOsAbortRequest::In(std::istream& is) {
+	std::string sDummy;
 
-	is >> idg >> sLogin >> ws;
-	getline(is, sDummy);
+	is >> idg >> sLogin >> std::ws;
+	std::getline(is, sDummy);
 
-	_ASSERT(sDummy=="is asking");
+	assert(sDummy=="is asking");
 }
 
 void CMsgOsAbortRequest::Handle() {
@@ -58,19 +86,19 @@ void CMsgOsAbortRequest::Handle() {
 // CMsgOsComment
 ///////////////////////////////////
 
-CMsgOsComment::CMsgOsComment(const string& aidg) {
+CMsgOsComment::CMsgOsComment(const std::string& aidg) {
 	idg=aidg;
 }
 
 // /os: .44 A 1720 n3: test from me
-void CMsgOsComment::In(istream& is) {
-	string sPretext;
+void CMsgOsComment::In(std::istream& is) {
+	std::string sPretext;
 
-	getline(is, sPretext, ':');
-	istringstream isPretext(sPretext.c_str());
+	std::getline(is, sPretext, ':');
+	std::istringstream isPretext(sPretext.c_str());
 	isPretext >> cTo >> pi;
-	is >> ws;
-	getline(is, sComment);
+	is >> std::ws;
+	std::getline(is, sComment);
 }
 
 void CMsgOsComment::Handle() {
@@ -82,15 +110,15 @@ void CMsgOsComment::Handle() {
 ///////////////////////////////////
 
 // /os: end .2.0 ( pamphlet vs. ant ) +46.00
-void CMsgOsEnd::In(istream& is) {
+void CMsgOsEnd::In(std::istream& is) {
 	char c;
-	string s;
+	std::string s;
 
 	is >> idg >> c;
-	_ASSERT(c=='(');
+	assert(c=='(');
 	is >> sPlayers[0] >> s >> sPlayers[1] >> c;
-	_ASSERT(s=="vs.");
-	_ASSERT(c==')');
+	assert(s=="vs.");
+	assert(c==')');
 	is >> result;
 }
 
@@ -106,9 +134,9 @@ void CMsgOsEnd::Handle() {
 // /os: error .25 corrupt move
 // /os: watch + ERR not found: .3
 
-void CMsgOsErr::In(istream& is) {
-	string sText;
-	getline(is, sText);
+void CMsgOsErr::In(std::istream& is) {
+	std::string sText;
+	std::getline(is, sText);
 	if (sText=="your request doesn't fit the opponent's formula.")
 		err=kErrRequestDoesntFitFormula;
 	else if (sText=="board type")
@@ -125,9 +153,9 @@ void CMsgOsErr::In(istream& is) {
 		err=kErrRatedMismatch;
 	else if (sText=="you are not registered.")
 		err=kErrUnregistered;
-	else if (sText.find("illegal move")!=string::npos)
+	else if (sText.find("illegal move")!=std::string::npos)
 		err=kErrIllegalMove;
-	else if (sText.find("not found")!=string::npos)
+	else if (sText.find("not found")!=std::string::npos)
 		err=kErrUserNotFound;
 	else if (sText=="Player is not accepting new matches.")
 		err=kErrNotAcceptingMatches;
@@ -148,8 +176,8 @@ void CMsgOsErr::Handle() {
 // CMsgOsFatalTimeout
 ///////////////////////////////////
 
-void CMsgOsFatalTimeout::In(istream& is) {
-	is >> idg >> sLogin >> ws;
+void CMsgOsFatalTimeout::In(std::istream& is) {
+	is >> idg >> sLogin >> std::ws;
 }
 
 void CMsgOsFatalTimeout::Handle() {
@@ -195,38 +223,38 @@ void CMsgOsFatalTimeout::Handle() {
 |8r    1720.0@350.0= ----------- +@350.0  +0.0      0      0      0
 */
 
-void CMsgOsFinger::In(istream& is) {
-	string sLine, sKey, sValue;
+void CMsgOsFinger::In(std::istream& is) {
+	std::string sLine, sKey, sValue;
 	COsFingerRating fr;
 
-	is >> sLogin >> ws;
+	is >> sLogin >> std::ws;
 
 	// first section, key : value
-	while (getline(is, sLine)) {
+	while (std::getline(is, sLine)) {
 		if (!is)
 			break;
-		if (sLine.find(':')==string::npos)
+		if (sLine.find(':')==std::string::npos)
 			break;
 
-		istringstream isLine(sLine.c_str());
+		std::istringstream isLine(sLine.c_str());
 
 		// get key and strip terminal spaces
-		getline(isLine, sKey, ':');
+		std::getline(isLine, sKey, ':');
 		sKey.resize(1+sKey.find_last_not_of(' '));
 
 		// get value. No value means this is the separator row
 		//	between the first section and the second section
-		isLine >> ws;
-		getline(isLine, sValue);
+		isLine >> std::ws;
+		std::getline(isLine, sValue);
 
 		// insert (key, value) pair
-		_ASSERT(keyToValue.find(sKey)==keyToValue.end());
+		assert(keyToValue.find(sKey)==keyToValue.end());
 		keyToValue[sKey]=sValue;
 	}
 
 	// second section, rating info
-	while (getline(is, sLine)) {
-		istringstream isLine(sLine.c_str());
+	while (std::getline(is, sLine)) {
+		std::istringstream isLine(sLine.c_str());
 		isLine >> fr;
 		frs.push_back(fr);
 	}
@@ -240,8 +268,8 @@ void CMsgOsFinger::Handle() {
 // CMsgOsJoin
 ///////////////////////////////////
 
-void CMsgOsJoin::In(istream& is) {
-	is >> idg >> ws;
+void CMsgOsJoin::In(std::istream& is) {
+	is >> idg >> std::ws;
 	is >> game;
 }
 
@@ -253,9 +281,9 @@ void CMsgOsJoin::Handle() {
 // CMsgOsLook
 ///////////////////////////////////
 
-void CMsgOsLook::In(istream& is) {
+void CMsgOsLook::In(std::istream& is) {
 	is >> nGames;
-	_ASSERT(nGames==1 || nGames==2);
+	assert(nGames==1 || nGames==2);
 
 	games.reserve(nGames);
 	COsGame game;
@@ -286,12 +314,12 @@ void CMsgOsLook::Handle() {
 |.49141   27 Mar 2001 08:03:04 1773 nasai    2354 booklet   -64.0 8
 */
 
-void CMsgOsHistory::In(istream& is) {
+void CMsgOsHistory::In(std::istream& is) {
 	is >> n >> sLogin;
 	COsHistoryItem hi;
 	while (is >> hi)
 		his.push_back(hi);
-	_ASSERT(his.size()==n);
+	assert(his.size()==n);
 }
 
 void CMsgOsHistory::Handle() {
@@ -308,17 +336,17 @@ void CMsgOsHistory::Handle() {
 |  .9   s8r20  R 2574 lynx     2570 kitty    2
 */
 
-void CMsgOsMatch::In(istream& is) {
+void CMsgOsMatch::In(std::istream& is) {
 	char c;
 
 	is >> n1 >> c >> n2;
-	_ASSERT(c=='/');
+	assert(c=='/');
 
 	COsMatch match;
 	while (match.In(is))
 		matches.push_back(match);
 
-	_ASSERT(matches.size()==n2);
+	assert(matches.size()==n2);
 }
 
 void CMsgOsMatch::Handle() {
@@ -334,7 +362,7 @@ CMsgOsMatchDelta::CMsgOsMatchDelta(bool afPlus) {
 }
 
 // /os: - match .2 1833 nasai 2342 booklet 8 R nasai left
-void CMsgOsMatchDelta::In(istream& is) {
+void CMsgOsMatchDelta::In(std::istream& is) {
 	match.InDelta(is);
 	if (!fPlus)
 		is >> result;
@@ -350,20 +378,20 @@ void CMsgOsMatchDelta::UpdateOs() {
 	// if this is a '- match' message, delete the match and any games
 	if (fPlus) {
 		// add the match
-		map<string,COsMatch>& idToMatch=Os().idToMatch;
+		std::map<string,COsMatch>& idToMatch=Os().idToMatch;
 		idToMatch.erase(match.idm);
 	}
 	else {
 		// delete the match
-		map<string,COsMatch>& idToMatch=Os().idToMatch;
+		std::map<string,COsMatch>& idToMatch=Os().idToMatch;
 		idToMatch.erase(match.idm);
 
 		// Delete the games. We don't know if we were wathching it,
 		//	or if it's synchro, so we just delete all possible game ids.
-		map<string,COsGame>& idToGame=Os().idToGame;
+		std::map<string,COsGame>& idToGame=Os().idToGame;
 		idToGame.erase(match.idm);
 
-		string idg=match.idm+".0";
+		std::string idg=match.idm+".0";
 		idToGame.erase(idg);
 
 		idg=match.idm+".1";
@@ -376,11 +404,11 @@ void CMsgOsMatchDelta::UpdateOs() {
 // CMsgOsRank
 ///////////////////////////////////
 
-void CMsgOsRank::In(istream& is) {
-	string sInactive, sAScore, sWin, sDraw, sLoss;
+void CMsgOsRank::In(std::istream& is) {
+	std::string sInactive, sAScore, sWin, sDraw, sLoss;
 	COsRankData rd;
 
-	is >> rating >> sInactive >> sAScore >> sWin >> sDraw >> sLoss >> n >> ws;
+	is >> rating >> sInactive >> sAScore >> sWin >> sDraw >> sLoss >> n >> std::ws;
 	while (is >> rd) {
 		rds.push_back(rd);
 	}
@@ -399,14 +427,14 @@ void CMsgOsRank::Handle() {
 // |ant      1697.62 @ 113.02   -43.23 -> 1654.39 @ 110.44
 
 
-void CMsgOsRatingUpdate::In(istream& is) {
-	string s;
+void CMsgOsRatingUpdate::In(std::istream& is) {
+	std::string s;
 
 	is >> idm;
 	is >> sPlayers[0] >> rOlds[0] >> dDeltas[0] >> s >> rNews[0];
-	_ASSERT(s=="->");
+	assert(s=="->");
 	is >> sPlayers[1] >> rOlds[1] >> dDeltas[1] >> s >> rNews[1];
-	_ASSERT(s=="->");
+	assert(s=="->");
 }
 
 void CMsgOsRatingUpdate::Handle() {
@@ -460,13 +488,13 @@ bool CMsgOsRequestDelta::RequireRand(bool fRand) const {
 bool CMsgOsRequestDelta::RequireMaxRandDiscs(int nRandDiscs) const {
 	bool fOK= (request.mt.nRandDiscs<=nRandDiscs);
 	if (!fOK)
-		(*pgs) << "t " << request.pis[0].sName << " I only play rand games with " << nRandDiscs << " discs maximun\n";
+		(*pgs) << "t " << request.pis[0].sName << " I only play rand games with " << nRandDiscs << " discs maximum\n";
 	return fOK;
 }
 bool CMsgOsRequestDelta::RequireMinRandDiscs(int nRandDiscs) const {
 	bool fOK= (request.mt.nRandDiscs>=nRandDiscs);
 	if (!fOK)
-		(*pgs) << "t " << request.pis[0].sName << " I only play rand games with " << nRandDiscs << " discs minimun\n";
+		(*pgs) << "t " << request.pis[0].sName << " I only play rand games with " << nRandDiscs << " discs minimum\n";
 	return fOK;
 }
 
@@ -507,7 +535,7 @@ bool CMsgOsRequestDelta::RequireMinMyClock(const COsClock& ck) const {
 
 // /os: +  .19 1735.1 pamphlet 15:00//02:00        8 U 1345.6 ant
 
-void CMsgOsRequestDelta::In(istream& is) {
+void CMsgOsRequestDelta::In(std::istream& is) {
 	is >> idr >> request;
 }
 
@@ -518,13 +546,13 @@ void CMsgOsRequestDelta::Handle() {
 // /os: stored 2 pamphlet
 // |.42590   23 Feb 2001 23:17:39 pamphlet patzer   s8r16:l
 // |.42661   24 Feb 2001 18:08:41 pamphlet ant      s8r16:l
-void CMsgOsStored::In(istream& is) {
+void CMsgOsStored::In(std::istream& is) {
 	COsStoredMatch sm;
 	is >> nStored >> sLogin;
 	while (is >> sm) {
 		sms.push_back(sm);
 	}
-	_ASSERT(sms.size()==nStored);
+	assert(sms.size()==nStored);
 }
 
 void CMsgOsStored::Handle() {
@@ -535,8 +563,8 @@ void CMsgOsStored::Handle() {
 // CMsgOsTimeout
 ///////////////////////////////////
 
-void CMsgOsTimeout::In(istream& is) {
-	is >> idg >> sLogin >> ws;
+void CMsgOsTimeout::In(std::istream& is) {
+	is >> idg >> sLogin >> std::ws;
 }
 
 void CMsgOsTimeout::Handle() {
@@ -563,11 +591,11 @@ void CMsgOsTimeout::Handle() {
 |   16 doronko  2398.8@141[recv].5= 519.07:30:15+@ 93.2  -0.3    937    175    817
 */
 
-void CMsgOsTop::In(istream& is) {
-	string sInactive, sAScore, sWin, sDraw, sLoss;
+void CMsgOsTop::In(std::istream& is) {
+	std::string sInactive, sAScore, sWin, sDraw, sLoss;
 	COsRankData rd;
 
-	is >> rating >> sInactive >> sAScore >> sWin >> sDraw >> sLoss >> n >> ws;
+	is >> rating >> sInactive >> sAScore >> sWin >> sDraw >> sLoss >> n >> std::ws;
 	while (is >> rd) {
 		rds.push_back(rd);
 	}
@@ -578,18 +606,18 @@ void CMsgOsTop::Handle() {
 }
 
 // /os: trust-violation .56 pamphlet (*) delta= 4 + 0.7 secs
-void CMsgOsTrustViolation::In(istream& is) {
+void CMsgOsTrustViolation::In(std::istream& is) {
 	char c1, c2;
-	string sDelta, sSecs;
+	std::string sDelta, sSecs;
 
 	is >> idg >> sLogin >> c1 >> cColor >> c2;
-	_ASSERT(c1=='(');
-	_ASSERT(cColor==COsBoard::BLACK || cColor==COsBoard::WHITE || cColor==COsBoard::UNKNOWN);
-	_ASSERT(c2==')');
+	assert(c1=='(');
+	assert(cColor==COsBoard::BLACK || cColor==COsBoard::WHITE || cColor==COsBoard::UNKNOWN);
+	assert(c2==')');
 
 	is >> sDelta >> delta1 >> c1 >> delta2 >> sSecs;
-	_ASSERT(sDelta=="delta=");
-	_ASSERT(sSecs=="secs");
+	assert(sDelta=="delta=");
+	assert(sSecs=="secs");
 }
 
 void CMsgOsTrustViolation::Handle() {
@@ -600,13 +628,13 @@ void CMsgOsTrustViolation::Handle() {
 // CMsgOsUndoRequest
 ///////////////////////////////////
 
-void CMsgOsUndoRequest::In(istream& is) {
-	string sDummy;
+void CMsgOsUndoRequest::In(std::istream& is) {
+	std::string sDummy;
 
-	is >> idg >> sLogin >> ws;
-	getline(is, sDummy);
+	is >> idg >> sLogin >> std::ws;
+	std::getline(is, sDummy);
 
-	_ASSERT(sDummy=="is asking");
+	assert(sDummy=="is asking");
 }
 
 void CMsgOsUndoRequest::Handle() {
@@ -617,12 +645,15 @@ void CMsgOsUndoRequest::Handle() {
 // CMsgOsUnknown
 ///////////////////////////////////
 
-CMsgOsUnknown::CMsgOsUnknown(const string& asMsgType) {
+CMsgOsUnknown::CMsgOsUnknown(const std::string& asMsgType) {
 	sMsgType=asMsgType;
 }
 
-void CMsgOsUnknown::In(istream& is) {
-	getline(is, sText, (char)EOF);
+void CMsgOsUnknown::In(std::istream& is) {
+    // Lire tout le contenu restant du flux
+    std::ostringstream oss;
+    oss << is.rdbuf();
+    sText = oss.str();
 }
 
 void CMsgOsUnknown::Handle() {
@@ -633,7 +664,7 @@ void CMsgOsUnknown::Handle() {
 // CMsgOsUpdate
 ///////////////////////////////////
 
-void CMsgOsUpdate::In(istream& is) {
+void CMsgOsUpdate::In(std::istream& is) {
 	is >> idg >> mli;
 }
 
@@ -647,18 +678,18 @@ void CMsgOsUpdate::Handle() {
 ///////////////////////////////////
 
 // /os: watch 1 : .41(1)
-void CMsgOsWatch::In(istream& is) {
+void CMsgOsWatch::In(std::istream& is) {
 	char c1, c2;
-	string idm;
+	std::string idm;
 	int nWatchers;
 
 	is >> nMatches >> c1;
-	_ASSERT(c1==':');
+	assert(c1==':');
 
 	while (is >> idm >> c1 >> nWatchers >> c2) {
-		_ASSERT(c1=='(');
-		_ASSERT(c2==')');
-		_ASSERT(idToNWatchers.find(idm)==idToNWatchers.end());
+		assert(c1=='(');
+		assert(c2==')');
+		assert(idToNWatchers.find(idm)==idToNWatchers.end());
 		idToNWatchers[idm]=nWatchers;
 	}
 }
@@ -671,13 +702,13 @@ void CMsgOsWatch::Handle() {
 // CMsgOsWatchChange
 ///////////////////////////////////
 
-CMsgOsWatchDelta::CMsgOsWatchDelta(bool afPlus, const string& asLogin) {
+CMsgOsWatchDelta::CMsgOsWatchDelta(bool afPlus, const std::string& asLogin) {
 	fPlus=afPlus;
 	sLogin=asLogin;
 }
 
 // /os:  + n3 watch .44
-void CMsgOsWatchDelta::In(istream& is) {
+void CMsgOsWatchDelta::In(std::istream& is) {
 	is >> idm;
 }
 
@@ -701,10 +732,10 @@ void CMsgOsWho::Handle() {
 etc.
 */
 
-void CMsgOsWho::In(istream& is) {
-	string s;
+void CMsgOsWho::In(std::istream& is) {
+	std::string s;
 	is >> n;
-	getline(is, s);
+	std::getline(is, s);
 
 	COsWhoItem wi;
 	while (is >> wi) {
@@ -712,5 +743,5 @@ void CMsgOsWho::In(istream& is) {
 	}
 
 	// This assert fails because GGS sends the wrong n
-	//	_ASSERT(wis.size()==n);
+	//	assert(wis.size()==n);
 }

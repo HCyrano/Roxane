@@ -26,14 +26,14 @@ public:
     virtual void HandleOsTimeout        (const CMsgOsTimeout* pmsg);
     virtual void HandleOsFatalTimeout   (const CMsgOsFatalTimeout* pmsg);
     virtual void HandleOsRequestDelta   (const CMsgOsRequestDelta* pmsg);
-    virtual void HandleOsGameOver       (const CMsgOsMatchDelta* pmsg, const string& idg);
+    virtual void HandleOsGameOver       (const CMsgOsMatchDelta* pmsg, const std::string& idg);
 
     //virtual void HandleOsMatchDelta     (const CMsgOsMatchDelta* pmsg);
 
 
-	virtual void GetMoveIfNeeded        (const string& idg);
-	virtual void SendMove               (const string& idg, COsMoveListItem& mli);
-	virtual void SendMsg                (const string& msg);
+	virtual void GetMoveIfNeeded        (const std::string& idg);
+	virtual void SendMove               (const std::string& idg, COsMoveListItem& mli);
+	virtual void SendMsg                (const std::string& msg);
     
 
 

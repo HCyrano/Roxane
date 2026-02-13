@@ -9,9 +9,8 @@
 #include "time.h"
 #include <ctype.h>
 
-using namespace std;
 
-void COsMove::In(istream& is) {
+void COsMove::In(std::istream& is) {
 	char cCol;
 
 	is >> cCol;
@@ -27,7 +26,7 @@ void COsMove::In(istream& is) {
 	}
 }
 
-void COsMove::Out(ostream& os) const {
+void COsMove::Out(std::ostream& os) const {
 	if (fPass)
 		os << "PA";
 	else
@@ -58,14 +57,14 @@ bool COsMove::operator<(const COsMove& b) const {
 		return col<b.col;
 }
 
-void IgnoreAlnum(istream& is) {
+void IgnoreAlnum(std::istream& is) {
 	while (isalnum(is.peek()))
 		is.ignore(1);
 }
 
 //Debug 1
 //parse string GGS move E2/16.00/109.00 to COsMovelistItem
-void COsMoveListItem::In(istream& is) {
+void COsMoveListItem::In(std::istream& is) {
 
 	// move
 	is >> mv;
@@ -89,9 +88,9 @@ void COsMoveListItem::In(istream& is) {
 	}
 }
 
-void COsMoveListItem::Out(ostream& os) const {
+void COsMoveListItem::Out(std::ostream& os) const {
 	long nPrecisionOld=os.precision(2);
-	ios_base::fmtflags fFlagsOld=os.setf(ios::fixed, ios::floatfield);
+	std::ios_base::fmtflags fFlagsOld=os.setf(std::ios::fixed, std::ios::floatfield);
 
 	os << mv;
 	if (dEval || tElapsed) {
@@ -124,7 +123,7 @@ COsClock::COsClock(double atCurrent, double atIncrement, double atGrace, int aiT
 	iTimeout=aiTimeout;
 }
 
-void COsClock::In(istream& is) {
+void COsClock::In(std::istream& is) {
 	Clear();
 
 	tCurrent=ReadTime(is);
@@ -144,7 +143,7 @@ void COsClock::In(istream& is) {
 	}
 }
 
-istream& COsClock::InIOS(istream& is) {
+std::istream& COsClock::InIOS(std::istream& is) {
 	char c;
 
 	is >> c;
@@ -160,7 +159,7 @@ istream& COsClock::InIOS(istream& is) {
 	return is;
 }
 
-void COsClock::Out(ostream& os) const {
+void COsClock::Out(std::ostream& os) const {
 	WriteTime(os, static_cast<int>(tCurrent));
 	if (tIncrement || tGrace) {
 		os << "/";
@@ -197,7 +196,7 @@ void COsClock::Update(double tElapsed, bool fIncludeIncrement) {
 		tCurrent+=tIncrement;
 }
 
-double COsClock::ReadTime(istream& is) {
+double COsClock::ReadTime(std::istream& is) {
 	int n[4], i;
 	char c;
 	double t;
@@ -235,8 +234,8 @@ double COsClock::ReadTime(istream& is) {
 	return t;
 }
 
-void COsClock::WriteTime(ostream& os, int nSeconds) {
-	os << setfill('0');
+void COsClock::WriteTime(std::ostream& os, int nSeconds) {
+	os << std::setfill('0');
 
 	if (nSeconds>60) {
 		int nMinutes=nSeconds/60;
@@ -253,7 +252,7 @@ void COsClock::WriteTime(ostream& os, int nSeconds) {
 	else
 		os << nSeconds;
 
-	os <<  setfill(' ');
+	os <<  std::setfill(' ');
 }
 
 bool COsClock::operator==(const COsClock& b) const {
@@ -288,7 +287,7 @@ bool COsClock::EqualsToNearestSecond(const COsClock& b) const {
 		(int)tIncrement==(int)b.tIncrement;
 }
 
-void COsBoardType::In(istream& is) {
+void COsBoardType::In(std::istream& is) {
 	Clear();
 
 	is >> n;
@@ -308,13 +307,13 @@ void COsBoardType::In(istream& is) {
 	default:
 		n=8;
 		fOcto=false;
-		is.setstate(ios::failbit);
+		is.setstate(std::ios::failbit);
 		_ASSERT(0);
 		break;
 	}
 }
 
-void COsBoardType::Out(ostream& os) const {
+void COsBoardType::Out(std::ostream& os) const {
 	if (fOcto)
 		os << 88;
 	else
@@ -382,11 +381,11 @@ const char* COsBoardType::Description() const {
 	}
 }
 
-void COsMatchType::In(istream& is) {
+void COsMatchType::In(std::istream& is) {
 	Clear();
 	bool fOK=false;	// if we get a board type, clear EOFs if we peek too far
 
-	is >> ws;
+	is >> std::ws;
 	while (isalnum(is.peek())) {
 		char c;
 		c=is.peek();
@@ -426,7 +425,7 @@ void COsMatchType::In(istream& is) {
 		is.clear();
 }
 
-void COsMatchType::Out(ostream& os) const {
+void COsMatchType::Out(std::ostream& os) const {
 	if (fSynch)
 		os << 's';
 	os << bt;
@@ -474,9 +473,9 @@ int COsMatchType::Validate() const {
 	return 0;
 }
 
-void COsRatingType::In(istream& is) {
+void COsRatingType::In(std::istream& is) {
 	fRand=fAnti=0;
-	is >> ws;
+	is >> std::ws;
 	while (isalnum(is.peek())) {
 		char c;
 		c=is.peek();
@@ -498,7 +497,7 @@ void COsRatingType::In(istream& is) {
 	}
 }
 
-void COsRatingType::Out(ostream& os) const {
+void COsRatingType::Out(std::ostream& os) const {
 	os << bt;
 	if (fAnti)
 		os << 'a';
@@ -556,7 +555,7 @@ void COsBoard::Update(const COsMove& mv) {
 		_ASSERT(mv.row<bt.n && mv.col<bt.n && mv.row>=0 && mv.col>=0);
 
 		if (Piece(mv.row, mv.col)!=EMPTY) {
-			OutFormatted(cerr);
+			OutFormatted(std::cerr);
 			_ASSERT(0);
 		}
 		else {
@@ -615,9 +614,9 @@ bool COsBoard::operator==(const COsBoard& b) const {
 	return bt==b.bt && sBoard == b.sBoard && fBlackMove == b.fBlackMove;
 }
 
-vector<COsMove> COsBoard::GetMoves(bool fMover) const {
+std::vector<COsMove> COsBoard::GetMoves(bool fMover) const {
 	int r, c;
-	vector<COsMove> mvs;
+	std::vector<COsMove> mvs;
 
 	for (r=0; r<bt.n; r++) {
 		for (c=0; c<bt.n; c++)
@@ -663,7 +662,7 @@ int COsBoard::IsMoveLegal(int row, int col, bool fBlackMover) const {
 	return nFlipped;
 }
 
-void COsBoard::In(istream& is) {
+void COsBoard::In(std::istream& is) {
 	COsBoardType bt;
 	char c;
 	int i, nsq;
@@ -681,14 +680,14 @@ void COsBoard::In(istream& is) {
 			break;
 
 		// put something there
-		is >> ws >> c;
+		is >> std::ws >> c;
 		sBoard[i]=c;
 		_ASSERT(c==BLACK|| c==WHITE || c==EMPTY);
 	}
 
 	_ASSERT(is);
 
-	is >> ws >> c;
+	is >> std::ws >> c;
 
 	/*
 	// a previous version neglected to save the color to move;
@@ -702,7 +701,7 @@ void COsBoard::In(istream& is) {
 		fBlackMove = false;
 }
 
-void COsBoard::Out(ostream& os) const {
+void COsBoard::Out(std::ostream& os) const {
 	os << bt << " ";
 	int i;
 	for (i=0; i<bt.NTotalSquares(); i++) {
@@ -718,7 +717,7 @@ void COsBoard::Clear() {
 	sBoard.erase();
 }
 
-void COsBoard::OutFormatted(ostream& os) const {
+void COsBoard::OutFormatted(std::ostream& os) const {
 	OutHeader(os);
 
 	int r,c;
@@ -734,7 +733,7 @@ void COsBoard::OutFormatted(ostream& os) const {
 	os << (fBlackMove?"Black":"White") << " to move\n";
 }
 
-void COsBoard::OutHeader(ostream& os) const {
+void COsBoard::OutHeader(std::ostream& os) const {
 	int c;
 
 	os << "  ";
@@ -796,9 +795,9 @@ char* COsBoard::GetText(char* sBoard, bool &afBlackMove, bool fTrailingNull) con
 	return sBoard;
 }
 
-string COsBoard::fromGGS() const {
+std::string COsBoard::fromGGS() const {
 
-	string board("[");
+	std::string board("[");
 	for (int r=0; r<=bt.n; r++) {
 			board += " ";
 		for (int c=0; c<=bt.n; c++) {
@@ -868,14 +867,14 @@ int COsBoard::Result(bool fAnti) const {
 // COsDateTime
 /////////////////////////////////////
 
-void COsDateTime::In(istream& is) {
+void COsDateTime::In(std::istream& is) {
 	is >> day >> sMonth >> year >> sTime;
 }
 
-string COsDateTime::Text() const {
-	ostringstream os;
+std::string COsDateTime::Text() const {
+	std::ostringstream os;
 	os << std::setw(4) << year << "-" << sMonth << "-" << day << " " << sTime << '\0';
-	string result(os.str());
+	std::string result(os.str());
 	//os.rdbuf()->freeze(0); inutile avec sstream
 
 	return result;
@@ -927,9 +926,9 @@ bool COsGame::NeedsKomi() const {
 	return mt.fKomi && ml.empty();
 }
 
-void COsGame::In(istream& is) {
+void COsGame::In(std::istream& is) {
 	char c;
-	string sToken, sData;
+	std::string sToken, sData;
 	bool fCheckKomiValue = false;
 	double dKomiValue = 0;
 
@@ -939,16 +938,16 @@ void COsGame::In(istream& is) {
 
 	bool fOK = (is >> c) && (c=='(') && (is >> c) && (c==';');
 	if (!fOK && is)
-		is.setstate(ios::failbit);
+		is.setstate(std::ios::failbit);
 
 	if (fOK) {
 		// Game tokens
-		while (is >> ws) {
+		while (is >> std::ws) {
 			if (is.peek()==';')
 				break;
 			getline(is, sToken, '[');
 			getline(is, sData, ']');
-			istringstream is(sData.c_str());
+			std::istringstream is(sData.c_str());
 
 			if (sToken=="GM")
 				_ASSERT(sData=="Othello");
@@ -1015,7 +1014,7 @@ void COsGame::In(istream& is) {
 	}
 }
 
-istream& COsGame::InLogbook(istream& is) {
+std::istream& COsGame::InLogbook(std::istream& is) {
 	char c;
 
 	Clear();
@@ -1065,7 +1064,7 @@ istream& COsGame::InLogbook(istream& is) {
 }
 
 // 772942166 r idiot    64 ( 30   0   0) TravisS   0 ( 30   0   0) +34-33+43-35+24-42+52-64+23-13+41-32+53-14+25-31+51-61+15-16+63-74+62-73+65-75+66-56+76-57+67-86+46-68+47-38+26-37+58-48+36 +0
-istream& COsGame::InIOS(istream& is) {
+std::istream& COsGame::InIOS(std::istream& is) {
 	char c;
 	time_t timestamp;
 	int nBlack, nWhite;
@@ -1134,7 +1133,7 @@ istream& COsGame::InIOS(istream& is) {
 	return is;
 }
 
-void COsGame::Out(ostream& os) const {
+void COsGame::Out(std::ostream& os) const {
 	os << "(;GM[Othello]";
 	os << "PC[" << sPlace;
 	if (!sDateTime.empty())
@@ -1165,7 +1164,7 @@ void COsGame::Out(ostream& os) const {
 	}
 
 	// move list
-	vector<COsMoveListItem>::const_iterator pmli;
+	std::vector<COsMoveListItem>::const_iterator pmli;
 	bool fBlackMove=posStart.board.fBlackMove;
 	for (pmli=ml.begin(); pmli!=ml.end(); pmli++) {
 		os << (fBlackMove?"]B[":"]W[") << *pmli;
@@ -1200,7 +1199,7 @@ void COsGame::SetResult(const COsResult& aresult, const COsPlayerInfo apis[2]) {
 		result.dResult=-result.dResult;
 }
 
-void COsGame::SetResult(const COsResult& aresult, const string sNames[2]) {
+void COsGame::SetResult(const COsResult& aresult, const std::string sNames[2]) {
 	result=aresult;
 	if (pis[0].sName!=sNames[0])
 		result.dResult=-result.dResult;
@@ -1219,7 +1218,7 @@ void COsGame::SetCurrentTime() {
 }
 
 void COsGame::CalcCurrentPos() {
-	vector<COsMoveListItem>::const_iterator pmli;
+	std::vector<COsMoveListItem>::const_iterator pmli;
 
 	pos=posStart;
 	if (mt.fKomi && !ml.empty())
@@ -1259,7 +1258,7 @@ bool COsGame::GameOver() const {
 	return pos.board.GameOver();
 }
 
-bool COsGame::ToMove(const string& sLogin) const {
+bool COsGame::ToMove(const std::string& sLogin) const {
 	if (result.status!=COsResult::kUnfinished)
 		return false;
 	if (pos.board.GameOver())
@@ -1276,7 +1275,7 @@ bool COsGame::ToMove(const string& sLogin) const {
 
 // .48723   25 Mar 2001 03:28:00 1780 nasai    2144 OO7        -4.0 8
 
-void COsHistoryItem::In(istream& is) {
+void COsHistoryItem::In(std::istream& is) {
 	is >> idsm >> dt >> pis[0] >> pis[1] >> result >> mt;
 }
 
@@ -1284,7 +1283,7 @@ void COsHistoryItem::In(istream& is) {
 // COsMatch
 /////////////////////////////////////////////
 
-istream& COsMatch::InDelta(istream& is) {
+std::istream& COsMatch::InDelta(std::istream& is) {
 	char c;
 	is >> idm >> pis[1] >> pis[0] >> mt >> c;
 	fRated= c=='R' || c=='S';
@@ -1294,7 +1293,7 @@ istream& COsMatch::InDelta(istream& is) {
 }
 
 // |  .9   s8r20  R 2574 lynx     2570 kitty    2
-istream& COsMatch::In(istream& is) {
+std::istream& COsMatch::In(std::istream& is) {
 	char c;
 
 	is >> idm >> mt >> c >> pis[1] >> pis[0] >> nObservers;
@@ -1303,11 +1302,11 @@ istream& COsMatch::In(istream& is) {
 	return is;
 }
 
-bool COsMatch::IsPlaying(const string& sLogin) const {
+bool COsMatch::IsPlaying(const std::string& sLogin) const {
 	return pis[0].sName==sLogin || pis[1].sName==sLogin;
 }
 
-void COsPlayerInfo::In(istream& is) {
+void COsPlayerInfo::In(std::istream& is) {
 	is >> dRating >> sName;
 }
 
@@ -1316,7 +1315,7 @@ void COsPlayerInfo::Clear() {
 	sName.erase();
 }
 
-void COsRating::In(istream& is) {
+void COsRating::In(std::istream& is) {
 	char c;
 	is >> dRating >> c >> dSD;
 	_ASSERT(c=='@');
@@ -1327,13 +1326,13 @@ double COsRating::AdjustedRating() const {
 }
 
 //     1 leaflet  2103.9@ 33.8=   1.07:08:24+@ 31.3  +4.5    551     65    395
-void COsRankData::In(istream& is) {
-	string s;
-	string sLine;
+void COsRankData::In(std::istream& is) {
+	std::string s;
+	std::string sLine;
 
 	getline(is, sLine);
 	if (!sLine.empty()) {
-		istringstream isLine(sLine.c_str());
+		std::istringstream isLine(sLine.c_str());
 
 		isLine  >> iRank >> sLogin;
 		isLine >> rd;
@@ -1345,7 +1344,7 @@ void COsRankData::In(istream& is) {
 	}
 }
 
-void COsRatingData::In(istream& is) {
+void COsRatingData::In(std::istream& is) {
 	char c;
 
 	if ( is  >> rating >> c) {
@@ -1359,7 +1358,7 @@ void COsRatingData::In(istream& is) {
 }
 
 // 1735.1 pamphlet 15:00//02:00        8 U 1345.6 ant
-void COsRequest::In(istream& is) {
+void COsRequest::In(std::istream& is) {
 	char c;
 	is >> pis[0] >> cks[0];
 	is >> mt >> c;
@@ -1371,8 +1370,8 @@ void COsRequest::In(istream& is) {
 
 // "nasai left" in matchdelta messages means game adjourned
 //	"?" in other messages
-void COsResult::In(istream& is) {
-	is >> ws;
+void COsResult::In(std::istream& is) {
+	is >> std::ws;
 
 	char c;
 	c=is.peek();
@@ -1382,7 +1381,7 @@ void COsResult::In(istream& is) {
 	}
 	else if (isalpha(c)) {
 		dResult=0;
-		string sResult;
+		std::string sResult;
 		is >> sResult;
 		if (sResult=="aborted")
 			status=kAborted;
@@ -1405,7 +1404,7 @@ void COsResult::In(istream& is) {
 	}
 }
 
-void COsResult::Out(ostream& os) const {
+void COsResult::Out(std::ostream& os) const {
 	if (status==kUnfinished || status==kAdjourned)
 		os << '?';
 	else {
@@ -1435,13 +1434,13 @@ void COsResult::Clear() {
 	dResult=0;
 }
 
-void COsFingerRating ::In(istream& is) {
+void COsFingerRating ::In(std::istream& is) {
 	is >> rt >> rd;
 }
 
 // |.42590   23 Feb 2001 23:17:39 pamphlet patzer   s8r16:l
-void COsStoredMatch::In(istream& is) {
-	string s;
+void COsStoredMatch::In(std::istream& is) {
+	std::string s;
 
 	is >> idsm >> dt >> sPlayers[0] >> sPlayers[1] >> mt >> s;
 	if (is)
@@ -1456,13 +1455,13 @@ void COsStoredMatch::In(istream& is) {
 etc.
 */
 
-void COsWhoItem::In(istream& isAll) {
-	string sLine;
+void COsWhoItem::In(std::istream& isAll) {
+	std::string sLine;
 	getline(isAll, sLine);
 
 	if (!sLine.empty()) {
-		istringstream is(sLine.c_str());
-		string s;
+		std::istringstream is(sLine.c_str());
+		std::string s;
 		char c;
 
 		is >> sLogin >> c >> rating >> s;

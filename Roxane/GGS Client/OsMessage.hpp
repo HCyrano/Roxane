@@ -13,49 +13,49 @@ class CMsgOs : public CMsg {
 public:
 	virtual void Handle()=0;
 
-	virtual COsGame* PGame(const string& idg) const;
-	virtual COsMatch* PMatch(const string& idm) const;
-	virtual COsRequest* PRequest(const string& idr) const;
+	virtual COsGame* PGame(const std::string& idg) const;
+	virtual COsMatch* PMatch(const std::string& idm) const;
+	virtual COsRequest* PRequest(const std::string& idr) const;
 };
 
 // /os: abort .7 n3 is asking
 class CMsgOsAbortRequest: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idg, sLogin;
+	std::string idg, sLogin;
 };
 
 // /os: .44 A 1720 n3: test from me
 class CMsgOsComment : public CMsgOs {
 public:
-	CMsgOsComment(const string& idm);
+	CMsgOsComment(const std::string& idm);
 
 	virtual void Handle();
-	virtual void In(istream& is);
+	virtual void In(std::istream& is);
 
-	string idg;
+	std::string idg;
 	char cTo;
 	COsPlayerInfo pi;
-	string sComment;
+	std::string sComment;
 };
 
 // /os: end .2.0 ( pamphlet vs. ant ) +46.00
 class CMsgOsEnd : public CMsgOs {
 public:
 	virtual void Handle();
-	virtual void In(istream& is);
+	virtual void In(std::istream& is);
 
-	string idg;
-	string sPlayers[2];
+	std::string idg;
+	std::string sPlayers[2];
 	COsResult result;
 };
 
 class CMsgOsErr: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	enum { kErrUnknown=0x8300, kErrRequestDoesntFitFormula, kErrIllegalBoardType,
 			kErrBadRankMessage, kErrCorruptMove, kErrOpenTooLow, 
@@ -67,56 +67,56 @@ public:
 class CMsgOsFatalTimeout: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idg, sLogin;
+	std::string idg, sLogin;
 };
 
 class CMsgOsFinger: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string sLogin;
-	map<string, string> keyToValue;
-	vector<COsFingerRating> frs;
+	std::string sLogin;
+	std::map<std::string, std::string> keyToValue;
+	std::vector<COsFingerRating> frs;
 };
 
 class CMsgOsHistory: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int n;
-	string sLogin;
-	vector<COsHistoryItem> his;
+	std::string sLogin;
+	std::vector<COsHistoryItem> his;
 };
 
 class CMsgOsJoin: public CMsgOs {
 public:
 	virtual void Handle();
-	virtual void In(istream& is);
+	virtual void In(std::istream& is);
 
-	string idg;
+	std::string idg;
 	COsGame game;
 };
 
 class CMsgOsLook: public CMsgOs {
 public:
 	virtual void Handle();
-	virtual void In(istream& is);
+	virtual void In(std::istream& is);
 
 	int nGames;
-	vector<COsGame> games;
+	std::vector<COsGame> games;
 };
 
 class CMsgOsMatch: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int n1, n2;
-	vector<COsMatch> matches;
+	std::vector<COsMatch> matches;
 };
 
 class CMsgOsMatchDelta: public CMsgOs {
@@ -124,7 +124,7 @@ public:
 	CMsgOsMatchDelta(bool fPlus);
 
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	bool fPlus;
 	COsMatch match;
@@ -135,11 +135,11 @@ public:
 class CMsgOsRank: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	COsRating rating;
 	int n;	// what is this?
-	vector<COsRankData> rds;
+	std::vector<COsRankData> rds;
 };
 
 // /os: rating_update .21
@@ -149,10 +149,10 @@ public:
 class CMsgOsRatingUpdate: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idm;
-	string sPlayers[2];
+	std::string idm;
+	std::string sPlayers[2];
 	COsRating rOlds[2], rNews[2];
 	double dDeltas[2];
 };
@@ -163,10 +163,10 @@ public:
 	CMsgOsRequestDelta(bool fPlus);
 
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	bool fPlus;
-	string idr;
+	std::string idr;
 	COsRequest request;
 
 	bool IAmChallenged() const;
@@ -187,38 +187,38 @@ public:
 class CMsgOsStored: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int nStored;
-	string sLogin;
-	vector<COsStoredMatch> sms;
+	std::string sLogin;
+	std::vector<COsStoredMatch> sms;
 };
 
 class CMsgOsTimeout: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idg, sLogin;
+	std::string idg, sLogin;
 };
 
 class CMsgOsTop: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	COsRating rating;
 	int n;	// what is this?
-	vector<COsRankData> rds;
+	std::vector<COsRankData> rds;
 };
 
 // /os: trust-violation .56 pamphlet (*) delta= 4 + 0.7 secs
 class CMsgOsTrustViolation : public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idg, sLogin;
+	std::string idg, sLogin;
 	char cColor;
 	double delta1, delta2;
 };
@@ -227,28 +227,28 @@ public:
 class CMsgOsUndoRequest: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idg, sLogin;
+	std::string idg, sLogin;
 };
 
 class CMsgOsUnknown: public CMsgOs {
 public:
-	CMsgOsUnknown(const string& sMsgType);
+	CMsgOsUnknown(const std::string& sMsgType);
 
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string sMsgType;
-	string sText;
+    std::string sMsgType;
+	std::string sText;
 };
 
 class CMsgOsUpdate: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string idg;
+	std::string idg;
 	COsMoveListItem mli;
 };
 
@@ -256,22 +256,22 @@ public:
 class CMsgOsWatch: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int nMatches;
-	map<string, int> idToNWatchers;
+	std::map<std::string, int> idToNWatchers;
 };
 
 // /os:  + n3 watch .44
 class CMsgOsWatchDelta: public CMsgOs {
 public:
-	CMsgOsWatchDelta(bool fPlus, const string& sLogin);
+	CMsgOsWatchDelta(bool fPlus, const std::string& sLogin);
 
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	bool fPlus;
-	string sLogin, idm;
+	std::string sLogin, idm;
 };
 
 /*
@@ -285,10 +285,10 @@ etc.
 class CMsgOsWho: public CMsgOs {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int n;
-	vector<COsWhoItem> wis;
+	std::vector<COsWhoItem> wis;
 };
 
 #endif //ODK_OSMESSAGE_HPP

@@ -8,13 +8,12 @@
 #include <iomanip>
 #include "ggsstream.hpp"
 
-using namespace std;
 
 ///////////////////////////////////
 // CMsg
 ///////////////////////////////////
 
-void CMsg::In(istream& is) {
+void CMsg::In(std::istream& is) {
 	_ASSERT(0);
 }
 
@@ -22,7 +21,7 @@ void CMsg::In(istream& is) {
 // CMsgGGSAlias
 ///////////////////////////////////
 
-void CMsgGGSAlias::In(istream& is) {
+void CMsgGGSAlias::In(std::istream& is) {
 	char c;
 	CGGSAlias alias;
 
@@ -50,8 +49,8 @@ void CMsgGGSDisconnect::Handle() {
 // CMsgGGSErr
 ///////////////////////////////////
 
-void CMsgGGSErr::In(istream& is) {
-	string sLine;
+void CMsgGGSErr::In(std::istream& is) {
+    std::string sLine;
 	getline(is, sLine);
 	if (sLine.find("not recognized")!=sLine.npos)
 		err=kErrCommandNotRecognized;
@@ -67,19 +66,19 @@ void CMsgGGSErr::Handle() {
 // CMsgGGSFinger
 ///////////////////////////////////
 
-void CMsgGGSFinger::In(istream& is) {
-	string sLine, sKey, sValue;
+void CMsgGGSFinger::In(std::istream& is) {
+    std::string sLine, sKey, sValue;
 
-	is >> ws;
+	is >> std::ws;
 
 	// first section, key : value
 	while (getline(is, sLine)) {
 		if (!is)
 			break;
-		if (sLine.find(':')==string::npos)
+		if (sLine.find(':')==std::string::npos)
 			break;
 
-		istringstream isLine(sLine.c_str());
+        std::istringstream isLine(sLine.c_str());
 
 		// get key and strip terminal spaces
 		getline(isLine, sKey, ':');
@@ -87,11 +86,11 @@ void CMsgGGSFinger::In(istream& is) {
 
 		// get value. No value means this is the separator row
 		//	between the first section and the second section
-		isLine >> ws;
-		getline(isLine, sValue);
+		isLine >> std::ws;
+        std::getline(isLine, sValue);
 
 		// insert (key, value) pair
-		map<string,string>::iterator i=keyToValue.find(sKey);
+        std::map<std::string,std::string>::iterator i=keyToValue.find(sKey);
 		if (i==keyToValue.end())
 			keyToValue[sKey]=sValue;
 		else {
@@ -110,7 +109,7 @@ void CMsgGGSFinger::Handle() {
 // CMsgGGSHelp
 ///////////////////////////////////
 
-void CMsgGGSHelp::In(istream& is) {
+void CMsgGGSHelp::In(std::istream& is) {
 	getline(is, sText, (char)EOF);
 }
 
@@ -130,7 +129,7 @@ void CMsgGGSLogin::Handle() {
 // CMsgGGSTell
 ///////////////////////////////////
 
-void CMsgGGSTell::In(istream& is) {
+void CMsgGGSTell::In(std::istream& is) {
 	getline(is, sText, (char)EOF);
 }
 
@@ -142,7 +141,7 @@ void CMsgGGSTell::Handle() {
 // CMsgGGSUnknown
 ///////////////////////////////////
 
-void CMsgGGSUnknown::In(istream& is) {
+void CMsgGGSUnknown::In(std::istream& is) {
 	getline(is, sText, (char)EOF);
 }
 
@@ -158,7 +157,7 @@ CMsgGGSUserDelta::CMsgGGSUserDelta(bool afPlus) {
 	fPlus=afPlus;
 }
 
-void CMsgGGSUserDelta::In(istream& is) {
+void CMsgGGSUserDelta::In(std::istream& is) {
 	is >> sLogin;
 }
 
@@ -170,7 +169,7 @@ void CMsgGGSUserDelta::Handle() {
 // CMsgGGSWho
 ///////////////////////////////////
 
-void CMsgGGSWho::In(istream& is) {
+void CMsgGGSWho::In(std::istream& is) {
 	CGGSWhoUser wu;
 
 	is >> nUsers;

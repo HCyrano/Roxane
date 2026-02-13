@@ -17,28 +17,28 @@ class CMsg {
 public:
 	// handle the message
 	virtual void Handle()=0;
-	virtual void In(istream& is);
+	virtual void In(std::istream& is);
     
    virtual ~CMsg(){};
     
 	ggsstream* pgs;
-	string sFrom;
-	string sRawText;
+	std::string sFrom;
+	std::string sRawText;
 };
 
 class CMsgGGSAlias: public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int nAlias1, nAlias2;
-	vector<CGGSAlias> valiases;
+	std::vector<CGGSAlias> valiases;
 };
 
 class CMsgGGSErr: public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	enum { kErrUnknown=0x8400, kErrCommandNotRecognized } err;
 };
@@ -46,26 +46,26 @@ public:
 class CMsgGGSFinger: public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	map<string, string> keyToValue;
+	std::map<std::string, std::string> keyToValue;
 };
 
 class CMsgGGSHelp: public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string sText;
+	std::string sText;
 };
 
 class CMsgGGSUnknown: public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string sMsgType;
-	string sText;
+	std::string sMsgType;
+	std::string sText;
 };
 
 class CMsgGGSUserDelta: public CMsg {
@@ -73,27 +73,27 @@ public:
 	CMsgGGSUserDelta(bool fPlus);
 
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	bool fPlus;
-	string sLogin;
+	std::string sLogin;
 };
 
 class CMsgGGSTell : public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
-	string sText;
+	std::string sText;
 };
 
 class CMsgGGSWho : public CMsg {
 public:
 	virtual void Handle();
-	void In(istream& is);
+	void In(std::istream& is);
 
 	int nUsers;
-	vector<CGGSWhoUser> wus;
+	std::vector<CGGSWhoUser> wus;
 };
 
 // Fake messages

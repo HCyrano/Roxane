@@ -11,9 +11,9 @@
 #include "types.hpp"
 
 
-using namespace std;
 
-class sockbuf : public streambuf {
+
+class sockbuf : public std::streambuf {
 
 	public:
 
@@ -34,7 +34,7 @@ class sockbuf : public streambuf {
 
 		bool IsConnected() const;
 
-		int connect(const string& sServer, int nPort);
+		int connect(const std::string& sServer, int nPort);
 		int disconnect();
 
 	protected:
@@ -43,7 +43,7 @@ class sockbuf : public streambuf {
 		bool fConnected;
 
 		int sock; //SOCKET sock;
-		ofstream *fplog;
+        std::ofstream *fplog;
 		enum {kLogNone, kLogRecv, kLogSend} loglast;
 		char *buf;
 		int err;

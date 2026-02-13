@@ -7,7 +7,6 @@
 
 #include "sockbuf.hpp"
 #include <set>
-using namespace std;
 
 class CMsg;
 class COs;
@@ -16,21 +15,21 @@ class COs;
 #include "OsMessage.hpp"
 #include "OsObjects.hpp"
 
-class ggsstream : public iostream {
+class ggsstream : public std::iostream {
 public:
     // construction/destruction
     ggsstream();
     virtual ~ggsstream();
     
     // Connection, disconnection
-    virtual int Connect(const string& sServer, int nPort);
+    virtual int Connect(const std::string& sServer, int nPort);
     virtual int Disconnect();
     
     // login, logout
     virtual int Login(const char* sLogin, const char* sPwd);
     virtual int Logout();
-    virtual const string& GetLogin() const;
-    virtual const string& GetPassword() const;
+    virtual const std::string& GetLogin() const;
+    virtual const std::string& GetPassword() const;
     
     // turn stream data into messages
     virtual void Process();
@@ -51,8 +50,7 @@ public:
         kErrNotConnected,
         kErrNoStreambuf,
         kErrUserCancelled,
-        kErrInvalidArg,      // ← Nouvelle
-        kErrBufferOverflow   // ← Nouvelle
+        kErrInvalidArg
     };
     
     // Handle messages relating to persistent data
@@ -62,7 +60,7 @@ public:
     
     void BaseOsEnd			(const CMsgOsEnd* pmsg);
     
-    void BaseOsGameOver		(const string& idg);
+    void BaseOsGameOver		(const std::string& idg);
     
     void BaseOsJoin			(const CMsgOsJoin* pmsg);
     void BaseOsLogin		();
@@ -92,7 +90,7 @@ public:
     virtual void HandleOsErr			(const CMsgOsErr* pmsg);
     virtual void HandleOsFatalTimeout	(const CMsgOsFatalTimeout* pmsg);
     virtual void HandleOsFinger			(const CMsgOsFinger* pmsg);
-    virtual void HandleOsGameOver       (const CMsgOsMatchDelta* pmsg, const string& idg);
+    virtual void HandleOsGameOver       (const CMsgOsMatchDelta* pmsg, const std::string& idg);
     virtual void HandleOsHistory		(const CMsgOsHistory* pmsg);
     virtual void HandleOsJoin			(const CMsgOsJoin* pmsg);
     virtual void HandleOsLogin			();
@@ -115,11 +113,11 @@ public:
     virtual void HandleOsWho			(const CMsgOsWho* pmsg);
     
     // persistent
-    map<string,COsGame> idToGame;
-    map<string,COsMatch> idToMatch;
-    map<string,COsRequest> idToRequest;
+    std::map<std::string,COsGame> idToGame;
+    std::map<std::string,COsMatch> idToMatch;
+    std::map<std::string,COsRequest> idToRequest;
     
-    COsGame* PGame(const string& idg);
+    COsGame* PGame(const std::string& idg);
     
     // Nouvelles méthodes pour reconnexion auto
     void EnableAutoReconnect(bool enable = true, int maxRetries = 5, int delayMs = 2000);
@@ -131,16 +129,16 @@ protected:
     virtual int await(const char* sAwait);
     
     // helper function for BaseOsMatchDelta
-    virtual void EndGame(const CMsgOsMatchDelta* pmsg, const string& idg);
+    virtual void EndGame(const CMsgOsMatchDelta* pmsg, const std::string& idg);
     
     // turn stream data into messages
-    virtual void ProcessLine(string& sLine);
+    virtual void ProcessLine(std::string& sLine);
     virtual void ProcessMessage();
     
     // parse messages
-    virtual CMsg* GetMsgType(istream& is);
-    virtual CMsg* GetMsgTypeOs(istream& is);
-    virtual CMsg* GetMsgTypeGGS(istream& is);
+    virtual CMsg* GetMsgType(std::istream& is);
+    virtual CMsg* GetMsgTypeOs(std::istream& is);
+    virtual CMsg* GetMsgTypeGGS(std::istream& is);
     
     // post messages
     virtual void Post(CMsg* pmsg);
@@ -153,10 +151,10 @@ protected:
     
     
     bool fLoggedIn, fConnected, fHasOs;
-    string sLogin, sPassword;
+    std::string sLogin, sPassword;
     
 private:
-    string sMsg;
+    std::string sMsg;
     sockbuf *psockbuf;
     
     bool fAutoReconnect = false;
@@ -164,7 +162,7 @@ private:
     int nReconnectDelayMs = 2000;
     int nCurrentRetry = 0;
     
-    string sLastServer;
+    std::string sLastServer;
     int nLastPort = 0;
     
     bool TryReconnect();

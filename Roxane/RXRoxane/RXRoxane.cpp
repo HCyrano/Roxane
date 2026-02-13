@@ -331,7 +331,7 @@ void RXRoxane::board_eval(const std::string& file_name) {
 }
 
 /* synchronized method */
-void RXRoxane::get_move(const string& _idg, COsGame* g) {
+void RXRoxane::get_move(const std::string& _idg, COsGame* g) {
 	
 	pthread_mutex_lock(&mutex);
 
@@ -596,7 +596,7 @@ void RXRoxane::get_move(const std::string& file_name) {
         
         in.close();
         
-        cout.imbue(loc);
+        std::cout.imbue(loc);
         
         std::cout << "Total time  : " << toHMS(T) << std::endl;
         std::cout << "Total nodes : " << nodes << std::endl;

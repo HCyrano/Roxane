@@ -12,14 +12,13 @@
 #include "sockbuf.hpp"
 #include "types.hpp"
 
-using namespace std;
 
 sockbuf::sockbuf() {
 	// log incoming data to file?
 	fplog=NULL;
 	loglast=kLogNone;
 	if (fLogging) {
-		fplog=new ofstream("recv.txt");
+		fplog=new std::ofstream("recv.txt");
         if(!fplog->is_open())
             std::cout << "unable to open log file for writing" << std::endl;
 	}
@@ -52,12 +51,12 @@ sockbuf::~sockbuf() {
 		delete [] buf;
 }
 
-int sockbuf::connect(const string& sServer, int nPort) {
+int sockbuf::connect(const std::string& sServer, int nPort) {
     
 	hostent *hostent;
 	protoent *protoent;
 	sockaddr_in sa;
-	const string sProtocol="tcp";
+	const std::string sProtocol="tcp";
 
 	if (err)
 		return err;
@@ -153,7 +152,7 @@ int sockbuf::underflow() {
 				fplog->write("[recv]",6);
 			}
 			fplog->write(p0, nrecv);
-			*fplog << flush;
+			*fplog << std::flush;
 		}
 		return *p0;
 	}

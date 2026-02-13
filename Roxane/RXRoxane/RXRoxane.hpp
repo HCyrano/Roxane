@@ -50,7 +50,7 @@ class RXRoxane: public Runnable {
 	//interface GGS server
 	CODKStream* GGSClient;
 	COsPosition game[2];
-	string idg;
+    std::string idg;
 
     //interface Std IO
     IOStdProtocol* IOClient;

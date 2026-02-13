@@ -70,7 +70,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-2026-02-13 22h20";
+    std::string version = "build-2026-02-14 00h50";
     std::string vers_eval = RXEvaluation::get_version();
 
 	std::cout << "Version Roxane " << version << std::endl;
@@ -144,13 +144,13 @@ int main (int argc, char * const argv[]) {
         if ((err = gs.Connect("www.skatgame.net",5000))) {
             std::cout << "erreur conection" << std::endl;
             
-            cerr << gs.ErrText(err) << "\n";
+            std::cerr << gs.ErrText(err) << std::endl;
             return err;
         }
         
         // Login(name, password)
         if ((err = gs.Login(login.c_str(), password.c_str()))) {
-            cerr << gs.ErrText(err) << "\n";
+            std::cerr << gs.ErrText(err) << std::endl;
             gs.Disconnect();
             return err;
         }
