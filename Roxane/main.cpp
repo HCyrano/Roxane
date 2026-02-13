@@ -70,7 +70,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-2026-02-13 20h30";
+    std::string version = "build-2026-02-13 22h20";
     std::string vers_eval = RXEvaluation::get_version();
 
 	std::cout << "Version Roxane " << version << std::endl;
@@ -136,7 +136,10 @@ int main (int argc, char * const argv[]) {
         //liaison Roxane GGS
         roxane.connectGGS(&gs);
         gs.pComputer = &roxane;
-        
+
+        // Activer reconnexion auto : 5 tentatives, 2 secondes entre chaque
+        gs.EnableAutoReconnect(true, 5, 2000);
+
         // Connect(server, port)
         if ((err = gs.Connect("www.skatgame.net",5000))) {
             std::cout << "erreur conection" << std::endl;

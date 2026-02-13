@@ -9,6 +9,10 @@
 #include <string>
 #include <sstream>
 #include <cstring>  // Pour memcmp
+#include <chrono>
+#include <thread>
+
+
 using namespace std;
 
 ggsstream::ggsstream() : iostream(NULL) {
@@ -29,34 +33,144 @@ ggsstream::~ggsstream() {
     }
 }
 
+void ggsstream::EnableAutoReconnect(bool enable, int maxRetries, int delayMs) {
+    fAutoReconnect = enable;
+    nMaxRetries = maxRetries;
+    nReconnectDelayMs = delayMs;
+    nCurrentRetry = 0;
+}
+
+void ggsstream::DisableAutoReconnect() {
+    fAutoReconnect = false;
+}
 
 int ggsstream::Connect(const string& sServer, int nPort) {
     if(IsConnected()) {
         _ASSERT(0);
         return kErrConnected;
     }
+    
+    // On réinitialise l'état du flux iostream (enlève eofbit, failbit, etc.)
+    // Indispensable pour que la boucle Process() puisse repartir.
+    this->clear();
+    
+    // Sauvegarde pour reconnexion
+    sLastServer = sServer;
+    nLastPort = nPort;
+    
+    int err = kErrUnknown;
 
-    // 1. On crée le tampon localement
-    sockbuf* pNewBuf = new sockbuf();
-    
-    // 2. Tentative de connexion
-    int err = pNewBuf->connect(sServer, nPort);
-    
-    if (err == 0) {
-        // 3. Succès : on l'associe au flux iostream
-        init(pNewBuf);
-        
-        // 4. ON MET À JOUR LE CACHE ICI
-        // Maintenant que le flux possède pNewBuf, on peut le stocker
-        this->psockbuf = pNewBuf;
-    } else {
-        // Échec : on nettoie
-        delete pNewBuf;
-        this->psockbuf = NULL;
+    psockbuf = new sockbuf();
+    if (psockbuf) {
+        err = psockbuf->connect(sServer, nPort);
+        if (!err) {
+            init(psockbuf);
+        } else {
+            delete psockbuf;
+            psockbuf = NULL;
+        }
     }
 
     return err;
 }
+
+// Nouvelle méthode : Tente de se reconnecter
+bool ggsstream::TryReconnect() {
+    if (!fAutoReconnect || sLastServer.empty()) {
+        return false;
+    }
+    
+    nCurrentRetry = 0;
+    
+    while (nCurrentRetry < nMaxRetries) {
+        nCurrentRetry++;
+        
+        // ═══════════════════════════════════════════════════════════
+        // CALLBACK #1 : Avant chaque tentative
+        // ═══════════════════════════════════════════════════════════
+        OnReconnecting(nCurrentRetry, nMaxRetries);
+        
+        // Attendre entre les tentatives (sauf la 1ère)
+        if (nCurrentRetry > 1) {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(nReconnectDelayMs)
+            );
+        }
+        
+        // Tenter connexion
+        int err = Connect(sLastServer, nLastPort);
+        if (!err) {
+            // Connexion OK → Tenter login
+            if (!sLogin.empty() && !sPassword.empty()) {
+                err = Login(sLogin.c_str(), sPassword.c_str());
+                if (!err) {
+                    // ═══════════════════════════════════════════════════
+                    // CALLBACK #2 : Succès !
+                    // ═══════════════════════════════════════════════════
+                    OnReconnected();
+                    return true;
+                }
+                // Login raté → Déconnecter et réessayer
+                Disconnect();
+            } else {
+                OnReconnected();
+                return true;
+            }
+        }
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // CALLBACK #3 : Échec total
+    // ═══════════════════════════════════════════════════════════
+    OnReconnectFailed();
+    return false;
+}
+
+// Appelé AVANT chaque tentative de reconnexion
+void ggsstream::OnReconnecting(int attempt, int maxAttempts) {
+    cout << "[RECONNECT] Attempting reconnection "
+         << attempt << "/" << maxAttempts << "..." << endl;
+}
+
+// Appelé quand la reconnexion RÉUSSIT
+void ggsstream::OnReconnected() {
+    cout << "[RECONNECT] Successfully reconnected to " << sLastServer << endl;
+    
+    // Vous pouvez ajouter des actions ici :
+    // - Renvoyer des commandes au serveur
+    // - Logger l'événement
+    // - Mettre à jour des statistiques
+    
+    // Exemple : Ré-envoyer les commandes de setup
+    (*this) << "ve -ack\n";
+    (*this) << "notify + /os\n";
+    flush();
+}
+
+// Appelé quand TOUS les retries ont échoué
+void ggsstream::OnReconnectFailed() {
+    cerr << "[RECONNECT] Failed to reconnect after " << nMaxRetries
+         << " attempts." << endl;
+    
+    // Vous pouvez ajouter des actions ici :
+    // - Logger l'erreur
+    // - Envoyer une notification
+    // - Sauvegarder l'état avant de quitter
+}
+
+void ggsstream::ForceDisconnect() {
+    if (psockbuf) {
+        psockbuf->disconnect();
+        delete psockbuf;
+        psockbuf = NULL;
+    }
+    fConnected = false;
+    
+    // Optionnel : mettre le flag EOF pour que while(get(c)) sorte
+    setstate(ios::eofbit);
+}
+
+
 int ggsstream::Disconnect() {
 	if (!IsConnected()) {
 		_ASSERT(0);
@@ -79,7 +193,7 @@ int ggsstream::Disconnect() {
 
 // return 0 if no error
 // 1 if socket err (e.g. connection timed out)
-int ggsstream::Login(const char* sName, const char* sPassword) {
+int ggsstream::Login(const char* sName, const char* sPwd) {
 	int err=0;
 
 	if (fLoggedIn) {
@@ -90,6 +204,7 @@ int ggsstream::Login(const char* sName, const char* sPassword) {
 	// await login prompt
 	if (!err) {
 		sLogin=sName;
+        sPassword = sPwd;
 		err = await("login");
 	}
 
@@ -102,7 +217,7 @@ int ggsstream::Login(const char* sName, const char* sPassword) {
 
 	// send password, await response
 	if (!err) {
-		(*this) << sPassword << "\n";
+		(*this) << sPwd << "\n";
 		flush();
 		err = await("\n");
 	}
@@ -204,36 +319,101 @@ const string& ggsstream::GetPassword() const {
 // process incoming data from GGS. 'is' is a socket connection.
 //	strip bells and '|' at the beginning of lines. Once we have an
 //	entire message(terminated by "READY" on its own line), call Parse()
-void ggsstream::Process(){
-	string sLine;
-    sLine.reserve(256);  // Pré-allocation pour taille typique
-	static bool fHasCR=false;
-	char c;
+void ggsstream::Process() {
+    bool keepRunning = true;
 
-	while (get(c)) {
-		switch(c) {
-		case '\a':
-			//MessageBeep(-1);
-			break;
-		case '\r':
-			ProcessLine(sLine);
-			break;
-		case '\n':
-			if (!fHasCR)
-				ProcessLine(sLine);
-			break;
-		default:
-			sLine+=c;
-		}
-		fHasCR=(c=='\r');
-	}
-	CMsg* pmsg = new CMsgGGSDisconnect;
-	if(pmsg) {
-		pmsg->pgs = this;
-		Post(pmsg);
-	}
+    while (keepRunning) {
+        string sLine;
+        sLine.reserve(256);
+        static bool fHasCR = false;
+        char c;
+
+        // Boucle de lecture principale
+        while (get(c)) {
+            switch(c) {
+                case '\a':
+                    break;
+                case '\r':
+                    ProcessLine(sLine);
+                    break;
+                case '\n':
+                    if (!fHasCR)
+                        ProcessLine(sLine);
+                    break;
+                default:
+                    sLine.push_back(c);
+            }
+            fHasCR = (c == '\r');
+        }
+
+        // Si on sort du while(get(c)), c'est qu'il y a eu une déconnexion ou une erreur
+        bool wasLoggedIn = fLoggedIn;
+        
+        // Notification de déconnexion
+        CMsg* pmsg = new CMsgGGSDisconnect;
+        if(pmsg) {
+            pmsg->pgs = this;
+            Post(pmsg);
+        }
+
+        // Tentative de reconnexion
+        if (fAutoReconnect && wasLoggedIn) {
+            if (TryReconnect()) {
+                // Reconnexion réussie : la boucle "while(keepRunning)"
+                // recommence et entre à nouveau dans "while(get(c))"
+                cout << "[DEBUG] Re-entering main loop after successful reconnect." << endl;
+            } else {
+                // Échec total après toutes les tentatives
+                keepRunning = false;
+            }
+        } else {
+            // Pas d'auto-reconnect ou utilisateur non loggé : on quitte
+            keepRunning = false;
+        }
+    }
 }
+/*
+void ggsstream::Process() {
+    string sLine;
+    sLine.reserve(256);
+    static bool fHasCR = false;
+    char c;
 
+    while (get(c)) {
+        switch(c) {
+        case '\a':
+            break;
+        case '\r':
+            ProcessLine(sLine);
+            break;
+        case '\n':
+            if (!fHasCR)
+                ProcessLine(sLine);
+            break;
+        default:
+            sLine.push_back(c);
+        }
+        fHasCR = (c=='\r');
+    }
+    
+    // Déconnexion détectée
+    bool wasLoggedIn = fLoggedIn;
+    
+    CMsg* pmsg = new CMsgGGSDisconnect;
+    if(pmsg) {
+        pmsg->pgs = this;
+        Post(pmsg);
+    }
+    
+    // Tenter reconnexion automatique si activée
+    if (fAutoReconnect && wasLoggedIn) {
+        if (TryReconnect()) {
+            // Reconnecté avec succès, relancer Process()
+            Process();
+        }
+    }
+}
+*/
 void ggsstream::ProcessLine(string& sLine){
     
     if (sLine=="READY")

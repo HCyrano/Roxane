@@ -121,10 +121,8 @@ void CODKStream::HandleOsTimeout(const CMsgOsTimeout* pmsg){
     //Adjournes [.match]
     if(pmsg->sLogin == GetLogin()) {
         (*this) << "t /os break " << pmsg->idg << "\n";
-        //BaseOsGameOver(pmsg->idg);
-    } /*else if (pgame!=NULL) {
-        pComputer->stop_engine(pgame);
-    }*/
+        BaseOsGameOver(pmsg->idg);
+    }
     
 
 }
@@ -136,7 +134,22 @@ void CODKStream::HandleOsFatalTimeout(const CMsgOsFatalTimeout* pmsg) {
     COsGame* pgame=PGame(pmsg->idg);
     if (pgame!=NULL)
         pComputer->stop_engine(pgame);
-    
+ 
+    // Si c'est notre timeout
+    if (pmsg->sLogin == GetLogin()) {
+        // Résigner la partie
+        (*this) << "t /os resign " << pmsg->idg << "\n";
+        flush();
+        BaseOsGameOver(pmsg->idg);
+        
+        std::cout << "[FATAL] Forcing disconnect to trigger reconnect..." << std::endl;
+        
+        ForceDisconnect();
+
+        // while(get(c)) va sortir immédiatement
+        // → TryReconnect() se déclenchera
+    }
+
 }
 
 
