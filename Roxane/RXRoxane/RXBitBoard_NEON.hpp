@@ -82,16 +82,16 @@ inline unsigned long long RXBitBoard::hashcode() const {
     const uint16x4_t p_lines = vcreate_u16(discs[player]);
     const uint16x4_t o_lines = vcreate_u16(discs[player^1]);
     
-    unsigned long long
-    hashcode  = hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)];
+    unsigned long long hashcode  =
+      hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)]
+    ^ hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)]
+    ^ hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)]
+    ^ hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)]
     
-    hashcode ^= hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
+    ^ hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)]
+    ^ hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)]
+    ^ hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)]
+    ^ hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
     
     return hashcode;
     
@@ -102,16 +102,16 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
     const uint16x4_t p_lines = vcreate_u16(discs[player^1] ^ move->flipped);
     const uint16x4_t o_lines = vcreate_u16(discs[player] | (move->flipped | move->square));
     
-    unsigned long long
-    hashcode  = hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)];
+    unsigned long long hashcode  =
+      hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)]
+    ^ hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)]
+    ^ hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)]
+    ^ hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)]
     
-    hashcode ^= hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)];
-    hashcode ^= hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)];
-    hashcode ^= hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)];
-    hashcode ^= hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
+    ^ hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)]
+    ^ hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)]
+    ^ hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)]
+    ^ hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
     
     return hashcode;
     

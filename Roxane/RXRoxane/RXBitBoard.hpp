@@ -193,9 +193,6 @@ void generate_flips_##pos(RXMove& move) const \
 
     
     bool isValid_square(const unsigned int pos) const;
-    static bool dir_valid_shl(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask);
-    static bool dir_valid_shr(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask);
-
     
     static int count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs);
     static void dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, int &p_pmob, int &o_pmob);
@@ -258,27 +255,6 @@ void generate_flips_##pos(RXMove& move) const \
 #define    packA1A8(X)      ((((X) & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56)
 #define    packH1H8(X)      ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
 
-inline bool RXBitBoard::dir_valid_shl(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask) {
-    
-    unsigned long long x;
-    
-    x = (square << shift) & mask & o_discs;
-    x |= (x << shift) & mask & o_discs;
-    x |= (x << (2 * shift)) & mask & o_discs;
-    x |= (x << (4 * shift)) & mask & o_discs;
-    return (x << shift) & mask & p_discs;
-}
-
-inline bool RXBitBoard::dir_valid_shr(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs, int shift, unsigned long long mask) {
-    
-    unsigned long long x;
-    
-    x = (square >> shift) & mask & o_discs;
-    x |= (x >> shift) & mask & o_discs;
-    x |= (x >> (2 * shift)) & mask & o_discs;
-    x |= (x >> (4 * shift)) & mask & o_discs;
-    return (x >> shift) & mask & p_discs;
-}
 
 
 inline void RXBitBoard::moves_producing(RXMove* start) const {
@@ -298,7 +274,7 @@ inline void RXBitBoard::moves_producing(RXMove* start) const {
 }
 
 
-
+__attribute__((always_inline))
 inline void RXBitBoard::do_move(const RXMove& move) {
     
     discs[player] |= (move.flipped | move.square);
@@ -315,6 +291,7 @@ inline void RXBitBoard::do_move(const RXMove& move) {
     ++n_nodes;
 }
 
+__attribute__((always_inline))
 inline void RXBitBoard::undo_move(const RXMove& move) {
     
     RXSquareList *insert = position_to_empties[move.position];
@@ -330,6 +307,7 @@ inline void RXBitBoard::undo_move(const RXMove& move) {
     
 }
 
+__attribute__((always_inline))
 inline void RXBitBoard::do_pass() {
     player ^= 1;
 }
@@ -364,6 +342,7 @@ inline int RXBitBoard::get_stability(const int player) const {
     return RXBitBoard::get_stability(discs[player], discs[player^1]);
 }
 
+__attribute__((always_inline))
 inline int RXBitBoard::get_edge_stability(const int player) const {
     return __builtin_popcountll(RXBitBoard::get_stable_edge(discs[player], discs[player^1]));
 }
@@ -379,6 +358,7 @@ inline int RXBitBoard::get_edge_stability(const int player) const {
  * @return a bitboard with (some of) player's stable discs.
  *
  */
+__attribute__((always_inline))
 inline unsigned long long RXBitBoard::get_stable_edge(const unsigned long long P, const unsigned long long O) {
     
     // compute the exact stable edges (from precomputed tables)
@@ -391,7 +371,7 @@ inline unsigned long long RXBitBoard::get_stable_edge(const unsigned long long P
 }
 
 
-
+__attribute__((always_inline))
 inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_player) {
     
     unsigned long long stables = discs_player & 0x8100000000000081ULL;

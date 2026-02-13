@@ -8,6 +8,7 @@
 #include "OsMessage.hpp"
 #include <string>
 #include <sstream>
+#include <cstring>  // Pour memcmp
 using namespace std;
 
 ggsstream::ggsstream() : iostream(NULL) {
@@ -20,44 +21,59 @@ ggsstream::~ggsstream() {
 		Logout();
 	if (IsConnected())
 		Disconnect();
+    
+    // IMPORTANT : Libération de la mémoire du tampon
+    if (psockbuf) {
+        delete psockbuf;
+        psockbuf = NULL;
+    }
 }
+
 
 int ggsstream::Connect(const string& sServer, int nPort) {
+    if(IsConnected()) {
+        _ASSERT(0);
+        return kErrConnected;
+    }
+
+    // 1. On crée le tampon localement
+    sockbuf* pNewBuf = new sockbuf();
     
-	if(IsConnected()) {
-		_ASSERT(0);
-		return kErrConnected;
-	}
-	
-	int err = kErrUnknown;
+    // 2. Tentative de connexion
+    int err = pNewBuf->connect(sServer, nPort);
+    
+    if (err == 0) {
+        // 3. Succès : on l'associe au flux iostream
+        init(pNewBuf);
+        
+        // 4. ON MET À JOUR LE CACHE ICI
+        // Maintenant que le flux possède pNewBuf, on peut le stocker
+        this->psockbuf = pNewBuf;
+    } else {
+        // Échec : on nettoie
+        delete pNewBuf;
+        this->psockbuf = NULL;
+    }
 
-	psockbuf=new sockbuf();
-	if (psockbuf) {
-		err=psockbuf->connect(sServer, nPort);
-        if (!err) {
-            init(psockbuf);
-        } else {
-			delete psockbuf;
-			psockbuf=NULL;
-		}
-	}
-
-	return err;
+    return err;
 }
-
 int ggsstream::Disconnect() {
 	if (!IsConnected()) {
 		_ASSERT(0);
 		return kErrNotConnected;
 	}
+    
 	setstate(ios::eofbit);
+    
 	if (psockbuf) {
 		psockbuf->disconnect();
 		delete psockbuf;
-		init(NULL);
 		psockbuf=NULL;
 	}
 
+    // Utiliser clear() après init(NULL) permet de repartir sur une base propre
+    init(NULL);
+    clear(ios::eofbit); // On garde l'état EOF pour indiquer la déconnexion
 	return 0;
 }
 
@@ -135,26 +151,45 @@ int ggsstream::Logout() {
 	}
 }
 
-int ggsstream::await(const char* sAwait) {
-	string sLine;
-	char c;
 
-	while (get(c)) {
-		sLine+=c;
-		if (strstr(sLine.c_str(), sAwait))
-			return 0;
-	}
-	
-	//ne pas oublier
-	sockbuf* psb = dynamic_cast<sockbuf*>(rdbuf());
-	
-	
-	if (psb)
-		return psb->Err();
-	else {
-		_ASSERT(0);
-		return kErrNoStreambuf;
-	}
+int ggsstream::await(const char* sAwait) {
+    if (!sAwait || !*sAwait) return kErrInvalidArg;
+    
+    const size_t awaitLen = strlen(sAwait);
+    
+    std::string sLine;
+    sLine.reserve(1024); // Pré-alloue
+    
+    char c;
+    while (get(c)) {
+        sLine.push_back(c);
+        
+        // Vérification seulement quand on a assez de caractères
+        if (sLine.size() >= awaitLen) {
+            // Cherche uniquement dans les derniers awaitLen caractères
+            const char* tail = sLine.c_str() + sLine.size() - awaitLen;
+            if (memcmp(tail, sAwait, awaitLen) == 0) {
+                return 0;
+            }
+        }
+        
+        // OPTIMISATION : Si la chaîne devient trop longue, on garde
+        // seulement la fin pour ne pas saturer la mémoire.
+        if (sLine.size() > 4096) {
+            // On garde juste assez pour ne pas rater le début du prochain sAwait
+            sLine.erase(0, sLine.size() - awaitLen);
+        }
+    }
+
+
+    // EOF ou erreur (ne fonctionne pas)
+    if (psockbuf)
+        return psockbuf->Err();
+    else {
+        _ASSERT(0);
+        return kErrNoStreambuf;
+    }
+    
 }
 
 const string& ggsstream::GetLogin() const {
@@ -171,6 +206,7 @@ const string& ggsstream::GetPassword() const {
 //	entire message(terminated by "READY" on its own line), call Parse()
 void ggsstream::Process(){
 	string sLine;
+    sLine.reserve(256);  // Pré-allocation pour taille typique
 	static bool fHasCR=false;
 	char c;
 
@@ -199,30 +235,32 @@ void ggsstream::Process(){
 }
 
 void ggsstream::ProcessLine(string& sLine){
+    
+    if (sLine=="READY")
+        ProcessMessage();
+    else {
+        const char* pLine = sLine.c_str();
         
-	if (sLine=="READY")
-		ProcessMessage();
-	else {
-		const char* pLine = sLine.c_str();
-
-		if (!sMsg.empty()) {
-			// GGS sometimes sends 2 messages without a READY
-			if (pLine[0]==':') {
-				ProcessMessage();
-			}
-			else {
-				sMsg+="\n";
-
-				// GGS sends '|' at the beginning of all tell lines
-				// except the first, strip them
-				if (pLine[0]=='|')
-					pLine++;
-			}
-		}
-		sMsg+=pLine;
-	}
-
-	sLine="";
+        if (!sMsg.empty()) {
+            // GGS sometimes sends 2 messages without a READY
+            if (pLine[0]==':') {
+                ProcessMessage();
+            }
+            else {
+                sMsg.push_back('\n');
+                
+                // GGS sends '|' at the beginning of all tell lines
+                // except the first, strip them
+                if (pLine[0]=='|')
+                    pLine++;
+            }
+        }
+        
+        sMsg.append(pLine);
+    }
+    
+    sLine.clear();        // Garde la capacité
+    
 }
 
 // Gets a message. Calls GetMsgType() to create the new message;
@@ -391,20 +429,24 @@ CMsg* ggsstream::GetMsgTypeGGS(istream& is) {
 }
 
 const char* ggsstream::ErrText(int err) {
-	switch(err) {
-	case kErrBadPassword:
-		return "Your password is invalid, or someone has already chosen that login";
-	case kErrLoggedIn:
-		return "You are already logged into GGS";
-	case kErrLoggedOut:
-		return "You have already logged out of GGS";
-	case kErrUnknown:
-		return "Unknown GGS error";
-	case kErrMem:
-		return "Out of memory";
-	default:
-		return "(No text available for this error)";
-	}
+    switch(err) {
+    case kErrBadPassword:
+        return "Your password is invalid, or someone has already chosen that login";
+    case kErrLoggedIn:
+        return "You are already logged into GGS";
+    case kErrLoggedOut:
+        return "You have already logged out of GGS";
+    case kErrUnknown:
+        return "Unknown GGS error";
+    case kErrMem:
+        return "Out of memory";
+    case kErrInvalidArg:
+        return "Invalid argument";
+    case kErrBufferOverflow:
+        return "Buffer overflow";
+    default:
+        return "(No text available for this error)";
+    }
 }
 
 bool ggsstream::IsConnected() const {

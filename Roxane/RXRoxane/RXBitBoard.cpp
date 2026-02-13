@@ -153,10 +153,10 @@ const int RXBitBoard::QUADRANT_ID[] = {
 };
 
 
-unsigned long long RXBitBoard::hashcodeTable_lines1_2[2][65536];
-unsigned long long RXBitBoard::hashcodeTable_lines3_4[2][65536];
-unsigned long long RXBitBoard::hashcodeTable_lines5_6[2][65536];
-unsigned long long RXBitBoard::hashcodeTable_lines7_8[2][65536];
+alignas(64) unsigned long long RXBitBoard::hashcodeTable_lines1_2[2][65536];
+alignas(64) unsigned long long RXBitBoard::hashcodeTable_lines3_4[2][65536];
+alignas(64) unsigned long long RXBitBoard::hashcodeTable_lines5_6[2][65536];
+alignas(64) unsigned long long RXBitBoard::hashcodeTable_lines7_8[2][65536];
 
 unsigned char RXBitBoard::EDGE_STABILITY[256*256]; //unsigned char
 
@@ -165,14 +165,14 @@ unsigned char RXBitBoard::EDGE_STABILITY[256*256]; //unsigned char
 #ifdef __ARM_NEON
 
 /** rotated outflank array (indexed with inner 6 bits) */
-const unsigned char RXBitBoard::OUTFLANK_3[64] = {    // ...bahgf
+alignas(64) const unsigned char RXBitBoard::OUTFLANK_3[64] = {    // ...bahgf
     0x00, 0x00, 0x10, 0x08, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x11, 0x09, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x10, 0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x12, 0x0a, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x10, 0x08, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x11, 0x09, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x10, 0x08, 0x00, 0x00, 0x00, 0x00, 0x04, 0x04, 0x14, 0x0c, 0x00, 0x00, 0x00, 0x00
 };
 
-const unsigned char RXBitBoard::OUTFLANK_4[64] = {    // ...cbahg
+alignas(64) const unsigned char RXBitBoard::OUTFLANK_4[64] = {    // ...cbahg
     0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x01, 0x01, 0x01, 0x01, 0x11, 0x11, 0x09, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x10, 0x10, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -180,7 +180,7 @@ const unsigned char RXBitBoard::OUTFLANK_4[64] = {    // ...cbahg
 };
 
 /** flip array (indexed with rotated outflank) */
-const unsigned long long RXBitBoard::FLIPPED_3_H[21] = {    // ...bahgf
+alignas(64) const unsigned long long RXBitBoard::FLIPPED_3_H[21] = {    // ...bahgf
     0x0000000000000000, 0x1010101010101010, 0x3030303030303030, 0x0000000000000000,
     0x7070707070707070, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
     0x0606060606060606, 0x1616161616161616, 0x3636363636363636, 0x0000000000000000,
@@ -189,7 +189,7 @@ const unsigned long long RXBitBoard::FLIPPED_3_H[21] = {    // ...bahgf
     0x7474747474747474
 };
 
-const unsigned long long RXBitBoard::FLIPPED_4_H[19] = {    // ...cbahg
+alignas(64) const unsigned long long RXBitBoard::FLIPPED_4_H[19] = {    // ...cbahg
     0x0000000000000000, 0x2020202020202020, 0x6060606060606060, 0x0000000000000000,
     0x0e0e0e0e0e0e0e0e, 0x2e2e2e2e2e2e2e2e, 0x6e6e6e6e6e6e6e6e, 0x0000000000000000,
     0x0c0c0c0c0c0c0c0c, 0x2c2c2c2c2c2c2c2c, 0x6c6c6c6c6c6c6c6c, 0x0000000000000000,
@@ -788,11 +788,33 @@ void RXBitBoard::print_empties_list() const {
 	std::cout << std::endl;
 }
 
+template<int Shift, unsigned long long Mask>
+inline bool dir_valid(unsigned long long square, unsigned long long p_discs, unsigned long long o_discs) {
+    unsigned long long x;
+    
+    if constexpr (Shift > 0) {
+        // Shift left (vers le sud/est)
+        x = (square << Shift) & Mask & o_discs;
+        x |= (x << Shift) & Mask & o_discs;
+        x |= (x << (2 * Shift)) & Mask & o_discs;
+        x |= (x << (4 * Shift)) & Mask & o_discs;
+        return (x << Shift) & Mask & p_discs;
+    } else {
+        // Shift right (vers le nord/ouest)
+        constexpr int S = -Shift;
+        x = (square >> S) & Mask & o_discs;
+        x |= (x >> S) & Mask & o_discs;
+        x |= (x >> (2 * S)) & Mask & o_discs;
+        x |= (x >> (4 * S)) & Mask & o_discs;
+        return (x >> S) & Mask & p_discs;
+    }
+}
+
 bool RXBitBoard::isValid_square(const unsigned int pos) const {
     
-    static const unsigned long long MASK_LEFT  = 0xfefefefefefefefeULL;
-    static const unsigned long long MASK_RIGHT = 0x7f7f7f7f7f7f7f7fULL;
-    static const unsigned long long MASK_ALL   = 0xffffffffffffffffULL;
+    static constexpr unsigned long long MASK_LEFT  = 0xfefefefefefefefeULL;
+    static constexpr unsigned long long MASK_RIGHT = 0x7f7f7f7f7f7f7f7fULL;
+    static constexpr unsigned long long MASK_ALL   = 0xffffffffffffffffULL;
 
     
     if(pos == PASS)
@@ -810,14 +832,14 @@ bool RXBitBoard::isValid_square(const unsigned int pos) const {
         
         
         return
-            dir_valid_shl(square, p_discs, o_discs, 1, MASK_LEFT)  || // Est
-            dir_valid_shr(square, p_discs, o_discs, 1, MASK_RIGHT) || // Ouest
-            dir_valid_shl(square, p_discs, o_discs, 8, MASK_ALL)   || // Sud
-            dir_valid_shr(square, p_discs, o_discs, 8, MASK_ALL)   || // Nord
-            dir_valid_shl(square, p_discs, o_discs, 9, MASK_LEFT)  || // Sud-Est
-            dir_valid_shr(square, p_discs, o_discs, 9, MASK_RIGHT) || // Nord-Ouest
-            dir_valid_shl(square, p_discs, o_discs, 7, MASK_RIGHT) || // Sud-Ouest
-            dir_valid_shr(square, p_discs, o_discs, 7, MASK_LEFT);    // Nord-Est
+            dir_valid< 1, MASK_LEFT >(square, p_discs, o_discs) ||  // Est
+            dir_valid<-1, MASK_RIGHT>(square, p_discs, o_discs) ||  // Ouest
+            dir_valid< 8, MASK_ALL  >(square, p_discs, o_discs) ||  // Sud
+            dir_valid<-8, MASK_ALL  >(square, p_discs, o_discs) ||  // Nord
+            dir_valid< 9, MASK_LEFT >(square, p_discs, o_discs) ||  // Sud-Est
+            dir_valid<-9, MASK_RIGHT>(square, p_discs, o_discs) ||  // Nord-Ouest
+            dir_valid< 7, MASK_RIGHT>(square, p_discs, o_discs) ||  // Sud-Ouest
+            dir_valid<-7, MASK_LEFT >(square, p_discs, o_discs);    // Nord-Est
     }
     
     return false;

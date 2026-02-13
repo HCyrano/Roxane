@@ -42,10 +42,19 @@ public:
 
 	// return an error description
 	static const char* ErrText(int err);
-	enum { kErrUnknown=0x8200, kErrBadPassword,
-		kErrLoggedIn, kErrLoggedOut, kErrConnected, kErrNotConnected,
-		kErrNoStreambuf, kErrUserCancelled };
-
+    enum {
+        kErrUnknown = 0x8200,
+        kErrBadPassword,
+        kErrLoggedIn,
+        kErrLoggedOut,
+        kErrConnected,
+        kErrNotConnected,
+        kErrNoStreambuf,
+        kErrUserCancelled,
+        kErrInvalidArg,      // ← Nouvelle
+        kErrBufferOverflow   // ← Nouvelle
+    };
+    
 	// Handle messages relating to persistent data
 	void BaseGGSLogin		();
 	void BaseGGSUserDelta	(const CMsgGGSUserDelta* pmsg);
