@@ -186,8 +186,11 @@ void generate_flips_##pos(RXMove& move) const \
     //    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
     inline unsigned long long get_legal_moves() const;
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
+    static inline uint64x2_t dual_legal_moves(const unsigned long long p, const unsigned long long o);
     inline uint64x2_t dual_count_legal_moves() const;
     static inline uint64x2_t dual_count_legal_moves(const unsigned long long p, const unsigned long long o);
+    
+    //inline bool is_quiet();
 
     
     bool isValid_square(const unsigned int pos) const;
@@ -196,7 +199,7 @@ void generate_flips_##pos(RXMove& move) const \
 
     
     static int count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs);
-    static void dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, unsigned int &p_pmob, unsigned int &o_pmob);
+    static void dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, int &p_pmob, int &o_pmob);
 
     
     
@@ -414,22 +417,36 @@ inline int RXBitBoard::final_score_2(int alpha, const int beta) const {
 
 #ifdef __ARM_NEON
 
-//inline int RXBitBoard::get_corner_stability(const unsigned long long& discs_player) {
-//
-//    static const int64x2_t shift[] = {{-1,-8}, { 1, 8}};
-//    static const uint64x2_t mask[] = {
-//        {0x4000000000000040ULL, 0x0081000000000000ULL},
-//        {0x0200000000000002ULL, 0x0000000000008100ULL}};
-//
-//    const uint64x2_t discs  = vdupq_n_u64(discs_player);
-//    uint64x2_t stable = vdupq_n_u64(discs_player & 0x8100000000000081ULL);
-//
-//    stable = vorrq_u64(vandq_u64(vandq_u64(vshlq_u64(stable, shift[0]), discs), mask[0]), stable);
-//    stable = vorrq_u64(vandq_u64(vandq_u64(vshlq_u64(stable, shift[1]), discs), mask[1]), stable);
-//
-//    return __builtin_popcountll(vgetq_lane_u64(stable, 0) | vgetq_lane_u64(stable, 1));
-//
-//}
+/*
+inline bool RXBitBoard::is_quiet() {
+    
+    const unsigned long long p_discs = discs[player];
+    const unsigned long long o_discs = discs[player^1];
+
+    uint64x2_t legals = RXBitBoard::dual_legal_moves(p_discs, o_discs);
+    unsigned long long  p_mob  = vgetq_lane_u64(legals, 0);
+    unsigned long long  o_mob  = vgetq_lane_u64(legals, 1);
+    
+    // possibility corner
+    if((p_mob | o_mob) & 0x8100000000000081ULL)
+        return false;
+    
+    int mob_p = __builtin_popcountll(p_mob);
+    int mob_o = __builtin_popcountll(o_mob);
+
+    if(std::abs(mob_p - mob_o) > 6)
+        return false;
+    
+    int p_pot, o_pot;
+    RXBitBoard::dual_potential_mobility(p_discs, o_discs, p_pot, o_pot);
+    
+    if(std::abs(p_pot - o_pot) > 12)
+        return false;
+        
+    return true;
+    
+}
+*/
 
 inline unsigned int RXBitBoard::count_stable_edge(const unsigned long long P, const unsigned long long O) {
     return __builtin_popcountll(RXBitBoard::get_stable_edge(P, O));
@@ -1543,7 +1560,6 @@ inline int RXBitBoard::final_score_4(const unsigned long long discs_player, cons
  * Lane 0 : Coups légaux pour p_discs
  * Lane 1 : Coups légaux pour o_discs
  */
-
 template<int Shift, bool IsHorizontal>
 inline uint64x2_t propagate_kogge_stone(const uint64x2_t p_vec, const uint64x2_t o_vec, const uint64x2_t mask_inner) {
     constexpr int S = (Shift > 0) ? Shift : -Shift;
@@ -1598,8 +1614,22 @@ inline uint64x2_t RXBitBoard::dual_count_legal_moves() const {
     return dual_count_legal_moves(discs[player], discs[player^1]);
 }
 
-
 inline uint64x2_t RXBitBoard::dual_count_legal_moves(const unsigned long long p, const unsigned long long o) {
+    
+    uint64x2_t legals = RXBitBoard::dual_legal_moves( p, o);
+    
+    // --- POPCOUNT NEON ---
+    // 1. Compte les bits par octets
+    uint8x16_t cnt8 = vcntq_u8(vreinterpretq_u8_u64(legals));
+    // 2. Sommes horizontales successives (8->16, 16->32, 32->64)
+    uint16x8_t sum16 = vpaddlq_u8(cnt8);
+    uint32x4_t sum32 = vpaddlq_u16(sum16);
+    uint64x2_t mobility = vpaddlq_u32(sum32);
+    
+    return mobility;
+}
+
+inline uint64x2_t RXBitBoard::dual_legal_moves(const unsigned long long p, const unsigned long long o) {
     // Préparation des registres 128 bits
     // Lane 0: P vs O | Lane 1: O vs P
     uint64x2_t p_vec = {p, o};
@@ -1622,15 +1652,7 @@ inline uint64x2_t RXBitBoard::dual_count_legal_moves(const unsigned long long p,
     uint64x2_t occupied = vdupq_n_u64(p | o);
     legals = vbicq_u64(legals, occupied);
     
-    // --- POPCOUNT NEON ---
-    // 1. Compte les bits par octets
-    uint8x16_t cnt8 = vcntq_u8(vreinterpretq_u8_u64(legals));
-    // 2. Sommes horizontales successives (8->16, 16->32, 32->64)
-    uint16x8_t sum16 = vpaddlq_u8(cnt8);
-    uint32x4_t sum32 = vpaddlq_u16(sum16);
-    uint64x2_t mobility = vpaddlq_u32(sum32);
-    
-    return mobility;
+    return legals;
 }
 
 

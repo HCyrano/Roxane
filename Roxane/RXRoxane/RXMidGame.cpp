@@ -1145,6 +1145,16 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     int depth_probcut = (depth/4)*2 + (depth & 0x1UL);
     probcut_bounds(board, selectivity, depth, depth_probcut, pvDev, alpha, alpha+1, lower_probcut, upper_probcut);
     
+    /*
+    //si la position est critique (instable):
+    //option 1 : on elargie la fenetre
+    //option 2 : on prolonge la recherche coutre
+    if(!board.is_quiet()) {
+        lower_probcut -=2;
+        upper_probcut +=2;
+    }
+    */
+    
     if(bestmove != NOMOVE && entry.selectivity >= selectivity && entry.depth>=depth_probcut) {
         
         if(entry.lower >= upper_probcut) {

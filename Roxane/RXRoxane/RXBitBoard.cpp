@@ -383,7 +383,7 @@ int RXBitBoard::count_potential_moves(const unsigned long long p_discs, const un
 
 }
 
-void RXBitBoard::dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, unsigned int &p_pmob, unsigned int &o_pmob) {
+void RXBitBoard::dual_potential_mobility(const unsigned long long p_discs, const unsigned long long o_discs, int &p_pmob, int &o_pmob) {
     uint64x2_t opp_pair = {o_discs, p_discs};
     uint64x2_t occupied = vdupq_n_u64(p_discs | o_discs);
     
