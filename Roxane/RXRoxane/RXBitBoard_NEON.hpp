@@ -1,0 +1,434 @@
+//
+//  RXBitBoard_NEON.hpp
+//  Roxane
+//
+//  Created by Causse Bruno on 13/02/2026.
+//
+
+#include "arm_neon.h"
+
+// Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
+// or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).
+#define    outflank_right(O,maskr)    (0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr)))
+
+// in case continuous from MSB
+#define    outflank_right_H(O)    (0x80000000u >> __builtin_clz(~(O)))
+
+
+#define not_O_in_mask(mask,O)    vbicq_u64((mask), vdupq_n_u64(O))
+
+//rotl8
+#define rotl8(x,y)    __builtin_rotateleft8((x),(y))
+
+
+//Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
+//This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
+//Set all bits below the sole outflank bit if outfrank != 0
+static inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
+    return outflank ? (outflank - 1) : 0;
+//    return -(long long)outflank >> 63 & (outflank - 1);
+}
+
+inline unsigned int RXBitBoard::count_stable_edge(const unsigned long long P, const unsigned long long O) {
+    return __builtin_popcountll(RXBitBoard::get_stable_edge(P, O));
+}
+
+inline int RXBitBoard::get_stability(const unsigned long long discs_player, const unsigned long long discs_opponent) {
+    
+    const unsigned long long filled = discs_player | discs_opponent;
+    const unsigned long long central_mask = discs_player & 0x007e7e7e7e7e7e00ULL;
+    
+    unsigned long long stable = get_stable_edge(discs_player, discs_opponent);
+    
+    uint8x8_t h8;
+    uint64x2_t l79, r79;
+    const uint64x2_t e790 = vdupq_n_u64(0x007f7f7f7f7f7f7f);
+    const uint64x2_t e791 = vdupq_n_u64(0xfefefefefefefe00);
+    const uint64x2_t e792 = vdupq_n_u64(0x00003f3f3f3f3f3f);
+    const uint64x2_t e793 = vdupq_n_u64(0x0f0f0f0ff0f0f0f0);
+    
+    
+    uint64_t h, v, d7, d9;
+    
+    h8 = vcreate_u8(filled);                l79 = r79 = vreinterpretq_u64_u8(vcombine_u8(h8, vrev64_u8(h8)));
+    h8 = vceq_u8(h8, vdup_n_u8(0xff));      l79 = vandq_u64(l79, vornq_u64(vshrq_n_u64(l79, 9), e790));
+    h = vget_lane_u64(vreinterpret_u64_u8(h8), 0);
+    r79 = vandq_u64(r79, vornq_u64(vshlq_n_u64(r79, 9), e791));
+    v = filled;                             l79 = vbicq_u64(l79, vbicq_u64(e792, vshrq_n_u64(l79, 18)));
+    v &= (v >> 8) | (v << 56);              r79 = vbicq_u64(r79, vshlq_n_u64(vbicq_u64(e792, r79), 18));
+    v &= (v >> 16) | (v << 48);             l79 = vandq_u64(vandq_u64(l79, r79), vorrq_u64(e793, vsliq_n_u64(vshrq_n_u64(l79, 36), r79, 36)));
+    v &= (v >> 32) | (v << 32);             d7 = __builtin_bswap64(vgetq_lane_u64(l79, 1));
+    d9 = vgetq_lane_u64(l79, 0);
+    
+    stable |= (h & v & d7 & d9 & central_mask);
+    
+    unsigned long long old_stable = 0;
+    uint64_t stable_h, stable_v, stable_d7, stable_d9;
+    
+    while (stable != old_stable) {
+        old_stable = stable;
+        stable_h  = ((stable >> 1) | (stable << 1) | h);
+        stable_v  = ((stable >> 8) | (stable << 8) | v);
+        stable_d7 = ((stable >> 7) | (stable << 7) | d7);
+        stable_d9 = ((stable >> 9) | (stable << 9) | d9);
+        stable |= (stable_h & stable_v & stable_d7 & stable_d9 & central_mask);
+    }
+    
+    return __builtin_popcountll(stable);
+    
+}
+
+inline unsigned long long RXBitBoard::hashcode() const {
+    
+    const uint16x4_t p_lines = vcreate_u16(discs[player]);
+    const uint16x4_t o_lines = vcreate_u16(discs[player^1]);
+    
+    unsigned long long
+    hashcode  = hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)];
+    hashcode ^= hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)];
+    hashcode ^= hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)];
+    hashcode ^= hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)];
+    
+    hashcode ^= hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)];
+    hashcode ^= hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)];
+    hashcode ^= hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)];
+    hashcode ^= hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
+    
+    return hashcode;
+    
+}
+
+inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
+    
+    const uint16x4_t p_lines = vcreate_u16(discs[player^1] ^ move->flipped);
+    const uint16x4_t o_lines = vcreate_u16(discs[player] | (move->flipped | move->square));
+    
+    unsigned long long
+    hashcode  = hashcodeTable_lines1_2[PLAYER][vget_lane_u16(p_lines,3)];
+    hashcode ^= hashcodeTable_lines3_4[PLAYER][vget_lane_u16(p_lines,2)];
+    hashcode ^= hashcodeTable_lines5_6[PLAYER][vget_lane_u16(p_lines,1)];
+    hashcode ^= hashcodeTable_lines7_8[PLAYER][vget_lane_u16(p_lines,0)];
+    
+    hashcode ^= hashcodeTable_lines1_2[OPPONENT][vget_lane_u16(o_lines,3)];
+    hashcode ^= hashcodeTable_lines3_4[OPPONENT][vget_lane_u16(o_lines,2)];
+    hashcode ^= hashcodeTable_lines5_6[OPPONENT][vget_lane_u16(o_lines,1)];
+    hashcode ^= hashcodeTable_lines7_8[OPPONENT][vget_lane_u16(o_lines,0)];
+    
+    return hashcode;
+    
+}
+
+#define KOGGE_STONE_STEP(flip, shift, mask) \
+    flip = vorrq_u64(flip, vandq_u64(vshlq_u64(flip, shift), mask))
+
+inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs, const unsigned long long o_discs) {
+    constexpr int64x2_t S_H  = { -1,  1}, S2_H  = { -2,  2}, S4_H  = { -4,  4};
+    constexpr int64x2_t S_V  = { -8,  8}, S2_V  = {-16, 16}, S4_V  = {-32, 32};
+    constexpr int64x2_t S_D7 = { -7,  7}, S2_D7 = {-14, 14}, S4_D7 = {-28, 28};
+    constexpr int64x2_t S_D9 = { -9,  9}, S2_D9 = {-18, 18}, S4_D9 = {-36, 36};
+    
+    const uint64x2_t P = vdupq_n_u64(p_discs);
+    const uint64x2_t O = vdupq_n_u64(o_discs);
+    const uint64x2_t O_inner = vdupq_n_u64(o_discs & 0x7E7E7E7E7E7E7E7EULL);
+    
+    uint64x2_t fH  = vandq_u64(vshlq_u64(P, S_H),  O_inner);
+    uint64x2_t fV  = vandq_u64(vshlq_u64(P, S_V),  O);
+    uint64x2_t fD7 = vandq_u64(vshlq_u64(P, S_D7), O_inner);
+    uint64x2_t fD9 = vandq_u64(vshlq_u64(P, S_D9), O_inner);
+    
+    const uint64x2_t aH  = vandq_u64(O_inner, vshlq_u64(O_inner, S_H));
+    const uint64x2_t aV  = vandq_u64(O, vshlq_u64(O, S_V));
+    const uint64x2_t aD7 = vandq_u64(O_inner, vshlq_u64(O_inner, S_D7));
+    const uint64x2_t aD9 = vandq_u64(O_inner, vshlq_u64(O_inner, S_D9));
+    
+    const uint64x2_t a2H  = vandq_u64(aH,  vshlq_u64(aH,  S2_H));
+    const uint64x2_t a2V  = vandq_u64(aV,  vshlq_u64(aV,  S2_V));
+    const uint64x2_t a2D7 = vandq_u64(aD7, vshlq_u64(aD7, S2_D7));
+    const uint64x2_t a2D9 = vandq_u64(aD9, vshlq_u64(aD9, S2_D9));
+    
+    KOGGE_STONE_STEP(fH,  S_H,  O_inner);
+    KOGGE_STONE_STEP(fV,  S_V,  O);
+    KOGGE_STONE_STEP(fD7, S_D7, O_inner);
+    KOGGE_STONE_STEP(fD9, S_D9, O_inner);
+    
+    KOGGE_STONE_STEP(fH,  S2_H,  aH);
+    KOGGE_STONE_STEP(fV,  S2_V,  aV);
+    KOGGE_STONE_STEP(fD7, S2_D7, aD7);
+    KOGGE_STONE_STEP(fD9, S2_D9, aD9);
+    
+    KOGGE_STONE_STEP(fH,  S4_H,  a2H);
+    KOGGE_STONE_STEP(fV,  S4_V,  a2V);
+    KOGGE_STONE_STEP(fD7, S4_D7, a2D7);
+    KOGGE_STONE_STEP(fD9, S4_D9, a2D9);
+    
+    const uint64x2_t legals = vorrq_u64(
+        vorrq_u64(vshlq_u64(fH, S_H), vshlq_u64(fV, S_V)),
+        vorrq_u64(vshlq_u64(fD7, S_D7), vshlq_u64(fD9, S_D9))
+    );
+    
+    uint64x2_t result = vorrq_u64(legals, vextq_u64(legals, legals, 1));
+    return (vgetq_lane_u64(result, 0) & ~(p_discs | o_discs));
+}
+
+#undef KOGGE_STONE_STEP
+
+/**
+ * Calcule les coups légaux pour les deux joueurs simultanément.
+ * Lane 0 : Coups légaux pour p_discs
+ * Lane 1 : Coups légaux pour o_discs
+ */
+template<int Shift, bool IsHorizontal>
+inline uint64x2_t propagate_kogge_stone(const uint64x2_t p_vec, const uint64x2_t o_vec, const uint64x2_t mask_inner) {
+    constexpr int S = (Shift > 0) ? Shift : -Shift;
+    
+    // Masque : le M4 fusionne très bien les opérations constantes
+    const uint64x2_t mask = IsHorizontal ? mask_inner : vdupq_n_u64(0xFFFFFFFFFFFFFFFFULL);
+    const uint64x2_t prop = vandq_u64(o_vec, mask);
+    
+    if constexpr (Shift > 0) {
+        // Initialisation
+        uint64x2_t g = vandq_u64(vshlq_n_u64(p_vec, S), prop);
+        
+        // CLEF : Calculer TOUS les prop shifts en parallèle (4 ops/cycle)
+        const uint64x2_t g1 = vshlq_n_u64(g, S);
+        const uint64x2_t prop1 = vshlq_n_u64(prop, S);
+        const uint64x2_t prop2 = vandq_u64(prop, prop1);
+        const uint64x2_t prop2_shift = vshlq_n_u64(prop2, 2*S);
+        
+        // Puis les accumulations (dépendances)
+        g = vorrq_u64(g, vandq_u64(g1, prop));
+        
+        const uint64x2_t g2 = vshlq_n_u64(g, 2*S);
+        const uint64x2_t prop4 = vandq_u64(prop2, prop2_shift);
+        g = vorrq_u64(g, vandq_u64(g2, prop2));
+        
+        const uint64x2_t g4 = vshlq_n_u64(g, 4*S);
+        g = vorrq_u64(g, vandq_u64(g4, prop4));
+        
+        return vshlq_n_u64(g, S);
+    } else {
+        uint64x2_t g = vandq_u64(vshrq_n_u64(p_vec, S), prop);
+        
+        const uint64x2_t g1 = vshrq_n_u64(g, S);
+        const uint64x2_t prop1 = vshrq_n_u64(prop, S);
+        const uint64x2_t prop2 = vandq_u64(prop, prop1);
+        const uint64x2_t prop2_shift = vshrq_n_u64(prop2, 2*S);
+        
+        g = vorrq_u64(g, vandq_u64(g1, prop));
+        
+        const uint64x2_t g2 = vshrq_n_u64(g, 2*S);
+        const uint64x2_t prop4 = vandq_u64(prop2, prop2_shift);
+        g = vorrq_u64(g, vandq_u64(g2, prop2));
+        
+        const uint64x2_t g4 = vshrq_n_u64(g, 4*S);
+        g = vorrq_u64(g, vandq_u64(g4, prop4));
+        
+        return vshrq_n_u64(g, S);
+    }
+}
+
+inline uint64x2_t RXBitBoard::dual_count_legal_moves() const {
+    return dual_count_legal_moves(discs[player], discs[player^1]);
+}
+
+inline uint64x2_t RXBitBoard::dual_count_legal_moves(const unsigned long long p, const unsigned long long o) {
+    
+    uint64x2_t legals = RXBitBoard::dual_legal_moves( p, o);
+    
+    // --- POPCOUNT NEON ---
+    // 1. Compte les bits par octets
+    uint8x16_t cnt8 = vcntq_u8(vreinterpretq_u8_u64(legals));
+    // 2. Sommes horizontales successives (8->16, 16->32, 32->64)
+    uint16x8_t sum16 = vpaddlq_u8(cnt8);
+    uint32x4_t sum32 = vpaddlq_u16(sum16);
+    uint64x2_t mobility = vpaddlq_u32(sum32);
+    
+    return mobility;
+}
+
+inline uint64x2_t RXBitBoard::dual_legal_moves(const unsigned long long p, const unsigned long long o) {
+    // Préparation des registres 128 bits
+    // Lane 0: P vs O | Lane 1: O vs P
+    uint64x2_t p_vec = {p, o};
+    uint64x2_t o_vec = {o, p};
+    
+    uint64x2_t mask_inner = vdupq_n_u64(0x7E7E7E7E7E7E7E7EULL);
+    uint64x2_t legals = vdupq_n_u64(0);
+    
+    // Calcul des 8 directions en Kogge-Stone
+    legals = vorrq_u64(legals, propagate_kogge_stone< 8, false>(p_vec, o_vec, mask_inner)); // N
+    legals = vorrq_u64(legals, propagate_kogge_stone<-8, false>(p_vec, o_vec, mask_inner)); // S
+    legals = vorrq_u64(legals, propagate_kogge_stone< 1, true >(p_vec, o_vec, mask_inner)); // E
+    legals = vorrq_u64(legals, propagate_kogge_stone<-1, true >(p_vec, o_vec, mask_inner)); // W
+    legals = vorrq_u64(legals, propagate_kogge_stone< 7, true >(p_vec, o_vec, mask_inner)); // NE
+    legals = vorrq_u64(legals, propagate_kogge_stone<-7, true >(p_vec, o_vec, mask_inner)); // SW
+    legals = vorrq_u64(legals, propagate_kogge_stone< 9, true >(p_vec, o_vec, mask_inner)); // NW
+    legals = vorrq_u64(legals, propagate_kogge_stone<-9, true >(p_vec, o_vec, mask_inner)); // SE
+    
+    // Nettoyage final : le coup doit arriver sur une case vide
+    uint64x2_t occupied = vdupq_n_u64(p | o);
+    legals = vbicq_u64(legals, occupied);
+    
+    return legals;
+}
+
+
+//unroll
+inline int RXBitBoard::final_score_2(const unsigned long long discs_player, const unsigned long long discs_opponent, const int alpha, const int beta, const int idSquare1, const int idSquare2) const {
+    
+    unsigned long long flipped, n_player, n_opponent;
+    
+    int n_flips, bestscore = UNDEF_SCORE;
+    ++n_nodes;
+    
+    // try to play on the first available square
+    if((discs_opponent & NEIGHBOR[idSquare1]) && (flipped = do_flips[idSquare1](discs_player, discs_opponent))) {
+        ++n_nodes;
+        
+        n_opponent = discs_opponent ^ flipped;
+        
+        bestscore = 62 - 2*__builtin_popcountll(n_opponent);
+        
+        n_flips = count_flips(idSquare2, n_opponent);
+        if(n_flips !=0) {
+            bestscore -= n_flips;
+        } else {
+            
+            if(bestscore >= 0) {
+                bestscore += 2;
+                if(bestscore < beta) {
+                    bestscore += count_flips(idSquare2, ~n_opponent);
+                }
+            } else {
+                if(bestscore < beta) {
+                    n_flips = count_flips(idSquare2, ~n_opponent);
+                    
+                    if(n_flips != 0)
+                        bestscore += n_flips + 2;
+                }
+            }
+        }
+        
+        if(bestscore >= beta)
+            return bestscore;
+        
+    }
+    
+    // if needed, try to play on the second & last available square
+    if((discs_opponent & NEIGHBOR[idSquare2]) && (flipped = do_flips[idSquare2](discs_player, discs_opponent))) {
+        ++n_nodes;
+        
+        n_opponent = discs_opponent ^ flipped;
+        
+        int score = 62 - 2*__builtin_popcountll(n_opponent);
+        
+        n_flips = count_flips(idSquare1, n_opponent);
+        if(n_flips !=0) {
+            score -= n_flips;
+        } else {
+            
+            if(score >= 0) {
+                score += 2;
+                if(score < beta) {
+                    score += count_flips(idSquare1, ~n_opponent);
+                }
+            } else {
+                if(score < beta) {
+                    n_flips = count_flips(idSquare1, ~n_opponent);
+                    if(n_flips != 0)
+                        score += n_flips + 2;
+                }
+            }
+        }
+        
+        if(score > bestscore)
+            return score;
+        
+        return bestscore;
+        
+    }
+    
+    // if no move were available
+    if(bestscore == UNDEF_SCORE) {
+        
+        if((flipped = do_flips[idSquare1](discs_opponent, discs_player))) {
+            ++n_nodes;
+            
+            n_player = discs_player ^ flipped;
+            
+            bestscore = 62 - 2*__builtin_popcountll(n_player);
+            
+            n_flips = count_flips(idSquare2, n_player);
+            if(n_flips !=0) {
+                bestscore -= n_flips;
+            } else {
+                
+                if(bestscore >= 0) {
+                    bestscore += 2;
+                    if(bestscore < -alpha) {
+                        bestscore += count_flips(idSquare2, ~n_player);
+                    }
+                } else {
+                    if(bestscore < -alpha) {
+                        n_flips = count_flips(idSquare2, ~n_player);
+                        
+                        if(n_flips != 0)
+                            bestscore += n_flips + 2;
+                    }
+                }
+            }
+            
+            if(bestscore >= -alpha)
+                return -bestscore;
+            
+            
+        }
+        
+        // if needed, try to play on the second & last available square
+        if((flipped = do_flips[idSquare2](discs_opponent, discs_player))) {
+            ++n_nodes;
+            
+            n_player = discs_player ^ flipped;
+            
+            int score = 62 - 2*__builtin_popcountll(n_player);
+            
+            n_flips = count_flips(idSquare1, n_player);
+            if(n_flips !=0) {
+                score -= n_flips;
+            } else {
+                
+                if(score >= 0) {
+                    score += 2;
+                    if(score < -alpha) {
+                        score += count_flips(idSquare1, ~n_player);
+                    }
+                } else {
+                    if(score < -alpha) {
+                        n_flips = count_flips(idSquare1, ~n_player);
+                        
+                        if(n_flips != 0)
+                            score += n_flips + 2;
+                    }
+                }
+            }
+            
+            if(score > bestscore)
+                return -score;
+            
+        }
+        
+        if(bestscore == UNDEF_SCORE) {
+            
+            bestscore = 62 - 2*__builtin_popcountll(discs_player);
+            if(bestscore>0)
+                bestscore+=2;
+            else if (bestscore<0)
+                bestscore-=2;
+        }
+        
+        return -bestscore;
+        
+    }
+    
+    return bestscore;
+}

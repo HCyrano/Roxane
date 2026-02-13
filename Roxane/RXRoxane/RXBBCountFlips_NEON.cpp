@@ -1,5 +1,5 @@
 /*
- *  RXBBCountFlips_NEON_Edax.cpp
+ *  RXBBCountFlips_NEON.cpp
  *  Roxane
  *
  *  adapter by Bruno Causse on 27/06/05.

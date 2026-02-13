@@ -104,44 +104,6 @@ const unsigned long long RXBitBoard::NEIGHBOR[] = {
  0X0203000000000000ULL, 0X0406000000000000ULL, 0X0A0E000000000000ULL, 0X141C000000000000ULL, 0X2838000000000000ULL, 0X5070000000000000ULL, 0X2060000000000000ULL, 0X40C0000000000000ULL
 };
 
-//const unsigned long long RXBitBoard::PRESORTED_POSITION_BITS[] = {
-//    0X8000000000000000ULL, 0X0000000000000080ULL, 0X0100000000000000ULL, 0X0000000000000001ULL, //corner
-//    0X0000800000000000ULL, 0X0000000000800000ULL, 0X2000000000000000ULL, 0X0000000000000020ULL, //A
-//    0X0400000000000000ULL, 0X0000000000000004ULL, 0X0000010000000000ULL, 0X0000000000010000ULL, //A
-//    0X0000200000000000ULL, 0X0000000000200000ULL, 0X0000040000000000ULL, 0X0000000000040000ULL, //D
-//    0X0000008000000000ULL, 0X0000000080000000ULL, 0X1000000000000000ULL, 0X0000000000000010ULL, //B
-//    0X0800000000000000ULL, 0X0000000000000008ULL, 0X0000000100000000ULL, 0X0000000001000000ULL, //B
-//    0X0000002000000000ULL, 0X0000000020000000ULL, 0X0000100000000000ULL, 0X0000000000100000ULL, //E
-//    0X0000080000000000ULL, 0X0000000000080000ULL, 0X0000000400000000ULL, 0X0000000004000000ULL, //E
-//    0X0000004000000000ULL, 0X0000000040000000ULL, 0X0010000000000000ULL, 0X0000000000001000ULL, //G
-//    0X0008000000000000ULL, 0X0000000000000800ULL, 0X0000000200000000ULL, 0X0000000002000000ULL, //G
-//    0X0000400000000000ULL, 0X0000000000400000ULL, 0X0020000000000000ULL, 0X0000000000002000ULL, //F
-//    0X0004000000000000ULL, 0X0000000000000400ULL, 0X0000020000000000ULL, 0X0000000000020000ULL, //F
-//    0X0080000000000000ULL, 0X0000000000008000ULL, 0X4000000000000000ULL, 0X0000000000000040ULL, //C
-//    0X0200000000000000ULL, 0X0000000000000002ULL, 0X0001000000000000ULL, 0X0000000000000100ULL, //C
-//    0X0040000000000000ULL, 0X0000000000004000ULL, 0X0002000000000000ULL, 0X0000000000000200ULL, //X
-//};
-
-//const unsigned long long RXBitBoard::X_TO_BIT[] = {
-//    0x0000000000000001ULL, 0x0000000000000002ULL, 0x0000000000000004ULL, 0x0000000000000008ULL,
-//    0x0000000000000010ULL, 0x0000000000000020ULL, 0x0000000000000040ULL, 0x0000000000000080ULL,
-//    0x0000000000000100ULL, 0x0000000000000200ULL, 0x0000000000000400ULL, 0x0000000000000800ULL,
-//    0x0000000000001000ULL, 0x0000000000002000ULL, 0x0000000000004000ULL, 0x0000000000008000ULL,
-//    0x0000000000010000ULL, 0x0000000000020000ULL, 0x0000000000040000ULL, 0x0000000000080000ULL,
-//    0x0000000000100000ULL, 0x0000000000200000ULL, 0x0000000000400000ULL, 0x0000000000800000ULL,
-//    0x0000000001000000ULL, 0x0000000002000000ULL, 0x0000000004000000ULL, 0x0000000008000000ULL,
-//    0x0000000010000000ULL, 0x0000000020000000ULL, 0x0000000040000000ULL, 0x0000000080000000ULL,
-//    0x0000000100000000ULL, 0x0000000200000000ULL, 0x0000000400000000ULL, 0x0000000800000000ULL,
-//    0x0000001000000000ULL, 0x0000002000000000ULL, 0x0000004000000000ULL, 0x0000008000000000ULL,
-//    0x0000010000000000ULL, 0x0000020000000000ULL, 0x0000040000000000ULL, 0x0000080000000000ULL,
-//    0x0000100000000000ULL, 0x0000200000000000ULL, 0x0000400000000000ULL, 0x0000800000000000ULL,
-//    0x0001000000000000ULL, 0x0002000000000000ULL, 0x0004000000000000ULL, 0x0008000000000000ULL,
-//    0x0010000000000000ULL, 0x0020000000000000ULL, 0x0040000000000000ULL, 0x0080000000000000ULL,
-//    0x0100000000000000ULL, 0x0200000000000000ULL, 0x0400000000000000ULL, 0x0800000000000000ULL,
-//    0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL, 0x8000000000000000ULL,
-//    0, 0 // <- hack for passing move & nomove
-//};
-
 /* order JWC */
 
 const int RXBitBoard::PRESORTED_POSITION[] = {
@@ -413,6 +375,25 @@ void RXBitBoard::dual_potential_mobility(const unsigned long long p_discs, const
     o_pmob = __builtin_popcountll(vgetq_lane_u64(final_pot, 1));
 }
 
+int RXBitBoard::final_score_1 () const {
+    int score = 63-2*__builtin_popcountll(discs[player^1]);
+    
+    const int pos = empties_list->next->position;
+    int nFlips;
+    
+    if((nFlips = count_flips(pos, discs[player]))>0) {
+        score += nFlips+1;
+    } else if((nFlips = count_flips(pos, discs[player^1]))>0) {
+        score -= nFlips+1;
+    } else if(score<0)
+        --score;
+    else if (score>0)
+        ++score;
+    
+    return score;
+}
+
+
 #else
 
 int RXBitBoard::count_potential_moves(const unsigned long long p_discs, const unsigned long long o_discs) {
@@ -435,13 +416,26 @@ int RXBitBoard::count_potential_moves(const unsigned long long p_discs, const un
 
 }
 
+int RXBitBoard::final_score_1 () const {
+    int score = 63-2*__builtin_popcountll(discs[player^1]);
+    
+    const int pos = empties_list->next->position;
+    int nFlips;
+    
+    if((nFlips = count_flips[pos](discs[player]))>0) {
+        score += nFlips+1;
+    } else if((nFlips = count_flips[pos](discs[player^1]))>0) {
+        score -= nFlips+1;
+    } else if(score<0)
+        --score;
+    else if (score>0)
+        ++score;
+    
+    return score;
+}
 
 
 #endif
-
-//semble plus rapide que la version NEON ????
-
-
 
 
 RXBitBoard::RXBitBoard(): player(BLACK), n_empty(60), n_nodes(0), parity(0xF){
@@ -753,47 +747,6 @@ int RXBitBoard::final_score() const {
 	return score;
 }
 
-#ifdef __ARM_NEON
-
-int RXBitBoard::final_score_1 () const {
-    int score = 63-2*__builtin_popcountll(discs[player^1]);
-    
-    const int pos = empties_list->next->position;
-    int nFlips;
-    
-    if((nFlips = count_flips(pos, discs[player]))>0) {
-        score += nFlips+1;
-    } else if((nFlips = count_flips(pos, discs[player^1]))>0) {
-        score -= nFlips+1;
-    } else if(score<0)
-        --score;
-    else if (score>0)
-        ++score;
-    
-    return score;
-}
-
-#else
-
-int RXBitBoard::final_score_1 () const {
-	int score = 63-2*__builtin_popcountll(discs[player^1]);
-	
-	const int pos = empties_list->next->position;
-	int nFlips;
-	
-	if((nFlips = count_flips[pos](discs[player]))>0) {
-		score += nFlips+1;
-	} else if((nFlips = count_flips[pos](discs[player^1]))>0) {
-		score -= nFlips+1;
-	} else if(score<0)
-		--score;
-	else if (score>0)
-		++score;
-	
-	return score;
-}
-
-#endif
 
 unsigned int RXBitBoard::n_moves() const {
     

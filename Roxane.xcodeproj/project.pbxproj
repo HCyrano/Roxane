@@ -15,11 +15,10 @@
 		372327152D1FF69D002CFAF4 /* OsObjects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326E92D1FF69D002CFAF4 /* OsObjects.cpp */; };
 		372327162D1FF69D002CFAF4 /* sockbuf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326EB2D1FF69D002CFAF4 /* sockbuf.cpp */; };
 		372327172D1FF69D002CFAF4 /* RXBBCountFlips.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326EE2D1FF69D002CFAF4 /* RXBBCountFlips.cpp */; };
-		372327182D1FF69D002CFAF4 /* RXBBCountFlips_NEON_Edax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON_Edax.cpp */; };
+		372327182D1FF69D002CFAF4 /* RXBBCountFlips_NEON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON.cpp */; };
 		372327192D1FF69D002CFAF4 /* RXBBDoFlips.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F02D1FF69D002CFAF4 /* RXBBDoFlips.cpp */; };
-		3723271A2D1FF69D002CFAF4 /* RXBBDoFlips_NEON_Edax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F12D1FF69D002CFAF4 /* RXBBDoFlips_NEON_Edax.cpp */; };
 		3723271B2D1FF69D002CFAF4 /* RXBBGenerateFlips.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F22D1FF69D002CFAF4 /* RXBBGenerateFlips.cpp */; };
-		3723271C2D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp */; };
+		3723271C2D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON.cpp */; };
 		3723271D2D1FF69D002CFAF4 /* RXBBPatterns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F52D1FF69D002CFAF4 /* RXBBPatterns.cpp */; };
 		3723271E2D1FF69D002CFAF4 /* RXBitBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F72D1FF69D002CFAF4 /* RXBitBoard.cpp */; };
 		3723271F2D1FF69D002CFAF4 /* RXEndGame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 372326F92D1FF69D002CFAF4 /* RXEndGame.cpp */; };
@@ -34,6 +33,8 @@
 		372327282D1FF69D002CFAF4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3723270E2D1FF69D002CFAF4 /* main.cpp */; };
 		3771E9062EE9629900D78E2D /* IOStdProtocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3771E9032EE9629900D78E2D /* IOStdProtocol.cpp */; };
 		3771E9072EE9629900D78E2D /* StdInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3771E9052EE9629900D78E2D /* StdInput.cpp */; };
+		37A656D42F3F26E6009E0822 /* RXBitBoard_x86.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 37A656D32F3F26CD009E0822 /* RXBitBoard_x86.hpp */; };
+		37A656D72F3F2ED6009E0822 /* RXBBDoFlips_NEON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37A656D62F3F2ED6009E0822 /* RXBBDoFlips_NEON.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -64,11 +65,10 @@
 		372326EB2D1FF69D002CFAF4 /* sockbuf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sockbuf.cpp; sourceTree = "<group>"; };
 		372326EC2D1FF69D002CFAF4 /* types.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
 		372326EE2D1FF69D002CFAF4 /* RXBBCountFlips.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBCountFlips.cpp; sourceTree = "<group>"; };
-		372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON_Edax.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBCountFlips_NEON_Edax.cpp; sourceTree = "<group>"; };
+		372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBCountFlips_NEON.cpp; sourceTree = "<group>"; };
 		372326F02D1FF69D002CFAF4 /* RXBBDoFlips.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBDoFlips.cpp; sourceTree = "<group>"; };
-		372326F12D1FF69D002CFAF4 /* RXBBDoFlips_NEON_Edax.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBDoFlips_NEON_Edax.cpp; sourceTree = "<group>"; };
 		372326F22D1FF69D002CFAF4 /* RXBBGenerateFlips.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBGenerateFlips.cpp; sourceTree = "<group>"; };
-		372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBGenerateFlips_NEON_Edax.cpp; sourceTree = "<group>"; };
+		372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBGenerateFlips_NEON.cpp; sourceTree = "<group>"; };
 		372326F42D1FF69D002CFAF4 /* RXBBPatterns.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBBPatterns.hpp; sourceTree = "<group>"; };
 		372326F52D1FF69D002CFAF4 /* RXBBPatterns.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBPatterns.cpp; sourceTree = "<group>"; };
 		372326F62D1FF69D002CFAF4 /* RXBitBoard.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBitBoard.hpp; sourceTree = "<group>"; };
@@ -98,6 +98,9 @@
 		3771E9042EE9629900D78E2D /* StdInput.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = StdInput.hpp; sourceTree = "<group>"; };
 		3771E9052EE9629900D78E2D /* StdInput.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StdInput.cpp; sourceTree = "<group>"; };
 		3776E2C62E69880500FCE429 /* RXEngine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXEngine.hpp; sourceTree = "<group>"; };
+		37A656D22F3F24E4009E0822 /* RXBitBoard_NEON.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBitBoard_NEON.hpp; sourceTree = "<group>"; };
+		37A656D32F3F26CD009E0822 /* RXBitBoard_x86.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXBitBoard_x86.hpp; sourceTree = "<group>"; };
+		37A656D62F3F2ED6009E0822 /* RXBBDoFlips_NEON.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBDoFlips_NEON.cpp; sourceTree = "<group>"; };
 		37A671752EE6E80200476E87 /* Roxane */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Roxane; sourceTree = BUILT_PRODUCTS_DIR; };
 		37BF368C2E268CDC0029C7F6 /* RXSetting.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RXSetting.hpp; sourceTree = "<group>"; };
 		37C2DE1E2D1F0B4100B93DBD /* Roxane.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = Roxane.profdata; sourceTree = "<group>"; };
@@ -170,13 +173,15 @@
 				372327032D1FF69D002CFAF4 /* RXMidGame.cpp */,
 				372326F92D1FF69D002CFAF4 /* RXEndGame.cpp */,
 				372326F62D1FF69D002CFAF4 /* RXBitBoard.hpp */,
+				37A656D32F3F26CD009E0822 /* RXBitBoard_x86.hpp */,
+				37A656D22F3F24E4009E0822 /* RXBitBoard_NEON.hpp */,
 				372326F72D1FF69D002CFAF4 /* RXBitBoard.cpp */,
 				372326F02D1FF69D002CFAF4 /* RXBBDoFlips.cpp */,
-				372326F12D1FF69D002CFAF4 /* RXBBDoFlips_NEON_Edax.cpp */,
+				37A656D62F3F2ED6009E0822 /* RXBBDoFlips_NEON.cpp */,
 				372326EE2D1FF69D002CFAF4 /* RXBBCountFlips.cpp */,
-				372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON_Edax.cpp */,
+				372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON.cpp */,
 				372326F22D1FF69D002CFAF4 /* RXBBGenerateFlips.cpp */,
-				372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp */,
+				372326F32D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON.cpp */,
 				372326FC2D1FF69D002CFAF4 /* RXEvaluation.hpp */,
 				372326FD2D1FF69D002CFAF4 /* RXEvaluation.cpp */,
 				372327002D1FF69D002CFAF4 /* RXHashTable.hpp */,
@@ -279,17 +284,18 @@
 				372327122D1FF69D002CFAF4 /* ggsstream.cpp in Sources */,
 				372327132D1FF69D002CFAF4 /* ODKStream.cpp in Sources */,
 				372327142D1FF69D002CFAF4 /* OsMessage.cpp in Sources */,
+				37A656D72F3F2ED6009E0822 /* RXBBDoFlips_NEON.cpp in Sources */,
 				372327152D1FF69D002CFAF4 /* OsObjects.cpp in Sources */,
 				372327162D1FF69D002CFAF4 /* sockbuf.cpp in Sources */,
 				372327172D1FF69D002CFAF4 /* RXBBCountFlips.cpp in Sources */,
-				372327182D1FF69D002CFAF4 /* RXBBCountFlips_NEON_Edax.cpp in Sources */,
+				372327182D1FF69D002CFAF4 /* RXBBCountFlips_NEON.cpp in Sources */,
 				372327192D1FF69D002CFAF4 /* RXBBDoFlips.cpp in Sources */,
-				3723271A2D1FF69D002CFAF4 /* RXBBDoFlips_NEON_Edax.cpp in Sources */,
 				3723271B2D1FF69D002CFAF4 /* RXBBGenerateFlips.cpp in Sources */,
-				3723271C2D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON_Edax.cpp in Sources */,
+				3723271C2D1FF69D002CFAF4 /* RXBBGenerateFlips_NEON.cpp in Sources */,
 				3771E9062EE9629900D78E2D /* IOStdProtocol.cpp in Sources */,
 				3771E9072EE9629900D78E2D /* StdInput.cpp in Sources */,
 				3723271D2D1FF69D002CFAF4 /* RXBBPatterns.cpp in Sources */,
+				37A656D42F3F26E6009E0822 /* RXBitBoard_x86.hpp in Sources */,
 				3723271E2D1FF69D002CFAF4 /* RXBitBoard.cpp in Sources */,
 				3723271F2D1FF69D002CFAF4 /* RXEndGame.cpp in Sources */,
 				372327202D1FF69D002CFAF4 /* RXEngine.cpp in Sources */,
