@@ -44,9 +44,9 @@ sockbuf::~sockbuf() {
 	if (fLogging) {
 		if (fplog && fplog->is_open())
 			fplog->close();
-		else
-			_ASSERT(0);
+        delete fplog;
 	}
+    
 	if (buf)
 		delete [] buf;
 }
@@ -62,7 +62,6 @@ int sockbuf::connect(const std::string& sServer, int nPort) {
 		return err;
 
 	if (fConnected) {
-		_ASSERT(0);
 		return kErrAlreadyConnected;
 	}
 
@@ -73,10 +72,7 @@ int sockbuf::connect(const std::string& sServer, int nPort) {
 		return kErrNoProtocol;
         
 	sa.sin_family=AF_INET;
-
     sa.sin_port=htons(nPort);
-    
-    //sa.sin_addr.s_addr=*(u2*)hostent->h_addr_list[0];
 	sa.sin_addr.s_addr=* reinterpret_cast< unsigned int* > (hostent->h_addr_list[0]);
 
 	// get socket
@@ -89,7 +85,7 @@ int sockbuf::connect(const std::string& sServer, int nPort) {
 	if (::connect(sock,(const sockaddr*)&sa,sizeof(sa))) {
         
 		close(sock);
-        fplog->close();
+        //if(fplog) fplog->close();
 		return kErrCantConnect;
 	}
 
@@ -100,13 +96,12 @@ int sockbuf::connect(const std::string& sServer, int nPort) {
 
 int sockbuf::disconnect() {
 	if (fConnected) {
-		//close(sock);
-        fplog->close();
+		close(sock);
+        //fplog->close();
 		fConnected=false;
 		return 0;
 	}
 	else {
-		_ASSERT(0);
 		return kErrNotConnected;
 	}
 }
@@ -127,7 +122,6 @@ int sockbuf::underflow() {
 		p0=eback();
 		nGetSize=nBufSize;
 	} else {
-		_ASSERT(0);
         return EOF; // *p0;
 	}
 	
@@ -146,12 +140,12 @@ int sockbuf::underflow() {
 			setg(p0, p0, p0+nrecv);
 		//else
 		//	setg(unbuf, unbuf-1, unbuf+1);
-		if (fplog) {
+		if (fplog && fplog->is_open()) {
 			if (loglast!=kLogRecv) {
 				loglast=kLogRecv;
-				fplog->write("[recv]",6);
+               fplog->write("[recv]",6);
 			}
-			fplog->write(p0, nrecv);
+            fplog->write(p0, nrecv);
 			*fplog << std::flush;
 		}
 		return *p0;
@@ -166,8 +160,7 @@ int sockbuf::overflow(int c) {
 	long nSent=send(sock, pbase(), nSend,0);
 	bool fOK=nSend==nSent;
 
-	_ASSERT(fOK);
-	if (fplog) {
+	if (fplog && fplog->is_open()) {
 		if (loglast!=kLogSend) {
 			loglast=kLogSend;
 			fplog->write("[send]",6);
@@ -178,11 +171,11 @@ int sockbuf::overflow(int c) {
 		char cc=c;
 		nSent=send(sock, &cc, 1, 0);
 		fOK=nSent==1;
-		if (fplog) {
+		if (fplog && fplog->is_open()) {
 			fplog->write(&cc,1);
 		}
 	}
-	if (fplog)
+	if (fplog && fplog->is_open())
 		fplog->flush();
 
 	// clear put area

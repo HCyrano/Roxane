@@ -6,25 +6,6 @@
 
 
 ////////////////////////////////////////////////////////////
-// Machine, compiler, framework dependent defines
-////////////////////////////////////////////////////////////
-
-// Define _ASSERT(x) macro which breaks into debugger if x is false
-
-
-#if _MSC_VER	// Microsoft Visual C
-#pragma warning(disable:4786)	// otherwise get STL errors
-#include "crtdbg.h"				// include _ASSERT() macro
-
-#elif defined(__GNUC__)	// Gnu C compiler
-#define _ASSERT(x)	
-
-#else	// unknown compiler
-#define _ASSERT(x)	
-
-#endif
-
-////////////////////////////////////////////////////////////
 // Typedefs
 ////////////////////////////////////////////////////////////
 

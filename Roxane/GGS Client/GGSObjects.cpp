@@ -12,13 +12,10 @@ void CGGSAlias::In(std::istream& is) {
 }
 
 void CGGSWhoUser::In(std::istream& is) {
-/*
-	string sLine;
-	getline(is, sLine);
-	istringstream isl(sLine.begin(), sLine.size());
-	isl >> sLogin >> cRegistered >> sIdle >> sOnline >> sIPAddr >> sHostName;
-	*/
-	
+    std::string sLine;
+    getline(is, sLine);
+    std::istringstream isl(sLine);
+    isl >> sLogin >> cRegistered >> sIdle >> sOnline >> sIPAddr >> sHostName;
 }
 
 int CGGSWhoUser::RegisteredSortOrder() const {

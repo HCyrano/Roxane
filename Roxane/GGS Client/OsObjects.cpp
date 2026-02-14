@@ -147,14 +147,12 @@ std::istream& COsClock::InIOS(std::istream& is) {
 	char c;
 
 	is >> c;
-	_ASSERT(c=='(');
 	is >> tCurrent;
 	tCurrent*=60;
 	is >> tIncrement;
 	is >> tGrace;
 	tGrace*=60;
 	is >> c;
-	_ASSERT(c==')');
 
 	return is;
 }
@@ -207,7 +205,6 @@ double COsClock::ReadTime(std::istream& is) {
 	for (i=0; (i<4) && (is>>n[i]); ) {
 		i++;
 		c=is.peek();
-		_ASSERT(c!='.' || i==0);
 		if (c=='.' || c==':')
 			is.ignore(1);
 		else
@@ -308,7 +305,6 @@ void COsBoardType::In(std::istream& is) {
 		n=8;
 		fOcto=false;
 		is.setstate(std::ios::failbit);
-		_ASSERT(0);
 		break;
 	}
 }
@@ -415,12 +411,9 @@ void COsMatchType::In(std::istream& is) {
 			case 'w':
 				fWhite=true;
 				break;
-			default:
-				_ASSERT(0);
 			}
 		}
 	}
-	_ASSERT(!(fBlack&&fWhite));
 	if (fOK && is.eof() && !is.bad())
 		is.clear();
 }
@@ -490,8 +483,6 @@ void COsRatingType::In(std::istream& is) {
 			case 'r':
 				fRand=true;
 				break;
-			default:
-				_ASSERT(0);
 			}
 		}
 	}
@@ -552,11 +543,9 @@ void COsBoard::Update(const COsMove& mv) {
 
 	if (!mv.fPass) {
 
-		_ASSERT(mv.row<bt.n && mv.col<bt.n && mv.row>=0 && mv.col>=0);
 
 		if (Piece(mv.row, mv.col)!=EMPTY) {
 			OutFormatted(std::cerr);
-			_ASSERT(0);
 		}
 		else {
 
@@ -579,7 +568,6 @@ void COsBoard::Update(const COsMove& mv) {
 						nFlipped+=UpdateDirection(mv.row, mv.col, dRow, dCol,cMover, cOpponent);
 				}
 			}
-			_ASSERT(nFlipped);
 		}
 	}
 
@@ -682,10 +670,8 @@ void COsBoard::In(std::istream& is) {
 		// put something there
 		is >> std::ws >> c;
 		sBoard[i]=c;
-		_ASSERT(c==BLACK|| c==WHITE || c==EMPTY);
 	}
 
-	_ASSERT(is);
 
 	is >> std::ws >> c;
 
@@ -791,7 +777,6 @@ char* COsBoard::GetText(char* sBoard, bool &afBlackMove, bool fTrailingNull) con
 
 	afBlackMove=fBlackMove;
 
-	_ASSERT(p-sBoard==bt.NPlayableSquares());
 	return sBoard;
 }
 
@@ -840,7 +825,6 @@ void COsBoard::GetPieceCounts(int& nBlack, int& nWhite, int& nEmpty) const {
 		case WHITE: nWhite++; break;
 		case EMPTY: nEmpty++; break;
 		case DUMMY: break;
-		default: _ASSERT(0);
 		}
 	}
 }
@@ -910,7 +894,6 @@ void COsPosition::UpdateKomiSet(const COsMoveListItem mlis[2]) {
 void COsPosition::Calculate(const COsGame& game, int nMoves) {
 	(*this)=game.posStart;
 	if (nMoves && game.mt.fKomi) {
-		_ASSERT(!game.NeedsKomi());
 		UpdateKomiSet(game.mlisKomi);
 	}
 	Update(game.ml, nMoves);
@@ -949,9 +932,7 @@ void COsGame::In(std::istream& is) {
 			getline(is, sData, ']');
 			std::istringstream is(sData.c_str());
 
-			if (sToken=="GM")
-				_ASSERT(sData=="Othello");
-			else if (sToken=="PC")
+            if (sToken=="PC")
 				sPlace=sData;
 			else if (sToken=="DT")
 				sDateTime=sData;
@@ -992,21 +973,16 @@ void COsGame::In(std::istream& is) {
 				is >> dKomiValue;
 				fCheckKomiValue=true;
 			}
-			else // unknown token
-				_ASSERT(0);
 		}
 
 		if (fCheckKomiValue) {
 			double dErr = 2*dKomiValue - mlisKomi[0].dEval - mlisKomi[1].dEval;
             std::cout << dErr << std::endl;
-			_ASSERT(0.0001 > dErr && dErr > -0.0001);
 		}
 
 		if (is) {
 			is >> c;
-			_ASSERT(c==';');
 			is >> c;
-			_ASSERT(c==')');
 		}
 
 		// Get the current position
@@ -1033,7 +1009,6 @@ std::istream& COsGame::InLogbook(std::istream& is) {
 
 			// read move
 			//bool fBlackMove= c=='+';
-			_ASSERT(pos.board.fBlackMove==fBlackMove);
 			is >> mli.mv;
 
 			// update game and pass if needed
@@ -1044,7 +1019,6 @@ std::istream& COsGame::InLogbook(std::istream& is) {
 			}
 		}
 		else {
-			_ASSERT(c==':');
 			break;
 		}
 	}
@@ -1052,13 +1026,11 @@ std::istream& COsGame::InLogbook(std::istream& is) {
 	// get result
 	int nResult;
 	is >> nResult;
-	_ASSERT(nResult==pos.board.NetBlackSquares());
 	result.Set(nResult);
 
 	// game over flag
 	int n;
 	is >> n;
-	_ASSERT(n==10);
 
 	return is;
 }
@@ -1112,7 +1084,6 @@ std::istream& COsGame::InIOS(std::istream& is) {
 		// read move code. move code 0 means game is over
 		while ((is >> iosmove) && iosmove) {
 			// positive moves are black, negative are white
-			_ASSERT(pos.board.fBlackMove==iosmove>0);
 
 			mli.mv.SetIOS(iosmove);
 			Update(mli);
@@ -1127,7 +1098,6 @@ std::istream& COsGame::InIOS(std::istream& is) {
 		// calculate result. Might not be equal to the result
 		//	on the board if one player resigned.
 		result.dResult=nBlack-nWhite;
-		_ASSERT(result.dResult==pos.board.NetBlackSquares() || result.status!=COsResult::kNormalEnd);
 	}
 
 	return is;
@@ -1250,8 +1220,6 @@ void COsGame::UpdateKomiSet(const COsMoveListItem mlis[2]) {
 		mlisKomi[0]=mlis[0];
 		mlisKomi[1]=mlis[1];
 	}
-	else
-		_ASSERT(0);
 }
 
 bool COsGame::GameOver() const {
@@ -1318,7 +1286,6 @@ void COsPlayerInfo::Clear() {
 void COsRating::In(std::istream& is) {
 	char c;
 	is >> dRating >> c >> dSD;
-	_ASSERT(c=='@');
 }
 
 double COsRating::AdjustedRating() const {
@@ -1338,9 +1305,6 @@ void COsRankData::In(std::istream& is) {
 		isLine >> rd;
 		isLine >> s;
 		fMe=s=="<=";
-		if (!s.empty() && !fMe) {
-			_ASSERT(0);
-		}
 	}
 }
 
@@ -1348,11 +1312,9 @@ void COsRatingData::In(std::istream& is) {
 	char c;
 
 	if ( is  >> rating >> c) {
-		_ASSERT(c=='=');
 		sInactive="hello";
 		getline(is, sInactive, char('+'));
 		is >> c;
-		_ASSERT(c=='@');
 		is >> d1 >> d2 >> nWins >> nDraws >> nLosses;
 	}
 }
@@ -1398,7 +1360,6 @@ void COsResult::In(std::istream& is) {
 			case 'r': status=kResigned; break;
 			case 't': status=kTimeout; break;
 			case 'l': status=kAdjourned; break;
-			default: _ASSERT(0);
 			}
 		}
 	}
@@ -1418,8 +1379,15 @@ void COsResult::Out(std::ostream& os) const {
 			break;
 		case kNormalEnd:
 			break;
-		default:
-			_ASSERT(0);
+        case kUnfinished:
+            break;
+        case kAgreedScore:
+            break;
+        case kAdjourned:
+            break;
+        case kAborted:
+            break;
+
 		}
 	}
 }
@@ -1443,8 +1411,6 @@ void COsStoredMatch::In(std::istream& is) {
 	std::string s;
 
 	is >> idsm >> dt >> sPlayers[0] >> sPlayers[1] >> mt >> s;
-	if (is)
-		_ASSERT(s==":l");
 }
 
 /*
@@ -1465,12 +1431,9 @@ void COsWhoItem::In(std::istream& isAll) {
 		char c;
 
 		is >> sLogin >> c >> rating >> s;
-		_ASSERT(c=='+');
 		fMe=!is;
 		if (!fMe) {
-			_ASSERT(s=="->");
 			is >> dWin >> dDraw >> dLoss >> c >> dSDNew;
-			_ASSERT(c=='@');
 		}
 	}
 }

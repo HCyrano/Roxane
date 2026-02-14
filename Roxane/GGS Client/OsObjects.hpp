@@ -283,9 +283,13 @@ public:
 	bool ToMove(const std::string& sLogin) const;
 	bool GameOver() const;
 
-	bool operator<(const COsGame& b) const { return this<&b; };
-	bool operator==(const COsGame& b) const { return this==&b; };
-
+    bool operator<(const COsGame& b) const {
+        if (sPlace != b.sPlace)
+            return sPlace < b.sPlace;
+        return sDateTime < b.sDateTime;
+    }
+    bool operator==(const COsGame& b) const { return sPlace == b.sPlace && sDateTime == b.sDateTime; }; // complete comparison
+    
 	bool NeedsKomi() const;
 
 protected:
@@ -344,15 +348,16 @@ inline std::istream& operator>>(std::istream& is, COsDateTime& dt) {dt.In(is); r
 
 class COsStoredMatch {
 public:
-	std::string idsm;
-	std::string sPlayers[2];
-	COsMatchType mt;
-	COsDateTime dt;
-
-	void In(std::istream& is);
-
-	bool operator<(const COsStoredMatch& b) const { return this<&b; };
-	bool operator==(const COsStoredMatch& b) const { return this==&b; };
+    std::string idsm;
+    std::string sPlayers[2];
+    COsMatchType mt;
+    COsDateTime dt;
+    
+    void In(std::istream& is);
+    
+    bool operator<(const COsStoredMatch& b) const { return idsm < b.idsm; };
+    bool operator==(const COsStoredMatch& b) const { return idsm == b.idsm; };
+    
 };
 
 inline std::istream& operator>>(std::istream& is, COsStoredMatch& sg) {sg.In(is); return is; }
@@ -397,13 +402,18 @@ inline std::istream& operator>>(std::istream& is, COsRankData& rd) {rd.In(is); r
 
 class COsFingerRating {
 public:
-	COsRatingType rt;
-	COsRatingData rd;
-
-	void In(std::istream& is);
-
-	bool operator<(const COsFingerRating& b) const { return this<&b; };
-	bool operator==(const COsFingerRating& b) const { return this==&b; };
+    COsRatingType rt;
+    COsRatingData rd;
+    
+    void In(std::istream& is);
+    
+    bool operator<(const COsFingerRating& b) const {
+        if (rt.bt.n != b.rt.bt.n) return rt.bt.n < b.rt.bt.n;
+        return rd.rating.dRating < b.rd.rating.dRating;
+    };
+    bool operator==(const COsFingerRating& b) const {
+        return rt.bt == b.rt.bt && rd.rating.dRating == b.rd.rating.dRating;
+    };
 };
 
 inline std::istream& operator>>(std::istream& is, COsFingerRating& fr) {fr.In(is); return is; }

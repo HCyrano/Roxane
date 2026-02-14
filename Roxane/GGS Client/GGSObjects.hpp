@@ -16,9 +16,18 @@ public:
 	std::string sAlias, sExpansion;
 
 	void In(std::istream& is);
-
+/*
 	bool operator<(const CGGSAlias& b) const { return this<&b ; }
 	bool operator==(const CGGSAlias& b) const { return this==&b; }
+*/
+    
+    bool operator<(const CGGSAlias& b) const {
+        return sAlias < b.sAlias;
+    }
+
+    bool operator==(const CGGSAlias& b) const {
+        return sAlias == b.sAlias && sExpansion == b.sExpansion;
+    }
 };
 
 inline std::istream& operator>>(std::istream& is, CGGSAlias& alias) {alias.In(is); return is; }

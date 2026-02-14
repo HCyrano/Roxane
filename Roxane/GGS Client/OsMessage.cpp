@@ -143,7 +143,7 @@ void CMsgOsErr::In(std::istream& is) {
 		err=kErrIllegalBoardType;
 	else if (sText=="rank <type> [login]")
 		err=kErrBadRankMessage;
-	else if (sText.find("corrupt move")!=sText.npos)
+	else if (sText.find("corrupt move")!=std::string::npos)
 		err=kErrCorruptMove;
 	else if (sText=="Your open value is too low for new matches.")
 		err=kErrOpenTooLow;
@@ -240,8 +240,15 @@ void CMsgOsFinger::In(std::istream& is) {
 
 		// get key and strip terminal spaces
 		std::getline(isLine, sKey, ':');
-		sKey.resize(1+sKey.find_last_not_of(' '));
-
+        
+        // get key and strip terminal spaces
+        std::getline(isLine, sKey, ':');
+        size_t pos = sKey.find_last_not_of(' ');
+        if (pos != std::string::npos)
+            sKey.resize(pos + 1);
+        else
+            sKey.clear();  // Only spaces
+        
 		// get value. No value means this is the separator row
 		//	between the first section and the second section
 		isLine >> std::ws;
@@ -650,7 +657,7 @@ CMsgOsUnknown::CMsgOsUnknown(const std::string& asMsgType) {
 }
 
 void CMsgOsUnknown::In(std::istream& is) {
-    // Lire tout le contenu restant du flux
+    // Read all remaining stream content
     std::ostringstream oss;
     oss << is.rdbuf();
     sText = oss.str();

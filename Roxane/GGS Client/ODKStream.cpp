@@ -11,7 +11,7 @@
 #include <iostream>
 #include <unistd.h>
 
-//affiche le message dans la console
+// Display message in console
 void CODKStream::HandleGGS(const CMsg* pmsg) {
     std::cout << pmsg->sRawText << "\n";
 }
@@ -38,7 +38,8 @@ void CODKStream::HandleGGSTell(const CMsgGGSTell* pmsg) {
 	
 	if(pmsg->sFrom=="HCyrano") {
 		if (pmsg->sText=="quit") {
-			pComputer->resume();
+            if(pComputer != NULL)
+                pComputer->resume();
 			Logout();
 		} else {
 			(*this) << pmsg->sText << "\n";
@@ -107,7 +108,7 @@ void CODKStream::HandleOsEnd(const CMsgOsEnd *pmsg) {
     
     BaseOsEnd(pmsg);
     COsGame* pgame=PGame(pmsg->idg);
-    if (pgame!=NULL) {
+    if (pgame!=NULL && pComputer!=NULL) {
         pComputer->stop_engine(pgame);
     }
 }
@@ -120,6 +121,7 @@ void CODKStream::HandleOsTimeout(const CMsgOsTimeout* pmsg){
     //Adjournes [.match]
     if(pmsg->sLogin == GetLogin()) {
         (*this) << "t /os break " << pmsg->idg << "\n";
+        flush();
         BaseOsGameOver(pmsg->idg);
     }
     
@@ -131,12 +133,12 @@ void CODKStream::HandleOsFatalTimeout(const CMsgOsFatalTimeout* pmsg) {
     std::cout  << "fatal-timeout: " << pmsg->idg << " " << pmsg->sLogin  << std::endl;
 
     COsGame* pgame=PGame(pmsg->idg);
-    if (pgame!=NULL)
+    if (pgame!=NULL && pComputer!=NULL)
         pComputer->stop_engine(pgame);
  
-    // Si c'est notre timeout
+    // If it's our timeout
     if (pmsg->sLogin == GetLogin()) {
-        // Résigner la partie
+        // Resign the game
         (*this) << "t /os resign " << pmsg->idg << "\n";
         flush();
         BaseOsGameOver(pmsg->idg);
@@ -145,8 +147,8 @@ void CODKStream::HandleOsFatalTimeout(const CMsgOsFatalTimeout* pmsg) {
         
         ForceDisconnect();
 
-        // while(get(c)) va sortir immédiatement
-        // → TryReconnect() se déclenchera
+        // while(get(c)) will exit immediately
+        // → TryReconnect() will be triggered
     }
 
 }
@@ -174,7 +176,7 @@ void CODKStream::HandleOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
 
 
 void CODKStream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg,const std::string& idg) {
-        if (pmsg->match.IsPlaying(GetLogin()))
+        if (pmsg->match.IsPlaying(GetLogin()) && pComputer!=NULL)
 			pComputer->resume();
 		BaseOsGameOver(idg);
 }
@@ -200,7 +202,7 @@ void CODKStream::GetMoveIfNeeded(const std::string& idg) {
 		bool fMyMove=pgame->ToMove(GetLogin());
 		//COsMoveListItem mli;
 
-		if (fMyMove) {
+		if (fMyMove  && pComputer!=NULL) {
 		
 			pComputer->get_move(idg, pgame);
 		
@@ -211,8 +213,6 @@ void CODKStream::GetMoveIfNeeded(const std::string& idg) {
 		*/
 		}
 	}
-	else
-		_ASSERT(0);
 }
 
 void CODKStream::SendMove(const std::string& idg, COsMoveListItem& mli) {

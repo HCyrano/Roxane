@@ -25,7 +25,7 @@ ggsstream::~ggsstream() {
 	if (IsConnected())
 		Disconnect();
     
-    // IMPORTANT : Libération de la mémoire du tampon
+    // IMPORTANT: Free the buffer memory
     if (psockbuf) {
         delete psockbuf;
         psockbuf = NULL;
@@ -45,15 +45,14 @@ void ggsstream::DisableAutoReconnect() {
 
 int ggsstream::Connect(const std::string& sServer, int nPort) {
     if(IsConnected()) {
-        _ASSERT(0);
         return kErrConnected;
     }
     
-    // On réinitialise l'état du flux iostream (enlève eofbit, failbit, etc.)
-    // Indispensable pour que la boucle Process() puisse repartir.
+    // Reset the iostream state (clears eofbit, failbit, etc.)
+    // Essential for the Process() loop to restart.
     this->clear();
     
-    // Sauvegarde pour reconnexion
+    // Save for reconnection
     sLastServer = sServer;
     nLastPort = nPort;
     
@@ -73,7 +72,7 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     return err;
 }
 
-// Nouvelle méthode : Tente de se reconnecter
+// New method: Attempts to reconnect
 bool ggsstream::TryReconnect() {
     if (!fAutoReconnect || sLastServer.empty()) {
         return false;
@@ -85,31 +84,31 @@ bool ggsstream::TryReconnect() {
         nCurrentRetry++;
         
         // ═══════════════════════════════════════════════════════════
-        // CALLBACK #1 : Avant chaque tentative
+        // CALLBACK #1 : Before each attempt
         // ═══════════════════════════════════════════════════════════
         OnReconnecting(nCurrentRetry, nMaxRetries);
         
-        // Attendre entre les tentatives (sauf la 1ère)
+        // Wait between attempts (except the first)
         if (nCurrentRetry > 1) {
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(nReconnectDelayMs)
             );
         }
         
-        // Tenter connexion
+        // Try connection
         int err = Connect(sLastServer, nLastPort);
         if (!err) {
-            // Connexion OK → Tenter login
+            // Connection OK → Try login
             if (!sLogin.empty() && !sPassword.empty()) {
                 err = Login(sLogin.c_str(), sPassword.c_str());
                 if (!err) {
                     // ═══════════════════════════════════════════════════
-                    // CALLBACK #2 : Succès !
+                    // CALLBACK #2 : Success!
                     // ═══════════════════════════════════════════════════
                     OnReconnected();
                     return true;
                 }
-                // Login raté → Déconnecter et réessayer
+                // Login failed → Disconnect and retry
                 Disconnect();
             } else {
                 OnReconnected();
@@ -119,42 +118,42 @@ bool ggsstream::TryReconnect() {
     }
     
     // ═══════════════════════════════════════════════════════════
-    // CALLBACK #3 : Échec total
+    // CALLBACK #3 : Total failure
     // ═══════════════════════════════════════════════════════════
     OnReconnectFailed();
     return false;
 }
 
-// Appelé AVANT chaque tentative de reconnexion
+// Called BEFORE each reconnection attempt
 void ggsstream::OnReconnecting(int attempt, int maxAttempts) {
     std::cout << "[RECONNECT] Attempting reconnection "
          << attempt << "/" << maxAttempts << "..." << std::endl;
 }
 
-// Appelé quand la reconnexion RÉUSSIT
+// Called when reconnection SUCCEEDS
 void ggsstream::OnReconnected() {
     std::cout << "[RECONNECT] Successfully reconnected to " << sLastServer << std::endl;
     
-    // Vous pouvez ajouter des actions ici :
-    // - Renvoyer des commandes au serveur
-    // - Logger l'événement
-    // - Mettre à jour des statistiques
+    // You can add actions here:
+    // - Send commands to the server
+    // - Log the event
+    // - Update statistics
     
-    // Exemple : Ré-envoyer les commandes de setup
+    // Example: Re-send setup commands
     (*this) << "ve -ack\n";
     (*this) << "notify + /os\n";
     flush();
 }
 
-// Appelé quand TOUS les retries ont échoué
+// Called when ALL retries have failed
 void ggsstream::OnReconnectFailed() {
     std::cerr << "[RECONNECT] Failed to reconnect after " << nMaxRetries
-         << " attempts." << std::endl;
+    << " attempts." << std::endl;
     
-    // Vous pouvez ajouter des actions ici :
-    // - Logger l'erreur
-    // - Envoyer une notification
-    // - Sauvegarder l'état avant de quitter
+    // You can add actions here:
+    // - Log the error
+    // - Send a notification
+    // - Save state before quitting
 }
 
 void ggsstream::ForceDisconnect() {
@@ -165,14 +164,13 @@ void ggsstream::ForceDisconnect() {
     }
     fConnected = false;
     
-    // Optionnel : mettre le flag EOF pour que while(get(c)) sorte
+    // Optional: set EOF flag so while(get(c)) exits
     setstate(std::ios::eofbit);
 }
 
 
 int ggsstream::Disconnect() {
 	if (!IsConnected()) {
-		_ASSERT(0);
 		return kErrNotConnected;
 	}
     
@@ -184,9 +182,9 @@ int ggsstream::Disconnect() {
 		psockbuf=NULL;
 	}
 
-    // Utiliser clear() après init(NULL) permet de repartir sur une base propre
+    // Using clear() after init(NULL) allows starting fresh
     init(NULL);
-    clear(std::ios::eofbit); // On garde l'état EOF pour indiquer la déconnexion
+    clear(std::ios::eofbit); // Keep EOF state to indicate disconnection
 	return 0;
 }
 
@@ -196,7 +194,6 @@ int ggsstream::Login(const char* sName, const char* sPwd) {
 	int err=0;
 
 	if (fLoggedIn) {
-		_ASSERT(0);
 		err = kErrLoggedIn;
 	}
 
@@ -209,14 +206,14 @@ int ggsstream::Login(const char* sName, const char* sPwd) {
 
 	// send login, await password prompt
 	if (!err) {
-		(*this) << sName << "\n";
+		(*this) << sLogin << "\n";
 		flush();
 		err = await("password");
 	}
 
 	// send password, await response
 	if (!err) {
-		(*this) << sPwd << "\n";
+		(*this) << sPassword << "\n";
 		flush();
 		err = await("\n");
 	}
@@ -233,7 +230,6 @@ int ggsstream::Login(const char* sName, const char* sPwd) {
 			fLoggedIn=true;
 			break;
 		default:
-			_ASSERT(0);
 			err = kErrUnknown;
 		}
 	}
@@ -245,8 +241,6 @@ int ggsstream::Login(const char* sName, const char* sPwd) {
 			pmsg->pgs=this;
 			Post(pmsg);
 		}
-		else
-			_ASSERT(0);
 	}
 
 	return err;
@@ -254,7 +248,6 @@ int ggsstream::Login(const char* sName, const char* sPwd) {
 
 int ggsstream::Logout() {
 	if (fLoggedIn==false) {
-		_ASSERT(0);
 		return kErrLoggedOut;
 	}
 	else {
@@ -301,7 +294,6 @@ int ggsstream::await(const char* sAwait) {
     if (psockbuf)
         return psockbuf->Err();
     else {
-        _ASSERT(0);
         return kErrNoStreambuf;
     }
     
@@ -326,7 +318,8 @@ void ggsstream::Process() {
     while (keepRunning) {
         std::string sLine;
         sLine.reserve(256);
-        static bool fHasCR = false;
+        bool fHasCR = false;
+
         char c;
 
         // Boucle de lecture principale
@@ -537,7 +530,6 @@ CMsg* ggsstream::GetMsgTypeOs(std::istream& is) {
 	else
 		pmsg=new CMsgOsUnknown(sMsgType);
 
-	_ASSERT(pmsg);
 	return pmsg;
 }
 
@@ -564,7 +556,6 @@ CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
 	else
 		pmsg=new CMsgGGSUnknown;
 
-	_ASSERT(pmsg);
 	return pmsg;
 }
 
@@ -632,7 +623,6 @@ void ggsstream::BaseOsEnd(const CMsgOsEnd* pmsg) {
 	COsGame* pgame=PGame(pmsg->idg);
 	if (pgame) {
         //update result
-		_ASSERT(pgame->mt.fSynch);
 		pgame->SetResult(pmsg->result, pmsg->sPlayers);
 	}
 }
@@ -691,7 +681,6 @@ void ggsstream::EndGame(const CMsgOsMatchDelta* pmsg, const std::string& idg) {
 void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
     std::map<std::string,COsMatch>::iterator i=idToMatch.find(pmsg->match.idm);
 	if (pmsg->fPlus) {
-		_ASSERT(i==idToMatch.end());
 		idToMatch[pmsg->match.idm]=pmsg->match;
 	}
 	else {
@@ -713,7 +702,6 @@ void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
 void ggsstream::BaseOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
     std::map<std::string,COsRequest>::iterator i=idToRequest.find(pmsg->idr);
 	if (pmsg->fPlus) {
-		_ASSERT(i==idToRequest.end());
 		idToRequest[pmsg->idr]=pmsg->request;
 	}
 	else {
@@ -800,7 +788,7 @@ void ggsstream::HandleOsEnd(const CMsgOsEnd* pmsg) {
 void ggsstream::HandleOsErr(const CMsgOsErr* pmsg) {
 	
 	if (pmsg->err == CMsgOsErr::kErrRequestDoesntFitFormula) {
-		//envoie un message "continue"
+        // Send a "continue" message
 		(*this) << "t /os continue" << "\n";
 		flush();
 	}
@@ -903,7 +891,7 @@ void ggsstream::HandleOsWatchDelta(const CMsgOsWatchDelta* pmsg) {
 }
 
 void ggsstream::HandleOsWho(const CMsgOsWho* pmsg) {
-    //sinon le param est non utilisé
+    // Otherwise the param is unused
     HandleOs(pmsg);
 }
 

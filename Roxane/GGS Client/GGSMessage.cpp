@@ -14,7 +14,6 @@
 ///////////////////////////////////
 
 void CMsg::In(std::istream& is) {
-	_ASSERT(0);
 }
 
 ///////////////////////////////////
@@ -26,11 +25,9 @@ void CMsgGGSAlias::In(std::istream& is) {
 	CGGSAlias alias;
 
 	is >> nAlias1 >> c >> nAlias2;
-	_ASSERT(c=='/');
 	while (is >> alias)
 		valiases.push_back(alias);
 
-	_ASSERT(nAlias2==valiases.size());
 }
 
 void CMsgGGSAlias::Handle() {
@@ -52,7 +49,7 @@ void CMsgGGSDisconnect::Handle() {
 void CMsgGGSErr::In(std::istream& is) {
     std::string sLine;
 	getline(is, sLine);
-	if (sLine.find("not recognized")!=sLine.npos)
+	if (sLine.find("not recognized")!=std::string::npos)
 		err=kErrCommandNotRecognized;
 	else
 		err=kErrUnknown;
@@ -82,8 +79,13 @@ void CMsgGGSFinger::In(std::istream& is) {
 
 		// get key and strip terminal spaces
 		getline(isLine, sKey, ':');
-		sKey.resize(1+sKey.find_last_not_of(' '));
-
+        
+        size_t pos = sKey.find_last_not_of(' ');
+        if (pos != std::string::npos)
+            sKey.resize(pos + 1);
+        else
+            sKey.clear();  // Que des espaces
+        
 		// get value. No value means this is the separator row
 		//	between the first section and the second section
 		isLine >> std::ws;
@@ -110,7 +112,9 @@ void CMsgGGSFinger::Handle() {
 ///////////////////////////////////
 
 void CMsgGGSHelp::In(std::istream& is) {
-	getline(is, sText, (char)EOF);
+    std::ostringstream oss;
+    oss << is.rdbuf();
+    sText = oss.str();
 }
 
 void CMsgGGSHelp::Handle() {
@@ -130,7 +134,9 @@ void CMsgGGSLogin::Handle() {
 ///////////////////////////////////
 
 void CMsgGGSTell::In(std::istream& is) {
-	getline(is, sText, (char)EOF);
+    std::ostringstream oss;
+    oss << is.rdbuf();
+    sText = oss.str();
 }
 
 void CMsgGGSTell::Handle() {
@@ -142,7 +148,10 @@ void CMsgGGSTell::Handle() {
 ///////////////////////////////////
 
 void CMsgGGSUnknown::In(std::istream& is) {
-	getline(is, sText, (char)EOF);
+    // Read until end of stream
+    std::ostringstream oss;
+    oss << is.rdbuf();
+    sText = oss.str();
 }
 
 void CMsgGGSUnknown::Handle() {
@@ -177,7 +186,6 @@ void CMsgGGSWho::In(std::istream& is) {
 	while (is >> wu) {
 		wus.push_back(wu);
 	}
-	_ASSERT(wus.size()==nUsers);
 }
 
 void CMsgGGSWho::Handle() {

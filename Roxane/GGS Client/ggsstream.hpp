@@ -119,7 +119,7 @@ public:
     
     COsGame* PGame(const std::string& idg);
     
-    // Nouvelles méthodes pour reconnexion auto
+    // New methods for auto-reconnection
     void EnableAutoReconnect(bool enable = true, int maxRetries = 5, int delayMs = 2000);
     void DisableAutoReconnect();
     bool IsAutoReconnectEnabled() const { return fAutoReconnect; }
@@ -143,7 +143,7 @@ protected:
     // post messages
     virtual void Post(CMsg* pmsg);
     
-    // Callbacks virtuelles - peuvent être overridées dans une sous-classe
+    // Virtual callbacks - can be overridden in a subclass
     virtual void OnReconnecting(int attempt, int maxAttempts);
     virtual void OnReconnected();
     virtual void OnReconnectFailed();
@@ -154,6 +154,8 @@ protected:
     std::string sLogin, sPassword;
     
 private:
+    
+
     std::string sMsg;
     sockbuf *psockbuf;
     
