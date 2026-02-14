@@ -1,6 +1,9 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
+#include <cassert>
+
+
 #include "types.hpp"
 
 #include "GGSMessage.hpp"
@@ -24,10 +27,12 @@ void CMsgGGSAlias::In(std::istream& is) {
 	char c;
 	CGGSAlias alias;
 
-	is >> nAlias1 >> c >> nAlias2;
-	while (is >> alias)
-		valiases.push_back(alias);
+    is >> nAlias1 >> c >> nAlias2;
+    assert(c=='/');
+    while (is >> alias)
+        valiases.push_back(alias);
 
+    assert(nAlias2==valiases.size());
 }
 
 void CMsgGGSAlias::Handle() {
@@ -186,6 +191,7 @@ void CMsgGGSWho::In(std::istream& is) {
 	while (is >> wu) {
 		wus.push_back(wu);
 	}
+    assert(wus.size()==nUsers);
 }
 
 void CMsgGGSWho::Handle() {

@@ -70,7 +70,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-2026-02-14 14h00";
+    std::string version = "build-2026-02-14 16h40";
     std::string vers_eval = RXEvaluation::get_version();
 
 	std::cout << "Version Roxane " << version << std::endl;
@@ -180,4 +180,7 @@ int main (int argc, char * const argv[]) {
     
     return 0;
 }
+ 
+
+
 

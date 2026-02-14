@@ -4,9 +4,10 @@
 #ifndef ODK_GGSSTREAM_HPP
 #define ODK_GGSSTREAM_HPP
 
+#include <set>
+
 
 #include "sockbuf.hpp"
-#include <set>
 
 class CMsg;
 class COs;
@@ -124,6 +125,8 @@ public:
     void DisableAutoReconnect();
     bool IsAutoReconnectEnabled() const { return fAutoReconnect; }
     
+    //for test reconnection
+    //virtual void ForceDisconnect();
     
 protected:
     virtual int await(const char* sAwait);
@@ -169,5 +172,7 @@ private:
     
     bool TryReconnect();
 };
+
+
 
 #endif	//ODK_GGSSTREAM_HPP

@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <cassert>
 
 #include "sockbuf.hpp"
 #include "types.hpp"
@@ -159,7 +160,8 @@ int sockbuf::overflow(int c) {
 	long nSend=pptr()-pbase();
 	long nSent=send(sock, pbase(), nSend,0);
 	bool fOK=nSend==nSent;
-
+    
+    assert(fOK);
 	if (fplog && fplog->is_open()) {
 		if (loglast!=kLogSend) {
 			loglast=kLogSend;

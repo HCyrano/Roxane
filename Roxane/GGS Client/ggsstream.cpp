@@ -1,6 +1,7 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
+#include <cassert>
 #include "types.hpp"
 
 #include "ggsstream.hpp"
@@ -163,6 +164,7 @@ void ggsstream::ForceDisconnect() {
         psockbuf = NULL;
     }
     fConnected = false;
+    fLoggedIn = false;
     
     // Optional: set EOF flag so while(get(c)) exits
     setstate(std::ios::eofbit);
@@ -444,6 +446,7 @@ CMsg* ggsstream::GetMsgType(std::istream& is) {
 		if (pmsg)
 			pmsg->sFrom=sFrom;
 	}
+    
 	return pmsg;
 }
 
@@ -530,6 +533,7 @@ CMsg* ggsstream::GetMsgTypeOs(std::istream& is) {
 	else
 		pmsg=new CMsgOsUnknown(sMsgType);
 
+    assert(pmsg);
 	return pmsg;
 }
 
@@ -556,6 +560,7 @@ CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
 	else
 		pmsg=new CMsgGGSUnknown;
 
+    assert(pmsg);
 	return pmsg;
 }
 
@@ -623,6 +628,7 @@ void ggsstream::BaseOsEnd(const CMsgOsEnd* pmsg) {
 	COsGame* pgame=PGame(pmsg->idg);
 	if (pgame) {
         //update result
+        assert(pgame->mt.fSynch);
 		pgame->SetResult(pmsg->result, pmsg->sPlayers);
 	}
 }
@@ -681,6 +687,7 @@ void ggsstream::EndGame(const CMsgOsMatchDelta* pmsg, const std::string& idg) {
 void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
     std::map<std::string,COsMatch>::iterator i=idToMatch.find(pmsg->match.idm);
 	if (pmsg->fPlus) {
+        assert(i==idToMatch.end());
 		idToMatch[pmsg->match.idm]=pmsg->match;
 	}
 	else {
@@ -702,7 +709,8 @@ void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
 void ggsstream::BaseOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
     std::map<std::string,COsRequest>::iterator i=idToRequest.find(pmsg->idr);
 	if (pmsg->fPlus) {
-		idToRequest[pmsg->idr]=pmsg->request;
+        assert(i==idToRequest.end());
+        idToRequest[pmsg->idr]=pmsg->request;
 	}
 	else {
 		if (i!=idToRequest.end())

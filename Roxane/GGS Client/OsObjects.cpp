@@ -1,6 +1,8 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
+#include <cassert>
+
 #include "types.hpp"
 
 #include "OsObjects.hpp"
@@ -147,13 +149,15 @@ std::istream& COsClock::InIOS(std::istream& is) {
 	char c;
 
 	is >> c;
-	is >> tCurrent;
+    assert(c=='(');
+    is >> tCurrent;
 	tCurrent*=60;
 	is >> tIncrement;
 	is >> tGrace;
 	tGrace*=60;
 	is >> c;
-
+    assert(c==')');
+    
 	return is;
 }
 
@@ -205,7 +209,8 @@ double COsClock::ReadTime(std::istream& is) {
 	for (i=0; (i<4) && (is>>n[i]); ) {
 		i++;
 		c=is.peek();
-		if (c=='.' || c==':')
+        assert(c!='.' || i==0);
+        if (c=='.' || c==':')
 			is.ignore(1);
 		else
 			break;
@@ -414,7 +419,8 @@ void COsMatchType::In(std::istream& is) {
 			}
 		}
 	}
-	if (fOK && is.eof() && !is.bad())
+    assert(!(fBlack&&fWhite));
+    if (fOK && is.eof() && !is.bad())
 		is.clear();
 }
 
@@ -543,6 +549,7 @@ void COsBoard::Update(const COsMove& mv) {
 
 	if (!mv.fPass) {
 
+        assert(mv.row<bt.n && mv.col<bt.n && mv.row>=0 && mv.col>=0);
 
 		if (Piece(mv.row, mv.col)!=EMPTY) {
 			OutFormatted(std::cerr);
@@ -568,6 +575,7 @@ void COsBoard::Update(const COsMove& mv) {
 						nFlipped+=UpdateDirection(mv.row, mv.col, dRow, dCol,cMover, cOpponent);
 				}
 			}
+            assert(nFlipped);
 		}
 	}
 
@@ -670,7 +678,10 @@ void COsBoard::In(std::istream& is) {
 		// put something there
 		is >> std::ws >> c;
 		sBoard[i]=c;
+        assert(c==BLACK|| c==WHITE || c==EMPTY);
 	}
+
+    assert(is);
 
 
 	is >> std::ws >> c;
@@ -777,6 +788,7 @@ char* COsBoard::GetText(char* sBoard, bool &afBlackMove, bool fTrailingNull) con
 
 	afBlackMove=fBlackMove;
 
+    assert(p-sBoard==bt.NPlayableSquares());
 	return sBoard;
 }
 
@@ -894,7 +906,8 @@ void COsPosition::UpdateKomiSet(const COsMoveListItem mlis[2]) {
 void COsPosition::Calculate(const COsGame& game, int nMoves) {
 	(*this)=game.posStart;
 	if (nMoves && game.mt.fKomi) {
-		UpdateKomiSet(game.mlisKomi);
+        assert(!game.NeedsKomi());
+        UpdateKomiSet(game.mlisKomi);
 	}
 	Update(game.ml, nMoves);
 }
@@ -932,7 +945,9 @@ void COsGame::In(std::istream& is) {
 			getline(is, sData, ']');
 			std::istringstream is(sData.c_str());
 
-            if (sToken=="PC")
+            if (sToken=="GM")
+                assert(sData=="Othello");
+            else if (sToken=="PC")
 				sPlace=sData;
 			else if (sToken=="DT")
 				sDateTime=sData;
@@ -978,11 +993,17 @@ void COsGame::In(std::istream& is) {
 		if (fCheckKomiValue) {
 			double dErr = 2*dKomiValue - mlisKomi[0].dEval - mlisKomi[1].dEval;
             std::cout << dErr << std::endl;
+            assert(0.0001 > dErr && dErr > -0.0001);
+
 		}
 
 		if (is) {
 			is >> c;
+            assert(c==';');
+
 			is >> c;
+            assert(c==')');
+
 		}
 
 		// Get the current position
@@ -1019,6 +1040,7 @@ std::istream& COsGame::InLogbook(std::istream& is) {
 			}
 		}
 		else {
+            assert(c==':');
 			break;
 		}
 	}
@@ -1026,12 +1048,14 @@ std::istream& COsGame::InLogbook(std::istream& is) {
 	// get result
 	int nResult;
 	is >> nResult;
+    assert(nResult==pos.board.NetBlackSquares());
 	result.Set(nResult);
 
 	// game over flag
 	int n;
 	is >> n;
-
+    assert(n==10);
+    
 	return is;
 }
 
@@ -1084,6 +1108,7 @@ std::istream& COsGame::InIOS(std::istream& is) {
 		// read move code. move code 0 means game is over
 		while ((is >> iosmove) && iosmove) {
 			// positive moves are black, negative are white
+            assert(pos.board.fBlackMove==iosmove>0);
 
 			mli.mv.SetIOS(iosmove);
 			Update(mli);
@@ -1098,6 +1123,8 @@ std::istream& COsGame::InIOS(std::istream& is) {
 		// calculate result. Might not be equal to the result
 		//	on the board if one player resigned.
 		result.dResult=nBlack-nWhite;
+        assert(result.dResult==pos.board.NetBlackSquares() || result.status!=COsResult::kNormalEnd);
+
 	}
 
 	return is;
@@ -1286,6 +1313,8 @@ void COsPlayerInfo::Clear() {
 void COsRating::In(std::istream& is) {
 	char c;
 	is >> dRating >> c >> dSD;
+    assert(c=='@');
+
 }
 
 double COsRating::AdjustedRating() const {
@@ -1312,6 +1341,8 @@ void COsRatingData::In(std::istream& is) {
 	char c;
 
 	if ( is  >> rating >> c) {
+        assert(c=='=');
+
 		sInactive="hello";
 		getline(is, sInactive, char('+'));
 		is >> c;
@@ -1411,6 +1442,10 @@ void COsStoredMatch::In(std::istream& is) {
 	std::string s;
 
 	is >> idsm >> dt >> sPlayers[0] >> sPlayers[1] >> mt >> s;
+    
+    if (is)
+        assert(s==":l");
+
 }
 
 /*
@@ -1431,9 +1466,13 @@ void COsWhoItem::In(std::istream& isAll) {
 		char c;
 
 		is >> sLogin >> c >> rating >> s;
+        assert(c=='+');
+
 		fMe=!is;
 		if (!fMe) {
+            assert(s=="->");
 			is >> dWin >> dDraw >> dLoss >> c >> dSDNew;
+            assert(c=='@');
 		}
 	}
 }
