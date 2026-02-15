@@ -7,6 +7,8 @@
 #include <set>
 #include <thread>
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 
 
 #include "sockbuf.hpp"
@@ -176,8 +178,11 @@ private:
         
     // Membres pour le pulsateur (Heartbeat)
     std::atomic<bool> stopHeartbeat{false};
+    std::mutex mtx;                 // Pour la condition_variable
+    std::condition_variable cv;      // Pour l'attente intelligente
     std::thread heartbeatThread;
     void HeartbeatLoop();
+    void StopHeartbeat();
 };
 
 

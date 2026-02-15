@@ -22,7 +22,7 @@ ggsstream::ggsstream() : std::iostream(NULL) {
 
 ggsstream::~ggsstream() {
     // 1. On arrête le pulsateur d'abord
-    stopHeartbeat = true;
+    StopHeartbeat();
     if (heartbeatThread.joinable()) {
         heartbeatThread.join();
     }
@@ -38,29 +38,44 @@ ggsstream::~ggsstream() {
 
 void ggsstream::HeartbeatLoop() {
     while (!stopHeartbeat) {
-        // Attente de 60 secondes (par paliers de 1s pour rester réactif)
-        for (int i = 0; i < 60 && !stopHeartbeat; ++i) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+        // --- L'attente intelligente ---
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            // On attend 60s, mais on se réveille IMMÉDIATEMENT si stopHeartbeat change
+            cv.wait_for(lock, std::chrono::seconds(60), [this] {
+                return stopHeartbeat.load();
+            });
         }
-
-        if (!stopHeartbeat && IsConnected() && IsLoggedIn()) {
-            std::cout << "[CLIENT] Sending heartbeat pulse..." << std::endl;
-            
-            this->clear(); // Reset des flags d'état
-            (*this) << "t /os continue\n";
-            this->flush();
-
-            // Si le socket est mort, flush() lèvera le failbit.
-            // La boucle while(get(c)) dans Process() s'arrêtera,
-            // déclenchant votre fAutoReconnect.
-            if (this->fail()) {
-                 std::cout << "[CLIENT] Heartbeat failed (Socket closed)" << std::endl;
+        
+        // Si on s'est réveillé parce que stopHeartbeat est vrai, on sort direct
+        if (stopHeartbeat)
+            break;
+        
+        if (IsConnected() && IsLoggedIn()) {
+            std::lock_guard<std::mutex> lock(mtx);  // ← AJOUTER
+            if (!stopHeartbeat && psockbuf != nullptr) {  // ← DOUBLE CHECK
+                
+                //std::cout << "[CLIENT] Sending heartbeat pulse..." << std::endl;
+                
+                this->clear(); // Reset des flags d'état
+                (*this) << "t /os continue\n";
+                this->flush();
+                
+                // Si le socket est mort, flush() lèvera le failbit.
+                // La boucle while(get(c)) dans Process() s'arrêtera,
+                // déclenchant votre fAutoReconnect.
+                if (this->fail()) {
+                    std::cout << "[CLIENT] Heartbeat failed (Socket closed)" << std::endl;
+                }
             }
         }
     }
 }
 
-
+void ggsstream::StopHeartbeat() {
+    stopHeartbeat = true;
+    cv.notify_all(); // Réveil instantané du thread qui dort dans wait_for
+}
 
 void ggsstream::EnableAutoReconnect(bool enable, int maxRetries, int delayMs) {
     fAutoReconnect = enable;
@@ -76,7 +91,7 @@ void ggsstream::DisableAutoReconnect() {
 int ggsstream::Connect(const std::string& sServer, int nPort) {
     
     // 1. ARRÊTER le heartbeat avant toute chose pour libérer le socket
-    stopHeartbeat = true;
+    StopHeartbeat();
     if (heartbeatThread.joinable()) {
         heartbeatThread.join();
     }
@@ -84,17 +99,19 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     // Reset the iostream state (clears eofbit, failbit, etc.)
     // Essential for the Process() loop to restart.
     this->clear();
-
-    // 4. NETTOYAGE de l'ancien buffer s'il existe
-        if (psockbuf) {
-            std::cerr << "[ERROR] l'ancien buffer existe, je le detruis" << std::endl;
-            delete psockbuf;
-            psockbuf = NULL;
-        }
-
+    
     if(IsConnected()) {
         return kErrConnected;
     }
+
+
+    //  VERIFIE si buffer existe (memory leak)
+    if (psockbuf) {
+        std::cerr << "[FATAL] Connect() called with existing buffer - memory leak detected!" << std::endl;
+        assert(false); // En debug
+        return kErrConnected; // Ou une nouvelle erreur kErrInternalState
+    }
+
     
     
     
@@ -110,7 +127,8 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
         if (!err) {
             init(psockbuf);
         } else {
-            std::cerr << "[ERROR] Connection failed: " << strerror(errno) << std::endl;           delete psockbuf;
+            std::cerr << "[ERROR] Connection failed: " << strerror(errno) << std::endl;
+            delete psockbuf;
             psockbuf = NULL;
         }
     }
@@ -149,7 +167,7 @@ bool ggsstream::TryReconnect() {
         if (nCurrentRetry > 1) {
             std::cout << "[RECONNECT] Waiting " << currentWorkDelay / 1000 << "s before next attempt..." << std::endl;
             std::this_thread::sleep_for(
-                std::chrono::milliseconds(nReconnectDelayMs)
+                std::chrono::milliseconds(currentWorkDelay)
             );
             
             // On double le délai pour l'itération SUIVANTE
@@ -236,29 +254,29 @@ void ggsstream::ForceDisconnect() {
 
 int ggsstream::Disconnect() {
     
-    stopHeartbeat = true;
+    StopHeartbeat();
     if (heartbeatThread.joinable()) {
         heartbeatThread.join();
     }
     
+    // Vérifier AVANT de modifier
+    if (!psockbuf) {
+        fConnected = false;  // Synchroniser
+        return 0;  // Déjà déconnecté
+    }
+    
+    // Maintenant on peut tout nettoyer
     fConnected = false;
+    setstate(std::ios::eofbit);
     
-	if (!IsConnected()) {
-		return kErrNotConnected;
-	}
-    
-	setstate(std::ios::eofbit);
-    
-	if (psockbuf) {
-		psockbuf->disconnect();
-		delete psockbuf;
-		psockbuf=NULL;
-	}
+    psockbuf->disconnect();
+    delete psockbuf;
+    psockbuf = NULL;
 
-    // Using clear() after init(NULL) allows starting fresh
     init(NULL);
-    clear(std::ios::eofbit); // Keep EOF state to indicate disconnection
-	return 0;
+    clear(std::ios::eofbit);
+    return 0;
+
 }
 
 // return 0 if no error
@@ -672,7 +690,7 @@ const char* ggsstream::ErrText(int err) {
 }
 
 bool ggsstream::IsConnected() const {
-	return psockbuf!=NULL;
+    return psockbuf!=NULL && fConnected;
 }
 
 bool ggsstream::IsLoggedIn() const {
@@ -735,7 +753,6 @@ void ggsstream::BaseOsJoin(const CMsgOsJoin* pmsg) {
 }
 
 void ggsstream::BaseOsLogin() {
-    std::cout << "[DEBUG] baseOSLogin" << std::endl;
 	// required commands for ODK to work:
     (*this) << "tell /os client +\n";   // get compact messages
 	flush();

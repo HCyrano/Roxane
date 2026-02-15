@@ -97,7 +97,7 @@ int sockbuf::connect(const std::string& sServer, int nPort) {
     // recv() retournera une erreur si aucune donnée n'arrive pendant ce délai
     
     struct timeval recv_timeout;
-    recv_timeout.tv_sec = 90;   // 15 secondes
+    recv_timeout.tv_sec = 90;   // 90 secondes
     recv_timeout.tv_usec = 0;
     
     if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout)) == 0) {
@@ -206,10 +206,10 @@ int sockbuf::underflow() {
     
     long nrecv=recv(sock, p0, nGetSize, 0);
     
-    std::cout << "[DEBUG] recv() returned: " << nrecv << ", errno=" << errno << std::endl;
-
-    
     if (nrecv == SOCKET_ERROR || nrecv < 0) {
+        
+        std::cout << "[DEBUG] recv() returned: " << nrecv << ", errno=" << errno << std::endl;
+
         // Analyser errno
         switch(errno) {
             case EAGAIN:
