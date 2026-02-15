@@ -371,6 +371,11 @@ void ggsstream::Process() {
 
 void ggsstream::ProcessLine(std::string& sLine){
     
+    // Log de la ligne reçue
+        if (!sLine.empty()) {
+            std::cout << "[RECV] " << sLine << std::endl;
+        }
+    
     if (sLine=="READY")
         ProcessMessage();
     else {
@@ -565,21 +570,33 @@ CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
 }
 
 const char* ggsstream::ErrText(int err) {
+    
+    if (err >= 0x8600 && err <= 0x860F) return sockbuf::ErrText(err);
+    
     switch(err) {
-    case kErrBadPassword:
-        return "Your password is invalid, or someone has already chosen that login";
-    case kErrLoggedIn:
-        return "You are already logged into GGS";
-    case kErrLoggedOut:
-        return "You have already logged out of GGS";
-    case kErrUnknown:
-        return "Unknown GGS error";
-    case kErrMem:
-        return "Out of memory";
-    case kErrInvalidArg:
-        return "Invalid argument";
-    default:
-        return "(No text available for this error)";
+        case kErrBadPassword:
+            return "Your password is invalid, or someone has already chosen that login";
+        case kErrLoggedIn:
+            return "You are already logged into GGS";
+        case kErrLoggedOut:
+            return "You have already logged out of GGS";
+        case kErrUnknown:
+            return "Unknown GGS error";
+        case kErrMem:
+            return "Out of memory";
+        case kErrInvalidArg:
+            return "Invalid argument";
+        case kErrConnected:
+            return "Connection is already established.";
+        case kErrNotConnected:
+            return "You are not connected to the server.";
+        case kErrNoStreambuf:
+            return "Internal error: No stream buffer available.";
+        case kErrUserCancelled:
+            return "Operation cancelled by the user.";
+            
+        default:
+            return "(No text available for this error)";
     }
 }
 
@@ -600,7 +617,7 @@ void ggsstream::BaseGGSDisconnect() {
 	idToMatch.clear();
 	idToRequest.clear();
 	fConnected=fLoggedIn=fHasOs=false;
-	sLogin.erase();
+	//sLogin.erase(); ne pas supprimer
 }
 
 void ggsstream::BaseGGSLogin() {

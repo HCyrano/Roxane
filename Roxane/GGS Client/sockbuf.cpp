@@ -193,3 +193,33 @@ int sockbuf::sync() {
 int sockbuf::Err() const {
 	return err;
 }
+
+const char* sockbuf::ErrText(int err) {
+    switch(err) {
+        case 0:
+            return "No error";
+        case kErrCantStartup:
+            return "Failed to initialize network library (Winsock/Socket startup)";
+        case kErrNoHost:
+            return "Host not found (DNS lookup failed)";
+        case kErrNoProtocol:
+            return "Network protocol not supported";
+        case kErrNoSocket:
+            return "Could not create network socket";
+        case kErrCantConnect:
+            return "Connection refused or server unreachable";
+        case kErrConnectionReset:
+            return "Connection reset by peer (the server dropped the link)";
+        case kErrConnectionClosed:
+            return "Connection closed gracefully by the server";
+        case kErrNotConnected:
+            return "Operation failed: Socket is not connected";
+        case kErrAlreadyConnected:
+            return "Operation failed: Socket is already connected";
+        case kErrUnknown:
+            return "An unknown socket error occurred";
+        default:
+            return "Unspecified network error";
+ }
+}
+
