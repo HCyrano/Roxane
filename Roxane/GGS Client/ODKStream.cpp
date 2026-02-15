@@ -61,7 +61,7 @@ void CODKStream::HandleOsJoin(const CMsgOsJoin* pmsg) {
 void CODKStream::HandleOsLogin() {
 	BaseOsLogin();
 	(*this) << "ts trust +\n"
-			<< "tell /os open 0\n"; /* open 0 for tournament */
+			<< "tell /os open 1\n"; /* open 0 for tournament */
 	flush();
 }
 

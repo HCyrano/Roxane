@@ -5,6 +5,8 @@
 #define ODK_GGSSTREAM_HPP
 
 #include <set>
+#include <thread>
+#include <atomic>
 
 
 #include "sockbuf.hpp"
@@ -171,6 +173,11 @@ private:
     int nLastPort = 0;
     
     bool TryReconnect();
+        
+    // Membres pour le pulsateur (Heartbeat)
+    std::atomic<bool> stopHeartbeat{false};
+    std::thread heartbeatThread;
+    void HeartbeatLoop();
 };
 
 

@@ -21,17 +21,46 @@ ggsstream::ggsstream() : std::iostream(NULL) {
 }
 
 ggsstream::~ggsstream() {
-	if (IsLoggedIn())
-		Logout();
-	if (IsConnected())
-		Disconnect();
+    // 1. On arrête le pulsateur d'abord
+    stopHeartbeat = true;
+    if (heartbeatThread.joinable()) {
+        heartbeatThread.join();
+    }
+
+    if (IsLoggedIn()) Logout();
+    if (IsConnected()) Disconnect();
     
-    // IMPORTANT: Free the buffer memory
     if (psockbuf) {
         delete psockbuf;
         psockbuf = NULL;
     }
 }
+
+void ggsstream::HeartbeatLoop() {
+    while (!stopHeartbeat) {
+        // Attente de 60 secondes (par paliers de 1s pour rester réactif)
+        for (int i = 0; i < 60 && !stopHeartbeat; ++i) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+
+        if (!stopHeartbeat && IsConnected() && IsLoggedIn()) {
+            std::cout << "[CLIENT] Sending heartbeat pulse..." << std::endl;
+            
+            this->clear(); // Reset des flags d'état
+            (*this) << "t /os continue\n";
+            this->flush();
+
+            // Si le socket est mort, flush() lèvera le failbit.
+            // La boucle while(get(c)) dans Process() s'arrêtera,
+            // déclenchant votre fAutoReconnect.
+            if (this->fail()) {
+                 std::cout << "[CLIENT] Heartbeat failed (Socket closed)" << std::endl;
+            }
+        }
+    }
+}
+
+
 
 void ggsstream::EnableAutoReconnect(bool enable, int maxRetries, int delayMs) {
     fAutoReconnect = enable;
@@ -45,13 +74,29 @@ void ggsstream::DisableAutoReconnect() {
 }
 
 int ggsstream::Connect(const std::string& sServer, int nPort) {
-    if(IsConnected()) {
-        return kErrConnected;
+    
+    // 1. ARRÊTER le heartbeat avant toute chose pour libérer le socket
+    stopHeartbeat = true;
+    if (heartbeatThread.joinable()) {
+        heartbeatThread.join();
     }
     
     // Reset the iostream state (clears eofbit, failbit, etc.)
     // Essential for the Process() loop to restart.
     this->clear();
+
+    // 4. NETTOYAGE de l'ancien buffer s'il existe
+        if (psockbuf) {
+            std::cerr << "[ERROR] l'ancien buffer existe, je le detruis" << std::endl;
+            delete psockbuf;
+            psockbuf = NULL;
+        }
+
+    if(IsConnected()) {
+        return kErrConnected;
+    }
+    
+    
     
     // Save for reconnection
     sLastServer = sServer;
@@ -65,11 +110,21 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
         if (!err) {
             init(psockbuf);
         } else {
-            delete psockbuf;
+            std::cerr << "[ERROR] Connection failed: " << strerror(errno) << std::endl;           delete psockbuf;
             psockbuf = NULL;
         }
     }
-
+    
+    if (!err) {
+        fConnected = true;
+        
+        // Relance du pulsateur
+        stopHeartbeat = false;
+        if (heartbeatThread.joinable()) heartbeatThread.join();
+        heartbeatThread = std::thread(&ggsstream::HeartbeatLoop, this);
+        
+    }
+    
     return err;
 }
 
@@ -80,6 +135,7 @@ bool ggsstream::TryReconnect() {
     }
     
     nCurrentRetry = 0;
+    int currentWorkDelay = nReconnectDelayMs;
     
     while (nCurrentRetry < nMaxRetries) {
         nCurrentRetry++;
@@ -91,9 +147,16 @@ bool ggsstream::TryReconnect() {
         
         // Wait between attempts (except the first)
         if (nCurrentRetry > 1) {
+            std::cout << "[RECONNECT] Waiting " << currentWorkDelay / 1000 << "s before next attempt..." << std::endl;
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(nReconnectDelayMs)
             );
+            
+            // On double le délai pour l'itération SUIVANTE
+            // Suite : 5s -> 10s -> 20s -> 40s -> 80s...
+            if (currentWorkDelay < 300000) { // On plafonne à 5 min max par sécurité
+                currentWorkDelay *= 2;
+            }
         }
         
         // Try connection
@@ -172,6 +235,14 @@ void ggsstream::ForceDisconnect() {
 
 
 int ggsstream::Disconnect() {
+    
+    stopHeartbeat = true;
+    if (heartbeatThread.joinable()) {
+        heartbeatThread.join();
+    }
+    
+    fConnected = false;
+    
 	if (!IsConnected()) {
 		return kErrNotConnected;
 	}
@@ -621,10 +692,11 @@ void ggsstream::BaseGGSDisconnect() {
 }
 
 void ggsstream::BaseGGSLogin() {
+
 	// required commands for ODK to work:
 	(*this) << "ve -ack\n"		    // turn off GGS Parser comments
-			<< "notify + /os\n";	// tell us when /os comes up/goes down
-
+            << "notify + /os\n"; 	// tell us when /os comes up/goes down
+            
 	flush();
 }
 
@@ -663,8 +735,9 @@ void ggsstream::BaseOsJoin(const CMsgOsJoin* pmsg) {
 }
 
 void ggsstream::BaseOsLogin() {
+    std::cout << "[DEBUG] baseOSLogin" << std::endl;
 	// required commands for ODK to work:
-	(*this) << "tell /os client +\n";	// get compact messages
+    (*this) << "tell /os client +\n";   // get compact messages
 	flush();
 
 	fHasOs=true;

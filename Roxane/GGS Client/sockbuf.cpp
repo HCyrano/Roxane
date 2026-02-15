@@ -81,6 +81,79 @@ int sockbuf::connect(const std::string& sServer, int nPort) {
     if(sock == -1)
 		return kErrNoSocket;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CONFIGURATION MINIMALE - Options POSIX standard uniquement
+    // Compatible avec toutes les versions de macOS et Unix
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    std::cout << "\n[SOCKBUF] ═══════════════════════════════════════" << std::endl;
+    std::cout << "[SOCKBUF] Configuring socket for network detection" << std::endl;
+    std::cout << "[SOCKBUF] ═══════════════════════════════════════\n" << std::endl;
+    
+    // ────────────────────────────────────────────────────────────────────────
+    // OPTION 1 : SO_RCVTIMEO - LA CLÉ POUR DÉTECTER LES COUPURES
+    // ────────────────────────────────────────────────────────────────────────
+    // C'est l'option la plus importante !
+    // recv() retournera une erreur si aucune donnée n'arrive pendant ce délai
+    
+    struct timeval recv_timeout;
+    recv_timeout.tv_sec = 90;   // 15 secondes
+    recv_timeout.tv_usec = 0;
+    
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout, sizeof(recv_timeout)) == 0) {
+        std::cout << "[SOCKBUF] ✓ SO_RCVTIMEO = " << recv_timeout.tv_sec << " seconds" << std::endl;
+        std::cout << "[SOCKBUF]   recv() will timeout after " << recv_timeout.tv_sec
+                  << "s with no data" << std::endl;
+    } else {
+        std::cerr << "[SOCKBUF] ✗ Failed to set SO_RCVTIMEO: " << strerror(errno) << std::endl;
+        std::cerr << "[SOCKBUF]   WARNING: Network failures may not be detected!" << std::endl;
+    }
+    
+    // ────────────────────────────────────────────────────────────────────────
+    // OPTION 2 : SO_SNDTIMEO - Timeout pour send()
+    // ────────────────────────────────────────────────────────────────────────
+    
+    struct timeval send_timeout;
+    send_timeout.tv_sec = 10;   // 10 secondes
+    send_timeout.tv_usec = 0;
+    
+    if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &send_timeout, sizeof(send_timeout)) == 0) {
+        std::cout << "[SOCKBUF] ✓ SO_SNDTIMEO = " << send_timeout.tv_sec << " seconds" << std::endl;
+    } else {
+        std::cerr << "[SOCKBUF] ✗ Failed to set SO_SNDTIMEO: " << strerror(errno) << std::endl;
+    }
+    
+    // ────────────────────────────────────────────────────────────────────────
+    // OPTION 3 : SO_KEEPALIVE - Keepalive TCP basique
+    // ────────────────────────────────────────────────────────────────────────
+    // Active le keepalive avec les paramètres système par défaut
+    // Sur macOS, par défaut : 2 heures d'inactivité avant détection
+    
+    int keepalive = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepalive, sizeof(keepalive)) == 0) {
+        std::cout << "[SOCKBUF] ✓ SO_KEEPALIVE enabled (system defaults)" << std::endl;
+        std::cout << "[SOCKBUF]   Note: System default is typically ~2 hours" << std::endl;
+    } else {
+        std::cerr << "[SOCKBUF] ✗ Failed to enable SO_KEEPALIVE: " << strerror(errno) << std::endl;
+    }
+    
+    // ────────────────────────────────────────────────────────────────────────
+    // FIN DE LA CONFIGURATION
+    // ────────────────────────────────────────────────────────────────────────
+    
+    std::cout << "\n[SOCKBUF] ═══════════════════════════════════════" << std::endl;
+    std::cout << "[SOCKBUF] Detection Strategy:" << std::endl;
+    std::cout << "[SOCKBUF] ───────────────────────────────────────" << std::endl;
+    std::cout << "[SOCKBUF]  1. Process() continuously reads data" << std::endl;
+    std::cout << "[SOCKBUF]  2. If network fails, no data arrives" << std::endl;
+    std::cout << "[SOCKBUF]  3. After " << recv_timeout.tv_sec << "s, recv() times out" << std::endl;
+    std::cout << "[SOCKBUF]  4. recv() returns -1 (errno=EAGAIN)" << std::endl;
+    std::cout << "[SOCKBUF]  5. underflow() detects error" << std::endl;
+    std::cout << "[SOCKBUF]  6. Process() exits read loop" << std::endl;
+    std::cout << "[SOCKBUF]  7. TryReconnect() is called!" << std::endl;
+    std::cout << "[SOCKBUF] ═══════════════════════════════════════\n" << std::endl;
+    
+    // ═══════════════════════════════════════════════════════════════════════════
 
 	// connect
 	if (::connect(sock,(const sockaddr*)&sa,sizeof(sa))) {
@@ -126,12 +199,68 @@ int sockbuf::underflow() {
         return EOF; // *p0;
 	}
 	
-	long nrecv=recv(sock, p0, nGetSize,0);
-	if (nrecv==SOCKET_ERROR) {
-		err=kErrUnknown;
-		return EOF;
-	}
-	
+    // ═══════════════════════════════════════════════════════════════════════════
+    // APPEL CRITIQUE : recv()
+    // Avec SO_RCVTIMEO configuré, recv() retournera -1 après timeout
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    long nrecv=recv(sock, p0, nGetSize, 0);
+    
+    std::cout << "[DEBUG] recv() returned: " << nrecv << ", errno=" << errno << std::endl;
+
+    
+    if (nrecv == SOCKET_ERROR || nrecv < 0) {
+        // Analyser errno
+        switch(errno) {
+            case EAGAIN:
+            #if EAGAIN != EWOULDBLOCK
+            case EWOULDBLOCK:
+            #endif
+                // ⚡ TIMEOUT ! C'est CE cas qui détecte la coupure réseau
+                err = kErrConnectionReset;
+                std::cerr << "\n";
+                std::cerr << "════════════════════════════════════════════════════════════════" << std::endl;
+                std::cerr << "⚠️  ⚠️  ⚠️  NETWORK FAILURE DETECTED  ⚠️  ⚠️  ⚠️" << std::endl;
+                std::cerr << "════════════════════════════════════════════════════════════════" << std::endl;
+                std::cerr << "[SOCKBUF] recv() timeout" << std::endl;
+                std::cerr << "[SOCKBUF] No data received for 15 seconds" << std::endl;
+                std::cerr << "[SOCKBUF] Connection is considered DEAD" << std::endl;
+                std::cerr << "[SOCKBUF] Returning EOF to trigger reconnection..." << std::endl;
+                std::cerr << "════════════════════════════════════════════════════════════════" << std::endl;
+                std::cerr << "\n";
+                break;
+                
+            case ECONNRESET:
+                err = kErrConnectionReset;
+                std::cerr << "[SOCKBUF] ⚠️  Connection reset by peer" << std::endl;
+                break;
+                
+            case ETIMEDOUT:
+                err = kErrConnectionReset;
+                std::cerr << "[SOCKBUF] ⚠️  Connection timed out" << std::endl;
+                break;
+                
+            case ENETUNREACH:
+            case EHOSTUNREACH:
+                err = kErrConnectionReset;
+                std::cerr << "[SOCKBUF] ⚠️  Network unreachable" << std::endl;
+                break;
+                
+            case EPIPE:
+            case ENOTCONN:
+                err = kErrConnectionClosed;
+                std::cerr << "[SOCKBUF] ⚠️  Socket not connected" << std::endl;
+                break;
+                
+            default:
+                err = kErrUnknown;
+                std::cerr << "[SOCKBUF] ⚠️  recv() error: " << strerror(errno)
+                          << " (errno=" << errno << ")" << std::endl;
+                break;
+        }
+        return EOF;
+    }
+
 	if (nrecv==0) {
 		// connection closed
 		err=kErrConnectionClosed;
@@ -159,6 +288,37 @@ int sockbuf::overflow(int c) {
 
 	long nSend=pptr()-pbase();
 	long nSent=send(sock, pbase(), nSend,0);
+
+
+    if (nSent == SOCKET_ERROR || nSent < 0) {
+        switch(errno) {
+            case EAGAIN:
+            #if EAGAIN != EWOULDBLOCK
+            case EWOULDBLOCK:
+            #endif
+                err = kErrConnectionReset;
+                std::cerr << "[SOCKBUF] ⚠️  send() timeout (buffer full)" << std::endl;
+                break;
+            case EPIPE:
+                err = kErrConnectionClosed;
+                std::cerr << "[SOCKBUF] ⚠️  send() failed: Broken pipe" << std::endl;
+                break;
+            case ECONNRESET:
+                err = kErrConnectionReset;
+                std::cerr << "[SOCKBUF] ⚠️  send() failed: Connection reset" << std::endl;
+                break;
+            case ETIMEDOUT:
+                err = kErrConnectionReset;
+                std::cerr << "[SOCKBUF] ⚠️  send() failed: Timeout" << std::endl;
+                break;
+            default:
+                err = kErrUnknown;
+                std::cerr << "[SOCKBUF] ⚠️  send() error: " << strerror(errno) << std::endl;
+                break;
+        }
+        return EOF;
+    }
+
 	bool fOK=nSend==nSent;
     
     assert(fOK);
