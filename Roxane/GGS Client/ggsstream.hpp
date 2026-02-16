@@ -157,7 +157,7 @@ protected:
     virtual void ForceDisconnect();
     
     
-    bool fLoggedIn, fConnected, fHasOs;
+    bool fLoggedIn, fHasOs;
     std::string sLogin, sPassword;
     
 private:

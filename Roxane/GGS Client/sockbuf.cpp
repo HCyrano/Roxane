@@ -223,7 +223,7 @@ int sockbuf::underflow() {
                 std::cerr << "⚠️  ⚠️  ⚠️  NETWORK FAILURE DETECTED  ⚠️  ⚠️  ⚠️" << std::endl;
                 std::cerr << "════════════════════════════════════════════════════════════════" << std::endl;
                 std::cerr << "[SOCKBUF] recv() timeout" << std::endl;
-                std::cerr << "[SOCKBUF] No data received for 15 seconds" << std::endl;
+                std::cerr << "[SOCKBUF] No data received for 90 seconds" << std::endl;
                 std::cerr << "[SOCKBUF] Connection is considered DEAD" << std::endl;
                 std::cerr << "[SOCKBUF] Returning EOF to trigger reconnection..." << std::endl;
                 std::cerr << "════════════════════════════════════════════════════════════════" << std::endl;

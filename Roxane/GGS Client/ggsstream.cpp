@@ -16,7 +16,7 @@
 
 
 ggsstream::ggsstream() : std::iostream(NULL) {
-	fLoggedIn=fConnected=fHasOs=false;
+	fLoggedIn=fHasOs=false;
 	psockbuf=NULL;
 }
 
@@ -108,11 +108,10 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     //  VERIFIE si buffer existe (memory leak)
     if (psockbuf) {
         std::cerr << "[FATAL] Connect() called with existing buffer - memory leak detected!" << std::endl;
-        assert(false); // En debug
+        std::abort(); // quit
         return kErrConnected; // Ou une nouvelle erreur kErrInternalState
     }
 
-    
     
     
     // Save for reconnection
@@ -134,7 +133,6 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     }
     
     if (!err) {
-        fConnected = true;
         
         // Relance du pulsateur
         stopHeartbeat = false;
@@ -148,9 +146,16 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
 
 // New method: Attempts to reconnect
 bool ggsstream::TryReconnect() {
+    
     if (!fAutoReconnect || sLastServer.empty()) {
         return false;
     }
+    
+    // ═══════════════════════════════════════════════════════════
+    // IMPORTANT: Clean up before attempting reconnection
+    // ═══════════════════════════════════════════════════════════
+    Disconnect();
+
     
     nCurrentRetry = 0;
     int currentWorkDelay = nReconnectDelayMs;
@@ -165,14 +170,16 @@ bool ggsstream::TryReconnect() {
         
         // Wait between attempts (except the first)
         if (nCurrentRetry > 1) {
+            
             std::cout << "[RECONNECT] Waiting " << currentWorkDelay / 1000 << "s before next attempt..." << std::endl;
+            
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(currentWorkDelay)
             );
             
             // On double le délai pour l'itération SUIVANTE
             // Suite : 5s -> 10s -> 20s -> 40s -> 80s...
-            if (currentWorkDelay < 300000) { // On plafonne à 5 min max par sécurité
+            if (currentWorkDelay < (3600*1000)) { // On plafonne à 1h max par sécurité
                 currentWorkDelay *= 2;
             }
         }
@@ -239,16 +246,9 @@ void ggsstream::OnReconnectFailed() {
 }
 
 void ggsstream::ForceDisconnect() {
-    if (psockbuf) {
-        psockbuf->disconnect();
-        delete psockbuf;
-        psockbuf = NULL;
-    }
-    fConnected = false;
-    fLoggedIn = false;
     
-    // Optional: set EOF flag so while(get(c)) exits
-    setstate(std::ios::eofbit);
+    Disconnect();
+    
 }
 
 
@@ -261,12 +261,12 @@ int ggsstream::Disconnect() {
     
     // Vérifier AVANT de modifier
     if (!psockbuf) {
-        fConnected = false;  // Synchroniser
         return 0;  // Déjà déconnecté
     }
     
     // Maintenant on peut tout nettoyer
-    fConnected = false;
+    fLoggedIn = false;
+
     setstate(std::ios::eofbit);
     
     psockbuf->disconnect();
@@ -690,7 +690,7 @@ const char* ggsstream::ErrText(int err) {
 }
 
 bool ggsstream::IsConnected() const {
-    return psockbuf!=NULL && fConnected;
+    return psockbuf!=NULL;
 }
 
 bool ggsstream::IsLoggedIn() const {
@@ -705,7 +705,7 @@ void ggsstream::BaseGGSDisconnect() {
 	idToGame.clear();
 	idToMatch.clear();
 	idToRequest.clear();
-	fConnected=fLoggedIn=fHasOs=false;
+	fLoggedIn=fHasOs=false;
 	//sLogin.erase(); ne pas supprimer
 }
 

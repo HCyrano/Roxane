@@ -70,7 +70,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-2026-02-15 23h45";
+    std::string version = "build-2026-02-16 12h25";
     std::string vers_eval = RXEvaluation::get_version();
 
 	std::cout << "Version Roxane " << version << std::endl;
@@ -156,7 +156,7 @@ int main (int argc, char * const argv[]) {
         }
         
         // Pour obtenir 5, 10, 20... secondes :
-        gs.EnableAutoReconnect(true, 5, 5000);
+        gs.EnableAutoReconnect(true, 10, 5000);
         
         gs.SendMsg("version : " + version);
         gs.SendMsg("evaluation : " + vers_eval);
