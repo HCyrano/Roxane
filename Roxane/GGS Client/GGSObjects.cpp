@@ -1,10 +1,11 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
-#include "types.hpp"
-
-#include "GGSObjects.hpp"
 #include <sstream>
+
+
+#include "types.hpp"
+#include "GGSObjects.hpp"
 
 void CGGSAlias::In(std::istream& is) {
 	is >> sAlias >> std::ws;

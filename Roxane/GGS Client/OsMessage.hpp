@@ -5,7 +5,6 @@
 #define ODK_OSMESSAGE_HPP
 
 #include "types.hpp"
-
 #include "GGSMessage.hpp"
 #include "OsObjects.hpp"
 

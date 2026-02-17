@@ -4,10 +4,10 @@
 #ifndef ODK_GGSMESSAGE_HPP
 #define ODK_GGSMESSAGE_HPP
 
-#include "types.hpp"
-
 #include <map>
+
 #include "GGSObjects.hpp"
+#include "types.hpp"
 
 // base message class
 
@@ -19,8 +19,8 @@ public:
 	virtual void Handle()=0;
 	virtual void In(std::istream& is);
     
-   virtual ~CMsg(){};
-    
+    virtual ~CMsg() = default;
+
 	ggsstream* pgs;
 	std::string sFrom;
 	std::string sRawText;

@@ -4,12 +4,12 @@
 #ifndef ODK_GGSOBJECTS_HPP
 #define ODK_GGSOBJECTS_HPP
 
-
-#include "types.hpp"
-
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "types.hpp"
+
 
 class CGGSAlias {
 public:

@@ -5,7 +5,6 @@
 #define ODK_ODKSTREAM_HPP
 
 #include "ggsstream.hpp"
-#include "RXRoxane.hpp"
 
 class RXRoxane;
 
@@ -28,7 +27,7 @@ public:
     virtual void HandleOsRequestDelta   (const CMsgOsRequestDelta* pmsg);
     virtual void HandleOsGameOver       (const CMsgOsMatchDelta* pmsg, const std::string& idg);
 
-    //virtual void HandleOsMatchDelta     (const CMsgOsMatchDelta* pmsg);
+    virtual void HandleOsMatchDelta     (const CMsgOsMatchDelta* pmsg);
 
 
 	virtual void GetMoveIfNeeded        (const std::string& idg);

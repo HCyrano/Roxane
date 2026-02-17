@@ -1,13 +1,12 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
-#include <cassert>
+#include <sstream>
+
 
 #include "types.hpp"
-
 #include "OsMessage.hpp"
 #include "ggsstream.hpp"
-#include <sstream>
 
 
 ///////////////////////////////////
@@ -75,7 +74,9 @@ void CMsgOsAbortRequest::In(std::istream& is) {
 	is >> idg >> sLogin >> std::ws;
 	std::getline(is, sDummy);
 
-	assert(sDummy=="is asking");
+    if (sDummy != "is asking")
+        std::cerr << "[GGS] Warning: AbortRequest unexpected text: '" << sDummy << "'" << std::endl;
+
 }
 
 void CMsgOsAbortRequest::Handle() {
@@ -115,10 +116,10 @@ void CMsgOsEnd::In(std::istream& is) {
 	std::string s;
 
 	is >> idg >> c;
-	assert(c=='(');
+    if (c != '(') { std::cerr << "[GGS] Warning: CMsgOsEnd malformed, expected '('" << std::endl; return; }
 	is >> sPlayers[0] >> s >> sPlayers[1] >> c;
-	assert(s=="vs.");
-	assert(c==')');
+    if (s != "vs.") { std::cerr << "[GGS] Warning: CMsgOsEnd malformed, expected 'vs.'" << std::endl; return; }
+    if (c != ')') { std::cerr << "[GGS] Warning: CMsgOsEnd malformed, expected ')'" << std::endl; return; }
 	is >> result;
 }
 
@@ -255,8 +256,9 @@ void CMsgOsFinger::In(std::istream& is) {
 		std::getline(isLine, sValue);
 
 		// insert (key, value) pair
-		assert(keyToValue.find(sKey)==keyToValue.end());
-		keyToValue[sKey]=sValue;
+        if (keyToValue.find(sKey) != keyToValue.end())
+            std::cerr << "[GGS] Warning: duplicate finger key='" << sKey << "', overwriting" << std::endl;
+        keyToValue[sKey]=sValue;
 	}
 
 	// second section, rating info
@@ -290,8 +292,10 @@ void CMsgOsJoin::Handle() {
 
 void CMsgOsLook::In(std::istream& is) {
 	is >> nGames;
-	assert(nGames==1 || nGames==2);
-
+    if (nGames != 1 && nGames != 2) {
+        std::cerr << "[GGS] Warning: CMsgOsLook unexpected nGames=" << nGames << std::endl;
+        return;
+    }
 	games.reserve(nGames);
 	COsGame game;
 	int i;
@@ -326,8 +330,8 @@ void CMsgOsHistory::In(std::istream& is) {
 	COsHistoryItem hi;
 	while (is >> hi)
 		his.push_back(hi);
-	assert(his.size()==n);
-}
+    if ((int)his.size() != n)
+        std::cerr << "[GGS] Warning: history count mismatch, expected " << n << " got " << his.size() << std::endl;}
 
 void CMsgOsHistory::Handle() {
 	pgs->HandleOsHistory(this);
@@ -347,13 +351,14 @@ void CMsgOsMatch::In(std::istream& is) {
 	char c;
 
 	is >> n1 >> c >> n2;
-	assert(c=='/');
+    if (c != '/') { std::cerr << "[GGS] Warning: CMsgOsMatch malformed, expected '/'" << std::endl; return; }
 
 	COsMatch match;
 	while (match.In(is))
 		matches.push_back(match);
 
-	assert(matches.size()==n2);
+    if ((int)matches.size() != n2)
+        std::cerr << "[GGS] Warning: match count mismatch, expected " << n2 << " got " << matches.size() << std::endl;
 }
 
 void CMsgOsMatch::Handle() {
@@ -439,9 +444,9 @@ void CMsgOsRatingUpdate::In(std::istream& is) {
 
 	is >> idm;
 	is >> sPlayers[0] >> rOlds[0] >> dDeltas[0] >> s >> rNews[0];
-	assert(s=="->");
+    if (s != "->") { std::cerr << "[GGS] Warning: CMsgOsRatingUpdate malformed, expected '->'" << std::endl; return; }
 	is >> sPlayers[1] >> rOlds[1] >> dDeltas[1] >> s >> rNews[1];
-	assert(s=="->");
+    if (s != "->") { std::cerr << "[GGS] Warning: CMsgOsRatingUpdate malformed, expected '->'" << std::endl; return; }
 }
 
 void CMsgOsRatingUpdate::Handle() {
@@ -559,7 +564,8 @@ void CMsgOsStored::In(std::istream& is) {
 	while (is >> sm) {
 		sms.push_back(sm);
 	}
-	assert(sms.size()==nStored);
+    if ((int)sms.size() != nStored)
+        std::cerr << "[GGS] Warning: stored count mismatch, expected " << nStored << " got " << sms.size() << std::endl;
 }
 
 void CMsgOsStored::Handle() {
@@ -618,13 +624,15 @@ void CMsgOsTrustViolation::In(std::istream& is) {
 	std::string sDelta, sSecs;
 
 	is >> idg >> sLogin >> c1 >> cColor >> c2;
-	assert(c1=='(');
-	assert(cColor==COsBoard::BLACK || cColor==COsBoard::WHITE || cColor==COsBoard::UNKNOWN);
-	assert(c2==')');
+    if (c1 != '(') { std::cerr << "[GGS] Warning: TrustViolation malformed, expected '('" << std::endl; return; }
+    if (cColor != COsBoard::BLACK && cColor != COsBoard::WHITE && cColor != COsBoard::UNKNOWN) {
+        std::cerr << "[GGS] Warning: TrustViolation unexpected color='" << cColor << "'" << std::endl; return;
+    }
+    if (c2 != ')') { std::cerr << "[GGS] Warning: TrustViolation malformed, expected ')'" << std::endl; return; }
 
 	is >> sDelta >> delta1 >> c1 >> delta2 >> sSecs;
-	assert(sDelta=="delta=");
-	assert(sSecs=="secs");
+    if (sDelta != "delta=") { std::cerr << "[GGS] Warning: TrustViolation malformed, expected 'delta='" << std::endl; return; }
+    if (sSecs != "secs") { std::cerr << "[GGS] Warning: TrustViolation malformed, expected 'secs'" << std::endl; return; }
 }
 
 void CMsgOsTrustViolation::Handle() {
@@ -641,7 +649,8 @@ void CMsgOsUndoRequest::In(std::istream& is) {
 	is >> idg >> sLogin >> std::ws;
 	std::getline(is, sDummy);
 
-	assert(sDummy=="is asking");
+    if (sDummy != "is asking")
+        std::cerr << "[GGS] Warning: UndoRequest unexpected text: '" << sDummy << "'" << std::endl;
 }
 
 void CMsgOsUndoRequest::Handle() {
@@ -691,12 +700,13 @@ void CMsgOsWatch::In(std::istream& is) {
 	int nWatchers;
 
 	is >> nMatches >> c1;
-	assert(c1==':');
+    if (c1 != ':') { std::cerr << "[GGS] Warning: CMsgOsWatch malformed, expected ':'" << std::endl; return; }
 
 	while (is >> idm >> c1 >> nWatchers >> c2) {
-		assert(c1=='(');
-		assert(c2==')');
-		assert(idToNWatchers.find(idm)==idToNWatchers.end());
+        if (c1 != '(') { std::cerr << "[GGS] Warning: CMsgOsWatch malformed, expected '('" << std::endl; break; }
+        if (c2 != ')') { std::cerr << "[GGS] Warning: CMsgOsWatch malformed, expected ')'" << std::endl; break; }
+        if (idToNWatchers.find(idm) != idToNWatchers.end())
+            std::cerr << "[GGS] Warning: duplicate watch id='" << idm << "', overwriting" << std::endl;
 		idToNWatchers[idm]=nWatchers;
 	}
 }

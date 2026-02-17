@@ -1,15 +1,13 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
-#include <cassert>
 
-#include "types.hpp"
-
-#include "OsObjects.hpp"
 #include <sstream>
 #include <iomanip>
-#include "time.h"
-#include <ctype.h>
+#include <ctime>
+#include <cctype>
+
+#include "OsObjects.hpp"
 
 
 void COsMove::In(std::istream& is) {
@@ -149,15 +147,15 @@ std::istream& COsClock::InIOS(std::istream& is) {
 	char c;
 
 	is >> c;
-    assert(c=='(');
+    if (c != '(') { std::cerr << "[GGS] Warning: COsClock::InIOS malformed, expected '('" << std::endl; return is; }
     is >> tCurrent;
 	tCurrent*=60;
 	is >> tIncrement;
 	is >> tGrace;
 	tGrace*=60;
 	is >> c;
-    assert(c==')');
-    
+    if (c != ')') { std::cerr << "[GGS] Warning: COsClock::InIOS malformed, expected ')'" << std::endl; return is; }
+
 	return is;
 }
 
@@ -209,7 +207,10 @@ double COsClock::ReadTime(std::istream& is) {
 	for (i=0; (i<4) && (is>>n[i]); ) {
 		i++;
 		c=is.peek();
-        assert(c!='.' || i==0);
+        if (c == '.' && i != 0) {
+            std::cerr << "[GGS] Warning: COsClock::ReadTime unexpected '.' at position " << i << std::endl;
+            break;
+        }
         if (c=='.' || c==':')
 			is.ignore(1);
 		else
@@ -419,7 +420,10 @@ void COsMatchType::In(std::istream& is) {
 			}
 		}
 	}
-    assert(!(fBlack&&fWhite));
+    if (fBlack && fWhite) {
+        std::cerr << "[GGS] Warning: COsMatchType both black and white color specified" << std::endl;
+        fWhite = false;
+    }
     if (fOK && is.eof() && !is.bad())
 		is.clear();
 }
@@ -549,8 +553,12 @@ void COsBoard::Update(const COsMove& mv) {
 
 	if (!mv.fPass) {
 
-        assert(mv.row<bt.n && mv.col<bt.n && mv.row>=0 && mv.col>=0);
-
+        if (mv.row>=bt.n || mv.col>=bt.n || mv.row<0 || mv.col<0) {
+            std::cerr << "[GGS] Warning: COsBoard::Update move out of bounds row="
+                      << mv.row << " col=" << mv.col << std::endl;
+            return;
+        }
+        
 		if (Piece(mv.row, mv.col)!=EMPTY) {
 			OutFormatted(std::cerr);
 		}
@@ -575,8 +583,8 @@ void COsBoard::Update(const COsMove& mv) {
 						nFlipped+=UpdateDirection(mv.row, mv.col, dRow, dCol,cMover, cOpponent);
 				}
 			}
-            assert(nFlipped);
-		}
+            if (!nFlipped)
+                std::cerr << "[GGS] Warning: COsBoard::Update illegal move, nothing flipped" << std::endl;		}
 	}
 
 	fBlackMove=!fBlackMove;
@@ -678,11 +686,12 @@ void COsBoard::In(std::istream& is) {
 		// put something there
 		is >> std::ws >> c;
 		sBoard[i]=c;
-        assert(c==BLACK|| c==WHITE || c==EMPTY);
-	}
+        if (c!=BLACK && c!=WHITE && c!=EMPTY)
+            std::cerr << "[GGS] Warning: COsBoard::In unexpected piece='" << c << "'" << std::endl;
+    }
 
-    assert(is);
-
+    if (!is)
+        std::cerr << "[GGS] Warning: COsBoard::In stream error after reading board" << std::endl;
 
 	is >> std::ws >> c;
 
@@ -788,8 +797,11 @@ char* COsBoard::GetText(char* sBoard, bool &afBlackMove, bool fTrailingNull) con
 
 	afBlackMove=fBlackMove;
 
-    assert(p-sBoard==bt.NPlayableSquares());
-	return sBoard;
+    if (p-sBoard != bt.NPlayableSquares())
+        std::cerr << "[GGS] Warning: COsBoard::GetText square count mismatch, got "
+                  << (p-sBoard) << " expected " << bt.NPlayableSquares() << std::endl;
+    
+    return sBoard;
 }
 
 std::string COsBoard::fromGGS() const {
@@ -906,7 +918,10 @@ void COsPosition::UpdateKomiSet(const COsMoveListItem mlis[2]) {
 void COsPosition::Calculate(const COsGame& game, int nMoves) {
 	(*this)=game.posStart;
 	if (nMoves && game.mt.fKomi) {
-        assert(!game.NeedsKomi());
+        if (game.NeedsKomi()) {
+            std::cerr << "[GGS] Warning: COsPosition::Calculate komi not set" << std::endl;
+            return;
+        }
         UpdateKomiSet(game.mlisKomi);
 	}
 	Update(game.ml, nMoves);
@@ -945,9 +960,10 @@ void COsGame::In(std::istream& is) {
 			getline(is, sData, ']');
 			std::istringstream is(sData.c_str());
 
-            if (sToken=="GM")
-                assert(sData=="Othello");
-            else if (sToken=="PC")
+            if (sToken=="GM") {
+                if (sData != "Othello")
+                    std::cerr << "[GGS] Warning: COsGame::In unexpected game type='" << sData << "'" << std::endl;
+            } else if (sToken=="PC")
 				sPlace=sData;
 			else if (sToken=="DT")
 				sDateTime=sData;
@@ -993,16 +1009,16 @@ void COsGame::In(std::istream& is) {
 		if (fCheckKomiValue) {
 			double dErr = 2*dKomiValue - mlisKomi[0].dEval - mlisKomi[1].dEval;
             std::cout << dErr << std::endl;
-            assert(0.0001 > dErr && dErr > -0.0001);
-
+            if (dErr >= 0.0001 || dErr <= -0.0001)
+                std::cerr << "[GGS] Warning: COsGame::In komi value mismatch, err=" << dErr << std::endl;
 		}
 
 		if (is) {
 			is >> c;
-            assert(c==';');
+            if (c != ';') { std::cerr << "[GGS] Warning: COsGame::In malformed, expected ';'" << std::endl; }
 
 			is >> c;
-            assert(c==')');
+            if (c != ')') { std::cerr << "[GGS] Warning: COsGame::In malformed, expected ')'" << std::endl; }
 
 		}
 
@@ -1040,21 +1056,27 @@ std::istream& COsGame::InLogbook(std::istream& is) {
 			}
 		}
 		else {
-            assert(c==':');
-			break;
+            if (c != ':') {
+                std::cerr << "[GGS] Warning: COsGame::InLogbook unexpected char='" << c << "'" << std::endl;
+                break;
+            }
+            break;
 		}
 	}
 
 	// get result
 	int nResult;
 	is >> nResult;
-    assert(nResult==pos.board.NetBlackSquares());
-	result.Set(nResult);
+    if (nResult != pos.board.NetBlackSquares())
+        std::cerr << "[GGS] Warning: COsGame::InLogbook result mismatch: stored="
+                  << nResult << " board=" << pos.board.NetBlackSquares() << std::endl;
+    result.Set(nResult);
 
 	// game over flag
 	int n;
 	is >> n;
-    assert(n==10);
+    if (n != 10)
+        std::cerr << "[GGS] Warning: COsGame::InLogbook unexpected end flag=" << n << std::endl;
     
 	return is;
 }
@@ -1108,8 +1130,9 @@ std::istream& COsGame::InIOS(std::istream& is) {
 		// read move code. move code 0 means game is over
 		while ((is >> iosmove) && iosmove) {
 			// positive moves are black, negative are white
-            assert(pos.board.fBlackMove==iosmove>0);
-
+            if (pos.board.fBlackMove != (iosmove > 0))
+                std::cerr << "[GGS] Warning: COsGame::InIOS move color mismatch" << std::endl;
+            
 			mli.mv.SetIOS(iosmove);
 			Update(mli);
 
@@ -1123,8 +1146,9 @@ std::istream& COsGame::InIOS(std::istream& is) {
 		// calculate result. Might not be equal to the result
 		//	on the board if one player resigned.
 		result.dResult=nBlack-nWhite;
-        assert(result.dResult==pos.board.NetBlackSquares() || result.status!=COsResult::kNormalEnd);
-
+        if (result.dResult != pos.board.NetBlackSquares() && result.status == COsResult::kNormalEnd)
+            std::cerr << "[GGS] Warning: COsGame::InIOS result mismatch: stored="
+                      << result.dResult << " board=" << pos.board.NetBlackSquares() << std::endl;
 	}
 
 	return is;
@@ -1313,8 +1337,8 @@ void COsPlayerInfo::Clear() {
 void COsRating::In(std::istream& is) {
 	char c;
 	is >> dRating >> c >> dSD;
-    assert(c=='@');
-
+    if (c != '@')
+        std::cerr << "[GGS] Warning: COsRating malformed, expected '@', got '" << c << "'" << std::endl;
 }
 
 double COsRating::AdjustedRating() const {
@@ -1341,7 +1365,7 @@ void COsRatingData::In(std::istream& is) {
 	char c;
 
 	if ( is  >> rating >> c) {
-        assert(c=='=');
+        if (c != '=') { std::cerr << "[GGS] Warning: COsRatingData malformed, expected '='" << std::endl; return; }
 
 		sInactive="hello";
 		getline(is, sInactive, char('+'));
@@ -1444,8 +1468,8 @@ void COsStoredMatch::In(std::istream& is) {
 	is >> idsm >> dt >> sPlayers[0] >> sPlayers[1] >> mt >> s;
     
     if (is)
-        assert(s==":l");
-
+        if (is && s != ":l")
+            std::cerr << "[GGS] Warning: COsStoredMatch unexpected suffix='" << s << "'" << std::endl;
 }
 
 /*
@@ -1466,13 +1490,13 @@ void COsWhoItem::In(std::istream& isAll) {
 		char c;
 
 		is >> sLogin >> c >> rating >> s;
-        assert(c=='+');
+        if (c != '+') { std::cerr << "[GGS] Warning: COsWhoItem malformed, expected '+'" << std::endl; return; }
 
 		fMe=!is;
 		if (!fMe) {
-            assert(s=="->");
+            if (s != "->") { std::cerr << "[GGS] Warning: COsWhoItem malformed, expected '->'" << std::endl; return; }
 			is >> dWin >> dDraw >> dLoss >> c >> dSDNew;
-            assert(c=='@');
+            if (c != '@') { std::cerr << "[GGS] Warning: COsWhoItem malformed, expected '@'" << std::endl; return; }
 		}
 	}
 }

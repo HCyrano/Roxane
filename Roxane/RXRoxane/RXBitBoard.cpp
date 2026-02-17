@@ -962,37 +962,3 @@ void RXBitBoard::print_Board(unsigned long long P, unsigned long long O) {
 
 }
 
-/*
-void RXBitBoard::print_count_legal_moves_all_palyer() {
-    
-    uint64x2_t counts = count_legal_moves_all_player(discs[player], discs[player^1]);
-    
-    std::cout << "nombre de coups legaux pour le player  : " << vgetq_lane_u64(counts, 0) << std::endl;
-    std::cout << "nombre de coups legaux pour l'opponent : " << vgetq_lane_u64(counts, 1) << std::endl;
-
-}
-
-
-unsigned long long RXBitBoard::cntbset(unsigned long long n) {
-
-	unsigned long long mobility;
-	
-	mobility = ((n          >>  1) & 0x5555555555555555ULL) + (n          & 0x5555555555555555ULL);
-	mobility = ((mobility	>>  2) & 0x3333333333333333ULL) + (mobility   & 0x3333333333333333ULL);
-	mobility = ((mobility	>>  4) & 0x0F0F0F0F0F0F0F0FULL) + (mobility   & 0x0F0F0F0F0F0F0F0FULL);
-	mobility = ((mobility	>>  8) & 0x00FF00FF00FF00FFULL) + (mobility   & 0x00FF00FF00FF00FFULL);
-	mobility = ((mobility	>> 16) & 0x0000FFFF0000FFFFULL) + (mobility   & 0x0000FFFF0000FFFFULL);
-	mobility = ((mobility	>> 32) & 0x00000000FFFFFFFFULL) + (mobility   & 0x00000000FFFFFFFFULL);
-
-	return mobility;
-}
- 
-
-
-void RXBitBoard::build(const unsigned long long discs_player, const unsigned long long discs_opp, const int color) {
-	discs[color] = discs_player;
-	discs[color^1] = discs_opp;
-	player = color;
-}
- 
-*/

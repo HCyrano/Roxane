@@ -1,15 +1,14 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
-#include <cassert>
-
-
-#include "types.hpp"
-
-#include "GGSMessage.hpp"
 #include <sstream>
 #include <iomanip>
+
 #include "ggsstream.hpp"
+#include "GGSMessage.hpp"
+#include "types.hpp"
+
+
 
 
 ///////////////////////////////////
@@ -28,11 +27,18 @@ void CMsgGGSAlias::In(std::istream& is) {
 	CGGSAlias alias;
 
     is >> nAlias1 >> c >> nAlias2;
-    assert(c=='/');
+    if (c != '/') {
+        std::cerr << "[GGS] Warning: malformed alias message, expected '/'" << std::endl;
+        return;
+    }
+    
     while (is >> alias)
         valiases.push_back(alias);
 
-    assert(nAlias2==valiases.size());
+    if (nAlias2 != (int)valiases.size()) {
+        std::cerr << "[GGS] Warning: alias count mismatch, expected "
+                  << nAlias2 << " got " << valiases.size() << std::endl;
+    }
 }
 
 void CMsgGGSAlias::Handle() {
@@ -191,7 +197,11 @@ void CMsgGGSWho::In(std::istream& is) {
 	while (is >> wu) {
 		wus.push_back(wu);
 	}
-    assert(wus.size()==nUsers);
+
+    if ((int)wus.size() != nUsers) {
+        std::cerr << "[GGS] Warning: who user count mismatch, expected "
+                  << nUsers << " got " << wus.size() << std::endl;
+    }
 }
 
 void CMsgGGSWho::Handle() {

@@ -1,15 +1,14 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
-#include "types.hpp"
+#include <iostream>
+#include <unistd.h>
 
 #include "ODKStream.hpp"
 #include "GGSMessage.hpp"
 #include "OsMessage.hpp"
 #include "RXRoxane.hpp"
-
-#include <iostream>
-#include <unistd.h>
+#include "types.hpp"
 
 // Display message in console
 void CODKStream::HandleGGS(const CMsg* pmsg) {
@@ -65,52 +64,35 @@ void CODKStream::HandleOsLogin() {
 	flush();
 }
 
-/*
-
-// handler from Roxane:
+// handler
+// this code is executed when a game change state
+// even if the match terminates abnormally (e.g. one player leaves).
 void CODKStream::HandleOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
-	if (pmsg->fPlus) {
-		Roxane::start_match(pmsg);
-	} else {
-		string idg;
-		COsGame* pgame;
+ 
+    //if my game
+    if (pmsg->match.IsPlaying(GetLogin()) && pComputer!=NULL) {
+        
+        if (pmsg->fPlus) { // this code is executed when game begins
 
-		// add games to book
-		idg=pmsg->match.idm;
-		pgame=PGame(idg);
-		if (pgame)
-			pComputer->EndGame(*pgame);
+            //vide les hash
+            pComputer->resume();
 
-		idg=pmsg->match.idm+".0";
-		pgame=PGame(idg);
-		if (pgame)
-			pComputer->EndGame(*pgame);
+        } else { // this code is executed when game ends
+            
+            pComputer->resume();
+        }
 
-		idg=pmsg->match.idm+".1";
-		pgame=PGame(idg);
-		if (pgame)
-			pComputer->EndGame(*pgame);
-	}
+            
+     }
+ 
 	BaseOsMatchDelta(pmsg);
 }
-*/
 
-//void CODKStream::HandleOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
-//	if (!pmsg->fPlus) {
-//		(*this) << "t /os ask s8r18 5:00 piglet\n";
-//		flush();
-//	}
-//	BaseOsMatchDelta(pmsg);
-//}
 
 //message .end
 void CODKStream::HandleOsEnd(const CMsgOsEnd *pmsg) {
     
     BaseOsEnd(pmsg);
-    COsGame* pgame=PGame(pmsg->idg);
-    if (pgame!=NULL && pComputer!=NULL) {
-        pComputer->stop_engine(pgame);
-    }
 }
 
 void CODKStream::HandleOsTimeout(const CMsgOsTimeout* pmsg){
@@ -176,9 +158,7 @@ void CODKStream::HandleOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
 
 
 void CODKStream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg,const std::string& idg) {
-        if (pmsg->match.IsPlaying(GetLogin()) && pComputer!=NULL)
-			pComputer->resume();
-		BaseOsGameOver(idg);
+    BaseOsGameOver(idg);
 }
 
 
@@ -206,11 +186,6 @@ void CODKStream::GetMoveIfNeeded(const std::string& idg) {
 		
 			pComputer->get_move(idg, pgame);
 		
-		/*
-			pComputer->get_move(*pgame, mli);
-			(*this) << "tell /os play " << idg << " " << mli << "\n";
-			flush();
-		*/
 		}
 	}
 }

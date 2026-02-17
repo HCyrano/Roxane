@@ -12,13 +12,12 @@
 
 
 #include "sockbuf.hpp"
-
-class CMsg;
-class COs;
-
 #include "GGSMessage.hpp"
 #include "OsMessage.hpp"
 #include "OsObjects.hpp"
+
+class CMsg;
+class COs;
 
 class ggsstream : public std::iostream {
 public:

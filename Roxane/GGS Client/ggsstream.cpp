@@ -2,38 +2,29 @@
 //	All Rights Reserved
 
 #include <cassert>
-#include "types.hpp"
-
-#include "ggsstream.hpp"
-#include "GGSMessage.hpp"
-#include "OsMessage.hpp"
 #include <string>
 #include <sstream>
 #include <cstring>  // Pour memcmp
 #include <chrono>
 #include <thread>
 
+#include "types.hpp"
+#include "ggsstream.hpp"
+#include "GGSMessage.hpp"
+#include "OsMessage.hpp"
+
 
 
 ggsstream::ggsstream() : std::iostream(NULL) {
-	fLoggedIn=fHasOs=false;
-	psockbuf=NULL;
+    fLoggedIn=fHasOs=false;
+    psockbuf=NULL;
 }
 
 ggsstream::~ggsstream() {
-    // 1. On arrête le pulsateur d'abord
-    StopHeartbeat();
-    if (heartbeatThread.joinable()) {
-        heartbeatThread.join();
-    }
-
-    if (IsLoggedIn()) Logout();
-    if (IsConnected()) Disconnect();
     
-    if (psockbuf) {
-        delete psockbuf;
-        psockbuf = NULL;
-    }
+    //if (IsLoggedIn()) Logout();
+    Disconnect();
+    
 }
 
 void ggsstream::HeartbeatLoop() {
@@ -52,29 +43,36 @@ void ggsstream::HeartbeatLoop() {
             break;
         
         if (IsConnected() && IsLoggedIn()) {
-            std::lock_guard<std::mutex> lock(mtx);  // ← AJOUTER
-            if (!stopHeartbeat && psockbuf != nullptr) {  // ← DOUBLE CHECK
-                
-                //std::cout << "[CLIENT] Sending heartbeat pulse..." << std::endl;
-                
-                this->clear(); // Reset des flags d'état
-                (*this) << "t /os continue\n";
-                this->flush();
-                
-                // Si le socket est mort, flush() lèvera le failbit.
-                // La boucle while(get(c)) dans Process() s'arrêtera,
-                // déclenchant votre fAutoReconnect.
-                if (this->fail()) {
-                    std::cout << "[CLIENT] Heartbeat failed (Socket closed)" << std::endl;
-                }
+            //            std::lock_guard<std::mutex> lock(mtx);
+            //            if (!stopHeartbeat && psockbuf != nullptr) {  // ← DOUBLE CHECK
+            
+            //std::cout << "[CLIENT] Sending heartbeat pulse..." << std::endl;
+            
+            this->clear(); // Reset des flags d'état
+            (*this) << "t /os continue\n";
+            this->flush();
+            
+            // Si le socket est mort, flush() lèvera le failbit.
+            // La boucle while(get(c)) dans Process() s'arrêtera,
+            // déclenchant votre fAutoReconnect.
+            if (this->fail()) {
+                std::cout << "[CLIENT] Heartbeat failed (Socket closed)" << std::endl;
+                // ATTENTION rien d'autre, pas d'appel à StopHeartbeat()
             }
         }
     }
+    //    }
 }
 
 void ggsstream::StopHeartbeat() {
     stopHeartbeat = true;
     cv.notify_all(); // Réveil instantané du thread qui dort dans wait_for
+    
+    
+    if (heartbeatThread.joinable()) {
+        heartbeatThread.join();            // ← garanti safe maintenant
+    }
+    
 }
 
 void ggsstream::EnableAutoReconnect(bool enable, int maxRetries, int delayMs) {
@@ -92,9 +90,6 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     
     // 1. ARRÊTER le heartbeat avant toute chose pour libérer le socket
     StopHeartbeat();
-    if (heartbeatThread.joinable()) {
-        heartbeatThread.join();
-    }
     
     // Reset the iostream state (clears eofbit, failbit, etc.)
     // Essential for the Process() loop to restart.
@@ -103,15 +98,6 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     if(IsConnected()) {
         return kErrConnected;
     }
-
-
-    //  VERIFIE si buffer existe (memory leak)
-    if (psockbuf) {
-        std::cerr << "[FATAL] Connect() called with existing buffer - memory leak detected!" << std::endl;
-        std::abort(); // quit
-        return kErrConnected; // Ou une nouvelle erreur kErrInternalState
-    }
-
     
     
     // Save for reconnection
@@ -119,14 +105,14 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
     nLastPort = nPort;
     
     int err = kErrUnknown;
-
+    
     psockbuf = new sockbuf();
     if (psockbuf) {
         err = psockbuf->connect(sServer, nPort);
         if (!err) {
             init(psockbuf);
         } else {
-            std::cerr << "[ERROR] Connection failed: " << strerror(errno) << std::endl;
+            std::cerr << "[ERROR] Connection failed: " << ErrText(err) << std::endl;
             delete psockbuf;
             psockbuf = NULL;
         }
@@ -138,6 +124,9 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
         stopHeartbeat = false;
         if (heartbeatThread.joinable()) heartbeatThread.join();
         heartbeatThread = std::thread(&ggsstream::HeartbeatLoop, this);
+        std::cout << "[STREAM]  ✓ HeartbeatLoop started - sends keepalive every 60s" << std::endl;
+        std::cout << "[STREAM] ═══════════════════════════════════════\n" << std::endl;
+        
         
     }
     
@@ -155,7 +144,7 @@ bool ggsstream::TryReconnect() {
     // IMPORTANT: Clean up before attempting reconnection
     // ═══════════════════════════════════════════════════════════
     Disconnect();
-
+    
     
     nCurrentRetry = 0;
     int currentWorkDelay = nReconnectDelayMs;
@@ -174,8 +163,8 @@ bool ggsstream::TryReconnect() {
             std::cout << "[RECONNECT] Waiting " << currentWorkDelay / 1000 << "s before next attempt..." << std::endl;
             
             std::this_thread::sleep_for(
-                std::chrono::milliseconds(currentWorkDelay)
-            );
+                                        std::chrono::milliseconds(currentWorkDelay)
+                                        );
             
             // On double le délai pour l'itération SUIVANTE
             // Suite : 5s -> 10s -> 20s -> 40s -> 80s...
@@ -216,12 +205,12 @@ bool ggsstream::TryReconnect() {
 // Called BEFORE each reconnection attempt
 void ggsstream::OnReconnecting(int attempt, int maxAttempts) {
     std::cout << "[RECONNECT] Attempting reconnection "
-         << attempt << "/" << maxAttempts << "..." << std::endl;
+    << attempt << "/" << maxAttempts << "..." << std::endl;
 }
 
 // Called when reconnection SUCCEEDS
 void ggsstream::OnReconnected() {
-    std::cout << "[RECONNECT] Successfully reconnected to " << sLastServer << std::endl;
+    std::cout << "[RECONNECT] Successfully reconnected to " << sLastServer << "\n" << std::endl;
     
     // You can add actions here:
     // - Send commands to the server
@@ -254,10 +243,15 @@ void ggsstream::ForceDisconnect() {
 
 int ggsstream::Disconnect() {
     
-    StopHeartbeat();
-    if (heartbeatThread.joinable()) {
-        heartbeatThread.join();
-    }
+    // Un streambuf vide et inoffensif, jamais supprimé
+    static struct : std::streambuf {} sNullBuf;
+    
+    
+    //stopHeartbeat() special: débloque flush() dans heartbeat
+    stopHeartbeat = true;
+    cv.notify_all();
+    if (psockbuf) psockbuf->disconnect(); // débloque flush() dans heartbeat
+    if (heartbeatThread.joinable()) heartbeatThread.join(); // safe();
     
     // Vérifier AVANT de modifier
     if (!psockbuf) {
@@ -266,87 +260,86 @@ int ggsstream::Disconnect() {
     
     // Maintenant on peut tout nettoyer
     fLoggedIn = false;
-
+    
     setstate(std::ios::eofbit);
     
-    psockbuf->disconnect();
     delete psockbuf;
     psockbuf = NULL;
-
-    init(NULL);
+    
+    init(&sNullBuf);          // stream toujours valide, mais inactif
     clear(std::ios::eofbit);
     return 0;
-
+    
 }
 
 // return 0 if no error
 // 1 if socket err (e.g. connection timed out)
 int ggsstream::Login(const char* sName, const char* sPwd) {
-	int err=0;
-
-	if (fLoggedIn) {
-		err = kErrLoggedIn;
-	}
-
-	// await login prompt
-	if (!err) {
-		sLogin=sName;
+    int err=0;
+    
+    if (fLoggedIn) {
+        err = kErrLoggedIn;
+    }
+    
+    // await login prompt
+    if (!err) {
+        sLogin=sName;
         sPassword = sPwd;
-		err = await("login");
-	}
-
-	// send login, await password prompt
-	if (!err) {
-		(*this) << sLogin << "\n";
-		flush();
-		err = await("password");
-	}
-
-	// send password, await response
-	if (!err) {
-		(*this) << sPassword << "\n";
-		flush();
-		err = await("\n");
-	}
-
-	// check to see if password was accepted
-	if (!err) {
-		char c;
-		c=peek();
-		switch(c) {
-		case ':':
-			err = kErrBadPassword;
-			break;
-		case 'R':
-			fLoggedIn=true;
-			break;
-		default:
-			err = kErrUnknown;
-		}
-	}
-
-	// send fake "Login" message
-	if (!err) {
-		CMsgGGSLogin *pmsg= new CMsgGGSLogin;
-		if (pmsg) {
-			pmsg->pgs=this;
-			Post(pmsg);
-		}
-	}
-
-	return err;
+        err = await("login");
+    }
+    
+    // send login, await password prompt
+    if (!err) {
+        (*this) << sLogin << "\n";
+        flush();
+        err = await("password");
+    }
+    
+    // send password, await response
+    if (!err) {
+        (*this) << sPassword << "\n";
+        flush();
+        err = await("\n");
+    }
+    
+    // check to see if password was accepted
+    if (!err) {
+        char c;
+        c=peek();
+        switch(c) {
+            case ':':
+                err = kErrBadPassword;
+                break;
+            case 'R':
+                fLoggedIn=true;
+                break;
+            default:
+                err = kErrUnknown;
+        }
+    }
+    
+    // send fake "Login" message
+    if (!err) {
+        CMsgGGSLogin *pmsg= new CMsgGGSLogin;
+        if (pmsg) {
+            pmsg->pgs=this;
+            Post(pmsg);
+        }
+    }
+    
+    return err;
 }
 
 int ggsstream::Logout() {
-	if (fLoggedIn==false) {
-		return kErrLoggedOut;
-	}
-	else {
-		(*this) << "quit\n";
-		flush();
-		fLoggedIn=false;
-		return 0;
-	}
+    if (fLoggedIn==false) {
+        return kErrLoggedOut;
+    }
+    else {
+        (*this) << "quit\n";
+        flush();
+        fLoggedIn=false;
+        return 0;
+    }
 }
 
 
@@ -379,8 +372,8 @@ int ggsstream::await(const char* sAwait) {
             sLine.erase(0, sLine.size() - awaitLen);
         }
     }
-
-
+    
+    
     // EOF ou erreur (ne fonctionne pas)
     if (psockbuf)
         return psockbuf->Err();
@@ -391,7 +384,7 @@ int ggsstream::await(const char* sAwait) {
 }
 
 const std::string& ggsstream::GetLogin() const {
-	return sLogin;
+    return sLogin;
 }
 
 const std::string& ggsstream::GetPassword() const {
@@ -405,14 +398,14 @@ const std::string& ggsstream::GetPassword() const {
 void ggsstream::Process() {
     
     bool keepRunning = true;
-
+    
     while (keepRunning) {
         std::string sLine;
         sLine.reserve(256);
         bool fHasCR = false;
-
+        
         char c;
-
+        
         // Boucle de lecture principale
         while (get(c)) {
             switch(c) {
@@ -430,7 +423,7 @@ void ggsstream::Process() {
             }
             fHasCR = (c == '\r');
         }
-
+        
         // Si on sort du while(get(c)), c'est qu'il y a eu une déconnexion ou une erreur
         bool wasLoggedIn = fLoggedIn;
         
@@ -440,13 +433,13 @@ void ggsstream::Process() {
             pmsg->pgs = this;
             Post(pmsg);
         }
-
+        
         // Tentative de reconnexion
         if (fAutoReconnect && wasLoggedIn) {
             if (TryReconnect()) {
                 // Reconnexion réussie : la boucle "while(keepRunning)"
                 // recommence et entre à nouveau dans "while(get(c))"
-                std::cout << "[DEBUG] Re-entering main loop after successful reconnect." << std::endl;
+                //std::cout << "[DEBUG] Re-entering main loop after successful reconnect." << std::endl;
             } else {
                 // Échec total après toutes les tentatives
                 keepRunning = false;
@@ -461,9 +454,9 @@ void ggsstream::Process() {
 void ggsstream::ProcessLine(std::string& sLine){
     
     // Log de la ligne reçue
-        if (!sLine.empty()) {
-            std::cout << "[RECV] " << sLine << std::endl;
-        }
+    if (!sLine.empty()) {
+        std::cout << "[RECV] " << sLine << std::endl;
+    }
     
     if (sLine=="READY")
         ProcessMessage();
@@ -498,164 +491,162 @@ void ggsstream::ProcessLine(std::string& sLine){
 
 void ggsstream::ProcessMessage() {
     std::istringstream is(sMsg.c_str());
-	CMsg *pmsg;
-
-	pmsg=GetMsgType(is);
-
-	if (pmsg) {
-		pmsg->pgs=this;
-		pmsg->sRawText=sMsg;
-		pmsg->In(is);
-		Post(pmsg);
-	}
-
-	sMsg="";
+    CMsg *pmsg;
+    
+    pmsg=GetMsgType(is);
+    
+    if (pmsg) {
+        pmsg->pgs=this;
+        pmsg->sRawText=sMsg;
+        pmsg->In(is);
+        Post(pmsg);
+    }
+    
+    sMsg="";
 }
 
 void ggsstream::Post(CMsg* pmsg) {
-	pmsg->Handle();
-	delete pmsg;
+    pmsg->Handle();
+    delete pmsg;
 }
 
 CMsg* ggsstream::GetMsgType(std::istream& is) {
     std::string sFrom;
-	CMsg *pmsg;
-
-	is >> sFrom >> std::ws;
-
-	if (sFrom.empty())
-		pmsg=NULL;
-	else {
-		// direct messages end in ':', channel messages don't
-		if (sFrom.end()[-1]==':')
-			sFrom.resize(sFrom.size()-1);
-
-		if (sFrom=="/os")
-			 pmsg=GetMsgTypeOs(is);
-		else if (sFrom=="")
-			pmsg=GetMsgTypeGGS(is);
-		else {
-			pmsg = new CMsgGGSTell;
-		}
-		if (pmsg)
-			pmsg->sFrom=sFrom;
-	}
+    CMsg *pmsg;
     
-	return pmsg;
+    is >> sFrom >> std::ws;
+    
+    if (sFrom.empty())
+        pmsg=NULL;
+    else {
+        // direct messages end in ':', channel messages don't
+        if (sFrom.end()[-1]==':')
+            sFrom.resize(sFrom.size()-1);
+        
+        if (sFrom=="/os")
+            pmsg=GetMsgTypeOs(is);
+        else if (sFrom=="")
+            pmsg=GetMsgTypeGGS(is);
+        else {
+            pmsg = new CMsgGGSTell;
+        }
+        if (pmsg)
+            pmsg->sFrom=sFrom;
+    }
+    
+    return pmsg;
 }
 
 CMsg* ggsstream::GetMsgTypeOs(std::istream& is) {
-	CMsg* pmsg=NULL;
-
+    CMsg* pmsg=NULL;
+    
     std::string sMsgType;
-	is >> sMsgType >> std::ws;
-
-	if (sMsgType[0]=='.')
-		pmsg=new CMsgOsComment(sMsgType);
-	else if (sMsgType=="abort")
-		pmsg=new CMsgOsAbortRequest;
-	else if (sMsgType=="end")
-		pmsg=new CMsgOsEnd;
-	else if (sMsgType=="ERR")
-		pmsg=new CMsgOsErr;
-	else if (sMsgType=="fatal-timeout")
-		pmsg=new CMsgOsFatalTimeout;
-	else if (sMsgType=="finger")
-		pmsg=new CMsgOsFinger;
-	else if (sMsgType=="history") {
-		if (is.peek()=='E')
-			pmsg=new CMsgOsErr;
-		else
-			pmsg=new CMsgOsHistory;
-	}
-	else if (sMsgType=="illegal")
-		pmsg=new CMsgOsErr;
-	else if (sMsgType=="join")
-		pmsg=new CMsgOsJoin;
-	else if (sMsgType=="look")
-		pmsg=new CMsgOsLook;
-	else if (sMsgType=="match")
-		pmsg=new CMsgOsMatch;
-	else if (sMsgType=="rank")
-		pmsg=new CMsgOsRank;
-	else if (sMsgType=="rating_update")
-		pmsg=new CMsgOsRatingUpdate;
-	else if (sMsgType=="stored")
-		pmsg=new CMsgOsStored;
-	else if (sMsgType=="timeout")
-		pmsg=new CMsgOsTimeout;
-	else if (sMsgType=="top")
-		pmsg=new CMsgOsTop;
-	else if (sMsgType=="trust-violation")
-		pmsg=new CMsgOsTrustViolation;
-	else if (sMsgType=="undo")
-		pmsg=new CMsgOsUndoRequest;
-	else if (sMsgType=="update")
-		pmsg=new CMsgOsUpdate;
-	else if (sMsgType=="watch") {
-		is >> std::ws;
-		char c=is.peek();
-		if (c=='+' || c=='-')
-			pmsg=new CMsgOsErr;
-		else
-			pmsg=new CMsgOsWatch;
-	}
-	else if (sMsgType=="who")
-		pmsg=new CMsgOsWho;
-	else if (sMsgType=="+" || sMsgType=="-") {
-		bool fPlus= sMsgType=="+";
-		is >> std::ws;
-		if (is.peek()=='.')
-			pmsg=new CMsgOsRequestDelta(fPlus);
-		else {
-			is >> sMsgType;
-			if (sMsgType=="match")
-				pmsg=new CMsgOsMatchDelta(fPlus);
-			else {
+    is >> sMsgType >> std::ws;
+    
+    if (sMsgType[0]=='.')
+        pmsg=new CMsgOsComment(sMsgType);
+    else if (sMsgType=="abort")
+        pmsg=new CMsgOsAbortRequest;
+    else if (sMsgType=="end")
+        pmsg=new CMsgOsEnd;
+    else if (sMsgType=="ERR")
+        pmsg=new CMsgOsErr;
+    else if (sMsgType=="fatal-timeout")
+        pmsg=new CMsgOsFatalTimeout;
+    else if (sMsgType=="finger")
+        pmsg=new CMsgOsFinger;
+    else if (sMsgType=="history") {
+        if (is.peek()=='E')
+            pmsg=new CMsgOsErr;
+        else
+            pmsg=new CMsgOsHistory;
+    }
+    else if (sMsgType=="illegal")
+        pmsg=new CMsgOsErr;
+    else if (sMsgType=="join")
+        pmsg=new CMsgOsJoin;
+    else if (sMsgType=="look")
+        pmsg=new CMsgOsLook;
+    else if (sMsgType=="match")
+        pmsg=new CMsgOsMatch;
+    else if (sMsgType=="rank")
+        pmsg=new CMsgOsRank;
+    else if (sMsgType=="rating_update")
+        pmsg=new CMsgOsRatingUpdate;
+    else if (sMsgType=="stored")
+        pmsg=new CMsgOsStored;
+    else if (sMsgType=="timeout")
+        pmsg=new CMsgOsTimeout;
+    else if (sMsgType=="top")
+        pmsg=new CMsgOsTop;
+    else if (sMsgType=="trust-violation")
+        pmsg=new CMsgOsTrustViolation;
+    else if (sMsgType=="undo")
+        pmsg=new CMsgOsUndoRequest;
+    else if (sMsgType=="update")
+        pmsg=new CMsgOsUpdate;
+    else if (sMsgType=="watch") {
+        is >> std::ws;
+        char c=is.peek();
+        if (c=='+' || c=='-')
+            pmsg=new CMsgOsErr;
+        else
+            pmsg=new CMsgOsWatch;
+    }
+    else if (sMsgType=="who")
+        pmsg=new CMsgOsWho;
+    else if (sMsgType=="+" || sMsgType=="-") {
+        bool fPlus= sMsgType=="+";
+        is >> std::ws;
+        if (is.peek()=='.')
+            pmsg=new CMsgOsRequestDelta(fPlus);
+        else {
+            is >> sMsgType;
+            if (sMsgType=="match")
+                pmsg=new CMsgOsMatchDelta(fPlus);
+            else {
                 std::string sLogin=sMsgType;
-				is >> sMsgType;
-				if (sMsgType=="watch") {
-					pmsg=new CMsgOsWatchDelta(fPlus, sLogin);
-				}
-				else{
-					// os: + booklet stored
-					pmsg=new CMsgOsUnknown("--");
-				}
-			}
-		}
-	}
-	else
-		pmsg=new CMsgOsUnknown(sMsgType);
-
-    assert(pmsg);
-	return pmsg;
+                is >> sMsgType;
+                if (sMsgType=="watch") {
+                    pmsg=new CMsgOsWatchDelta(fPlus, sLogin);
+                }
+                else{
+                    // os: + booklet stored
+                    pmsg=new CMsgOsUnknown("--");
+                }
+            }
+        }
+    }
+    else
+        pmsg=new CMsgOsUnknown(sMsgType);
+    
+    return pmsg;
 }
 
 CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
-	CMsg* pmsg=NULL;
-
+    CMsg* pmsg=NULL;
+    
     std::string sMsgType;
-	is >> sMsgType;
-
-	if (sMsgType=="alias")
-		pmsg=new CMsgGGSAlias;
-	else if (sMsgType=="ERR")
-		pmsg=new CMsgGGSErr;
-	else if (sMsgType=="finger")
-		pmsg= new CMsgGGSFinger;
-	else if (sMsgType=="help")
-		pmsg= new CMsgGGSHelp;
-	else if (sMsgType=="who")
-		pmsg=new CMsgGGSWho;
-	else if (sMsgType=="+" || sMsgType=="-") {
-		bool fPlus= sMsgType=="+";
-		pmsg=new CMsgGGSUserDelta(fPlus);
-	}
-	else
-		pmsg=new CMsgGGSUnknown;
-
-    assert(pmsg);
-	return pmsg;
+    is >> sMsgType;
+    
+    if (sMsgType=="alias")
+        pmsg=new CMsgGGSAlias;
+    else if (sMsgType=="ERR")
+        pmsg=new CMsgGGSErr;
+    else if (sMsgType=="finger")
+        pmsg= new CMsgGGSFinger;
+    else if (sMsgType=="help")
+        pmsg= new CMsgGGSHelp;
+    else if (sMsgType=="who")
+        pmsg=new CMsgGGSWho;
+    else if (sMsgType=="+" || sMsgType=="-") {
+        bool fPlus= sMsgType=="+";
+        pmsg=new CMsgGGSUserDelta(fPlus);
+    }
+    else
+        pmsg=new CMsgGGSUnknown;
+    
+    return pmsg;
 }
 
 const char* ggsstream::ErrText(int err) {
@@ -694,143 +685,153 @@ bool ggsstream::IsConnected() const {
 }
 
 bool ggsstream::IsLoggedIn() const {
-	return fLoggedIn;
+    return fLoggedIn;
 }
 
 bool ggsstream::HasOthelloServer() const {
-	return fHasOs;
+    return fHasOs;
 }
 
 void ggsstream::BaseGGSDisconnect() {
-	idToGame.clear();
-	idToMatch.clear();
-	idToRequest.clear();
-	fLoggedIn=fHasOs=false;
-	//sLogin.erase(); ne pas supprimer
+    idToGame.clear();
+    idToMatch.clear();
+    idToRequest.clear();
+    fLoggedIn=fHasOs=false;
+    //sLogin.erase(); ne pas supprimer
 }
 
 void ggsstream::BaseGGSLogin() {
-
-	// required commands for ODK to work:
-	(*this) << "ve -ack\n"		    // turn off GGS Parser comments
-            << "notify + /os\n"; 	// tell us when /os comes up/goes down
-            
-	flush();
+    
+    // required commands for ODK to work:
+    (*this) << "ve -ack\n"		    // turn off GGS Parser comments
+    << "notify + /os\n"; 	// tell us when /os comes up/goes down
+    
+    flush();
 }
 
 void ggsstream::BaseGGSUserDelta(const CMsgGGSUserDelta* pmsg) {
-	if (pmsg->sLogin=="/os" && pmsg->fPlus!=fHasOs) {
-		fHasOs=pmsg->fPlus;
-		if (pmsg->fPlus)
-			HandleOsLogin();
-		else
-			HandleOsLogout();
-	}
+    if (pmsg->sLogin=="/os" && pmsg->fPlus!=fHasOs) {
+        fHasOs=pmsg->fPlus;
+        if (pmsg->fPlus)
+            HandleOsLogin();
+        else
+            HandleOsLogout();
+    }
 }
 
 void ggsstream::BaseOsEnd(const CMsgOsEnd* pmsg) {
-	// end messages occur at the end of some synch games
-	//	to let you know the result
+    // end messages occur at the end of some synch games
+    //	to let you know the result
     
-	COsGame* pgame=PGame(pmsg->idg);
-	if (pgame) {
+    COsGame* pgame=PGame(pmsg->idg);
+    if (pgame) {
         //update result
-        assert(pgame->mt.fSynch);
-		pgame->SetResult(pmsg->result, pmsg->sPlayers);
-	}
+        if (!pgame->mt.fSynch) {
+            std::cerr << "[GGS] Warning: 'end' message received for non-synch game id="
+                      << pmsg->idg << std::endl;
+            return;
+        }
+        pgame->SetResult(pmsg->result, pmsg->sPlayers);
+    }
 }
 
 void ggsstream::BaseOsGameOver(const std::string& idg) {
-	idToGame.erase(idg);
+    idToGame.erase(idg);
 }
 
 // we get a "Join" message (and the whole game is sent)
 //	when we join the game,  when komi is set in a game,
 //	and when a move is undone in a game.
 void ggsstream::BaseOsJoin(const CMsgOsJoin* pmsg) {
-	//map<string,COsGame>::iterator i=idToGame.find(pmsg->idg);
-	idToGame[pmsg->idg]=pmsg->game;
+    //map<string,COsGame>::iterator i=idToGame.find(pmsg->idg);
+    idToGame[pmsg->idg]=pmsg->game;
 }
 
 void ggsstream::BaseOsLogin() {
-	// required commands for ODK to work:
+    // required commands for ODK to work:
     (*this) << "tell /os client +\n";   // get compact messages
-	flush();
-
-	fHasOs=true;
+    flush();
+    
+    fHasOs=true;
 }
 
 void ggsstream::BaseOsLogout() {
-	idToGame.clear();
-	idToMatch.clear();
-	idToRequest.clear();
-	fHasOs=false;
+    idToGame.clear();
+    idToMatch.clear();
+    idToRequest.clear();
+    fHasOs=false;
 }
 
 void ggsstream::BaseOsMatch(const CMsgOsMatch* pmsg) {
-	idToMatch.clear();
+    idToMatch.clear();
     std::vector<COsMatch>::const_iterator i;
-	
-	for (i=pmsg->matches.begin(); i!=pmsg->matches.end(); i++)
-		idToMatch[i->idm]=*i;
+    
+    for (i=pmsg->matches.begin(); i!=pmsg->matches.end(); i++)
+        idToMatch[i->idm]=*i;
 }
 
 // helper function for BaseOsMatchDelta
 void ggsstream::EndGame(const CMsgOsMatchDelta* pmsg, const std::string& idg) {
-	COsGame* pgame=PGame(idg);
-	if (pgame) {
-		// synch games with normal termination should have
-		//	gotten an "End" Message.
-		// Other finished games should have the result set in the update message.
-		// timeout games should not have the result yet.
-
-		if (pgame->result.status==COsResult::kUnfinished)
-			pgame->SetResult(pmsg->result, pmsg->match.pis);
-		HandleOsGameOver(pmsg, idg);
+    COsGame* pgame=PGame(idg);
+    if (pgame) {
+        // synch games with normal termination should have
+        //	gotten an "End" Message.
+        // Other finished games should have the result set in the update message.
+        // timeout games should not have the result yet.
+        
+        if (pgame->result.status==COsResult::kUnfinished)
+            pgame->SetResult(pmsg->result, pmsg->match.pis);
+        HandleOsGameOver(pmsg, idg);
         //HandleOsGameOver(idg);
-	}
+    }
 }
 
 void ggsstream::BaseOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
     std::map<std::string,COsMatch>::iterator i=idToMatch.find(pmsg->match.idm);
-	if (pmsg->fPlus) {
-        assert(i==idToMatch.end());
-		idToMatch[pmsg->match.idm]=pmsg->match;
-	}
-	else {
-		if (i!=idToMatch.end()) {
-
-			if (pmsg->match.mt.fSynch) {
-				EndGame(pmsg, pmsg->match.idm+".0");
-				EndGame(pmsg, pmsg->match.idm+".1");
-			}
-			else {
-				EndGame(pmsg, pmsg->match.idm);
-			}
-			idToMatch.erase(i);
-		}
-	}
+    if (pmsg->fPlus) {
+        if (i != idToMatch.end()) {
+            std::cerr << "[GGS] Warning: duplicate match id="
+            << pmsg->match.idm << ", overwriting" << std::endl;
+        }
+        idToMatch[pmsg->match.idm]=pmsg->match;
+    }
+    else {
+        if (i!=idToMatch.end()) {
+            
+            if (pmsg->match.mt.fSynch) {
+                EndGame(pmsg, pmsg->match.idm+".0");
+                EndGame(pmsg, pmsg->match.idm+".1");
+            }
+            else {
+                EndGame(pmsg, pmsg->match.idm);
+            }
+            idToMatch.erase(i);
+        }
+    }
 }
 
 // delete the request if we have it. We might not, e.g. if we've just logged in
 void ggsstream::BaseOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
     std::map<std::string,COsRequest>::iterator i=idToRequest.find(pmsg->idr);
-	if (pmsg->fPlus) {
-        assert(i==idToRequest.end());
+    if (pmsg->fPlus) {
+        if (i != idToRequest.end()) {
+            std::cerr << "[GGS] Warning: duplicate request id="
+            << pmsg->idr << ", overwriting" << std::endl;
+        }
         idToRequest[pmsg->idr]=pmsg->request;
-	}
-	else {
-		if (i!=idToRequest.end())
-			idToRequest.erase(i);
-	}
+    }
+    else {
+        if (i!=idToRequest.end())
+            idToRequest.erase(i);
+    }
 }
 
 void ggsstream::BaseOsUpdate(const CMsgOsUpdate* pmsg) {
-	// update the game if it exists. Due to lag, we might still
-	//	be getting updates for games we've stopped watching
+    // update the game if it exists. Due to lag, we might still
+    //	be getting updates for games we've stopped watching
     std::map<std::string,COsGame>::iterator i=idToGame.find(pmsg->idg);
-	if (i!=idToGame.end())
-		idToGame[pmsg->idg].Update(pmsg->mli);
+    if (i!=idToGame.end())
+        idToGame[pmsg->idg].Update(pmsg->mli);
 }
 
 ///////////////////////////////////////
@@ -838,171 +839,171 @@ void ggsstream::BaseOsUpdate(const CMsgOsUpdate* pmsg) {
 ///////////////////////////////////////
 
 void ggsstream::HandleGGS(const CMsg* pmsg) {
-	std::cout << pmsg->sRawText << std::endl;
+    std::cout << pmsg->sRawText << std::endl;
 }
 
 void ggsstream::HandleGGSAlias(const CMsgGGSAlias* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSDisconnect() {
-	BaseGGSDisconnect();
+    BaseGGSDisconnect();
 }
 
 void ggsstream::HandleGGSErr(const CMsgGGSErr* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSFinger(const CMsgGGSFinger* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSHelp(const CMsgGGSHelp* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSLogin() {
-	BaseGGSLogin();
+    BaseGGSLogin();
 }
 
 void ggsstream::HandleGGSTell(const CMsgGGSTell* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSUnknown(const CMsgGGSUnknown* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSUserDelta(const CMsgGGSUserDelta* pmsg) {
-	BaseGGSUserDelta(pmsg);
-	HandleGGS(pmsg);
+    BaseGGSUserDelta(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleGGSWho(const CMsgGGSWho* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleOs(const CMsgOs* pmsg) {
-	HandleGGS(pmsg);
+    HandleGGS(pmsg);
 }
 
 void ggsstream::HandleOsAbortRequest(const CMsgOsAbortRequest* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsComment(const CMsgOsComment* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsEnd(const CMsgOsEnd* pmsg) {
-     
-	BaseOsEnd(pmsg);
-	HandleOs(pmsg);
+    
+    BaseOsEnd(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsErr(const CMsgOsErr* pmsg) {
-	
-	if (pmsg->err == CMsgOsErr::kErrRequestDoesntFitFormula) {
+    
+    if (pmsg->err == CMsgOsErr::kErrRequestDoesntFitFormula) {
         // Send a "continue" message
-		(*this) << "t /os continue" << "\n";
-		flush();
-	}
-		
-	HandleOs(pmsg);
+        (*this) << "t /os continue" << "\n";
+        flush();
+    }
+    
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsFatalTimeout(const CMsgOsFatalTimeout* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsFinger(const CMsgOsFinger* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsGameOver(const CMsgOsMatchDelta* pmsg, const std::string& idg) {
-	BaseOsGameOver(idg);
+    BaseOsGameOver(idg);
     HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsHistory(const CMsgOsHistory* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsJoin(const CMsgOsJoin* pmsg) {
-	BaseOsJoin(pmsg);
-	HandleOs(pmsg);
+    BaseOsJoin(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsLogin() {
-	BaseOsLogin();
+    BaseOsLogin();
 }
 
 void ggsstream::HandleOsLogout() {
-	BaseOsLogout();
+    BaseOsLogout();
 }
 
 void ggsstream::HandleOsLook(const CMsgOsLook* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsMatch(const CMsgOsMatch* pmsg) {
-	BaseOsMatch(pmsg);
-	HandleOs(pmsg);
+    BaseOsMatch(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
-	BaseOsMatchDelta(pmsg);
-	HandleOs(pmsg);
+    BaseOsMatchDelta(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsRank(const CMsgOsRank* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsRatingUpdate(const CMsgOsRatingUpdate* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsRequestDelta(const CMsgOsRequestDelta* pmsg) {
-	BaseOsRequestDelta(pmsg);
-	HandleOs(pmsg);
+    BaseOsRequestDelta(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsStored(const CMsgOsStored* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsTimeout(const CMsgOsTimeout* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsTop(const CMsgOsTop* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsTrustViolation(const CMsgOsTrustViolation* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsUndoRequest(const CMsgOsUndoRequest* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsUnknown(const CMsgOsUnknown* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsUpdate(const CMsgOsUpdate* pmsg) {
-	BaseOsUpdate(pmsg);
-	HandleOs(pmsg);
+    BaseOsUpdate(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsWatch(const CMsgOsWatch* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsWatchDelta(const CMsgOsWatchDelta* pmsg) {
-	HandleOs(pmsg);
+    HandleOs(pmsg);
 }
 
 void ggsstream::HandleOsWho(const CMsgOsWho* pmsg) {
@@ -1012,10 +1013,10 @@ void ggsstream::HandleOsWho(const CMsgOsWho* pmsg) {
 
 COsGame* ggsstream::PGame(const std::string& idg) {
     std::map<std::string, COsGame>::iterator i;
-
-	i = idToGame.find(idg);
-	if (i==idToGame.end())
-		return NULL;
-	else
-		return &((*i).second);
+    
+    i = idToGame.find(idg);
+    if (i==idToGame.end())
+        return NULL;
+    else
+        return &((*i).second);
 }

@@ -28,10 +28,7 @@ public:
     
     // errors
     enum { kErrUnknown=0x8600,
-        kErrCantStartup,
         kErrNoHost,
-        kErrNoProtocol,
-        kErrNoSocket,
         kErrCantConnect,
         kErrConnectionReset,
         kErrConnectionClosed,
