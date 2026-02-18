@@ -13,6 +13,7 @@
 #include "RXRoxane.hpp"
 #include "StdInput.hpp" // Inclure notre nouvelle classe C++
 #include <string>
+#include <atomic>
 #include <vector>
 #include <pthread.h>
 
@@ -23,7 +24,7 @@ class IOStdProtocol {
 	RXRoxane* engine;
 	StdInput input_handler; // Ajouter une instance de notre nouvelle classe StdInput
 	
-	volatile int running;
+    std::atomic<int> running;
 	
 	// La signature de l'interpréteur de commandes change pour utiliser std::vector<std::string>
 	void InterpretCommand(const std::vector<std::string>& args);

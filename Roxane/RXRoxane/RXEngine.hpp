@@ -18,6 +18,7 @@
 #include <fstream>
 #include <locale>
 #include <assert.h>
+#include <cstring>
 #include <atomic>
 #include <cmath>
 
@@ -59,9 +60,6 @@ class RXRoxane;
 class My_punct:public std::numpunct<char> {
 public:
     
-    typedef char char_type;
-    typedef std::string	string_type;
-    
     
     explicit My_punct(size_t r=0):std::numpunct<char>(r) {}
     
@@ -94,24 +92,56 @@ public:
     int pvDev;
     int depth;
     int selectivity;
-    volatile int alpha, beta, bestscore, bestmove;
+    int alpha, beta, bestscore, bestmove;
     
     
     mutable pthread_mutex_t lock;
     
     
     unsigned int master;
-    volatile unsigned int n_Slaves;
+    std::atomic<unsigned int> n_Slaves;
     
     std::vector<bool>  slaves;
     
-    volatile bool explored;		// splitPoint resolved
-    //std::atomic_bool explored;
+    std::atomic_bool explored;
     
     RXSplitPoint(int maxThreads) : parent(NULL), sBoard(NULL), sBoardStack(maxThreads), slaves(maxThreads),
     list(NULL) {
+        n_Slaves = 0;
         explored = false;
         pthread_mutex_init(&lock, NULL);
+    }
+    
+    // Constructeur de copie explicite nécessaire à cause de std::atomic<> non copiable
+    // Il faut donc écrire la copie manuellement en faisant ex : n_Slaves(o.n_Slaves.load())
+    RXSplitPoint(const RXSplitPoint& o) :
+        parent(o.parent), sBoard(o.sBoard), sBoardStack(o.sBoardStack),
+        list(o.list), CBSearch(o.CBSearch),
+        pv(o.pv), pvDev(o.pvDev), depth(o.depth), selectivity(o.selectivity),
+        alpha(o.alpha), beta(o.beta), bestscore(o.bestscore), bestmove(o.bestmove),
+        master(o.master), n_Slaves(o.n_Slaves.load()),
+        slaves(o.slaves), explored(o.explored.load())
+    {
+        // Le mutex est réinitialisé plutôt que copié — ce qui est correct,
+        // car copier un mutex en pleine utilisation serait dangereux.
+        pthread_mutex_init(&lock, NULL);
+    }
+    
+    // Constructeur de déplacement
+    // Utilise std::move() sur les vecteurs pour transférer la mémoire sans copie (plus efficace)
+    // noexcept est important pour que les conteneurs STL (std::vector) puissent utiliser ce constructeur lors de leurs réallocations
+    RXSplitPoint(RXSplitPoint&& o) noexcept :
+        parent(o.parent), sBoard(o.sBoard), sBoardStack(std::move(o.sBoardStack)),
+        list(o.list), CBSearch(o.CBSearch),
+        pv(o.pv), pvDev(o.pvDev), depth(o.depth), selectivity(o.selectivity),
+        alpha(o.alpha), beta(o.beta), bestscore(o.bestscore), bestmove(o.bestmove),
+        master(o.master), n_Slaves(o.n_Slaves.load()),
+        slaves(std::move(o.slaves)), explored(o.explored.load())
+    {
+        // Pour le mutex, il transfère la valeur de o.lock puis réinitialise celui de o
+        // geste défensif pour laisser o dans un état valide
+        lock = o.lock;
+        pthread_mutex_init(&o.lock, NULL);
     }
     
     ~RXSplitPoint() {
@@ -139,7 +169,7 @@ public:
     
     RXSplitPoint* splitPoint;
     
-    volatile uint activeSplitPoints;
+    uint activeSplitPoints;
     //std::atomic<uint> activeSplitPoints;
     
     //non copiableAssignable, mais il n'y a pas de redimensionnenent (semble fonctionner)
@@ -153,7 +183,7 @@ public:
     pthread_cond_t  cond;
     
     
-    volatile thread_state state = UNINITIALISED;
+    std::atomic<thread_state> state{UNINITIALISED};
     //std::atomic<thread_state> state{UNINITIALISED};
     
     //le parametre maxThread est utile pour splitPointStack
@@ -163,6 +193,26 @@ public:
         pthread_mutex_init(&lock, NULL);
         pthread_cond_init(&cond, NULL);
         
+    }
+    
+    // Non copiable - utiliser emplace_back pour construire en place
+    RXThread(const RXThread&) = delete;
+    RXThread& operator=(const RXThread&) = delete;
+    
+    // Déplaçable pour permettre emplace_back
+    RXThread(RXThread&& o) noexcept :
+        splitPoint(o.splitPoint),
+        activeSplitPoints(o.activeSplitPoints),
+        splitPointStack(std::move(o.splitPointStack)),
+        state(o.state.load())
+    {
+        std::memcpy(_move, o._move, sizeof(_move));
+        // Récupère les mutex/cond de l'objet source
+        lock = o.lock;
+        cond = o.cond;
+        // Invalide la source pour éviter double destroy
+        pthread_mutex_init(&o.lock, NULL);
+        pthread_cond_init(&o.cond, NULL);
     }
     
     ~RXThread() {
@@ -175,9 +225,9 @@ public:
 };
 
 
-class RXEngine: public Runnable, public RXHelper {
+class RXEngine: public Runnable {
     
-    /*--------------------------------------------     shared part (RXEngine.cpp)    --------------------------------------------*/ 
+    /*--------------------------------------------     shared part (RXEngine.cpp)    --------------------------------------------*/
     
     enum t_search {BOOK, MIDGAME, ENDGAME};
     enum probcut_cut {NO_CUT, ALPHA_CUT, BETA_CUT};
@@ -196,24 +246,24 @@ class RXEngine: public Runnable, public RXHelper {
     static const int DEPTH_BOOSTER;
     
     //time manager part
-    volatile int time_remaining;
+    int time_remaining;
     
-    volatile int time_start;
-    volatile int dependentTime_start;
-    volatile int time_search;
+    int time_start;
+    int dependentTime_start;
+    int time_search;
     
-    volatile int time_startLevel;
-    volatile int time_nextLevel;
+    int time_startLevel;
+    int time_nextLevel;
     
-    volatile int time_move;
-    volatile int extratime_move;
+    int time_move;
+    int extratime_move;
     //volatile int extra_time;
     std::atomic<int> extra_time;
     
     //volatile bool first_move;
     std::atomic_bool first_move;
     
-    volatile bool dependent_time;
+    bool dependent_time;
     
     t_search type_search;
     int select_search;
@@ -289,7 +339,7 @@ class RXEngine: public Runnable, public RXHelper {
     int alphabeta_last_three_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed);
     int alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& sBoard, int alpha, const int beta, const bool passed);
     
-    /*--------------------------------------------     MidGame part (RXMidGame.cpp)    --------------------------------------------*/ 
+    /*--------------------------------------------     MidGame part (RXMidGame.cpp)    --------------------------------------------*/
     
         
     static const int MG_SELECT;
@@ -318,7 +368,7 @@ class RXEngine: public Runnable, public RXHelper {
     void MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int threadID);
     
     
-    /*--------------------------------------------     EndGame part (RXEndGame.cpp)    --------------------------------------------*/ 
+    /*--------------------------------------------     EndGame part (RXEndGame.cpp)    --------------------------------------------*/
     
     static const int stability_threshold[];
     
@@ -340,7 +390,7 @@ class RXEngine: public Runnable, public RXHelper {
     void EG_PVS_root(RXBBPatterns& board, const int selectivity, int alpha, const int beta, RXMove* list);
     void EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID);
     
-    int	EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, int alpha, const int beta, const bool passed);
+    int    EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, const int selectivity, int alpha, const int beta, const bool passed);
     void EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID);
     
     int EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBoard, const bool pv, int alpha, const int beta, const bool passed);
@@ -354,39 +404,39 @@ class RXEngine: public Runnable, public RXHelper {
     int EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int alpha, const bool passed);
     void EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadID);
     
-    /*--------------------------------------------     Multithreads part (RXEngine.cpp)    --------------------------------------------*/ 
+    /*--------------------------------------------     Multithreads part (RXEngine.cpp)    --------------------------------------------*/
     
     const unsigned int THREAD_MAX;
-    static const unsigned int ACTIVE_SPLITPOINT_MAX = 12;
-    static const unsigned int THREAD_PER_SPLITPOINT_MAX = 4; //4
+    static constexpr unsigned int ACTIVE_SPLITPOINT_MAX = 12;
+    static constexpr unsigned int THREAD_PER_SPLITPOINT_MAX = 4; //4
     
     
     //parameter for launch thread
-    volatile uint idThread;
+    uint idThread;
     
     
     static const int MIN_DEPTH_SPLITPOINT;
     
     std::vector<RXThread> threads;
-    volatile bool allThreadsShouldExit, allThreadsShouldSleep;
+    std::atomic<bool> allThreadsShouldExit{false}, allThreadsShouldSleep{true};
     
     
-    unsigned int activeThreads;
+    std::atomic<unsigned int> activeThreads;
     
     pthread_mutex_t MP_sync;
     
     std::atomic_bool abort;
     
+    
     void init_threads();
     void stop_threads();
-    void* idle_loop(const unsigned int threadID, RXSplitPoint* waitSp);
     void wake_sleeping_threads();
-    //	void wake_sleeping_thread(unsigned int threadID);
+    //    void wake_sleeping_thread(unsigned int threadID);
     bool idle_thread_exists(unsigned int master);
     bool thread_is_available(unsigned int slave, unsigned int master);
     bool thread_should_stop(unsigned int threadID);
     
-    bool split(	RXBBPatterns& sBoard, bool pv, int pvDev, 
+    bool split(    RXBBPatterns& sBoard, bool pv, int pvDev,
                int depth, int selectivity, int alpha, int beta, int& bestscore, unsigned int& bestmove,
                RXMove* list, unsigned int master, RXSplitPoint::t_callBackSearch callback);
    
@@ -422,12 +472,20 @@ class RXEngine: public Runnable, public RXHelper {
     
 public:
     
+    struct ThreadLaunchArgs {
+        RXEngine* engine;
+        unsigned int threadID;
+    };
+
+    void* idle_loop(const unsigned int threadID, RXSplitPoint* waitSp);
+
+    
     static const int NO_SELECT;
     static unsigned int confidence_to_selectivity(int c);
     static unsigned int selectivity_to_confidence(int s);
 
     RXEngine(RXRoxane* _manager, std::string _id, int maxThread = 1);
-    ~RXEngine();	
+    ~RXEngine();
     
     RXBBPatterns& get_board();
     
@@ -449,7 +507,6 @@ public:
     
     //Multithread part
     
-    virtual void* idle_loop();
     int get_THREAD_MAX();
 
 #ifdef TUNE_PROBCUT_MID
@@ -794,24 +851,24 @@ inline int RXEngine::probcut_bounds(const RXBitBoard& board, const int selectivi
 
 inline void RXEngine::set_type_search(t_search ts) {
     type_search = ts;
-}	
+}
 
-inline RXEngine::t_search RXEngine::get_type_search() const {	
+inline RXEngine::t_search RXEngine::get_type_search() const {
     return type_search;
-}	
+}
 
 inline void RXEngine::set_select_search(int selectivity) {
     select_search = selectivity;
 }
 
-inline int RXEngine::get_select_search() const {	
+inline int RXEngine::get_select_search() const {
     return select_search;
-}	
+}
 
 inline RXBBPatterns& RXEngine::get_board() {
     
     return search_sBoard;
-}	
+}
 
 // thread_should_stop() checks whether the thread with a given threadID has
 // been asked to stop, directly or indirectly.  This can happen if a beta

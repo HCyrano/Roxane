@@ -11,11 +11,6 @@
 
 #include <pthread.h>
 
-// Interface
-class RXHelper {
-	public :
-	virtual void* idle_loop() = 0;
-};
 
 // Interface
 class Runnable {

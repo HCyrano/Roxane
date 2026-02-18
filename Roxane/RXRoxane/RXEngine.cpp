@@ -46,14 +46,13 @@ const int RXEngine::DEPTH_BOOSTER = 4;
 
 
 extern "C"
-void* init_threadHelper(void* pt)  {
-    
-    RXEngine* engine = (RXEngine*)(pt);
-    
-    engine->idle_loop();
-    
+void* init_threadHelper(void* pt) {
+    RXEngine::ThreadLaunchArgs* args = (RXEngine::ThreadLaunchArgs*)(pt);
+    RXEngine*    engine   = args->engine;
+    unsigned int threadID = args->threadID;
+    delete args;  // libère la mémoire allouée dans init_threads
+    engine->idle_loop(threadID, NULL);
     return NULL;
-    
 }
 
 extern "C"
@@ -70,8 +69,12 @@ void* init_pthreadMain(void* pt)  {
 
 RXEngine::RXEngine(RXRoxane* _manager, std::string filename, int maxThread):
 manager(_manager), THREAD_MAX(maxThread),
-select_search(0), allThreadsShouldExit(false), allThreadsShouldSleep(true),
-threads(maxThread, RXThread(maxThread, ACTIVE_SPLITPOINT_MAX)) {
+select_search(0), allThreadsShouldExit(false), allThreadsShouldSleep(true) {
+    
+    // Construction en place pour éviter toute copie (pthread_mutex_t non copiable)
+    threads.reserve(maxThread);
+    for(int i = 0; i < maxThread; i++)
+        threads.emplace_back(maxThread, ACTIVE_SPLITPOINT_MAX);
     
     pthread_mutex_init(&MP_sync, NULL);
     pthread_mutex_init(&mutex, NULL);
@@ -922,7 +925,7 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
             }
         }
         
-    } else {	//PASS
+    } else {    //PASS
         
         if(passed) {
             bestscore = sBoard.final_score();
@@ -947,7 +950,7 @@ int RXEngine::alphabeta_last_two_ply(const unsigned int threadID, RXBBPatterns& 
                     }
                 }
                 
-            } else {		//PASS
+            } else {        //PASS
                 sBoard.board.do_pass();
                 bestscore_1 = -sBoard.final_score();
                 sBoard.board.do_pass();
@@ -1331,7 +1334,7 @@ void RXEngine::get_move(RXSearch& s) {
         buffer.imbue(loc);
         
         
-        buffer	<< showPV(search_sBoard.board, 6);
+        buffer    << showPV(search_sBoard.board, 6);
         manager->sendMsg(buffer.str());
         
         buffer.str("");
@@ -1461,7 +1464,7 @@ void* RXEngine::run() {
     
     
     
-    *log	<< "---------------------------------------------------------------------------------------------------\n"
+    *log    << "---------------------------------------------------------------------------------------------------\n"
     << search_sBoard
     << std::endl;
     
@@ -1475,7 +1478,7 @@ void* RXEngine::run() {
     RXMove* list = threads[0]._move[board.n_empty];
     board.moves_producing(list);
     
-    if(list->next == NULL) {	//PASS
+    if(list->next == NULL) {    //PASS
         
         best_answer.position = PASS;
         best_answer.score = 0;
@@ -1572,7 +1575,7 @@ void* RXEngine::run() {
                             depth = std::min(search_sBoard.board.n_empty, depth+2);
                     } else {
                         //reset search
-                        //						std::cout << "hash [-inf;score] reset search" << std::endl;
+                        //                        std::cout << "hash [-inf;score] reset search" << std::endl;
                         list1->score = 0;
                         depth = 2;
                         selectivity = EG_HIGH_SELECT;
@@ -1709,7 +1712,7 @@ int RXEngine::pTime_next_level(RXBitBoard& board, int time_level, int depth, int
         }
         
         
-    } else {	//endgame
+    } else {    //endgame
         
         //*log << "                  confidence " << CONFIDENCE[get_select_search()] << " to " << CONFIDENCE[std::min(NO_SELECT, get_select_search()+1)] << std::endl;
         
@@ -1803,7 +1806,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
         
         *log << "                  MG time move : " << tMove << std::endl;
         
-        if(new_search) {	// new research
+        if(new_search) {    // new research
             tMove = 3*tMove/2; //*1,50
             
             *log << "                  MG new search time move : " << tMove << std::endl;
@@ -1860,7 +1863,7 @@ void RXEngine::determine_move_time(RXBitBoard& board) {
     extratime_move = tExtra;
     
     
-    *log		<< "\n"
+    *log        << "\n"
     << "        tr: " << toHMS((tRemaining)/1000.0) << " "
     << "tm: " << toHMS(tMove/1000.0) << " "
     << "xt: " << toHMS(tExtra/1000.0) << "\n"
@@ -1881,7 +1884,7 @@ void RXEngine::writeLog(std::string s) {
 
 void RXEngine::init_threads() {
     
-    volatile unsigned int i;
+    unsigned int i;
     
     pthread_t pthread[1]; //pointeur
     
@@ -1897,20 +1900,24 @@ void RXEngine::init_threads() {
     
     // Launch the helper threads:
     // RXEngine idThread est passé en paramettre avec (void*)(this)
-    for(idThread= 1; idThread < THREAD_MAX; idThread++) {
+    for(unsigned int i = 1; i < THREAD_MAX; i++) {
         
+        ThreadLaunchArgs* args = new ThreadLaunchArgs{this, i};
         
         pthread_attr_t attr;
         pthread_attr_init(&attr);
         pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
         
-        if(pthread_create(pthread, &attr, init_threadHelper, (void*)(this)) != 0)
+        if(pthread_create(pthread, &attr, init_threadHelper, (void*)(args)) != 0) {
             std::cout << "Echec: Thread helper engine" << std::endl;
+            delete args;
+        }
         
         pthread_attr_destroy(&attr);
         
-        // Wait until the thread has finished launching:
-        while(threads[idThread].state == RXThread::INITIALIZING)
+        // le thread lit son threadID depuis args avant de le delete,
+        // puis passe à AVAILABLE — on attend ça :
+        while(threads[i].state == RXThread::INITIALIZING)
             ;
     }
 }
@@ -1921,7 +1928,7 @@ void RXEngine::init_threads() {
 
 void RXEngine::stop_threads() {
     
-    activeThreads = THREAD_MAX; 	// kill all threads
+    activeThreads = THREAD_MAX;     // kill all threads
     
     //important: before wake up
     allThreadsShouldExit = true;
@@ -1937,17 +1944,6 @@ void RXEngine::stop_threads() {
 }
 
 
-// idle_loop() is where the threads are parked when they have no work to do.
-// The parameter "waitSp", if non-NULL, is a pointer to an active SplitPoint
-// object for which the current thread is the master.
-// active waiting : infini loop, fast wake up
-// passive waiting : condition wake up
-
-void*  RXEngine::idle_loop() {
-    idle_loop(idThread, NULL);
-    
-    return NULL;
-}
 
 
 void* RXEngine::idle_loop(unsigned int threadID, RXSplitPoint* waitSp) {
