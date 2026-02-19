@@ -60,6 +60,14 @@ int RXMove::coord_to_index(std::string coord) {
 	return (('8' - coord[1])*8 + ('h' - std::tolower(coord[0])));
 }
 
+//static std::random_device rd;
+static std::random_device& get_rd() {
+    // L'instance est créée une seule fois, mais jamais détruite explicitement
+    static std::random_device* rd = new std::random_device();
+    return *rd;
+}
+
+
 unsigned long long RXMove::random_pick_bit_in_legalmoves(const unsigned long long legal_moves) {
     
     // Masques de zones (à initialiser une seule fois avec les bits correspondants)
@@ -99,8 +107,11 @@ unsigned long long RXMove::random_pick_bit_in_legalmoves(const unsigned long lon
     }
 
     // Moteur aléatoire
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
+
+    // Utilisation :
+    auto seed = get_rd()();
+    
+    static std::mt19937 gen(seed);
     
     std::discrete_distribution<> d(weights.begin(), weights.end());
     

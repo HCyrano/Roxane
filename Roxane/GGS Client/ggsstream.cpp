@@ -244,8 +244,11 @@ void ggsstream::ForceDisconnect() {
 int ggsstream::Disconnect() {
     
     // Un streambuf vide et inoffensif, jamais supprimé
-    static struct : std::streambuf {} sNullBuf;
-    
+    // 1. On définit la structure avec un nom local
+    struct NullBuf : std::streambuf {};
+
+    // 2. On l'alloue via un pointeur statique pour éviter le warning de destructeur
+    static std::streambuf* sNullBuf = new NullBuf();
     
     //stopHeartbeat() special: débloque flush() dans heartbeat
     stopHeartbeat = true;
@@ -266,7 +269,7 @@ int ggsstream::Disconnect() {
     delete psockbuf;
     psockbuf = NULL;
     
-    init(&sNullBuf);          // stream toujours valide, mais inactif
+    init(sNullBuf);          // stream toujours valide, mais inactif
     clear(std::ios::eofbit);
     return 0;
     

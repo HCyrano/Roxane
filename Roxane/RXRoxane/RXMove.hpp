@@ -86,7 +86,7 @@ inline void RXMove::sort_bestmove(unsigned int bestmove) {
 
 	RXMove* previous;
 	for(RXMove* iter = (previous = this)->next; iter != NULL; iter = (previous = iter)->next)
-		if(iter->position == bestmove) {
+		if(iter->position == static_cast<char>(bestmove)) {
 			previous->next = iter->next;
 			iter->next = this->next;
 			this->next = iter;

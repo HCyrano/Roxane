@@ -249,6 +249,9 @@ public:
 
 class COsGame {
 public:
+    
+    virtual ~COsGame() = default;
+    
 	std::string sPlace, sDateTime;
 	COsPlayerInfo pis[2];
 	COsPosition posStart, pos;
