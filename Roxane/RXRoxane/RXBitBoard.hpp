@@ -32,7 +32,7 @@ class RXSquareList {
     RXSquareList *previous;
     RXSquareList *next;
 
-    RXSquareList(): position(NOMOVE), previous(NULL), next(NULL) {};
+    RXSquareList(): position(NOMOVE), previous(nullptr), next(nullptr) {};
 
 };
 
@@ -255,8 +255,29 @@ void generate_flips_##pos(RXMove& move) const \
 #define    packA1A8(X)      ((((X) & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56)
 #define    packH1H8(X)      ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
 
+inline void RXBitBoard::moves_producing(RXMove* start) const {
+    RXMove *list = start + 1, *previous = start;
+    
+    unsigned long long remaining = get_legal_moves(discs[player], discs[player^1]);
+    
+    for(RXSquareList* empties = empties_list->next;
+        remaining && empties->position != NOMOVE;
+        empties = empties->next)
+    {
+        const int pos = empties->position;
+        const unsigned long long bit = 0x1ULL << pos;
+        if(remaining & bit) {
+            remaining ^= bit;
+            ((this)->*(generate_flips[pos]))(*list);
+            list->score = 0;
+            previous = previous->next = list++;
+        }
+    }
+    
+    previous->next = nullptr;
+}
 
-
+/*
 inline void RXBitBoard::moves_producing(RXMove* start) const {
     
     RXMove *list = start + 1, *previous = start;
@@ -270,9 +291,9 @@ inline void RXBitBoard::moves_producing(RXMove* start) const {
             previous = previous->next = list++;
         }
     
-    previous->next = NULL;
+    previous->next = nullptr;
 }
-
+*/
 
 __attribute__((always_inline))
 inline void RXBitBoard::do_move(const RXMove& move) {

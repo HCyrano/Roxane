@@ -8,21 +8,22 @@
 
 // Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
 // or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).
-#define    outflank_right(O,maskr)    (0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr)))
+#define outflank_right(O,maskr) (0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr)))
 
 // in case continuous from MSB
-#define    outflank_right_H(O)    (0x80000000u >> __builtin_clz(~(O)))
+#define outflank_right_H(O) (0x80000000u >> __builtin_clz(~(O)))
 
 
-#define not_O_in_mask(mask,O)    vbicq_u64((mask), vdupq_n_u64(O))
+#define not_O_in_mask(mask,O)   vbicq_u64((mask), vdupq_n_u64(O))
 
 //rotl8
-#define rotl8(x,y)    __builtin_rotateleft8((x),(y))
+#define rotl8(x,y)  __builtin_rotateleft8((x),(y))
 
 
 //Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
 //This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
 //Set all bits below the sole outflank bit if outfrank != 0
+__attribute__((always_inline))
 static inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
     return outflank ? (outflank - 1) : 0;
 //    return -(long long)outflank >> 63 & (outflank - 1);
@@ -77,6 +78,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
     
 }
 
+__attribute__((always_inline))
 inline unsigned long long RXBitBoard::hashcode() const {
     
     const uint16x4_t p_lines = vcreate_u16(discs[player]);
@@ -97,6 +99,7 @@ inline unsigned long long RXBitBoard::hashcode() const {
     
 }
 
+__attribute__((always_inline))
 inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
     
     const uint16x4_t p_lines = vcreate_u16(discs[player^1] ^ move->flipped);

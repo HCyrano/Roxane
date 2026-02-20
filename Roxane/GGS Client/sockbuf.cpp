@@ -14,7 +14,7 @@
 
 sockbuf::sockbuf() {
 	// log incoming data to file?
-	fplog=NULL;
+	fplog=nullptr;
 	loglast=kLogNone;
 	if (fLogging) {
 		fplog=new std::ofstream("recv.txt");
@@ -189,7 +189,7 @@ bool sockbuf::IsConnected() const {
 
 int sockbuf::underflow() {
     
-	char* p0 = NULL;
+	char* p0 = nullptr;
 	int nGetSize = 0;
 
 	if (!fConnected || err)
@@ -372,6 +372,8 @@ const char* sockbuf::ErrText(int err) {
     switch(err) {
         case 0:
             return "No error";
+        case kErrMem:
+            return "Out of memory";
         case kErrNoHost:
             return "Host not found (DNS lookup failed)";
         case kErrCantConnect:

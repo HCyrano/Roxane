@@ -73,7 +73,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
 
 
 
-
+__attribute__((always_inline))
 inline unsigned long long RXBitBoard::hashcode() const {
     
     
@@ -109,7 +109,7 @@ inline unsigned long long RXBitBoard::hashcode() const {
 }
 
 
-
+__attribute__((always_inline))
 inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move)  const {
     
     const unsigned long long o = discs[player] | (move->flipped | move->square);

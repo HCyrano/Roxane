@@ -185,7 +185,7 @@ void RXEngine::aspiration_search(RXBBPatterns& sBoard, const int selectivity, co
 
 
 // avec la selectivite et de l'extension de recherche, on ne peut faire totalement confiance a
-// un coup etudie en null window (pas d'extension de recherche)
+// un coup etudie en nullptr window (pas d'extension de recherche)
 // c.a.d. on ne profite pas de la recherche NWS pour trouver un meilleur coup sauf si score>beta.
 //
 // root
@@ -229,13 +229,13 @@ void RXEngine::MG_PVS_root(RXBBPatterns& sBoard, const int selectivity, const in
         //other moves
         first_move.store(false);
         int score;
-        for(iter = iter->next; !abort.load()  && lower<upper && iter != NULL; iter = iter->next) {
+        for(iter = iter->next; !abort.load()  && lower<upper && iter != nullptr; iter = iter->next) {
             
             
 #ifdef USE_SPLIT_AT_ROOT
             
             // Split?
-            if(activeThreads > 1 && iter->next != NULL && depth>(MIN_DEPTH_SPLITPOINT+3) && !abort.load()
+            if(activeThreads > 1 && iter->next != nullptr && depth>(MIN_DEPTH_SPLITPOINT+3) && !abort.load()
                && !thread_should_stop(0) && idle_thread_exists(0)
                && split(sBoard, true, 0, depth, selectivity, lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::MID_ROOT)) {
                 
@@ -330,7 +330,7 @@ void RXEngine::MG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list == NULL) {
+        if(sp->list == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
@@ -494,7 +494,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     
     
     RXMove* list = threads[threadID]._move[board.n_empty];
-    list->next = NULL;
+    list->next = nullptr;
     
     if(bestmove != PASS) {
         
@@ -557,13 +557,13 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             }
         }
         
-        previous->next = NULL;
+        previous->next = nullptr;
         
     }
     
     int bestscore = UNDEF_SCORE;
     
-    if (list->next == NULL) {
+    if (list->next == nullptr) {
         
         if (passed) {
            return sBoard.final_score();
@@ -603,9 +603,9 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         
         if(lower < upper) {
             
-            if(list->next != NULL) {
+            if(list->next != nullptr) {
                 
-                if((list->next)->next != NULL) {
+                if((list->next)->next != nullptr) {
                     //sort
                     
                     if(depth>=10) {
@@ -620,7 +620,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                             
                             //stable position -> sorting on evaluation
                             
-                            for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
+                            for(RXMove* iter = list->next; iter!=nullptr; iter = iter->next) {
                                 
                                 ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                                 
@@ -630,14 +630,14 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                                 if(depth >= 30) {
                                     
                                     if((depth & 0x1UL) == 0)
-                                        iter->score += PVS_last_ply(threadID, sBoard, 6, -upper_probcut , -lower_probcut, false);
+                                        iter->score += PVS_last_ply(threadID, sBoard, DEPTH_6, -upper_probcut , -lower_probcut, false);
                                     else
-                                        iter->score += PVS_last_ply(threadID, sBoard, 5, -upper_probcut , -lower_probcut, false);
+                                        iter->score += PVS_last_ply(threadID, sBoard, DEPTH_5, -upper_probcut , -lower_probcut, false);
                                     
                                 } else if(depth >= 24) {
                                     
                                     if((depth & 0x1UL) == 0)
-                                        iter->score += PVS_last_ply(threadID, sBoard, 4, -upper_probcut , -lower_probcut, false);
+                                        iter->score += PVS_last_ply(threadID, sBoard, DEPTH_4, -upper_probcut , -lower_probcut, false);
                                     else
                                         iter->score += alphabeta_last_three_ply(threadID, sBoard, -upper_probcut , -lower_probcut, false);
                                     
@@ -690,7 +690,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                             
                         } else {
                             
-                            for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
+                            for(RXMove* iter = list->next; iter!=nullptr; iter = iter->next) {
                                 ++board.n_nodes;
                                 
                                 ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
@@ -700,7 +700,7 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         
                     } else {
                         
-                        for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
+                        for(RXMove* iter = list->next; iter!=nullptr; iter = iter->next) {
                             ++board.n_nodes;
                             
                             ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
@@ -733,12 +733,12 @@ int RXEngine::MG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             }
             
             int score;
-            for(;!abort.load()  && lower < upper && list->next != NULL; list = list->next) {
+            for(;!abort.load()  && lower < upper && list->next != nullptr; list = list->next) {
                 
 
                 RXMove* move = list->next;
 
-                if(move->next != NULL) {	//more 1 move
+                if(move->next != nullptr) {	//more 1 move
                     
                     // Split?
                     if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && !abort.load()
@@ -819,7 +819,7 @@ void RXEngine::MG_SP_search_deep(RXSplitPoint* sp, const unsigned int threadID) 
         
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list->next == NULL) {
+        if(sp->list->next == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
@@ -895,11 +895,11 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
     RXBitBoard& board = sBoard.board;
     int bestscore = UNDEF_SCORE;
     
-    if(depth == 0) {
+    if(depth == DEPTH_0) {
         
         return sBoard.get_score();
         
-    } else if(depth == 1) {
+    } else if(depth == DEPTH_1) {
         
         unsigned long long legal_movesBB = board.get_legal_moves();
         if(legal_movesBB) {
@@ -1033,15 +1033,15 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
                         previous = previous->next = move++;
                     }
                 
-                previous->next = NULL;
+                previous->next = nullptr;
                 
                 
                 int score;
-                for(;  lower < upper && list->next != NULL; list = list->next) {
+                for(;  lower < upper && list->next != nullptr; list = list->next) {
                     
                     RXMove* move = list->next;
                     
-                    if(move->next != NULL)    //more 1 move
+                    if(move->next != nullptr)    //more 1 move
                         move = list->pick_next_promising_move();
                     
                     sBoard.do_move(*move);
@@ -1097,7 +1097,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
 
 
 /*
- Null Window Search  + XProbCut
+ nullptr Window Search  + XProbCut
  */
 int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, const int alpha, const bool passed) {
     
@@ -1169,7 +1169,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     
     
     RXMove* list = threads[threadID]._move[board.n_empty];
-    list->next = NULL;
+    list->next = nullptr;
     
     if(bestmove != PASS) {
         
@@ -1229,7 +1229,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
                     
                 }
             
-            previous->next = NULL;
+            previous->next = nullptr;
             
         } else {
             
@@ -1243,7 +1243,7 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
     int bestscore = UNDEF_SCORE;
     
     
-    if(list->next == NULL) {
+    if(list->next == nullptr) {
         //PASS
         if(passed) {
             return sBoard.final_score();
@@ -1283,10 +1283,10 @@ int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard,
         list = list->next;
                 
         int score;
-        for(RXMove* iter = list->next; !abort.load() && bestscore<=alpha && iter != NULL; iter = iter->next, list = list->next) {
+        for(RXMove* iter = list->next; !abort.load() && bestscore<=alpha && iter != nullptr; iter = iter->next, list = list->next) {
             
             // Split?
-            if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && iter->next != NULL && !abort.load()
+            if(activeThreads > 1 && depth>MIN_DEPTH_SPLITPOINT && iter->next != nullptr && !abort.load()
                && idle_thread_exists(threadID) && !thread_should_stop(threadID)
                && split(sBoard, false, pvDev+1, depth, selectivity, alpha, (alpha+1), bestscore, bestmove, list, threadID, RXSplitPoint::MID_XPROBCUT)) {
                 
@@ -1346,7 +1346,7 @@ void RXEngine::MG_SP_search_XProbcut(RXSplitPoint* sp, const unsigned int thread
         //verouillage du splitpoint
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list->next == NULL) {
+        if(sp->list->next == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }

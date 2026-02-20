@@ -1,7 +1,7 @@
 // Copyleft 2001 Chris Welty
 //	All Rights Reserved
 
-#include <cassert>
+
 #include <string>
 #include <sstream>
 #include <cstring>  // Pour memcmp
@@ -15,9 +15,9 @@
 
 
 
-ggsstream::ggsstream() : std::iostream(NULL) {
+ggsstream::ggsstream() : std::iostream(nullptr) {
     fLoggedIn=fHasOs=false;
-    psockbuf=NULL;
+    psockbuf=nullptr;
 }
 
 ggsstream::~ggsstream() {
@@ -114,7 +114,7 @@ int ggsstream::Connect(const std::string& sServer, int nPort) {
         } else {
             std::cerr << "[ERROR] Connection failed: " << ErrText(err) << std::endl;
             delete psockbuf;
-            psockbuf = NULL;
+            psockbuf = nullptr;
         }
     }
     
@@ -267,7 +267,7 @@ int ggsstream::Disconnect() {
     setstate(std::ios::eofbit);
     
     delete psockbuf;
-    psockbuf = NULL;
+    psockbuf = nullptr;
     
     init(sNullBuf);          // stream toujours valide, mais inactif
     clear(std::ios::eofbit);
@@ -520,7 +520,7 @@ CMsg* ggsstream::GetMsgType(std::istream& is) {
     is >> sFrom >> std::ws;
     
     if (sFrom.empty())
-        pmsg=NULL;
+        pmsg=nullptr;
     else {
         // direct messages end in ':', channel messages don't
         if (sFrom.end()[-1]==':')
@@ -541,7 +541,7 @@ CMsg* ggsstream::GetMsgType(std::istream& is) {
 }
 
 CMsg* ggsstream::GetMsgTypeOs(std::istream& is) {
-    CMsg* pmsg=NULL;
+    CMsg* pmsg=nullptr;
     
     std::string sMsgType;
     is >> sMsgType >> std::ws;
@@ -627,7 +627,7 @@ CMsg* ggsstream::GetMsgTypeOs(std::istream& is) {
 }
 
 CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
-    CMsg* pmsg=NULL;
+    CMsg* pmsg=nullptr;
     
     std::string sMsgType;
     is >> sMsgType;
@@ -654,7 +654,7 @@ CMsg* ggsstream::GetMsgTypeGGS(std::istream& is) {
 
 const char* ggsstream::ErrText(int err) {
     
-    if (err >= 0x8600 && err <= 0x860F) return sockbuf::ErrText(err);
+    if (err == 0x8100 || (err >= 0x8600 && err <= 0x860F)) return sockbuf::ErrText(err);
     
     switch(err) {
         case kErrBadPassword:
@@ -665,8 +665,6 @@ const char* ggsstream::ErrText(int err) {
             return "You have already logged out of GGS";
         case kErrUnknown:
             return "Unknown GGS error";
-        case kErrMem:
-            return "Out of memory";
         case kErrInvalidArg:
             return "Invalid argument";
         case kErrConnected:
@@ -684,7 +682,7 @@ const char* ggsstream::ErrText(int err) {
 }
 
 bool ggsstream::IsConnected() const {
-    return psockbuf!=NULL;
+    return psockbuf!=nullptr;
 }
 
 bool ggsstream::IsLoggedIn() const {
@@ -1019,7 +1017,7 @@ COsGame* ggsstream::PGame(const std::string& idg) {
     
     i = idToGame.find(idg);
     if (i==idToGame.end())
-        return NULL;
+        return nullptr;
     else
         return &((*i).second);
 }

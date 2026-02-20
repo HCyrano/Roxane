@@ -11,8 +11,6 @@
 #include <sstream>
 #include <algorithm>
 
-#include <cassert>
-
 #include "RXHashTable.hpp"
 #include "RXEngine.hpp"
 
@@ -467,7 +465,7 @@ void RXHashTable::mainVariation(std::vector<unsigned char>& pv, RXBitBoard& boar
 void RXHashTable::copyPV(RXHashTable* from_hash, const t_hash from_type_hash, RXBitBoard& board, const t_hash to_type_hash) {
 	
 	const RXHashRecord* from_Record = from_hash->get_record(board, from_type_hash);						// source
-	if(from_Record != NULL) {
+	if(from_Record != nullptr) {
 		
 		int square = from_Record->get_move();
 		
@@ -538,7 +536,7 @@ void RXHashTable::copyPV(RXBitBoard& board, const t_hash from_hashtable, const t
 	
 	
 	const RXHashRecord* from_Record = get_record(board, from_hashtable);						// source
-	if(from_Record != NULL) {
+	if(from_Record != nullptr) {
 		
 		int square = from_Record->get_move();
 		
@@ -579,10 +577,10 @@ void RXHashTable::mergePV(RXBitBoard& board) {
 	const RXHashRecord* from_RecordWhite = get_record(board, HASH_WHITE); 		// source white
 	
 	//entry choice
-	const RXHashRecord* from_Record = NULL;
-	if(from_RecordBlack != NULL && from_RecordBlack->get_move() != NOMOVE) {
+	const RXHashRecord* from_Record = nullptr;
+	if(from_RecordBlack != nullptr && from_RecordBlack->get_move() != NOMOVE) {
 		from_Record = from_RecordBlack;
-		if(from_RecordWhite!=NULL && from_RecordWhite->get_move() != NOMOVE) {
+		if(from_RecordWhite!=nullptr && from_RecordWhite->get_move() != NOMOVE) {
 			
 			if(from_RecordWhite->get_depth() > from_RecordBlack->get_depth())
 				from_Record = from_RecordWhite;
@@ -591,12 +589,12 @@ void RXHashTable::mergePV(RXBitBoard& board) {
 			
 		}
 		
-	} else if(from_RecordWhite != NULL && from_RecordWhite->get_move() != NOMOVE) {
+	} else if(from_RecordWhite != nullptr && from_RecordWhite->get_move() != NOMOVE) {
 		from_Record = from_RecordWhite;
 	}
 	
 	
-	if(from_Record != NULL) {
+	if(from_Record != nullptr) {
 		
 		RXHashRecord& to_Record = table[(static_cast<unsigned int>(board.hashcode()>>32) & _maskTable[HASH_SHARED])].deepest; 		//dest
 		

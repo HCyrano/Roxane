@@ -77,13 +77,14 @@ void update_patterns_WHITE_##pos(RXMove& move) const
     
 };
 
-
+__attribute__((always_inline))
 inline void RXBBPatterns::do_move(RXMove& move) {
     board.do_move(move);
     move.undo_pattern = pattern;
     pattern = move.pattern;
 }
 
+__attribute__((always_inline))
 inline void RXBBPatterns::undo_move(const RXMove& move) {
     pattern = move.undo_pattern;
     board.undo_move(move);

@@ -37,7 +37,7 @@ void CODKStream::HandleGGSTell(const CMsgGGSTell* pmsg) {
 	
 	if(pmsg->sFrom=="HCyrano") {
 		if (pmsg->sText=="quit") {
-            if(pComputer != NULL)
+            if(pComputer != nullptr)
                 pComputer->resume();
 			Logout();
 		} else {
@@ -70,7 +70,7 @@ void CODKStream::HandleOsLogin() {
 void CODKStream::HandleOsMatchDelta(const CMsgOsMatchDelta* pmsg) {
  
     //if my game
-    if (pmsg->match.IsPlaying(GetLogin()) && pComputer!=NULL) {
+    if (pmsg->match.IsPlaying(GetLogin()) && pComputer!=nullptr) {
         
         if (pmsg->fPlus) { // this code is executed when game begins
 
@@ -115,7 +115,7 @@ void CODKStream::HandleOsFatalTimeout(const CMsgOsFatalTimeout* pmsg) {
     std::cout  << "fatal-timeout: " << pmsg->idg << " " << pmsg->sLogin  << std::endl;
 
     COsGame* pgame=PGame(pmsg->idg);
-    if (pgame!=NULL && pComputer!=NULL)
+    if (pgame!=nullptr && pComputer!=nullptr)
         pComputer->stop_engine(pgame);
  
     // If it's our timeout
@@ -176,13 +176,13 @@ void CODKStream::HandleOsUpdate(const CMsgOsUpdate* pmsg) {
 void CODKStream::GetMoveIfNeeded(const std::string& idg) {
         
 	COsGame* pgame=PGame(idg);
-	if (pgame!=NULL) {
+	if (pgame!=nullptr) {
 	
 
 		bool fMyMove=pgame->ToMove(GetLogin());
 		//COsMoveListItem mli;
 
-		if (fMyMove  && pComputer!=NULL) {
+		if (fMyMove  && pComputer!=nullptr) {
 		
 			pComputer->get_move(idg, pgame);
 		

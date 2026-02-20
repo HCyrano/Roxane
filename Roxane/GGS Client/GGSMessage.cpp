@@ -6,7 +6,6 @@
 
 #include "ggsstream.hpp"
 #include "GGSMessage.hpp"
-#include "types.hpp"
 
 
 

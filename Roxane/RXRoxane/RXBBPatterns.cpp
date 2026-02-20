@@ -48,14 +48,16 @@ RXBBPatterns::~RXBBPatterns() {
 
 RXBBPatterns& RXBBPatterns::operator=(const RXBBPatterns& src) {
 
-	if(this != &src) {
+    // Optimization: Skip self-assignment check to avoid branch misprediction.
+    // Safe because 'pattern' pointers are stable (allocated at startup,
+    // never reassigned or deleted during search).
+//	if(this != &src) { 
 	
 		board = src.board;
 	
 		*pattern = *(src.pattern); //copy
 
-		
-	}
+//	}
 	
 	return *this;
 }

@@ -1370,8 +1370,8 @@ RXBitBoard::type_do_flips const RXBitBoard::do_flips[] = {
     RXBitBoard::do_flips_H8, RXBitBoard::do_flips_G8, RXBitBoard::do_flips_F8, RXBitBoard::do_flips_E8, RXBitBoard::do_flips_D8, RXBitBoard::do_flips_C8, RXBitBoard::do_flips_B8, RXBitBoard::do_flips_A8,
     RXBitBoard::do_flips_H7, RXBitBoard::do_flips_G7, RXBitBoard::do_flips_F7, RXBitBoard::do_flips_E7, RXBitBoard::do_flips_D7, RXBitBoard::do_flips_C7, RXBitBoard::do_flips_B7, RXBitBoard::do_flips_A7,
     RXBitBoard::do_flips_H6, RXBitBoard::do_flips_G6, RXBitBoard::do_flips_F6, RXBitBoard::do_flips_E6, RXBitBoard::do_flips_D6, RXBitBoard::do_flips_C6, RXBitBoard::do_flips_B6, RXBitBoard::do_flips_A6,
-    RXBitBoard::do_flips_H5, RXBitBoard::do_flips_G5, RXBitBoard::do_flips_F5,                    NULL,                    NULL, RXBitBoard::do_flips_C5, RXBitBoard::do_flips_B5, RXBitBoard::do_flips_A5,
-    RXBitBoard::do_flips_H4, RXBitBoard::do_flips_G4, RXBitBoard::do_flips_F4,                    NULL,                    NULL, RXBitBoard::do_flips_C4, RXBitBoard::do_flips_B4, RXBitBoard::do_flips_A4,
+    RXBitBoard::do_flips_H5, RXBitBoard::do_flips_G5, RXBitBoard::do_flips_F5,                    nullptr,                    nullptr, RXBitBoard::do_flips_C5, RXBitBoard::do_flips_B5, RXBitBoard::do_flips_A5,
+    RXBitBoard::do_flips_H4, RXBitBoard::do_flips_G4, RXBitBoard::do_flips_F4,                    nullptr,                    nullptr, RXBitBoard::do_flips_C4, RXBitBoard::do_flips_B4, RXBitBoard::do_flips_A4,
     RXBitBoard::do_flips_H3, RXBitBoard::do_flips_G3, RXBitBoard::do_flips_F3, RXBitBoard::do_flips_E3, RXBitBoard::do_flips_D3, RXBitBoard::do_flips_C3, RXBitBoard::do_flips_B3, RXBitBoard::do_flips_A3,
     RXBitBoard::do_flips_H2, RXBitBoard::do_flips_G2, RXBitBoard::do_flips_F2, RXBitBoard::do_flips_E2, RXBitBoard::do_flips_D2, RXBitBoard::do_flips_C2, RXBitBoard::do_flips_B2, RXBitBoard::do_flips_A2,
     RXBitBoard::do_flips_H1, RXBitBoard::do_flips_G1, RXBitBoard::do_flips_F1, RXBitBoard::do_flips_E1, RXBitBoard::do_flips_D1, RXBitBoard::do_flips_C1, RXBitBoard::do_flips_B1, RXBitBoard::do_flips_A1

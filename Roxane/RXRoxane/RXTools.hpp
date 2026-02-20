@@ -37,7 +37,7 @@ static inline std::string toHMS(double t) {
 // milliseconds.
 static inline int get_system_time() {
 	struct timeval t;
-	gettimeofday(&t, NULL);
+	gettimeofday(&t, nullptr);
 	return static_cast<int>(t.tv_sec*1000 + t.tv_usec/1000); 
 }
 

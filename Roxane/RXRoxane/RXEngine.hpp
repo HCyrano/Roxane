@@ -11,7 +11,7 @@
 #define RXENGINE_HPP
 
 #include <string>
-#include <cstddef> // define NULL
+#include <cstddef> // define nullptr
 #include <cstdlib> // abs()
 #include <vector>
 #include <array>
@@ -105,11 +105,11 @@ public:
     
     std::atomic_bool explored;
     
-    RXSplitPoint(int maxThreads) : parent(NULL), sBoard(NULL), sBoardStack(maxThreads), slaves(maxThreads),
-    list(NULL) {
+    RXSplitPoint(int maxThreads) : parent(nullptr), sBoard(nullptr), sBoardStack(maxThreads), slaves(maxThreads),
+    list(nullptr) {
         n_Slaves = 0;
         explored = false;
-        pthread_mutex_init(&lock, NULL);
+        pthread_mutex_init(&lock, nullptr);
     }
     
     // Constructeur de copie explicite nécessaire à cause de std::atomic<> non copiable
@@ -124,7 +124,7 @@ public:
     {
         // Le mutex est réinitialisé plutôt que copié — ce qui est correct,
         // car copier un mutex en pleine utilisation serait dangereux.
-        pthread_mutex_init(&lock, NULL);
+        pthread_mutex_init(&lock, nullptr);
     }
     
     // Constructeur de déplacement
@@ -141,7 +141,7 @@ public:
         // Pour le mutex, il transfère la valeur de o.lock puis réinitialise celui de o
         // geste défensif pour laisser o dans un état valide
         lock = o.lock;
-        pthread_mutex_init(&o.lock, NULL);
+        pthread_mutex_init(&o.lock, nullptr);
     }
     
     ~RXSplitPoint() {
@@ -187,11 +187,11 @@ public:
     //std::atomic<thread_state> state{UNINITIALISED};
     
     //le parametre maxThread est utile pour splitPointStack
-    RXThread(int maxThreads, int maxActiveSplitPoint = 8) : splitPoint(NULL), activeSplitPoints(0),
+    RXThread(int maxThreads, int maxActiveSplitPoint = 8) : splitPoint(nullptr), activeSplitPoints(0),
     splitPointStack(maxActiveSplitPoint, RXSplitPoint(maxThreads)) {
         
-        pthread_mutex_init(&lock, NULL);
-        pthread_cond_init(&cond, NULL);
+        pthread_mutex_init(&lock, nullptr);
+        pthread_cond_init(&cond, nullptr);
         
     }
     
@@ -211,8 +211,8 @@ public:
         lock = o.lock;
         cond = o.cond;
         // Invalide la source pour éviter double destroy
-        pthread_mutex_init(&o.lock, NULL);
-        pthread_cond_init(&o.cond, NULL);
+        pthread_mutex_init(&o.lock, nullptr);
+        pthread_cond_init(&o.cond, nullptr);
     }
     
     ~RXThread() {
@@ -232,14 +232,24 @@ class RXEngine: public Runnable {
     enum t_search {BOOK, MIDGAME, ENDGAME};
     enum probcut_cut {NO_CUT, ALPHA_CUT, BETA_CUT};
     
-    static const int DEPTH_4;
-    
-    static const int HASHTABLE;
-    static const int INFERIOR;
-    static const int EXACT;
-    static const int SUPERIOR;
-    static const int INTERRUPT;
-    static const int GGS_MSG;
+    enum {
+        DEPTH_0 = 0,
+        DEPTH_1,
+        DEPTH_2,
+        DEPTH_3,
+        DEPTH_4,
+        DEPTH_5,
+        DEPTH_6
+    };
+
+    enum {
+        HASHTABLE = 0,
+        INFERIOR,
+        EXACT,
+        SUPERIOR,
+        INTERRUPT,
+        GGS_MSG
+    };
     
     static const int CONFIDENCE[];
     static const float PERCENTILE[];
@@ -880,10 +890,10 @@ inline bool RXEngine::thread_should_stop(unsigned int threadID) {
     RXSplitPoint* sp = threads[threadID].splitPoint;
     
     //emptie loop
-    while(sp != NULL && sp->explored == false)
+    while(sp != nullptr && sp->explored == false)
         sp = sp->parent;
     
-    return sp != NULL;
+    return sp != nullptr;
     
 }
 

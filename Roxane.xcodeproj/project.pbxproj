@@ -63,7 +63,6 @@
 		372326E92D1FF69D002CFAF4 /* OsObjects.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OsObjects.cpp; sourceTree = "<group>"; };
 		372326EA2D1FF69D002CFAF4 /* sockbuf.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = sockbuf.hpp; sourceTree = "<group>"; };
 		372326EB2D1FF69D002CFAF4 /* sockbuf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sockbuf.cpp; sourceTree = "<group>"; };
-		372326EC2D1FF69D002CFAF4 /* types.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
 		372326EE2D1FF69D002CFAF4 /* RXBBCountFlips.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBCountFlips.cpp; sourceTree = "<group>"; };
 		372326EF2D1FF69D002CFAF4 /* RXBBCountFlips_NEON.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBCountFlips_NEON.cpp; sourceTree = "<group>"; };
 		372326F02D1FF69D002CFAF4 /* RXBBDoFlips.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RXBBDoFlips.cpp; sourceTree = "<group>"; };
@@ -149,7 +148,6 @@
 				372326E92D1FF69D002CFAF4 /* OsObjects.cpp */,
 				372326EA2D1FF69D002CFAF4 /* sockbuf.hpp */,
 				372326EB2D1FF69D002CFAF4 /* sockbuf.cpp */,
-				372326EC2D1FF69D002CFAF4 /* types.hpp */,
 			);
 			path = "GGS Client";
 			sourceTree = "<group>";

@@ -4,7 +4,6 @@
 #include <sstream>
 
 
-#include "types.hpp"
 #include "OsMessage.hpp"
 #include "ggsstream.hpp"
 
@@ -16,7 +15,7 @@
 COsGame* CMsgOs::PGame(const string& idg) const {
 	map<string,COsGame>& idToGame = pgs->idToGame;
 	if (idToGame.find(idg)==idToGame.end())
-		return NULL;
+		return nullptr;
 	else
 		return &(idToGame[idg]);
 }
@@ -25,7 +24,7 @@ COsGame* CMsgOs::PGame(const std::string& idg) const {
     const std::map<std::string,COsGame>& idToGame = pgs->idToGame;
     auto it = idToGame.find(idg);
     if (it == idToGame.end())
-        return NULL;
+        return nullptr;
     else
         return const_cast<COsGame*>(&(it->second));
 }
@@ -33,7 +32,7 @@ COsGame* CMsgOs::PGame(const std::string& idg) const {
 COsMatch* CMsgOs::PMatch(const string& idm) const {
 	map<string,COsMatch>& idToMatch = pgs->idToMatch;
 	if (idToMatch.find(idm)==idToMatch.end())
-		return NULL;
+		return nullptr;
 	else
 		return &(idToMatch[idm]);
 }
@@ -42,7 +41,7 @@ COsMatch* CMsgOs::PMatch(const std::string& idm) const {
     const std::map<std::string,COsMatch>& idToMatch = pgs->idToMatch;
     auto it = idToMatch.find(idm);
     if (it == idToMatch.end())
-        return NULL;
+        return nullptr;
     else
         return const_cast<COsMatch*>(&(it->second));
 }
@@ -50,7 +49,7 @@ COsMatch* CMsgOs::PMatch(const std::string& idm) const {
 COsRequest* CMsgOs::PRequest(const string& idr) const {
 	map<string,COsRequest>& idToRequest = pgs->idToRequest;
 	if (idToRequest.find(idr)==idToRequest.end())
-		return NULL;
+		return nullptr;
 	else
 		return &(idToRequest[idr]);
 }
@@ -59,7 +58,7 @@ COsRequest* CMsgOs::PRequest(const std::string& idr) const {
     const std::map<std::string,COsRequest>& idToRequest = pgs->idToRequest;
     auto it = idToRequest.find(idr);
     if (it == idToRequest.end())
-        return NULL;
+        return nullptr;
     else
         return const_cast<COsRequest*>(&(it->second));
 }

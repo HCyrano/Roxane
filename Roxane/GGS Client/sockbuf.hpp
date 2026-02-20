@@ -26,8 +26,9 @@ public:
     virtual int overflow(int c=EOF);
     virtual int sync();
     
-    // errors
-    enum { kErrUnknown=0x8600,
+    enum {
+        kErrMem=0x8100,
+        kErrUnknown=0x8600,
         kErrNoHost,
         kErrCantConnect,
         kErrConnectionReset,

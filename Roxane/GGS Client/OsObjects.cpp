@@ -1234,7 +1234,7 @@ void COsGame::SetTime(time_t t) {
 }
 
 void COsGame::SetCurrentTime() {
-	time_t tCurrent=time(NULL);
+	time_t tCurrent=time(nullptr);
 	SetTime(tCurrent);
 }
 

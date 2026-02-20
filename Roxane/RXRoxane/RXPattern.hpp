@@ -16,7 +16,7 @@
 
 class alignas(16) RXPattern {
     
-    static constexpr unsigned int N_PATTERNS = 30;
+    static constexpr unsigned int N_PATTERNS = 32; // 32 patterns (30 + 2 dummy for 128-bit alignment)
         
 public:
     
@@ -73,7 +73,7 @@ public:
 
 inline void RXPattern::clear() {
     
-    for(unsigned int i = 0; i< N_PATTERNS; ++i)
+    for(unsigned int i = 0; i< N_PATTERNS-2; ++i)
         patt[i] = 0;
     
 }

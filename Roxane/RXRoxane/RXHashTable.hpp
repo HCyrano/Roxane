@@ -266,7 +266,7 @@ inline RXHashRecord* RXHashTable::get_record(const RXBitBoard& board, const t_ha
 	if((entry.newest.lock ^ entry.newest.packed) == hash_code)
 		return &(entry.newest);
 	
-	return NULL;
+	return nullptr;
 	
 	
 }

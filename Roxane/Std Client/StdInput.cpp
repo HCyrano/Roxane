@@ -34,7 +34,7 @@ void StdInput::InitializeArguments() {
     for (int i = 0; i < 512; i++) {
         // En C++, on pourrait préférer new char[128] mais free() est mieux pour un code mixte
         args_[i] = (char *) malloc(128); 
-        if (args_[i] == NULL) {
+        if (args_[i] == nullptr) {
              // Gérer l'erreur d'allocation mémoire
              std::cerr << "Erreur d'allocation pour args[" << i << "]" << std::endl;
              exit(EXIT_FAILURE);

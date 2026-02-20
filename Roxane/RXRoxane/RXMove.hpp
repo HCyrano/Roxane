@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <cstddef> // define NULL
+#include <cstddef> // define nullptr
 #include <string>
 #include <vector>
 
@@ -37,7 +37,7 @@ class RXMove {
     RXPattern* pattern;
     RXPattern* undo_pattern;
 
-		RXMove() : position(static_cast<char>(NOMOVE)), square(0ULL), flipped(0ULL), score(0), next(NULL), pattern(NULL), undo_pattern(NULL) {
+		RXMove() : position(static_cast<char>(NOMOVE)), square(0ULL), flipped(0ULL), score(0), next(nullptr), pattern(nullptr), undo_pattern(nullptr) {
 			pattern = new RXPattern();
 		};
 		
@@ -85,7 +85,7 @@ class RXMove {
 inline void RXMove::sort_bestmove(unsigned int bestmove) {
 
 	RXMove* previous;
-	for(RXMove* iter = (previous = this)->next; iter != NULL; iter = (previous = iter)->next)
+	for(RXMove* iter = (previous = this)->next; iter != nullptr; iter = (previous = iter)->next)
 		if(iter->position == static_cast<char>(bestmove)) {
 			previous->next = iter->next;
 			iter->next = this->next;
@@ -98,9 +98,9 @@ inline void RXMove::sort_bestmove(unsigned int bestmove) {
 inline void RXMove::sort_by_score() {
 	RXMove *best, *previousBest, *previous;
 	
-	for(RXMove* iter = this; iter->next != NULL; iter = iter->next){
+	for(RXMove* iter = this; iter->next != nullptr; iter = iter->next){
 		previousBest = iter;
-		for(previous = previousBest->next; previous->next != NULL; previous =previous->next)
+		for(previous = previousBest->next; previous->next != nullptr; previous =previous->next)
 			if(previousBest->next->score>previous->next->score)
 				previousBest = previous;
 				
@@ -119,7 +119,7 @@ inline RXMove* RXMove::pick_next_promising_move() {
     RXMove* move = previous_move->next;
     
     RXMove* previous_iter = move;
-    for(RXMove* iter = previous_iter->next ; iter != NULL; iter = (previous_iter = iter)->next) {
+    for(RXMove* iter = previous_iter->next ; iter != nullptr; iter = (previous_iter = iter)->next) {
         if(iter->score < move->score) {
             move = iter;
             previous_move = previous_iter;

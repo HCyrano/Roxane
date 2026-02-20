@@ -27,7 +27,7 @@ void* init_process(void* pt)  {
 	
 	roxane->run();
 	
-	return NULL;
+	return nullptr;
 	
 }
 
@@ -35,9 +35,9 @@ void* init_process(void* pt)  {
 /*________________________________________________________________________________________________________*/
 
 
-RXRoxane::RXRoxane(int size_hashtable, int max_thread): GGSClient(NULL) {
+RXRoxane::RXRoxane(int size_hashtable, int max_thread): GGSClient(nullptr) {
 
-	pthread_mutex_init(&mutex, NULL);
+	pthread_mutex_init(&mutex, nullptr);
     
     max_threads = max_thread;
     
@@ -118,7 +118,7 @@ void RXRoxane::resume() {
 RXEngine* RXRoxane::getEngine(const int color) const {
     if (color == BLACK || color == WHITE)
         return engine[color];
-    return NULL;
+    return nullptr;
 }
 
 ///* synchronized method */
@@ -296,39 +296,6 @@ RXEngine* RXRoxane::getEngine(const int color) const {
 //	
 //}
 
-/* synchronized method */
-// evaluate board file
-void RXRoxane::board_eval(const std::string& file_name) {
-    
-    
-    pthread_mutex_lock(&mutex);
-    
-    
-    resume_flag.store(false);
-    
-    
-    std::ifstream in(file_name.c_str());
-    
-    if(in) {
-        
-        
-        std::string line;
-        
-        while(!resume_flag.load() && std::getline(in, line)) {
-                        
-            RXBBPatterns sBoard;
-            sBoard.build(line);
-            
-            std::cout << sBoard << std::endl;
-             
-        }
-        
-        
-    }
-    
-    pthread_mutex_unlock(&mutex);
-    
-}
 
 /* synchronized method */
 void RXRoxane::get_move(const std::string& _idg, COsGame* g) {
@@ -992,7 +959,7 @@ void* RXRoxane::run() {
         }
     }
     
-    return NULL;
+    return nullptr;
 	
 	
 	
@@ -1053,7 +1020,7 @@ void RXRoxane::imposed_opening(const std::string& line) {
 
 void RXRoxane::sendMsg(std::string msg) {
 	
-	if(GGSClient != NULL && search.clientMode == RXSearch::kGGSMode && GGSClient->IsConnected())
+	if(GGSClient != nullptr && search.clientMode == RXSearch::kGGSMode && GGSClient->IsConnected())
 		GGSClient->SendMsg(msg);
 	else
 		std::cout << msg << std::endl;

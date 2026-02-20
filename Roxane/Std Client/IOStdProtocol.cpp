@@ -20,7 +20,7 @@
 // Initialise le moteur et le mutex pour la synchronisation
 IOStdProtocol::IOStdProtocol(RXRoxane* e) : engine(e) {
     // Initialisation du mutex (important en C++ pour l'objet StdInput)
-    pthread_mutex_init(&IOSync, NULL);
+    pthread_mutex_init(&IOSync, nullptr);
 }
 
 /*

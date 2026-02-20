@@ -7,7 +7,6 @@
 #include <map>
 
 #include "GGSObjects.hpp"
-#include "types.hpp"
 
 // base message class
 

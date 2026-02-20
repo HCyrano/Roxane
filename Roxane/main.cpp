@@ -13,9 +13,6 @@
 #include <locale>
 #include <pthread.h>
 
-
-#include "types.hpp"
-
 #include "ODKStream.hpp"
 #include "IOStdProtocol.hpp"
 #include "RXRoxane.hpp"
@@ -70,7 +67,7 @@ int main (int argc, char * const argv[]) {
 		}
 	}
 
-    std::string version = "build-2026-02-19 10h35";
+    std::string version = "build-2026-02-20 17h33";
     std::string vers_eval = RXEvaluation::get_version();
 
 	std::cout << "Version Roxane " << version << std::endl;
@@ -116,7 +113,6 @@ int main (int argc, char * const argv[]) {
     //warm up
     if(!file_name.empty())
         roxane.get_move(file_name);
-        //roxane.board_eval(file_name);
 #endif
      
     

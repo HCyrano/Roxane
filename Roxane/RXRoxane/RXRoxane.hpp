@@ -90,7 +90,6 @@ public :
 #endif
     
 	//privateProtocol
-    void board_eval(const std::string& file_name);
 	void get_move(const std::string& file_name);
     void stop_engine();
 

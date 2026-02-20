@@ -11,7 +11,7 @@
 #include "RXEvaluation.hpp"
 #include "RXHashTable.hpp"
 
-#include <cstddef> // define NULL
+#include <cstddef> // define nullptr
 #include <iomanip>
 
 
@@ -447,7 +447,7 @@ RXBitBoard::RXBitBoard(): player(BLACK), n_empty(60), n_nodes(0), parity(0xF){
     /* create emptiesList */
     RXSquareList* iEmpties = empties_list;      //empties[0]
     iEmpties->position = NOMOVE;                //sentinel
-    iEmpties->previous = NULL;                  //NULL
+    iEmpties->previous = nullptr;                  //nullptr
     iEmpties->next = iEmpties + 1;
     iEmpties = iEmpties->next;
     
@@ -465,7 +465,7 @@ RXBitBoard::RXBitBoard(): player(BLACK), n_empty(60), n_nodes(0), parity(0xF){
     }
     iEmpties->position = NOMOVE;                //sentinel
     iEmpties->previous = iEmpties - 1;
-    iEmpties->next = 0;                         //NULL
+    iEmpties->next = 0;                         //nullptr
     
     
     init_generate_flips();
@@ -487,7 +487,7 @@ void RXBitBoard::reset() {
     /* create emptiesList */
     RXSquareList* iEmpties = empties_list;      //empties[0]
     iEmpties->position = NOMOVE;                //sentinel
-    iEmpties->previous = NULL;                  //NULL
+    iEmpties->previous = nullptr;                  //nullptr
     iEmpties->next = iEmpties + 1;
     iEmpties = iEmpties->next;
     
@@ -505,12 +505,45 @@ void RXBitBoard::reset() {
     }
     iEmpties->position = NOMOVE;                //sentinel
     iEmpties->previous = iEmpties - 1;
-    iEmpties->next = 0;                         //NULL
+    iEmpties->next = 0;                         //nullptr
     
 
 }
 
+RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
+    // On copie les données scalaires d'un bloc (Clang utilisera NEON ici)
+    discs[BLACK] = src.discs[BLACK];
+    discs[WHITE] = src.discs[WHITE];
+    player = src.player;
+    n_empty = src.n_empty;
+    parity = src.parity;
+    n_nodes = src.n_nodes;
 
+    // Reconstruction de la liste sans branchement
+    RXSquareList* __restrict__ current_dest_base = this->empties_list;
+    RXSquareList* previous = current_dest_base;
+    const RXSquareList* src_curr = src.empties_list->next;
+
+    while(src_curr->position != NOMOVE) {
+        // Accès direct via le mapping de position
+        RXSquareList* empty = position_to_empties[src_curr->position];
+        
+        empty->previous = previous;
+        previous->next = empty;
+        
+        previous = empty; // Optimisation registre
+        src_curr = src_curr->next;
+    }
+
+    // Fermeture de la liste sur la sentinelle [61]
+    RXSquareList* sentinel = &current_dest_base[61];
+    sentinel->previous = previous;
+    previous->next = sentinel;
+    
+    return *this;
+}
+
+/*
 RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
 
     if(this != &src) {
@@ -541,7 +574,7 @@ RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
     
     return *this;
 }
-
+*/
 
 RXBitBoard::RXBitBoard(const RXBitBoard& src) {
 	
@@ -556,7 +589,7 @@ RXBitBoard::RXBitBoard(const RXBitBoard& src) {
 	/* create emptiesList */
 	RXSquareList* iEmpties = empties_list;	//empties[0]
 	iEmpties->position = NOMOVE;			//sentinel
-	iEmpties->previous = NULL;				//NULL
+	iEmpties->previous = nullptr;				//nullptr
 	iEmpties->next = iEmpties + 1;
 	iEmpties = iEmpties->next;
     
@@ -574,7 +607,7 @@ RXBitBoard::RXBitBoard(const RXBitBoard& src) {
 	}
 	iEmpties->position = NOMOVE;			//sentinel
 	iEmpties->previous = iEmpties - 1; 
-	iEmpties->next = 0;						//NULL
+	iEmpties->next = 0;						//nullptr
 	
 	/*BE CAREFULL*/
 	/*copy actual empties list */

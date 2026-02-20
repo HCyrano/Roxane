@@ -304,15 +304,15 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                         previous = previous->next = move++;
                     }
                 
-                previous->next = NULL;
+                previous->next = nullptr;
                 
-                if((list->next)->next != NULL) { //nb moves > 1
+                if((list->next)->next != nullptr) { //nb moves > 1
                     
                     const int p = board.player;
                     const int o = p^1;
                     
                     //sort list by mobility
-                    for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
+                    for(RXMove* iter = list->next; iter != nullptr; iter = iter->next) {
                         
                         ++board.n_nodes;
                         
@@ -334,7 +334,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                     
                     RXMove* move = list->next;
                     
-                    if(move->next != NULL)
+                    if(move->next != nullptr)
                         move = list->pick_next_promising_move();
                     
                     
@@ -351,7 +351,7 @@ int RXEngine::EG_alphabeta_hash_mobility(const unsigned int threadID, RXBitBoard
                     
                     list = list->next;
                     
-                } while(lower < upper && list->next != NULL);
+                } while(lower < upper && list->next != nullptr);
             }
         }
     }
@@ -497,16 +497,16 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                         previous = previous->next = move++;
                     }
                 
-                previous->next = NULL;
+                previous->next = nullptr;
                 
                 
-                if((list->next)->next != NULL) { //nb moves > 1
+                if((list->next)->next != nullptr) { //nb moves > 1
                     
                     const int p = board.player;
                     const int o = p^1;
                     
                     //sort list by mobility
-                    for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
+                    for(RXMove* iter = list->next; iter != nullptr; iter = iter->next) {
                         
                         ++board.n_nodes;
                         
@@ -544,7 +544,7 @@ int RXEngine::EG_PVS_hash_mobility(const unsigned int threadID, RXBitBoard& boar
                 
                 // other moves : try to refute the first/best one
                 int score;
-                for(; lower < upper && list->next != NULL; list = list->next) {
+                for(; lower < upper && list->next != nullptr; list = list->next) {
                     
                     RXMove* move = list->pick_next_promising_move();
 
@@ -672,7 +672,7 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
     int bestscore = UNDEF_SCORE;
     
     RXMove* list = threads[threadID]._move[board.n_empty];
-    list->next = NULL;
+    list->next = nullptr;
     
     if(bestmove != PASS) {
         
@@ -763,11 +763,11 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
                 
             }
         
-        previous->next = NULL;
+        previous->next = nullptr;
         
     }
     
-    if (list->next == NULL) {
+    if (list->next == nullptr) {
         if (passed) {
             return board.final_score();
         } else {
@@ -794,15 +794,15 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
         }
         
         
-        if(lower < upper && list->next != NULL) {
+        if(lower < upper && list->next != nullptr) {
             
-            if((list->next)->next != NULL) {
+            if((list->next)->next != nullptr) {
                 
                 const int p = board.player;
                 const int o = p^1;
                 
                 //calc answer move->score
-                for(RXMove* iter = list->next; iter != NULL; iter = iter->next) {
+                for(RXMove* iter = list->next; iter != nullptr; iter = iter->next) {
                     
                     ++board.n_nodes;
                     
@@ -842,12 +842,12 @@ int RXEngine::EG_PVS_ETC_mobility(const unsigned int threadID, RXBBPatterns& sBo
             
             // other moves : try to refute the first/best one
             int score;
-            for(;lower < upper && list->next != NULL; list = list->next) {
+            for(;lower < upper && list->next != nullptr; list = list->next) {
                 
                 //find moves with worst answer
                 
                 RXMove* move = list->next;
-                if(move->next != NULL) {
+                if(move->next != nullptr) {
                     
 #ifdef USE_SPLIT_AT_ETC_MOBILITY
                     
@@ -913,7 +913,7 @@ void RXEngine::EG_SP_search_ETC_Mobility(RXSplitPoint* sp, const unsigned int th
         
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list->next == NULL) {
+        if(sp->list->next == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
@@ -1076,7 +1076,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
     int score, bestscore = UNDEF_SCORE;
     
     RXMove* list = threads[threadID]._move[board.n_empty];
-    list->next = NULL;
+    list->next = nullptr;
     
     if(bestmove != PASS) {
         
@@ -1160,13 +1160,13 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
         
         
         
-        previous->next = NULL;
+        previous->next = nullptr;
         
         
     }
     
     
-    if (list->next == NULL) {
+    if (list->next == nullptr) {
         if (passed) {
             return board.final_score();
         } else {
@@ -1198,9 +1198,9 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                         
         }
         
-        if(lower < upper && list->next != NULL) {
+        if(lower < upper && list->next != nullptr) {
             
-            if((list->next)->next != NULL) {
+            if((list->next)->next != nullptr) {
                 
                 const int p = board.player;
                 const int o = p^1;
@@ -1211,7 +1211,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     int upper_probcut =  MAX_SCORE;
                     probcut_bounds(board, std::max(EG_HIGH_SELECT, std::min(selectivity-1, NO_SELECT-2)), board.n_empty, (8+(board.n_empty & 0x1UL)), 0, lower, upper, lower_probcut, upper_probcut);
                     
-                     for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
+                     for(RXMove* iter = list->next; iter!=nullptr; iter = iter->next) {
                         
                         ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                         
@@ -1301,7 +1301,7 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
                     
                     //empties<=EG_DEEP_TO_MEDIUM;
                     
-                    for(RXMove* iter = list->next; iter!=NULL; iter = iter->next) {
+                    for(RXMove* iter = list->next; iter!=nullptr; iter = iter->next) {
                         ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
                         
                         ++board.n_nodes;
@@ -1346,10 +1346,10 @@ int RXEngine::EG_PVS_deep(const unsigned int threadID, RXBBPatterns& sBoard, con
             
             
             /* other moves : try to refute the first/best one */
-            for(;!abort.load()  && lower < upper && list->next != NULL; list = list->next) {
+            for(;!abort.load()  && lower < upper && list->next != nullptr; list = list->next) {
                 
                 RXMove* move = list->next;
-                if (move->next != NULL) {
+                if (move->next != nullptr) {
                     
                     // Split?
                     if(activeThreads > 1  && !abort.load() && !thread_should_stop(threadID) && idle_thread_exists(threadID)
@@ -1424,7 +1424,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
         
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list->next == NULL) {
+        if(sp->list->next == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
@@ -1500,7 +1500,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
 
 
 /*
- Null Window Search  + XProbCut
+ nullptr Window Search  + XProbCut
  Keep sorting (more efficient) before switching to EG_PVS_ETC_mobility method
  */
 int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int alpha, const bool passed) {
@@ -1569,7 +1569,7 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
 
     
     RXMove* list = threads[threadID]._move[board.n_empty];
-    list->next = NULL;
+    list->next = nullptr;
     
     if(bestmove != PASS) {
         
@@ -1670,14 +1670,14 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
                 
             }
         
-        previous->next = NULL;
+        previous->next = nullptr;
         
         
     }
     
     int bestscore = UNDEF_SCORE;
     
-    if(list->next == NULL) {
+    if(list->next == nullptr) {
         //PASS
         if(passed) {
             return board.final_score();
@@ -1725,9 +1725,9 @@ int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, 
         
         
         int score;
-        for(RXMove* iter = list->next; !abort.load()  && bestscore<=alpha && iter != NULL; iter = iter->next, list = list->next) {
+        for(RXMove* iter = list->next; !abort.load()  && bestscore<=alpha && iter != nullptr; iter = iter->next, list = list->next) {
             
-            if(activeThreads > 1 && board.n_empty>=MIN_DEPTH_USE_ENDCUT && (list->next)->next != NULL
+            if(activeThreads > 1 && board.n_empty>=MIN_DEPTH_USE_ENDCUT && (list->next)->next != nullptr
                && !abort.load() && !thread_should_stop(threadID) &&  idle_thread_exists(threadID)
                && split(sBoard, false, pvDev+1, board.n_empty, selectivity,
                         alpha, (alpha + 1), bestscore, bestmove, list, threadID, RXSplitPoint::END_XPROBCUT)) {
@@ -1791,7 +1791,7 @@ void RXEngine::EG_SP_search_XEndcut(RXSplitPoint* sp, const unsigned int threadI
         
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list->next == NULL) {
+        if(sp->list->next == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
@@ -1927,11 +1927,11 @@ void RXEngine::EG_PVS_root(RXBBPatterns& sBoard, const int selectivity, int alph
         int score;
         first_move.store(false);
         
-        for (iter = iter->next; !abort.load()  && lower < upper && iter != NULL; iter = iter->next) {
+        for (iter = iter->next; !abort.load()  && lower < upper && iter != nullptr; iter = iter->next) {
             
 #ifdef USE_SPLIT_AT_ROOT
             
-            if(activeThreads > 1 && iter->next != NULL && board.n_empty >= EG_DEEP_TO_MEDIUM
+            if(activeThreads > 1 && iter->next != nullptr && board.n_empty >= EG_DEEP_TO_MEDIUM
                && !abort.load() && idle_thread_exists(0) && !thread_should_stop(0)
                && split(sBoard, true, 0, board.n_empty, selectivity,
                         lower, upper, bestscore, bestmove, iter, 0, RXSplitPoint::END_ROOT)) {
@@ -2069,7 +2069,7 @@ void RXEngine::EG_SP_search_root(RXSplitPoint* sp, const unsigned int threadID) 
         
         pthread_mutex_lock(&(sp->lock));
         
-        if(sp->list == NULL) {
+        if(sp->list == nullptr) {
             pthread_mutex_unlock(&(sp->lock));
             break;
         }
@@ -2424,7 +2424,7 @@ bool RXEngine::EG_check_PV(std::vector<unsigned char>& pv, RXBBPatterns& sBoard,
                 board.moves_producing(list);
                 list->sort_bestmove(pv.front());
                 
-                for(RXMove* iter = list->next; iter != NULL; iter = iter->next)
+                for(RXMove* iter = list->next; iter != nullptr; iter = iter->next)
                     ((sBoard).*(sBoard.update_patterns[iter->position][board.player]))(*iter);
  
                 //version monogame [provoque bug affichage]

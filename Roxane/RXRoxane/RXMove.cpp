@@ -123,7 +123,7 @@ unsigned long long RXMove::random_pick_bit_in_legalmoves(const unsigned long lon
 //debug
 std::ostream& operator<<(std::ostream& os, RXMove* list) {
 
-	for(RXMove* move = list->next; move != NULL; move = move->next)
+	for(RXMove* move = list->next; move != nullptr; move = move->next)
 		os << RXMove::index_to_coord(move->position) << ' ';
 		
 	return os;
