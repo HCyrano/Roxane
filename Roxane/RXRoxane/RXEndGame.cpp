@@ -1500,7 +1500,7 @@ void RXEngine::EG_SP_search_DEEP(RXSplitPoint* sp, const unsigned int threadID) 
 
 
 /*
- nullptr Window Search  + XProbCut
+ NULL Window Search  + XProbCut
  Keep sorting (more efficient) before switching to EG_PVS_ETC_mobility method
  */
 int RXEngine::EG_NWS_XEndCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int alpha, const bool passed) {

@@ -1097,7 +1097,7 @@ int RXEngine::MG_PVS_shallow(const unsigned int threadID, RXBBPatterns& sBoard, 
 
 
 /*
- nullptr Window Search  + XProbCut
+ NULL Window Search  + XProbCut
  */
 int RXEngine::MG_NWS_XProbCut(const unsigned int threadID, RXBBPatterns& sBoard, const int pvDev, const int selectivity, const int depth, const int alpha, const bool passed) {
     
