@@ -112,7 +112,7 @@ void RXBitBoard::generate_flips_D1(RXMove& move) const {
     outflank_d &= ((P & 0x1028448201000000) * 0x0101010101010101) >> 54;    // hgfed[cbahg]f0dcba...
     flipped |= FLIPPED_4_H[outflank_d] & 0x1028440200000000;    // A4E8H5
 
-    outflank_h = OUTFLANK_4[(O >> 57) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 56), 2);
+    outflank_h = OUTFLANK_4[(O >> 57) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 56), 2);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_4_H[outflank_h] << 56;
 
     move.flipped = flipped;
@@ -139,7 +139,7 @@ void RXBitBoard::generate_flips_E1(RXMove& move) const {
     outflank_d &= ((P & 0x0814224180000000) * 0x0101010101010101) >> 53;    // hgfedc[bahgf]e0cba...
     flipped |= FLIPPED_3_H[outflank_d] & 0x0814224000000000;    // A5D8H4
 
-    outflank_h = OUTFLANK_3[(O >> 57) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 56), 3);
+    outflank_h = OUTFLANK_3[(O >> 57) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 56), 3);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_3_H[outflank_h] << 56;
 
     
@@ -333,7 +333,7 @@ void RXBitBoard::generate_flips_D2(RXMove& move) const {
     outflank_d &= ((P & 0x0010284482010000) * 0x0101010101010101) >> 54;    // hgfed[cbahg]...
     flipped |= FLIPPED_4_H[outflank_d] & 0x0010284402000000;    // A3E7H4
 
-    outflank_h = OUTFLANK_4[(O >> 49) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 48), 2);
+    outflank_h = OUTFLANK_4[(O >> 49) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 48), 2);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_4_H[outflank_h] << 48;
 
 
@@ -363,7 +363,7 @@ void RXBitBoard::generate_flips_E2(RXMove& move) const {
     outflank_d &= ((P & 0x0008142241800000) * 0x0101010101010101) >> 53;    // hgfedc[bahgf]...
     flipped |= FLIPPED_3_H[outflank_d] & 0x0008142240000000;    // A4D7H3
 
-    outflank_h = OUTFLANK_3[(O >> 49) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 48), 3);
+    outflank_h = OUTFLANK_3[(O >> 49) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 48), 3);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_3_H[outflank_h] << 48;
 
     
@@ -561,7 +561,7 @@ void RXBitBoard::generate_flips_D3(RXMove& move) const {
     outflank_v = outflank_right(O, 0x0000001010101010) & P;
     flipped  = (outflank_v * -2) & 0x0000001010101010;
 
-    outflank_h = OUTFLANK_4[(O >> 41) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 40), 2);
+    outflank_h = OUTFLANK_4[(O >> 41) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 40), 2);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_4_H[outflank_h] << 40;
 
     outflank_d = OUTFLANK_4[(((unsigned int) (O >> 16) & 0x10284402) * 0x01010101) >> 25];
@@ -592,7 +592,7 @@ void RXBitBoard::generate_flips_E3(RXMove& move) const {
     outflank_v = outflank_right(O, 0x0000000808080808) & P;
     flipped  = (outflank_v * -2) & 0x0000000808080808;
 
-    outflank_h = OUTFLANK_3[(O >> 41) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 40), 3);
+    outflank_h = OUTFLANK_3[(O >> 41) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 40), 3);
     flipped |= (unsigned long long)(unsigned char) FLIPPED_3_H[outflank_h] << 40;
 
     outflank_d = OUTFLANK_3[(((unsigned int) (O >> 16) & 0x08142240) * 0x01010101) >> 25];
@@ -1292,7 +1292,7 @@ void RXBitBoard::generate_flips_D6(RXMove& move) const {
     outflank_v = (outflank_v & -outflank_v) & 0x1010101010000000 & P;
     flipped = OutflankToFlipmask(outflank_v) & 0x1010101010000000;
 
-    outflank_h = OUTFLANK_4[(O >> 17) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 16), 2);
+    outflank_h = OUTFLANK_4[(O >> 17) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 16), 2);
     flipped |= (unsigned char) FLIPPED_4_H[outflank_h] << 16;
 
     outflank_d = OUTFLANK_4[(((unsigned int) (O >> 16) & 0x02442810) * 0x01010101) >> 25];
@@ -1325,7 +1325,7 @@ void RXBitBoard::generate_flips_E6(RXMove& move) const {
     outflank_v = (outflank_v & -outflank_v) & 0x0808080808000000 & P;
     flipped = OutflankToFlipmask(outflank_v) & 0x0808080808000000;
 
-    outflank_h = OUTFLANK_3[(O >> 17) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 16), 3);
+    outflank_h = OUTFLANK_3[(O >> 17) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 16), 3);
     flipped |= (unsigned char) FLIPPED_3_H[outflank_h] << 16;
 
     outflank_d = OUTFLANK_3[(((unsigned int) (O >> 16) & 0x40221408) * 0x01010101) >> 25];
@@ -1556,7 +1556,7 @@ void RXBitBoard::generate_flips_D7(RXMove& move) const {
     outflank_d &= ((P & 0x0000018244281000) * 0x0101010101010101) >> 54;    // hgfed[cbahg]...
     flipped |= FLIPPED_4_H[outflank_d] & 0x0000000244281000;    // A6E2H5
 
-    outflank_h = OUTFLANK_4[(O >> 9) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 8), 2);
+    outflank_h = OUTFLANK_4[(O >> 9) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 8), 2);
     flipped |= (unsigned char) FLIPPED_4_H[outflank_h] << 8;
 
     
@@ -1586,7 +1586,7 @@ void RXBitBoard::generate_flips_E7(RXMove& move) const {
     outflank_d &= ((P & 0x0000804122140800) * 0x0101010101010101) >> 53;    // hgfedc[bahgf]...
     flipped |= FLIPPED_3_H[outflank_d] & 0x0000004022140800;    // A5D2H6
 
-    outflank_h = OUTFLANK_3[(O >> 9) & 0x3f] & rotl8(static_cast<uint8_t>(P >> 8), 3);
+    outflank_h = OUTFLANK_3[(O >> 9) & 0x3f] & std::rotl(static_cast<uint8_t>(P >> 8), 3);
     flipped |= (unsigned char) FLIPPED_3_H[outflank_h] << 8;
 
     
@@ -1791,7 +1791,7 @@ void RXBitBoard::generate_flips_D8(RXMove& move) const {
     outflank_d &= ((P & 0x0000000182442810) * 0x0101010101010101) >> 54;    // hgfed[cbahg]...
     flipped |= FLIPPED_4_H[outflank_d] & 0x0000000002442810;    // A5E1H4
 
-    outflank_h = OUTFLANK_4[(O >> 1) & 0x3f] & rotl8(static_cast<uint8_t>(P), 2);
+    outflank_h = OUTFLANK_4[(O >> 1) & 0x3f] & std::rotl(static_cast<uint8_t>(P), 2);
     flipped |= (unsigned char) FLIPPED_4_H[outflank_h];
         
     move.flipped = flipped;
@@ -1816,7 +1816,7 @@ void RXBitBoard::generate_flips_E8(RXMove& move) const {
     outflank_d &= ((P & 0x0000008041221408) * 0x0101010101010101) >> 53;    // hgfedc[bahgf]...
     flipped |= FLIPPED_3_H[outflank_d] & 0x0000000040221408;    // A4D1H5
 
-    outflank_h = OUTFLANK_3[(O >> 1) & 0x3f] & rotl8(static_cast<uint8_t>(P), 3);
+    outflank_h = OUTFLANK_3[(O >> 1) & 0x3f] & std::rotl(static_cast<uint8_t>(P), 3);
     flipped |= (unsigned char) FLIPPED_3_H[outflank_h];
         
     move.flipped = flipped;

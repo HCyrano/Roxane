@@ -173,28 +173,6 @@ const uint64x2_t RXBitBoard::mask_dvhd[64][2] = {
  * @return flipped disc count.
  */
 
-int RXBitBoard::count_flips(const int pos, const unsigned long long P) const
-{
-    unsigned int    n_flips;
-    const unsigned char *COUNT_FLIP_X = COUNT_FLIP[pos & 7];
-    const unsigned char *COUNT_FLIP_Y = COUNT_FLIP[pos >> 3];
-    uint64x2_t    PP = vdupq_n_u64(P);
-    uint64x2_t    II;
-    unsigned int t;
-    const uint64x2_t dmask = { 0x0808040402020101, 0x8080404020201010 };
-
-    PP = vreinterpretq_u64_u8(vzip1q_u8(vreinterpretq_u8_u64(PP), vreinterpretq_u8_u64(PP)));
-    II = vandq_u64(PP, mask_dvhd[pos][0]);    // 2 dirs interleaved
-    t = vaddvq_u16(vreinterpretq_u16_u64(II));
-    n_flips  = COUNT_FLIP_X[t >> 8];
-    n_flips += COUNT_FLIP_X[t & 0xFF];
-    II = vandq_u64(vreinterpretq_u64_u8(vtstq_u8(vreinterpretq_u8_u64(PP), vreinterpretq_u8_u64(mask_dvhd[pos][1]))), dmask);
-    t = vaddvq_u16(vreinterpretq_u16_u64(II));
-    n_flips += COUNT_FLIP_Y[t >> 8];
-    n_flips += COUNT_FLIP_Y[t & 0xFF];
-
-    return n_flips;
-}
 
 #endif
 

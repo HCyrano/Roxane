@@ -5,6 +5,8 @@
 //  Created by Causse Bruno on 13/02/2026.
 //
 
+#include <bit> // std::rotl
+
 
 // Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
 // or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).
@@ -33,14 +35,16 @@ static constexpr inline uint64x2_t not_O_in_mask(const uint64x2_t mask, const un
 
 //rotl8
 //#define rotl8(static_cast<uint8_t>(x,y)  __builtin_rotateleft8((x),(y))
+//
+//__attribute__((always_inline))
+//static constexpr inline uint8_t rotl8(const uint8_t x, const uint8_t y) {
+//    // Le masque (y & 7) est une excellente optimisation pour les architectures 8-bit
+//    // ou pour aider l'optimiseur sur ARM/x86.
+//    return static_cast<uint8_t>((x << (y & 7)) | (x >> ((8 - y) & 7)));
+//}
 
-__attribute__((always_inline))
-static constexpr inline uint8_t rotl8(const uint8_t x, const uint8_t y) {
-    // Le masque (y & 7) est une excellente optimisation pour les architectures 8-bit
-    // ou pour aider l'optimiseur sur ARM/x86.
-    return static_cast<uint8_t>((x << (y & 7)) | (x >> ((8 - y) & 7)));
-}
-
+// C++20: optimal circular shift for 8-bit types
+//uint8_t result = std::rotl(static_cast<uint8_t>(P >> 48), 3);
 
 //Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
 //This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
@@ -295,6 +299,31 @@ inline uint64x2_t RXBitBoard::dual_legal_moves(const unsigned long long p, const
     
     return legals;
 }
+
+__attribute__((always_inline))
+inline int RXBitBoard::count_flips(const int pos, const unsigned long long P) const
+{
+    unsigned int    n_flips;
+    const unsigned char *COUNT_FLIP_X = COUNT_FLIP[pos & 7];
+    const unsigned char *COUNT_FLIP_Y = COUNT_FLIP[pos >> 3];
+    uint64x2_t    PP = vdupq_n_u64(P);
+    uint64x2_t    II;
+    unsigned int t;
+    const uint64x2_t dmask = { 0x0808040402020101, 0x8080404020201010 };
+
+    PP = vreinterpretq_u64_u8(vzip1q_u8(vreinterpretq_u8_u64(PP), vreinterpretq_u8_u64(PP)));
+    II = vandq_u64(PP, mask_dvhd[pos][0]);    // 2 dirs interleaved
+    t = vaddvq_u16(vreinterpretq_u16_u64(II));
+    n_flips  = COUNT_FLIP_X[t >> 8];
+    n_flips += COUNT_FLIP_X[t & 0xFF];
+    II = vandq_u64(vreinterpretq_u64_u8(vtstq_u8(vreinterpretq_u8_u64(PP), vreinterpretq_u8_u64(mask_dvhd[pos][1]))), dmask);
+    t = vaddvq_u16(vreinterpretq_u16_u64(II));
+    n_flips += COUNT_FLIP_Y[t >> 8];
+    n_flips += COUNT_FLIP_Y[t & 0xFF];
+
+    return n_flips;
+}
+
 
 
 //unroll
