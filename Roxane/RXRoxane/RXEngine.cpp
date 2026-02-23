@@ -1365,9 +1365,12 @@ void RXEngine::get_move(RXSearch& s) {
     
     if(!resume_flag.load() && s.search_on_opponent_time == true && board.n_empty>18) {
         
-        
+ 
+        //************************************************************************************************
+        //                                  thinking on opponent time
+        //************************************************************************************************
+
         dependent_time = false;
-        
         
         RXMove& move = threads[0]._move[board.n_empty][1];
         
@@ -1386,34 +1389,39 @@ void RXEngine::get_move(RXSearch& s) {
         
         //copy
         search_sBoard = sBoard;
-        
+ 
+
         if(!hTable->is_shared()) {
             
             // 17/07/2009
             //pas d'anticipation si le score n'est pas exacte
             
             activeThreads = std::min<unsigned int>(std::max<unsigned int>(1, THREAD_MAX/2), THREAD_MAX);
-            
-            RXHashValue entry;
-            if(hTable->get(search_sBoard.board, type_hashtable, entry) && entry.move != NOMOVE) {
-                
-                if(entry.upper == entry.lower) {
-                    
-                    if(entry.move == PASS) {
-                        search_sBoard.board.do_pass();
-                    } else {
-                        RXMove& answer = threads[0]._move[board.n_empty][1];
-                        ((sBoard.board).*(sBoard.board.generate_flips[entry.move]))(answer);
-                        ((sBoard).*(sBoard.update_patterns[answer.position][board.player]))(answer);
-                        
-                        sBoard.do_move(answer);
-                        search_sBoard = sBoard;
-                        sBoard.undo_move(answer);
-                        
-                    }
-                }
-                
-            }
+
+            //************************************************************************************************
+            //                                  anticipation strategy
+            //************************************************************************************************
+
+//            RXHashValue entry;
+//            if(hTable->get(search_sBoard.board, type_hashtable, entry) && entry.move != NOMOVE) {
+//                
+//                if(entry.upper == entry.lower) {
+//                    
+//                    if(entry.move == PASS) {
+//                        search_sBoard.board.do_pass();
+//                    } else {
+//                        RXMove& answer = threads[0]._move[board.n_empty][1];
+//                        ((sBoard.board).*(sBoard.board.generate_flips[entry.move]))(answer);
+//                        ((sBoard).*(sBoard.update_patterns[answer.position][board.player]))(answer);
+//                        
+//                        sBoard.do_move(answer);
+//                        search_sBoard = sBoard;
+//                        sBoard.undo_move(answer);
+//                        
+//                    }
+//                }
+//                
+//            }
         }
         
         

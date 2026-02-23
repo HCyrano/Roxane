@@ -8,23 +8,45 @@
 
 // Strictly, (long long) >> 64 is undefined in C, but either 0 bit (no change)
 // or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).
-#define outflank_right(O,maskr) (0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr)))
+//#define outflank_right(O,maskr) (0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr)))
+
+__attribute__((always_inline))
+static constexpr inline unsigned long long outflank_right(const unsigned long long O, const unsigned long long maskr) {
+    return 0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr));
+}
 
 // in case continuous from MSB
-#define outflank_right_H(O) (0x80000000u >> __builtin_clz(~(O)))
+//#define outflank_right_H(O) (0x80000000u >> __builtin_clz(~(O)))
+
+__attribute__((always_inline))
+static constexpr inline unsigned int outflank_right_H(const unsigned int O) {
+    return 0x80000000u >> __builtin_clz(~(O));
+}
 
 
-#define not_O_in_mask(mask,O)   vbicq_u64((mask), vdupq_n_u64(O))
+//#define not_O_in_mask(mask,O)   vbicq_u64((mask), vdupq_n_u64(O))
+
+__attribute__((always_inline))
+static constexpr inline uint64x2_t not_O_in_mask(const uint64x2_t mask, const unsigned long long O) {
+    return vbicq_u64(mask, vdupq_n_u64(O));
+}
 
 //rotl8
-#define rotl8(x,y)  __builtin_rotateleft8((x),(y))
+//#define rotl8(static_cast<uint8_t>(x,y)  __builtin_rotateleft8((x),(y))
+
+__attribute__((always_inline))
+static constexpr inline uint8_t rotl8(const uint8_t x, const uint8_t y) {
+    // Le masque (y & 7) est une excellente optimisation pour les architectures 8-bit
+    // ou pour aider l'optimiseur sur ARM/x86.
+    return static_cast<uint8_t>((x << (y & 7)) | (x >> ((8 - y) & 7)));
+}
 
 
 //Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
 //This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
 //Set all bits below the sole outflank bit if outfrank != 0
 __attribute__((always_inline))
-static inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
+static constexpr inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
     return outflank ? (outflank - 1) : 0;
 //    return -(long long)outflank >> 63 & (outflank - 1);
 }
