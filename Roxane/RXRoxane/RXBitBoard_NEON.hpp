@@ -12,24 +12,32 @@
 // or 64 bit (zero out) shift will lead valid result (i.e. flipped == 0).
 //#define outflank_right(O,maskr) (0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr)))
 
-__attribute__((always_inline))
-static constexpr inline unsigned long long outflank_right(const unsigned long long O, const unsigned long long maskr) {
-    return 0x8000000000000000ULL >> __builtin_clzll(~(O) & (maskr));
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline unsigned long long outflank_right(const unsigned long long O, const unsigned long long maskr) noexcept {
+    //Fixed version without undefined behavior (UB)
+    //const unsigned long long masked = ~O & maskr;
+    //return (0x8000000000000000ULL >> __builtin_clzll(masked | 1ULL)) & -(masked != 0ULL);
+
+    return 0x8000000000000000ULL >> __builtin_clzll(~O & maskr);
 }
 
 // in case continuous from MSB
 //#define outflank_right_H(O) (0x80000000u >> __builtin_clz(~(O)))
 
-__attribute__((always_inline))
-static constexpr inline unsigned int outflank_right_H(const unsigned int O) {
-    return 0x80000000u >> __builtin_clz(~(O));
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline unsigned int outflank_right_H(const unsigned int O) noexcept {
+    //Fixed version without undefined behavior (UB)
+    //const unsigned int masked = ~O;
+    //return (0x80000000u >> __builtin_clz(masked | 1u)) & -(masked != 0u);
+    
+    return 0x80000000u >> __builtin_clz(~O);
 }
 
 
 //#define not_O_in_mask(mask,O)   vbicq_u64((mask), vdupq_n_u64(O))
 
-__attribute__((always_inline))
-static constexpr inline uint64x2_t not_O_in_mask(const uint64x2_t mask, const unsigned long long O) {
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline uint64x2_t not_O_in_mask(const uint64x2_t mask, const unsigned long long O) noexcept {
     return vbicq_u64(mask, vdupq_n_u64(O));
 }
 
@@ -49,11 +57,13 @@ static constexpr inline uint64x2_t not_O_in_mask(const uint64x2_t mask, const un
 //Clang on Apple Silicon will compile this into a SUBS instruction followed by a CSEL (Conditional Select).
 //This is the 'Holy Grail' of ARM optimization: 2 cycles, 0 branches.
 //Set all bits below the sole outflank bit if outfrank != 0
-__attribute__((always_inline))
-static constexpr inline unsigned long long OutflankToFlipmask(unsigned long long outflank) {
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline unsigned long long OutflankToFlipmask(unsigned long long outflank) noexcept {
     return outflank ? (outflank - 1) : 0;
-//    return -(long long)outflank >> 63 & (outflank - 1);
 }
+
+
+
 
 inline unsigned int RXBitBoard::count_stable_edge(const unsigned long long P, const unsigned long long O) {
     return __builtin_popcountll(RXBitBoard::get_stable_edge(P, O));
@@ -146,8 +156,6 @@ inline unsigned long long RXBitBoard::hashcode_after_move(RXMove* move) const {
     
 }
 
-#define KOGGE_STONE_STEP(flip, shift, mask) \
-    flip = vorrq_u64(flip, vandq_u64(vshlq_u64(flip, shift), mask))
 
 inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p_discs, const unsigned long long o_discs) {
     constexpr int64x2_t S_H  = { -1,  1}, S2_H  = { -2,  2}, S4_H  = { -4,  4};
@@ -158,6 +166,10 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
     const uint64x2_t P = vdupq_n_u64(p_discs);
     const uint64x2_t O = vdupq_n_u64(o_discs);
     const uint64x2_t O_inner = vdupq_n_u64(o_discs & 0x7E7E7E7E7E7E7E7EULL);
+    
+    auto kogge_stone_step = [](uint64x2_t& flip, int64x2_t shift, uint64x2_t mask) {
+        flip = vorrq_u64(flip, vandq_u64(vshlq_u64(flip, shift), mask));
+    };
     
     uint64x2_t fH  = vandq_u64(vshlq_u64(P, S_H),  O_inner);
     uint64x2_t fV  = vandq_u64(vshlq_u64(P, S_V),  O);
@@ -174,20 +186,20 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
     const uint64x2_t a2D7 = vandq_u64(aD7, vshlq_u64(aD7, S2_D7));
     const uint64x2_t a2D9 = vandq_u64(aD9, vshlq_u64(aD9, S2_D9));
     
-    KOGGE_STONE_STEP(fH,  S_H,  O_inner);
-    KOGGE_STONE_STEP(fV,  S_V,  O);
-    KOGGE_STONE_STEP(fD7, S_D7, O_inner);
-    KOGGE_STONE_STEP(fD9, S_D9, O_inner);
+    kogge_stone_step(fH,  S_H,  O_inner);
+    kogge_stone_step(fV,  S_V,  O);
+    kogge_stone_step(fD7, S_D7, O_inner);
+    kogge_stone_step(fD9, S_D9, O_inner);
     
-    KOGGE_STONE_STEP(fH,  S2_H,  aH);
-    KOGGE_STONE_STEP(fV,  S2_V,  aV);
-    KOGGE_STONE_STEP(fD7, S2_D7, aD7);
-    KOGGE_STONE_STEP(fD9, S2_D9, aD9);
+    kogge_stone_step(fH,  S2_H,  aH);
+    kogge_stone_step(fV,  S2_V,  aV);
+    kogge_stone_step(fD7, S2_D7, aD7);
+    kogge_stone_step(fD9, S2_D9, aD9);
     
-    KOGGE_STONE_STEP(fH,  S4_H,  a2H);
-    KOGGE_STONE_STEP(fV,  S4_V,  a2V);
-    KOGGE_STONE_STEP(fD7, S4_D7, a2D7);
-    KOGGE_STONE_STEP(fD9, S4_D9, a2D9);
+    kogge_stone_step(fH,  S4_H,  a2H);
+    kogge_stone_step(fV,  S4_V,  a2V);
+    kogge_stone_step(fD7, S4_D7, a2D7);
+    kogge_stone_step(fD9, S4_D9, a2D9);
     
     const uint64x2_t legals = vorrq_u64(
         vorrq_u64(vshlq_u64(fH, S_H), vshlq_u64(fV, S_V)),
@@ -198,7 +210,6 @@ inline unsigned long long RXBitBoard::get_legal_moves(const unsigned long long p
     return (vgetq_lane_u64(result, 0) & ~(p_discs | o_discs));
 }
 
-#undef KOGGE_STONE_STEP
 
 /**
  * Calcule les coups légaux pour les deux joueurs simultanément.

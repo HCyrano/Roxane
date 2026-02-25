@@ -1402,26 +1402,26 @@ void RXEngine::get_move(RXSearch& s) {
             //                                  anticipation strategy
             //************************************************************************************************
 
-//            RXHashValue entry;
-//            if(hTable->get(search_sBoard.board, type_hashtable, entry) && entry.move != NOMOVE) {
-//                
-//                if(entry.upper == entry.lower) {
-//                    
-//                    if(entry.move == PASS) {
-//                        search_sBoard.board.do_pass();
-//                    } else {
-//                        RXMove& answer = threads[0]._move[board.n_empty][1];
-//                        ((sBoard.board).*(sBoard.board.generate_flips[entry.move]))(answer);
-//                        ((sBoard).*(sBoard.update_patterns[answer.position][board.player]))(answer);
-//                        
-//                        sBoard.do_move(answer);
-//                        search_sBoard = sBoard;
-//                        sBoard.undo_move(answer);
-//                        
-//                    }
-//                }
-//                
-//            }
+            RXHashValue entry;
+            if(hTable->get(search_sBoard.board, type_hashtable, entry) && entry.move != NOMOVE) {
+                
+                if(entry.upper == entry.lower) {
+                    
+                    if(entry.move == PASS) {
+                        search_sBoard.board.do_pass();
+                    } else {
+                        RXMove& answer = threads[0]._move[board.n_empty][1];
+                        ((sBoard.board).*(sBoard.board.generate_flips[entry.move]))(answer);
+                        ((sBoard).*(sBoard.update_patterns[answer.position][board.player]))(answer);
+                        
+                        sBoard.do_move(answer);
+                        search_sBoard = sBoard;
+                        sBoard.undo_move(answer);
+                        
+                    }
+                }
+                
+            }
         }
         
         

@@ -246,14 +246,35 @@ void generate_flips_##pos(RXMove& move) const \
 #ifdef __ARM_NEON
 #include "RXBitBoard_NEON.hpp"
 #else
-#include "RXBitBoard_X86.hpp"
+#include "RXBitBoard_x86.hpp"
 #endif
 
 
-#define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
-#define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
-#define    packA1A8(X)      ((((X) & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56)
-#define    packH1H8(X)      ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
+//#define    unpackA2A7(x)    ((((x) & 0x7e) * 0x0000040810204080) & 0x0001010101010100)
+//#define    unpackH2H7(x)    ((((x) & 0x7e) * 0x0002040810204000) & 0x0080808080808000)
+//#define    packA1A8(X)      ((((X) & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56)
+//#define    packH1H8(X)      ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
+
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline std::uint64_t unpackA2A7(const std::uint64_t x) noexcept {
+    return ((x & 0x7eULL) * 0x0000040810204080ULL) & 0x0001010101010100ULL;
+}
+
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline std::uint64_t unpackH2H7(const std::uint64_t x) noexcept {
+    return ((x & 0x7eULL) * 0x0002040810204000ULL) & 0x0080808080808000ULL;
+}
+
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline std::uint64_t packA1A8(const std::uint64_t x) noexcept {
+    return ((x & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56;
+ }
+
+[[nodiscard]] __attribute__((always_inline))
+static constexpr inline std::uint64_t packH1H8(const std::uint64_t x) noexcept {
+    return ((x & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56;
+ }
+
 
 inline void RXBitBoard::moves_producing(RXMove* start) const {
     RXMove *list = start + 1, *previous = start;
