@@ -84,7 +84,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
     const uint64x2_t e793 = vdupq_n_u64(0x0f0f0f0ff0f0f0f0);
     
     
-    uint64_t h, v, d7, d9;
+    unsigned long long h, v, d7, d9;
     
     h8 = vcreate_u8(filled);                l79 = r79 = vreinterpretq_u64_u8(vcombine_u8(h8, vrev64_u8(h8)));
     h8 = vceq_u8(h8, vdup_n_u8(0xff));      l79 = vandq_u64(l79, vornq_u64(vshrq_n_u64(l79, 9), e790));
@@ -99,7 +99,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
     stable |= (h & v & d7 & d9 & central_mask);
     
     unsigned long long old_stable = 0;
-    uint64_t stable_h, stable_v, stable_d7, stable_d9;
+    unsigned long long stable_h, stable_v, stable_d7, stable_d9;
     
     while (stable != old_stable) {
         old_stable = stable;

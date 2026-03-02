@@ -24,7 +24,7 @@
 #include "arm_neon.h"
 #endif
 
-class RXSquareList {
+class alignas(32) RXSquareList {
     
     public :
     
@@ -38,7 +38,7 @@ class RXSquareList {
 
 
 
-class RXBitBoard {
+class alignas(32) RXBitBoard {
         
     private :
     static const unsigned long long hashSquare[64][2];
@@ -183,14 +183,12 @@ void generate_flips_##pos(RXMove& move) const \
     /* bool check_move(const int position, const int color) const; */
 
     unsigned int n_moves() const;
-    void moves_producing(RXMove* start) const;
+    void moves_producing(RXMove* start, unsigned long long exclude_mask = 0) const;
     
     //    static uint64_t calc_legal(const uint64_t P, const uint64_t O);
     inline unsigned long long get_legal_moves() const;
     static unsigned long long get_legal_moves(const unsigned long long discs_player, const unsigned long long discs_opponent);
     
-    //inline bool is_quiet();
-
     
     bool isValid_square(const unsigned int pos) const;
     
@@ -256,30 +254,66 @@ void generate_flips_##pos(RXMove& move) const \
 //#define    packH1H8(X)      ((((X) & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56)
 
 [[nodiscard]] __attribute__((always_inline))
-static constexpr inline std::uint64_t unpackA2A7(const std::uint64_t x) noexcept {
+static constexpr inline unsigned long long unpackA2A7(const unsigned long long x) noexcept {
     return ((x & 0x7eULL) * 0x0000040810204080ULL) & 0x0001010101010100ULL;
 }
 
 [[nodiscard]] __attribute__((always_inline))
-static constexpr inline std::uint64_t unpackH2H7(const std::uint64_t x) noexcept {
+static constexpr inline unsigned long long unpackH2H7(const unsigned long long x) noexcept {
     return ((x & 0x7eULL) * 0x0002040810204000ULL) & 0x0080808080808000ULL;
 }
 
 [[nodiscard]] __attribute__((always_inline))
-static constexpr inline std::uint64_t packA1A8(const std::uint64_t x) noexcept {
+static constexpr inline unsigned long long packA1A8(const unsigned long long x) noexcept {
     return ((x & 0x0101010101010101ULL) * 0x0102040810204080ULL) >> 56;
  }
 
 [[nodiscard]] __attribute__((always_inline))
-static constexpr inline std::uint64_t packH1H8(const std::uint64_t x) noexcept {
+static constexpr inline unsigned long long packH1H8(const unsigned long long x) noexcept {
     return ((x & 0x8080808080808080ULL) * 0x0002040810204081ULL) >> 56;
  }
 
+__attribute__((always_inline))
+inline RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
+    // On copie les données scalaires d'un bloc (Clang utilisera NEON ici)
+    discs[BLACK] = src.discs[BLACK];
+    discs[WHITE] = src.discs[WHITE];
+    player = src.player;
+    n_empty = src.n_empty;
+    parity = src.parity;
+    n_nodes = src.n_nodes;
 
-inline void RXBitBoard::moves_producing(RXMove* start) const {
+    // Reconstruction de la liste sans branchement
+    RXSquareList* __restrict__ current_dest_base = this->empties_list;
+    RXSquareList* previous = current_dest_base;
+    const RXSquareList* src_curr = src.empties_list->next;
+
+    while(src_curr->position != NOMOVE) {
+        // Accès direct via le mapping de position
+        RXSquareList* empty = position_to_empties[src_curr->position];
+        
+        empty->previous = previous;
+        previous->next = empty;
+        
+        previous = empty; // Optimisation registre
+        src_curr = src_curr->next;
+    }
+
+    // Fermeture de la liste sur la sentinelle [61]
+    RXSquareList* sentinel = &current_dest_base[61];
+    sentinel->previous = previous;
+    previous->next = sentinel;
+    
+    return *this;
+}
+
+
+
+inline void RXBitBoard::moves_producing(RXMove* start, unsigned long long exclude_mask) const {
     RXMove *list = start + 1, *previous = start;
     
     unsigned long long remaining = get_legal_moves(discs[player], discs[player^1]);
+    remaining &= ~exclude_mask;
     
     for(RXSquareList* empties = empties_list->next;
         remaining && empties->position != NOMOVE;
@@ -298,23 +332,6 @@ inline void RXBitBoard::moves_producing(RXMove* start) const {
     previous->next = nullptr;
 }
 
-/*
-inline void RXBitBoard::moves_producing(RXMove* start) const {
-    
-    RXMove *list = start + 1, *previous = start;
-    
-    const unsigned long long legal_movesBB = get_legal_moves(discs[player], discs[player^1]);
-    
-    for(RXSquareList* empties = empties_list->next; empties->position != NOMOVE; empties = empties->next)
-        if(legal_movesBB & 0x1ULL<<empties->position) {
-            ((this)->*(generate_flips[empties->position]))(*list);
-            list->score = 0;
-            previous = previous->next = list++;
-        }
-    
-    previous->next = nullptr;
-}
-*/
 
 __attribute__((always_inline))
 inline void RXBitBoard::do_move(const RXMove& move) {
@@ -404,8 +421,8 @@ __attribute__((always_inline))
 inline unsigned long long RXBitBoard::get_stable_edge(const unsigned long long P, const unsigned long long O) {
     
     // compute the exact stable edges (from precomputed tables)
-    return EDGE_STABILITY[(P & 0xff) * 256 + (O & 0xff)]
-    |  ((uint64_t)EDGE_STABILITY[(P >> 56) * 256 + (O >> 56)]) << 56
+    return EDGE_STABILITY[(P & 0xffULL) * 256 + (O & 0xffULL)]
+    |  (static_cast<unsigned long long>(EDGE_STABILITY[(P >> 56) * 256 + (O >> 56)])) << 56
     |  unpackA2A7(EDGE_STABILITY[packA1A8(P) * 256 + packA1A8(O)])
     |  unpackH2H7(EDGE_STABILITY[packH1H8(P) * 256 + packH1H8(O)]);
     

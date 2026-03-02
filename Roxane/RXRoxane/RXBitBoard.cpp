@@ -510,71 +510,7 @@ void RXBitBoard::reset() {
 
 }
 
-RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
-    // On copie les données scalaires d'un bloc (Clang utilisera NEON ici)
-    discs[BLACK] = src.discs[BLACK];
-    discs[WHITE] = src.discs[WHITE];
-    player = src.player;
-    n_empty = src.n_empty;
-    parity = src.parity;
-    n_nodes = src.n_nodes;
 
-    // Reconstruction de la liste sans branchement
-    RXSquareList* __restrict__ current_dest_base = this->empties_list;
-    RXSquareList* previous = current_dest_base;
-    const RXSquareList* src_curr = src.empties_list->next;
-
-    while(src_curr->position != NOMOVE) {
-        // Accès direct via le mapping de position
-        RXSquareList* empty = position_to_empties[src_curr->position];
-        
-        empty->previous = previous;
-        previous->next = empty;
-        
-        previous = empty; // Optimisation registre
-        src_curr = src_curr->next;
-    }
-
-    // Fermeture de la liste sur la sentinelle [61]
-    RXSquareList* sentinel = &current_dest_base[61];
-    sentinel->previous = previous;
-    previous->next = sentinel;
-    
-    return *this;
-}
-
-/*
-RXBitBoard& RXBitBoard::operator=(const RXBitBoard& src) {
-
-    if(this != &src) {
-    
-        discs[BLACK] = src.discs[BLACK];
-        discs[WHITE] = src.discs[WHITE];
-        
-        player = src.player;
-                
-        n_empty = src.n_empty;
-        parity = src.parity;
-        
-
-        RXSquareList* previous = empties_list;
-        for(RXSquareList* empties = src.empties_list->next; empties->position != NOMOVE; empties = empties->next) {
-            RXSquareList* empty = position_to_empties[empties->position];
-            empty->previous = previous;
-            previous->next = empty;
-            previous = previous->next;
-        }
-        empties_list[61].previous = previous;
-        previous->next = &empties_list[61];
-        
-        
-        n_nodes = src.n_nodes;
-        
-    }
-    
-    return *this;
-}
-*/
 
 RXBitBoard::RXBitBoard(const RXBitBoard& src) {
 	

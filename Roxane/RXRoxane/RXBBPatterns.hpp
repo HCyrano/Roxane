@@ -78,6 +78,24 @@ void update_patterns_WHITE_##pos(RXMove& move) const
 };
 
 __attribute__((always_inline))
+inline RXBBPatterns& RXBBPatterns::operator=(const RXBBPatterns& src) {
+
+    // Optimization: Skip self-assignment check to avoid branch misprediction.
+    // Safe because 'pattern' pointers are stable (allocated at startup,
+    // never reassigned or deleted during search).
+//    if(this != &src) {
+    
+        board = src.board;
+    
+        *pattern = *(src.pattern); //copy
+
+//    }
+    
+    return *this;
+}
+
+
+__attribute__((always_inline))
 inline void RXBBPatterns::do_move(RXMove& move) {
     board.do_move(move);
     move.undo_pattern = pattern;

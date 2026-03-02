@@ -55,7 +55,7 @@ inline int RXBitBoard::get_stability(const unsigned long long discs_player, cons
     stable |= (h & v & d7 & d9 & central_mask);
     
     unsigned long long old_stable = 0;
-    uint64_t stable_h, stable_v, stable_d7, stable_d9;
+    unsigned long long stable_h, stable_v, stable_d7, stable_d9;
     
     while (stable != old_stable) {
         old_stable = stable;

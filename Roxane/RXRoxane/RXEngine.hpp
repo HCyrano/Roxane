@@ -16,8 +16,8 @@
 #include <vector>
 #include <array>
 #include <fstream>
+#include <ostream>
 #include <locale>
-#include <assert.h>
 #include <cstring>
 #include <atomic>
 #include <cmath>
@@ -34,7 +34,6 @@
 
 #include "RXTools.hpp"
 
-#include <ostream>
 
 struct NullBuffer : public std::streambuf {
     int overflow(int c) override { return c; }   // ignore tout

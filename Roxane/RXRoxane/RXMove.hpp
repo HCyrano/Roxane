@@ -82,6 +82,7 @@ class RXMove {
 
 };
 
+__attribute__((always_inline))
 inline void RXMove::sort_bestmove(unsigned int bestmove) {
 
 	RXMove* previous;
@@ -95,6 +96,7 @@ inline void RXMove::sort_bestmove(unsigned int bestmove) {
 }
 
 // from smallest to biggest
+__attribute__((always_inline))
 inline void RXMove::sort_by_score() {
 	RXMove *best, *previousBest, *previous;
 	
@@ -113,6 +115,7 @@ inline void RXMove::sort_by_score() {
 	}		
 }
 
+__attribute__((always_inline))
 inline RXMove* RXMove::pick_next_promising_move() {
     
     RXMove* previous_move = this;
