@@ -131,16 +131,38 @@ inline int RXBBPatterns::get_score() const {
     const short* __restrict const diag6    = tab_eval[3];
     const short* __restrict const diag7    = tab_eval[4];
     const short* __restrict const diag8    = tab_eval[5];
-    const short* __restrict const edge     = tab_eval[6];
-    const short* __restrict const hv3      = tab_eval[7];
-    const short* __restrict const hv4      = tab_eval[8];
-    const short* __restrict const corner   = tab_eval[9];
-    
+    const short* __restrict const edge1    = tab_eval[6];
+    const short* __restrict const edge2    = tab_eval[7];
+    const short* __restrict const edge3    = tab_eval[8];
+    const short* __restrict const hv2      = tab_eval[9];
+    const short* __restrict const hv3      = tab_eval[10];
+    const short* __restrict const hv4      = tab_eval[11];
+    const short* __restrict const corner1  = tab_eval[12];
+    const short* __restrict const corner2  = tab_eval[13];
+    const short* __restrict const corner3  = tab_eval[14];
+    const short* __restrict const corner4  = tab_eval[15];
+
     //mobility
     uint64x2_t mobilities = board.dual_count_legal_moves();
     int mob_player   = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 0)));
     int mob_opponent = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 1)));
     
+    unsigned long long filled  = board.discs[board.player] | board.discs[board.player^1];
+    
+    uint64_t mask0 = filled & 0x8040000000000000ULL;
+    uint64_t mask1 = filled & 0x0102000000000000ULL;
+    uint64_t mask2 = filled & 0x0000000000000201ULL;
+    uint64_t mask3 = filled & 0x0000000000004080ULL;
+
+    const short* table0 = mask0 ? corner1 : corner2;
+    const short* table1 = mask1 ? corner1 : corner2;
+    const short* table2 = mask2 ? corner1 : corner2;
+    const short* table3 = mask3 ? corner1 : corner2;
+
+    const short* table4 = mask0 ? corner3 : corner4;
+    const short* table5 = mask1 ? corner3 : corner4;
+    const short* table6 = mask2 ? corner3 : corner4;
+    const short* table7 = mask3 ? corner3 : corner4;
 
     int eval;
     
@@ -172,34 +194,61 @@ inline int RXBBPatterns::get_score() const {
     eval += diag8[color*p[12]];
     eval += diag8[color*p[13]];
     
-    //edge 8+8
-    eval += edge[color*p[14]];
-    eval += edge[color*p[15]];
-    eval += edge[color*p[16]];
-    eval += edge[color*p[17]];
+    //edge + 2X
+    eval += edge1[color*p[14]];
+    eval += edge1[color*p[15]];
+    eval += edge1[color*p[16]];
+    eval += edge1[color*p[17]];
+
+    //edge 2*(3/2)
+    eval += edge2[color*p[18]];
+    eval += edge2[color*p[19]];
+    eval += edge2[color*p[20]];
+    eval += edge2[color*p[21]];
+
+    //edge 2*5
+    eval += edge3[color*p[22]];
+    eval += edge3[color*p[23]];
+    eval += edge3[color*p[24]];
+    eval += edge3[color*p[25]];
+    eval += edge3[color*p[26]];
+    eval += edge3[color*p[27]];
+    eval += edge3[color*p[28]];
+    eval += edge3[color*p[29]];
     
+    //hv 2
+    eval += hv2[color*p[30]];
+    eval += hv2[color*p[31]];
+    eval += hv2[color*p[32]];
+    eval += hv2[color*p[33]];
+
     //hv 3
-    eval += hv3[color*p[18]];
-    eval += hv3[color*p[19]];
-    eval += hv3[color*p[20]];
-    eval += hv3[color*p[21]];
+    eval += hv3[color*p[34]];
+    eval += hv3[color*p[35]];
+    eval += hv3[color*p[36]];
+    eval += hv3[color*p[37]];
 
     //hv 4
-    eval += hv4[color*p[22]];
-    eval += hv4[color*p[23]];
-    eval += hv4[color*p[24]];
-    eval += hv4[color*p[25]];
+    eval += hv4[color*p[38]];
+    eval += hv4[color*p[39]];
+    eval += hv4[color*p[40]];
+    eval += hv4[color*p[41]];
 
     //corner
-    eval += corner[color*p[26]];
-    eval += corner[color*p[27]];
-    eval += corner[color*p[28]];
-    eval += corner[color*p[29]];
+    eval += table0[color * p[mask0 ? 42 : 46]];
+    eval += table1[color * p[mask1 ? 43 : 47]];
+    eval += table2[color * p[mask2 ? 44 : 48]];
+    eval += table3[color * p[mask3 ? 45 : 49]];
+    
+    eval += table4[color * p[mask0 ? 50 : 54]];
+    eval += table5[color * p[mask1 ? 51 : 55]];
+    eval += table6[color * p[mask2 ? 52 : 56]];
+    eval += table7[color * p[mask3 ? 53 : 57]];
 
-    //tranlation finale :
-    eval += 128 + ((eval >> 31) & -256); // Ajoute 128 ou -128
-    eval >>= 8; // Division par 256
 
+    if(eval>0) eval += 128; else eval -= 128;
+    eval /= 256;
+    
    return eval;
 
 }
@@ -219,19 +268,42 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     const short* __restrict const diag6    = tab_eval[3];
     const short* __restrict const diag7    = tab_eval[4];
     const short* __restrict const diag8    = tab_eval[5];
-    const short* __restrict const edge     = tab_eval[6];
-    const short* __restrict const hv3      = tab_eval[7];
-    const short* __restrict const hv4      = tab_eval[8];
-    const short* __restrict const corner   = tab_eval[9];
+    const short* __restrict const edge1    = tab_eval[6];
+    const short* __restrict const edge2    = tab_eval[7];
+    const short* __restrict const edge3    = tab_eval[8];
+    const short* __restrict const hv2      = tab_eval[9];
+    const short* __restrict const hv3      = tab_eval[10];
+    const short* __restrict const hv4      = tab_eval[11];
+    const short* __restrict const corner1  = tab_eval[12];
+    const short* __restrict const corner2  = tab_eval[13];
+    const short* __restrict const corner3  = tab_eval[14];
+    const short* __restrict const corner4  = tab_eval[15];
 
     //mobility
-    const unsigned long long discs_player   = board.discs[board.player^1] ^ move.flipped;
-    const unsigned long long discs_opponent = (board.discs[board.player] | move.flipped) | move.square;
+    unsigned long long discs_player   = board.discs[board.player^1] ^ move.flipped;
+    unsigned long long discs_opponent = (board.discs[board.player] ^ move.flipped) | move.square;
     
     uint64x2_t mobilities = RXBitBoard::dual_count_legal_moves(discs_player, discs_opponent);
     int mob_player   = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 0)));
     int mob_opponent = std::min(23, static_cast<int>(vgetq_lane_u64(mobilities, 1)));
-        
+    
+    unsigned long long filled  = discs_player | discs_opponent;
+    
+    uint64_t mask0 = filled & 0x8040000000000000ULL;
+    uint64_t mask1 = filled & 0x0102000000000000ULL;
+    uint64_t mask2 = filled & 0x0000000000000201ULL;
+    uint64_t mask3 = filled & 0x0000000000004080ULL;
+
+    const short* table0 = mask0 ? corner1 : corner2;
+    const short* table1 = mask1 ? corner1 : corner2;
+    const short* table2 = mask2 ? corner1 : corner2;
+    const short* table3 = mask3 ? corner1 : corner2;
+
+    const short* table4 = mask0 ? corner3 : corner4;
+    const short* table5 = mask1 ? corner3 : corner4;
+    const short* table6 = mask2 ? corner3 : corner4;
+    const short* table7 = mask3 ? corner3 : corner4;
+
     int eval;
     
     //mobility player
@@ -262,37 +334,61 @@ inline int RXBBPatterns::get_score(RXMove& move) const {
     eval += diag8[color*p[12]];
     eval += diag8[color*p[13]];
     
-    //edge 8+8
-    eval += edge[color*p[14]];
-    eval += edge[color*p[15]];
-    eval += edge[color*p[16]];
-    eval += edge[color*p[17]];
+    //edge + 2X
+    eval += edge1[color*p[14]];
+    eval += edge1[color*p[15]];
+    eval += edge1[color*p[16]];
+    eval += edge1[color*p[17]];
+
+    //edge 2*(3/2)
+    eval += edge2[color*p[18]];
+    eval += edge2[color*p[19]];
+    eval += edge2[color*p[20]];
+    eval += edge2[color*p[21]];
+
+    //edge 2*5
+    eval += edge3[color*p[22]];
+    eval += edge3[color*p[23]];
+    eval += edge3[color*p[24]];
+    eval += edge3[color*p[25]];
+    eval += edge3[color*p[26]];
+    eval += edge3[color*p[27]];
+    eval += edge3[color*p[28]];
+    eval += edge3[color*p[29]];
     
+    //hv 2
+    eval += hv2[color*p[30]];
+    eval += hv2[color*p[31]];
+    eval += hv2[color*p[32]];
+    eval += hv2[color*p[33]];
+
     //hv 3
-    eval += hv3[color*p[18]];
-    eval += hv3[color*p[19]];
-    eval += hv3[color*p[20]];
-    eval += hv3[color*p[21]];
+    eval += hv3[color*p[34]];
+    eval += hv3[color*p[35]];
+    eval += hv3[color*p[36]];
+    eval += hv3[color*p[37]];
 
     //hv 4
-    eval += hv4[color*p[22]];
-    eval += hv4[color*p[23]];
-    eval += hv4[color*p[24]];
-    eval += hv4[color*p[25]];
+    eval += hv4[color*p[38]];
+    eval += hv4[color*p[39]];
+    eval += hv4[color*p[40]];
+    eval += hv4[color*p[41]];
 
     //corner
-    eval += corner[color*p[26]];
-    eval += corner[color*p[27]];
-    eval += corner[color*p[28]];
-    eval += corner[color*p[29]];
+    eval += table0[color * p[mask0 ? 42 : 46]];
+    eval += table1[color * p[mask1 ? 43 : 47]];
+    eval += table2[color * p[mask2 ? 44 : 48]];
+    eval += table3[color * p[mask3 ? 45 : 49]];
     
-    //tranlation finale :
-    eval += 128 + ((eval >> 31) & -256); // Ajoute 128 ou -128
-    eval >>= 8; // Division par 256
+    eval += table4[color * p[mask0 ? 50 : 54]];
+    eval += table5[color * p[mask1 ? 51 : 55]];
+    eval += table6[color * p[mask2 ? 52 : 56]];
+    eval += table7[color * p[mask3 ? 53 : 57]];
 
+    if(eval>0) eval += 128; else eval -= 128;
+    eval /= 256;
+    
    return eval;
 }
-
-
 
 #endif
