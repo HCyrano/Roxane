@@ -57,7 +57,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "-mode ggs -login Harmony -passw concerto"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-h 20 -t 1"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-h 23 -t 4"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -66,7 +74,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 18 -t 1"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-h 20 -t 1"
