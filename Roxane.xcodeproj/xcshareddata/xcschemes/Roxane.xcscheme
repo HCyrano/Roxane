@@ -57,7 +57,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-mode ggs -login Harmony -passw concerto"
+            argument = "-mode ggs -login Rhapsody -passw concerto"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -65,7 +65,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-h 23 -t 4"
+            argument = "-h 24 -t 6"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -89,12 +89,16 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-rmse 10 54"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-1-19.obf"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/fforum-20-39.obf"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/caussebruno/Documents/developpement/Roxane/scripts/endgame_24_26_30.script"

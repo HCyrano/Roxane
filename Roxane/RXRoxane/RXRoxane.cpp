@@ -686,6 +686,78 @@ void RXRoxane::get_move_time_limited(const std::string& position, const int time
 
 }
 
+void RXRoxane::RSME(const int stage) {
+    
+    
+    pthread_mutex_lock(&mutex);
+    
+    //    while(true) {
+    
+    resume_flag.store(false);
+    
+    std::string dir_str = "/Users/caussebruno/Documents/developpement/";
+    
+    std::ostringstream oss;
+    oss << std::setw(2) << std::setfill('0') << stage;
+    
+    
+    std::string file_name = dir_str + "/database/Edax_Egrcd_Roxane/stages/stage_" + oss.str() + ".txt";
+
+    
+    std::ifstream in(file_name.c_str());
+    
+    if(in) {
+        
+        
+        std::string line;
+
+        // Accumulateurs RMSE
+        double sum_sq_err = 0.0;
+        long   n_positions = 0;
+
+        while(!resume_flag.load() && std::getline(in, line)) {
+            
+            std::stringstream ss;
+            int score;
+            ss << line.substr(line.find(" ")+1);
+            ss >> score;
+            
+            std::string othellier = line.substr(0, 65) + 'X';
+            
+            RXBBPatterns sBoard;
+            sBoard.build(othellier);
+            
+            int eval = sBoard.get_score();
+
+            // Calcul du RMSE
+            double err = static_cast<double>(eval - score);
+            sum_sq_err += err * err;
+
+            ++n_positions;
+
+            
+        }
+
+        // Affichage RMSE du stage
+        if(n_positions > 0) {
+            double rmse = std::sqrt(sum_sq_err / static_cast<double>(n_positions));
+
+            std::cout << "stage " << oss.str()
+            << "  RMSE= " << std::fixed << std::setprecision(4) << rmse
+            << std::endl;
+        } else {
+            std::cout << "  aucune position " << std::endl;
+        }
+        
+        in.close();
+
+        
+    }
+    
+    pthread_mutex_unlock(&mutex);
+    
+}
+
 #ifdef GENERATE_RAWDATA
 
 void RXRoxane::rawdata(const std::string& dir_name, const int offset_start, const int n_games) {

@@ -39,35 +39,47 @@ int main (int argc, char * const argv[]) {
 
     unsigned int offset_start = 0;
     unsigned int n_games = 1000;
+    
+    bool rmse_flag = false;
+    int stage_start = 0;
+    int stage_end = 59;
 
 	for(int i = 1; i<argc; i++) {
 		
-		std::string arg(argv[i]);
-		if(arg == "-login" && i+1<argc) {
-			login = argv[++i];
-		} else if(arg == "-passw" && i+1<argc) {
-			password =  argv[++i];
-		} else if(arg == "-fixeline" && i+1<argc) {
-			imposed_opening = argv[++i];
-		}  else if(arg == "-h" && i+1<argc) {
-			std::istringstream iss(argv[++i]);
-			iss >> nBitsTable;
-		} else if(arg == "-t" && i+1<argc) {
-			std::istringstream iss(argv[++i]);
-			iss >> nThreads;
+        std::string arg(argv[i]);
+        if(arg == "-login" && i+1<argc) {
+            login = argv[++i];
+        } else if(arg == "-passw" && i+1<argc) {
+            password =  argv[++i];
+        } else if(arg == "-fixeline" && i+1<argc) {
+            imposed_opening = argv[++i];
+        }  else if(arg == "-h" && i+1<argc) {
+            std::istringstream iss(argv[++i]);
+            iss >> nBitsTable;
+        } else if(arg == "-t" && i+1<argc) {
+            std::istringstream iss(argv[++i]);
+            iss >> nThreads;
         } else if(arg == "-rawdata" && i+2<argc) {
             std::istringstream iss_offset(argv[++i]);
             iss_offset >> offset_start;
             std::istringstream iss_game(argv[++i]);
             iss_game >> n_games;
-        } else if(arg == "-mode" && i+1<argc) {
-			mode =  argv[++i];
-		} else if(file_name.empty()) {
-			file_name = argv[i];
-		}
-	}
+        } else if(arg == "-rmse" && i+2<argc) {
+            
+            rmse_flag = true;
+            std::istringstream iss_start(argv[++i]);
+            iss_start >> stage_start;
+            std::istringstream iss_end(argv[++i]);
+            iss_end >> stage_end;
 
-    std::string version = "build-2026-03-04 17h25";
+        } else if(arg == "-mode" && i+1<argc) {
+            mode =  argv[++i];
+        } else if(file_name.empty()) {
+            file_name = argv[i];
+        }
+    }
+
+    std::string version = "build-2026-03-16 11h30";
     std::string vers_eval = RXEvaluation::get_version();
 
 	std::cout << "Version Roxane " << version << std::endl;
@@ -114,6 +126,18 @@ int main (int argc, char * const argv[]) {
     if(!file_name.empty())
         roxane.get_move(file_name);
 #endif
+    
+    if(rmse_flag) {
+         stage_start= std::max(0, stage_start);
+         stage_end = std::min(59, std::max(stage_start, stage_end));
+         
+         std::cout << stage_start << "-" << stage_end << std::endl;
+
+         
+         for(int stage = stage_start; stage<= stage_end; ++stage)
+             roxane.RSME(stage);
+     }
+
      
     
     if(imposed_opening != "")
